@@ -1,0 +1,58 @@
+{% extends 'sign_up_base.html' %}
+
+{% block body %}
+    {% include 'doubleclick_iframe.html' %}
+    {{ super() }}
+{% endblock body %}
+
+{% block sidebar %}
+    {% call sidebar_help(hidden=False) %}
+        <h3>Billing</h3>
+        <p>Your account is not billed until the end of each 30-day service period, starting from the day you sign up.
+            You can cancel at any time by emailing <a href="mailto:support@objectrocket.com">Support</a>. For more
+            information see our <a href="http://www.objectrocket.com/pricing#billing" target="1">Billing</a>
+            information.
+        </p>
+    {% endcall %}
+{% endblock sidebar %}
+
+{% block content_area_body %}
+    <p><strong>Step 3</strong> of 3: Enter Billing Information</p>
+    <form id="enter_cc_form" name="add_cc_form" method="POST" action="{{ url_for('sign_up.sign_up_finish') }}"
+          windowTitle="Add Credit Card" windowLabel="Add Card">
+
+        <div class="rs-control-group">
+            <div class="rs-controls">
+                <span class="rs-help-block">
+                  <p class="muted">We accept Visa, MasterCard, American Express, Diners Club, and JCB via Stripe</p>
+                 </span>
+            </div>
+        </div>
+
+        <div class="rs-control-group">
+            <div class="rs-controls">
+                <a href="{{ url_for('sign_up.sign_up2') }}" class="rs-btn">Previous</a>
+                <button type="button" id="add_cc_button"
+                        class="rs-btn rs-btn-primary cc_button">Add Credit Card
+                </button>
+            </div>
+        </div>
+
+        <input type=hidden name="plan" value="{{ plan }}">
+        <input type=hidden name="name" value="{{ name }}">
+        <input type=hidden name="zone" value="{{ zone }}">
+        <input type="hidden" name="stripe_token" id="stripe_token" returntarget="/billing">
+        <input type="hidden" id="service_type" name="service_type" value="{{ service_type }}"/>
+        <input type="hidden" id="version" name="version" value="{{ version }}"/>
+
+    </form>
+
+{% endblock content_area_body %}
+
+{% block script %}
+    {{ super() }}
+    {{ coremetrics_conversion("Signup3") }}
+    {% include 'stripe_js.html' %}
+{% endblock script %}
+
+

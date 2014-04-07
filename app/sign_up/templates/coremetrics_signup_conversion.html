@@ -1,0 +1,14 @@
+{% macro coremetrics_conversion(page_name) %}
+    <!-- coremetrics js -->
+    <script src="//libs.coremetrics.com/eluminate.js"></script>
+    <script>
+        $(document).ready(function () {
+            if (typeof cmSetClientID == 'function') {
+                cmSetClientID("90378805;90378974", true, "data.coremetrics.com", "app.objectrocket.com");
+                cmCreateConversionEventTag("{{ page_name }}", "1", "US:OR:Signup");
+                cmCreatePageviewTag(document.title, null, null, null);
+            }
+        });
+    </script>
+    <!-- end coremetrics js -->
+{% endmacro %}

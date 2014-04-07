@@ -1,0 +1,7 @@
+{% extends 'canon/canon_layout.html' %}
+{%- from 'canon/canon_sidebar.html' import sidebar_help, sidebar_filtering with context %}
+
+{% block script %}
+    {{ super() }}
+    {% include 'jquery_validate_js.html' %}
+{% endblock script %}

@@ -1,0 +1,26 @@
+{% macro xg4ken_conversion(type, val) %}
+    <!-- xg4ken js -->
+    <script type=text/javascript>
+        var hostProtocol = (("https:" == document.location.protocol) ? "https" : "http");
+        document.write('<scr' + 'ipt src="', hostProtocol +
+                '://148.xg4ken.com/media/getpx.php?cid=3cda9f22-a5e4-4c5c-a526-2479a9748aba', '" type="text/JavaScript"><\/scr' + 'ipt>');
+    </script>
+    <script type=text/javascript>
+        var params = new Array();
+        params[0] = 'id=3cda9f22-a5e4-4c5c-a526-2479a9748aba';
+        params[1] = 'type={{ type }}';
+        params[2] = 'val={{ val }}';
+        params[3] = 'orderId=';
+        params[4] = 'promoCode=';
+        params[5] = 'valueCurrency=USD';
+        params[6] = 'GCID='; //For Live Tracking only
+        params[7] = 'kw='; //For Live Tracking only
+        params[8] = 'product='; //For Live Tracking only
+        k_trackevent(params, '148');
+    </script>
+    <noscript>
+        <img src="https://148.xg4ken.com/media/redir.php?track=1&amp;token=3cda9f22-a5e4-4c5c-a526-2479a9748aba&amp;type={{ type }}&amp;val={{ val }}&amp;orderId=&amp;promoCode=&amp;valueCurrency=USD&amp;GCID=&amp;kw=&amp;product="
+             width="1" height="1">
+    </noscript>
+    <!-- end xg4ken js -->
+{% endmacro %}

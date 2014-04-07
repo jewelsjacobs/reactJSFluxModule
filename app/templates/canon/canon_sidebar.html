@@ -1,0 +1,19 @@
+{% macro sidebar_help(hidden=True) %}
+    <div class="rs-sidebar rs-pull-right" {% if hidden %}style="display: none"{% endif %}>
+        <div class="rs-inner">
+            <!-- sidebar_help content -->
+            {{ caller() }}
+            <!-- end sidebar_help content -->
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro sidebar_filtering(hidden=False) %}
+    <div class="rs-sidebar" {% if hidden %}style="display: none"{% endif %}>
+        <div class="rs-inner">
+            <!-- sidebar_filtering content-->
+                {{ caller() }}
+            <!-- end sidebar_filtering content-->
+        </div>
+    </div>
+{% endmacro %}

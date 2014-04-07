@@ -1,0 +1,159 @@
+{%- from 'canon/canon_component_macros.html' import status_indicator with context %}
+{%- from 'canon/canon_flash_messages.html' import flash_messages with context %}
+{%- from 'canon/canon_footer.html' import footer_content with context %}
+{%- from 'canon/canon_meta.html' import meta_content with context %}
+{%- from 'canon/canon_script.html' import script_content with context %}
+{%- from 'canon/canon_style.html' import style_content with context %}
+
+<!DOCTYPE html>
+<html {% block html_attribs %}{% endblock html_attribs %}>
+{% block html %}
+    <!-- head -->
+    <head>
+        {% block head %}
+
+            <!-- title -->
+            <title>
+                {% block title %}{% endblock title %}
+            </title>
+            <!-- end title -->
+
+            <!-- meta -->
+            {% block meta %}
+                {{ meta_content() }}
+            {% endblock meta %}
+            <!-- end meta -->
+
+            <!-- style -->
+            {% block style %}
+                {{ style_content() }}
+            {% endblock style %}
+            <!-- end style -->
+
+        {% endblock head %}
+    </head>
+    <!-- end head -->
+
+    <body {% block body_attribs %}class="rs-responsive"{% endblock body_attribs %}>
+    {% block body %}
+
+        <div class="rs-wrapper">
+            <!-- nav_utility -->
+            {% block nav_utility %}
+                <div class="rs-nav-utility">
+                    <div class="rs-container">
+
+                        <!-- nav_utility content -->
+                        {% block nav_utility_content %}{% endblock nav_utility_content %}
+                        <!-- end nav_utility content -->
+
+                    </div>
+                </div>
+            {% endblock nav_utility %}
+            <!-- end nav_utility -->
+
+            <!-- nav_primary -->
+            {% block nav_primary %}
+                <div class="rs-nav-primary">
+                    <div class="rs-container">
+
+                        <!-- brand -->
+                        {% block brand %}
+                            <div class="rs-nav-brand">
+                                <!-- brand content -->
+                                {% block brand_content %}{% endblock brand_content %}
+                                <!-- end brand content -->
+
+                            </div>
+                        {% endblock brand %}
+                        <!-- end brand -->
+
+                        <ul class="rs-nav">
+                            <!-- nav_primary content -->
+                            {% block nav_primary_content %}{% endblock nav_primary_content %}
+                            <!-- end nav_primary content -->
+                        </ul>
+
+                    </div>
+                </div>
+            {% endblock nav_primary %}
+            <!-- end nav_primary -->
+
+            <!-- nav_secondary -->
+            {% block nav_secondary %}
+                <div class="rs-nav-secondary">
+                    <div class="rs-container">
+                        <ul class="rs-nav">
+
+                            <!-- nav_secondary content -->
+                            {% block nav_secondary_content %}{% endblock nav_secondary_content %}
+                            <!-- end nav_secondary content -->
+
+                        </ul>
+                    </div>
+                </div>
+            {% endblock nav_secondary %}
+            <!-- end nav_secondary -->
+
+            <div class="rs-body">
+                <div class="rs-container">
+
+                    <!-- content_area -->
+                    {% block content_area %}
+                        <div class="rs-main">
+
+                            {% block sidebar %}{% endblock %}
+
+                            <div class="rs-content rs-panel">
+                                <div class="rs-inner">
+                                    <h2 class="rs-page-title">
+                                        <!-- content_area title -->
+                                        {% block content_area_title %}{% endblock %}
+                                        <!-- end content_area title -->
+                                    </h2>
+
+                                    {% block flash_messages %}
+                                        {{ flash_messages() }}
+                                    {% endblock %}
+
+                                    <!-- content_area content -->
+                                    {% block content_area_body %}{% endblock %}
+                                    <!-- end content_area content -->
+
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                    <!-- end content_area -->
+
+                </div>
+            </div>
+        </div>
+        <div class="rs-push"></div>
+
+        <!-- footer -->
+        {% block footer %}
+            <div class="rs-nav-footer">
+                <div class="rs-container">
+
+                    <!-- footer content -->
+                    {% block footer_content %}
+                        {{ footer_content() }}
+                    {% endblock %}
+                    <!-- end footer content -->
+
+                </div>
+            </div>
+        {% endblock footer %}
+        <!-- end footer -->
+
+        <!-- script -->
+        {% block script %}
+            {{ script_content() }}
+        {% endblock script %}
+        <!-- end script -->
+
+    {% endblock body %}
+    </body>
+{% endblock html %}
+</html>

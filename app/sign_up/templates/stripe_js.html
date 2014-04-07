@@ -1,0 +1,40 @@
+{#
+ Provides generic credit card management functionality for use across the site. To trigger, create a form
+ in your page with a button like so:
+
+    <form id="myform"
+            name="myform"
+            method="POST"
+            action="{{ url_for('where_to_send_the_cc_token') }}"
+            windowTitle="TItle bar of the credit card entry modal window."
+            windowLabel="Button text of the credit card entry modal window.">
+          <button type="button"
+                  id="mybutton"
+                  class="btn btn-success cc_button">Add Credit Card</button>
+          <input type="hidden" name="stripe_token" id="stripe_token" returntarget="/where_to_return">
+      </form>
+#}
+
+<!-- stripe js -->
+<script src="https://checkout.stripe.com/v2/checkout.js"></script>
+<script>
+    $('.cc_button').click(function () {
+        var cc_form = $(this).closest('form');
+
+        var on_card_submitted = function (result) {
+            $("#stripe_token").val(result.id);
+            cc_form.submit();
+        };
+
+        StripeCheckout.open({
+            key: '{{ stripe_pub_key }}',
+            address: false,
+            name: cc_form.attr('windowTitle'),
+            panelLabel: cc_form.attr('windowLabel'),
+            token: on_card_submitted
+        });
+
+        return false;
+    });
+</script>
+<!-- end stripe js -->

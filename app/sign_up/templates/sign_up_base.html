@@ -1,0 +1,22 @@
+{%- from 'coremetrics_signup_conversion.html' import coremetrics_conversion with context %}
+{%- from 'xg4ken_signup_conversion.html' import xg4ken_conversion with context %}
+
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    Sign Up
+{% endblock title %}
+
+{% block style %}
+    {{ super() }}
+    {% include 'stripe_css.html' %}
+{% endblock style %}
+
+{% block content_area_title %}
+    Sign Up
+{% endblock content_area_title %}
+
+{% block script %}
+    {% include 'google_analytics_js.html' %}
+    {{ super() }}
+{% endblock script %}
