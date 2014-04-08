@@ -11,13 +11,13 @@ app.register_blueprint(sign_up_blueprint)
 
 
 if config.VIPER_IN_DEV:
-    app.debug = True  # disabled in PRODUCTION, and forces logging to syslog
+    app.debug = True
 else:
     app.debug = False
 
-if not app.debug:
     import logging
     from logging.handlers import SysLogHandler
+
     viper_syslog = SysLogHandler(address = '/dev/log', facility = SysLogHandler.LOG_LOCAL6)
     viper_syslog.setLevel(logging.DEBUG)
 
