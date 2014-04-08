@@ -18,7 +18,7 @@
 
 {% block content_area_body %}
     <p><strong>Step 3</strong> of 3: Enter Billing Information</p>
-    <form id="enter_cc_form" name="add_cc_form" method="POST" action="{{ url_for('sign_up.sign_up_finish') }}"
+    <form id="enter_cc_form" name="add_cc_form" method="POST" action="{{ url_for('sign_up_finish') }}"
           windowTitle="Add Credit Card" windowLabel="Add Card">
 
         <div class="rs-control-group">
@@ -31,7 +31,7 @@
 
         <div class="rs-control-group">
             <div class="rs-controls">
-                <a href="{{ url_for('sign_up.sign_up2') }}" class="rs-btn">Previous</a>
+                <a href="{{ url_for('sign_up2') }}" class="rs-btn">Previous</a>
                 <button type="button" id="add_cc_button"
                         class="rs-btn rs-btn-primary cc_button">Add Credit Card
                 </button>

@@ -1,15 +1,13 @@
+"""App initialization."""
 from flask import Flask
 
 from viper import config
 
-from sign_up.views import sign_up_blueprint
-
-
+# Initialize the app.
 app = Flask(__name__)
 app.config.from_object(config)
-app.register_blueprint(sign_up_blueprint)
 
-
+# Check configuration.
 if config.VIPER_IN_DEV:
     app.debug = True
 else:
@@ -29,3 +27,6 @@ else:
     app.logger.addHandler(viper_syslog)
 
     app.logger.debug("Starting Viper")
+
+# Load views.
+from gui import views  # noqa

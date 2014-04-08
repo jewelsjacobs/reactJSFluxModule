@@ -21,7 +21,7 @@
 
 {% block content_area_body %}
     <p><strong>Step 2</strong> of 3: Instance Information</p>
-    <form class="rs-form-horizontal" action="{{ url_for('sign_up.sign_up3') }}" method="POST" id="sign_up-form">
+    <form class="rs-form-horizontal" action="{{ url_for('sign_up3') }}" method="POST" id="sign_up-form">
 
         <div class="rs-control-group">
             <label class="rs-control-label" for="name">Instance Name</label>
@@ -70,7 +70,7 @@
 
         <div class="rs-control-group">
             <div class="rs-controls">
-                <a href="{{ url_for('sign_up.sign_up1') }}" class="rs-btn">Previous</a>
+                <a href="{{ url_for('sign_up1') }}" class="rs-btn">Previous</a>
                 <button id="next" type="submit" class="rs-btn rs-btn-primary">Next</button>
             </div>
         </div>

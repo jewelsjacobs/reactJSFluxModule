@@ -1,7 +1,6 @@
+"""GUI application views."""
+from flask import flash, g, redirect, render_template, request, session, url_for
 from functools import wraps
-
-from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
-
 from viper import config
 from viper.account import AccountManager
 from viper.annunciator import Alarm, Annunciator
@@ -9,11 +8,10 @@ from viper.billing import BillingManager, BillingException
 from viper.constants import Constants
 from viper.instance import InstanceManager
 
+from gui import app
 
-sign_up_blueprint = Blueprint('sign_up', __name__, template_folder='templates', url_prefix='/new_sign_up')
 
-
-@sign_up_blueprint.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def canon_test():
     return render_template('test.html')
 
@@ -36,7 +34,7 @@ def viper_auth(func):
 
 
 # TODO: Refactor: This route effectively does nothing with GET. Remove GET from methods, remove request.method check and final else.
-@sign_up_blueprint.route('/sign_up1', methods=['GET', 'POST'])
+@app.route('/sign_up1', methods=['GET', 'POST'])
 def sign_up1():
     """Sign up user; create account."""
 
@@ -71,7 +69,7 @@ def sign_up1():
                     if 'requested_plan' in request.form:
                         session['requested_plan'] = request.form['requested_plan']
 
-                return redirect(url_for('sign_up.sign_up2'))
+                return redirect(url_for('sign_up2'))
 
             else:
                 ## user already exists
@@ -80,13 +78,14 @@ def sign_up1():
     else:
         return render_template('sign_up1.html')
 
+
 # TODO: Refactor: Should use viper_auth.
-@sign_up_blueprint.route('/sign_up2', methods=['GET', 'POST'])
+@app.route('/sign_up2', methods=['GET', 'POST'])
 def sign_up2():
     if 'login' in session:
         login = session['login']
     else:
-        return redirect(url_for('sign_up.sign_up1'))
+        return redirect(url_for('sign_up1'))
 
     account_manager = AccountManager(config)
     account_id = account_manager.get_account(login).id
@@ -96,12 +95,12 @@ def sign_up2():
                            account_id=account_id)
 
 
-@sign_up_blueprint.route('/sign_up3', methods=['GET', 'POST'])
+@app.route('/sign_up3', methods=['GET', 'POST'])
 def sign_up3():
     if 'login' in session:
         login = session['login']
     else:
-        return redirect(url_for('sign_up.sign_up1'))
+        return redirect(url_for('sign_up1'))
 
     if 'plan' in request.form and 'name' in request.form and 'zone' in request.form:
         return render_template('/sign_up3.html',
@@ -112,10 +111,10 @@ def sign_up3():
                                service_type=request.form['service_type'],
                                version=request.form['version'])
     else:
-        return redirect(url_for('sign_up.sign_up2'))
+        return redirect(url_for('sign_up2'))
 
 
-@sign_up_blueprint.route('/sign_up_finish', methods=['POST'])
+@app.route('/sign_up_finish', methods=['POST'])
 @viper_auth
 def sign_up_finish():
     """Final stage of signup process."""
@@ -151,7 +150,7 @@ def sign_up_finish():
     try:
         billing_manager.set_credit_card(g.login, request.form['stripe_token'])
     except BillingException:
-        sign_up_blueprint.app.logger.info("Credit card declined during signup for user {}".format(g.login))
+        app.logger.info("Credit card declined during signup for user {}".format(g.login))
         flash('There was a problem adding your credit card. Please try again.', Constants.FLASH_ERROR)
         return render_template('/sign_up3.html',
                                name=name,
@@ -161,9 +160,9 @@ def sign_up_finish():
                                service_type=service_type)
 
     return render_template('/sign_up_finish.html',
-                        name=name,
-                        plan=plan,
-                        zone=zone,
-                        service_type=service_type,
-                        version=version,
-                        free_instance_count=free_instance_count)
+                           name=name,
+                           plan=plan,
+                           zone=zone,
+                           service_type=service_type,
+                           version=version,
+                           free_instance_count=free_instance_count)

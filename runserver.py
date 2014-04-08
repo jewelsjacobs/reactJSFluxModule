@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 from viper import config
-from app import app
+from gui import app
 
 app.config['API_SERVER'] = config.API_SERVER
 
