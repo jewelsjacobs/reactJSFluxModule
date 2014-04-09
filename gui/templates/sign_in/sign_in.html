@@ -1,0 +1,42 @@
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    Sign In
+{% endblock title %}
+
+{% block content_area_title %}
+    Sign In
+{% endblock content_area_title %}
+
+{% block content_area_body %}
+
+    <!--
+        When PR github.com/rackerlabs/canon/pull/50/ is merged, use its code for
+        login focus page.
+    -->
+    <div id="sign-in-form-block">
+        <form id="sign-in-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_in') }}" method="POST">
+
+            <div class="rs-control-group success">
+                <label class="rs-control-label">Login</label>
+                <div class="rs-controls">
+                    <input name="login-input" type="text" class="rs-input-medium" placeholder="Login">
+                </div>
+            </div>
+
+            <div class="rs-control-group success">
+                <label class="rs-control-label">Password</label>
+                <div class="rs-controls">
+                    <input name="password-input" type="text" class="rs-input-medium" placeholder="Password">
+                </div>
+            </div>
+
+            <button class="rs-btn rs-btn-login" type="submit">Sign In</button>
+        </form>
+    </div>
+
+{% endblock content_area_body %}
+
+{% block script %}
+    {{ super() }}
+{% endblock script %}
