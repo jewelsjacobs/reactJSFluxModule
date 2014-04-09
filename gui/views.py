@@ -16,6 +16,12 @@ def canon_test():
     return render_template('test.html')
 
 
+@app.context_processor
+def inject_constants():
+    """Inject Constants into our templates."""
+    return {'Constants': Constants}
+
+
 # TODO: Refactor: Should move to a Utility lib
 def viper_auth(func):
     """Decorator to test for auth.
@@ -31,6 +37,34 @@ def viper_auth(func):
         else:
             return render_template('sign_in.html')
     return internal
+
+
+@app.route('/sign_in', methods=['GET', 'POST'])
+def sign_in():
+    """User sign in."""
+    session.pop('login', None)
+    if request.method == 'GET':
+        return render_template('sign_in/sign_in.html')
+
+    login = request.form['login-input']
+    password = request.form['password-input']
+
+    account_manager = AccountManager(config)
+    if not account_manager.authenticated(login, password):
+        flash('Sign in failed.')
+        return render_template('sign_in.html')
+
+    account = account_manager.get_account(login)
+    session['login'] = login
+
+    flash('Sign in successful.')
+    return render_template('sign_in/sign_in.html')
+
+    # TODO(Anthony): Use these lines when ready.
+    # if not account.accepted_msa:
+    #     return redirect(url_for('msa'))
+
+    # return redirect(url_for('default'))
 
 
 # TODO: Refactor: This route effectively does nothing with GET. Remove GET from methods, remove request.method check and final else.
