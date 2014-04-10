@@ -98,28 +98,26 @@
             <div class="rs-body">
                 <div class="rs-container">
 
+                    {% block flash_messages %}
+                        {{ flash_messages() }}
+                    {% endblock %}
+
+                    <!-- back_link_area -->
+                    <div class="rs-back-link">{% block back_link_area %}{% endblock %}</div>
+                    <!-- end back_link_area -->
+
                     <!-- content_area -->
                     {% block content_area %}
-                        <div class="rs-main">
+                        <div class="rs-main rs-panel">
 
                             {% block sidebar %}{% endblock %}
 
                             <div class="rs-content rs-panel">
                                 <div class="rs-inner">
-                                    <h2 class="rs-page-title">
-                                        <!-- content_area title -->
-                                        {% block content_area_title %}{% endblock %}
-                                        <!-- end content_area title -->
-                                    </h2>
-
-                                    {% block flash_messages %}
-                                        {{ flash_messages() }}
-                                    {% endblock %}
 
                                     <!-- content_area content -->
                                     {% block content_area_body %}{% endblock %}
                                     <!-- end content_area content -->
-
                                 </div>
                             </div>
                         </div>

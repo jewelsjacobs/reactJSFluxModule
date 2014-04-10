@@ -1,7 +1,11 @@
 """GUI application views."""
-from flask import flash, g, redirect, render_template, request, session, url_for
+import requests
+
+from flask import abort, flash, g, redirect, render_template, request, session, url_for
 from functools import wraps
+from pymongo.errors import AutoReconnect
 from viper import config
+from viper import monitor
 from viper.account import AccountManager
 from viper.annunciator import Alarm, Annunciator
 from viper.billing import BillingManager, BillingException
@@ -23,6 +27,17 @@ def inject_constants():
     return {'Constants': Constants}
 
 
+# TODO: Refactor: Needs refactor / error checking. Should be moved elsewhere if we actually need it.
+def send_email(recipient, subject, body):
+    return requests.post(
+        "https://api.mailgun.net/v2/objectrocket.mailgun.org/messages",
+        auth=("api", "key-9i3dch4p928wedoaj4atoqxoyxb-hy29"),
+        data={"from": "ObjectRocket <support@objectrocket.com>",
+              "to": recipient,
+              "subject": subject,
+              "text": body})
+
+
 # TODO: Refactor: Should move to a Utility lib
 def viper_auth(func):
     """Decorator to test for auth.
@@ -38,6 +53,65 @@ def viper_auth(func):
         else:
             return render_template('sign_in/sign_in.html')
     return internal
+
+
+@app.route('/create_instance', methods=['POST'])
+@viper_auth
+def create_instance():
+    name = request.form['name']
+    plan_size_in_gb = int(request.form['plan'])
+    service_type = request.form['service_type']
+    version = request.form['version']
+    zone = request.form['zone']
+
+    # HACK ALERT HACK ALERT HACK ALERT HACK ALERT
+    if service_type == Constants.MONGODB_SERVICE:
+        if int(plan_size_in_gb) == 1:
+            instance_type = Constants.MONGODB_REPLICA_SET_INSTANCE
+        else:
+            instance_type = Constants.MONGODB_SHARDED_INSTANCE
+
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+
+    instance_manager = InstanceManager(config)
+
+    if instance_manager.instance_exists(g.login, name):
+        flash_message = "Cannot create instance '%s': an instance with this name already exists." % name
+        flash(flash_message, Constants.FLASH_ERROR)
+        return redirect(url_for('instances'))
+
+    if not instance_manager.free_instance_count(plan_size_in_gb, zone, version, service_type, instance_type):
+        flash_message = ("Cannot create instance '%s': no instances are available for plan %s, zone %s, version %s."
+                         % (name, plan_size_in_gb, zone, version))
+        flash(flash_message, Constants.FLASH_ERROR)
+
+        subject = "Instance not available in UI."
+        body = "Login %s attempted to add %s instance type %s with plan: %s zone: %s name: %s, version: %s" % (
+            g.login, service_type, instance_type, plan_size_in_gb, zone, name, version)
+        send_email(config.SUPPORT_EMAIL, subject, body)
+        return redirect(url_for('instances'))
+
+    if len(account.instances) < config.MAX_INSTANCES_PER_USER:
+        try:
+            Utility.log_to_db(config, "Created instance.",
+                              {'login': g.login, 'area': 'gui', 'instance_name': name})
+            account.add_instance(name, zone, plan_size_in_gb, version, service_type, instance_type)
+        except Exception as ex:
+            exception_uuid = Utility.obfuscate_exception_message(ex.message)
+            flash_message = ("There was a problem creating an instance. If this problem persists, contact <a mailto:%s>%s</a> "
+                             "and provide Error ID %s." % (config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid))
+            flash(flash_message, Constants.FLASH_ERROR)
+
+            log_message = "Failed to create instance for login %s, plan %s, zone %s, name %s: %s" % (g.login, plan_size_in_gb, zone, name, ex)
+            app.logger.error(log_message)
+            return redirect(url_for('instances'))
+    else:
+        flash_message = "Please contact support if you need more than %d instances"
+        flash(flash_message % config.MAX_INSTANCES_PER_USER, Constants.FLASH_WARN)
+
+    # return redirect(url_for('instance_details', selected_instance=name))
+    return redirect(url_for('instances'))
 
 
 @app.route('/instances', methods=['GET'])
@@ -56,6 +130,161 @@ def instances():
                            Utility=Utility,
                            default_mongo_version=config.DEFAULT_MONGO_VERSION,
                            stripe_pub_key=config.STRIPE_PUB_KEY)
+
+
+@app.route('/instances/create', methods=['GET'])
+@viper_auth
+def instances_create():
+    """"Create user instances."""
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+    instances = account.instances
+
+    return render_template('instances/instances_create.html',
+                           account=account,
+                           api_keys=account.instance_api_keys,
+                           instances=instances,
+                           login=g.login,
+                           Utility=Utility,
+                           default_mongo_version=config.DEFAULT_MONGO_VERSION,
+                           stripe_pub_key=config.STRIPE_PUB_KEY)
+
+
+# @app.route('/instances/<selected_instance>', methods=['GET', 'POST'])
+# @viper_auth
+# def instance_details(selected_instance):
+#     """Instance details page."""
+#     login = g.login
+
+#     if 'selected_tab' in request.args:
+#         selected_tab = request.args['selected_tab']
+#     else:
+#         selected_tab = 'databases'
+
+#     account_monitor = monitor.AccountMonitor(config)
+#     account_monitoring_checks = account_monitor.get_enabled_checks(asset_type=monitor.INSTANCE_ASSET_TYPE,
+#                                                                    user_controllable_only=True)
+#     instance_manager = InstanceManager(config)
+#     user_instance = instance_manager.get_instance_by_name(login, selected_instance)
+
+#     if user_instance is None:
+#         abort(404)
+
+#     balancer = None
+#     shard_logs = None
+#     stepdown_window = user_instance.stepdown_window
+
+#     for key in ['start', 'end']:
+#         if key in stepdown_window:
+#             try:
+#                 stepdown_window[key] = stepdown_window[key].strftime('%m/%d/%Y %H:%M')
+#             except AttributeError:
+#                 stepdown_window[key] = ''
+
+#     stepdown_window.pop('election_started', None)
+
+#     try:
+#         databases = user_instance.databases
+#     except AutoReconnect:
+#         databases = None
+
+#     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
+#         shard_logs = user_instance.shard_logs
+#         balancer = user_instance.balancer
+
+#     try:
+#         enable_copy_database = user_instance.instance_connection.server_info()['versionArray'] >= [2, 4, 0, 0]
+#     except Exception:
+#         enable_copy_database = False
+
+#     return render_template('databases.html',
+#                            account_monitoring_checks=account_monitoring_checks,
+#                            balancer=balancer,
+#                            databases=databases,
+#                            instance=user_instance,
+#                            is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
+#                            login=login,
+#                            selected_tab=selected_tab,
+#                            shard_logs=shard_logs,
+#                            max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE,
+#                            enable_copy_database=enable_copy_database)
+
+
+@app.route('/instances/<selected_instance>', methods=['GET', 'POST'])
+@viper_auth
+def instance_details(selected_instance):
+    if 'selected_tab' in request.args:
+        selected_tab = request.args['selected_tab']
+    else:
+        selected_tab = 'databases'
+
+    account_monitor = monitor.AccountMonitor(config)
+    account_monitoring_checks = account_monitor.get_enabled_checks(asset_type=monitor.INSTANCE_ASSET_TYPE,
+                                                                   user_controllable_only=True)
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    balancer = None
+    shard_logs = None
+    sorted_shard_keys = None
+    stepdown_window = user_instance.stepdown_window
+
+    for key in ['start', 'end']:
+        if key in stepdown_window:
+            try:
+                stepdown_window[key] = stepdown_window[key].strftime('%m/%d/%Y %H:%M')
+            except AttributeError:
+                stepdown_window[key] = ''
+
+    stepdown_window.pop('election_started', None)
+
+    try:
+        databases = user_instance.databases
+    except AutoReconnect:
+        databases = None
+
+    # TODO: Refactor: Unused reference.
+    all_shard_statistics = {}
+
+    if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
+        shard_logs = user_instance.shard_logs
+        sorted_shard_keys = sorted(shard_logs)
+        balancer = user_instance.balancer
+
+        instance_total_file_size_in_bytes = 0
+
+        for shard in user_instance.shards:
+            shard_statistics = shard.replica_set.primary.aggregate_database_statistics
+            all_shard_statistics[shard.name] = shard_statistics
+            instance_total_file_size_in_bytes += shard_statistics[Constants.FILE_SIZE_IN_BYTES]
+
+        for shard_name in all_shard_statistics:
+            shard_statistics = all_shard_statistics[shard_name]
+            shard_file_size_in_bytes = shard_statistics[Constants.FILE_SIZE_IN_BYTES]
+            shard_statistics[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = shard_file_size_in_bytes / instance_total_file_size_in_bytes * 100
+
+    try:
+        enable_copy_database = user_instance.instance_connection.server_info()['versionArray'] >= [2, 4, 0, 0]
+    except Exception:
+        enable_copy_database = False
+
+    return render_template('instances/instance_details.html',
+                           account_monitoring_checks=account_monitoring_checks,
+                           balancer=balancer,
+                           databases=databases,
+                           # TODO: Refactor: has_whitelist_queries unused in template.
+                           has_whitelist_queries=None,
+                           instance=user_instance,
+                           # TODO: Refactor: login unused in template.
+                           login=g.login,
+                           is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
+                           selected_tab=selected_tab,
+                           shard_logs=shard_logs,
+                           all_shard_statistics=all_shard_statistics,
+                           # TODO: Refactor: sorted_shard_keys unused in template.
+                           sorted_shard_keys=sorted_shard_keys,
+                           max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE,
+                           enable_copy_database=enable_copy_database)
 
 
 @app.route('/sign_in', methods=['GET', 'POST'])

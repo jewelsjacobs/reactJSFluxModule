@@ -2,3 +2,8 @@
   background: transparent url('/static/art/objectrocket.png') no-repeat center center;
   display: block;
 }
+
+body.rs-responsive .rs-container {
+	max-width: 1030px;
+	margin: 0 auto;
+}

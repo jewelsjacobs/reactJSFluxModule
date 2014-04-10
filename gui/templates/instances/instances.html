@@ -4,13 +4,10 @@
     Instances
 {% endblock title %}
 
-{% block content_area_title %}
-    Instances
-{% endblock content_area_title %}
-
 {% block content_area_body %}
+    <h2 class="rs-page-title">Instances</h2>
     <div class="rs-btn-group">
-        <a href="{ url_for('instances_create') }"><button class="rs-btn rs-btn-primary">Add Instance</button></a>
+        <a href="{{ url_for('instances_create') }}"><button class="rs-btn rs-btn-primary">Add Instance</button></a>
     </div>
 
     <table class="rs-list-table">
