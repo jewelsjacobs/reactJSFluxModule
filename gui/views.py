@@ -7,13 +7,14 @@ from viper.annunciator import Alarm, Annunciator
 from viper.billing import BillingManager, BillingException
 from viper.constants import Constants
 from viper.instance import InstanceManager
+from viper.utility import Utility
 
 from gui import app
 
 
 @app.route('/', methods=['GET', 'POST'])
 def canon_test():
-    return render_template('test.html')
+    return redirect(url_for('sign_in'))
 
 
 @app.context_processor
@@ -35,8 +36,26 @@ def viper_auth(func):
             g.login = session['login']
             return func(*args, **kwargs)
         else:
-            return render_template('sign_in.html')
+            return render_template('sign_in/sign_in.html')
     return internal
+
+
+@app.route('/instances', methods=['GET'])
+@viper_auth
+def instances():
+    """"Display account instances."""
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+    instances = account.instances
+
+    return render_template('instances/instances.html',
+                           account=account,
+                           api_keys=account.instance_api_keys,
+                           instances=instances,
+                           login=g.login,
+                           Utility=Utility,
+                           default_mongo_version=config.DEFAULT_MONGO_VERSION,
+                           stripe_pub_key=config.STRIPE_PUB_KEY)
 
 
 @app.route('/sign_in', methods=['GET', 'POST'])
@@ -54,13 +73,13 @@ def sign_in():
         flash('Sign in failed.')
         return render_template('sign_in.html')
 
-    account = account_manager.get_account(login)
     session['login'] = login
 
     flash('Sign in successful.')
-    return render_template('sign_in/sign_in.html')
+    return redirect(url_for('instances'))
 
     # TODO(Anthony): Use these lines when ready.
+    # account = account_manager.get_account(login)
     # if not account.accepted_msa:
     #     return redirect(url_for('msa'))
 

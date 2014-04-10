@@ -4,12 +4,20 @@
 {% block style %}
     {{ super() }}
     <link rel="stylesheet" type="text/css" href="/static/css/objectrocket.css">
+    <link rel="icon" type="image/png" href="/static/art/ObjectRocketFavicon.png">
 {% endblock style %}
 
 
 {% block brand_content %}
     <a href="#"></a>
 {% endblock brand_content %}
+
+{% block nav_primary_content %}
+    <!-- Fix the first and second url - brackets removed until ready -->
+    <li><a href="{ url_for('default') }">Dashboard</a></li>
+    <li><a href="{{ url_for('instances') }}">Instances</a></li>
+    <li><a href="{ url_for('messages') }">Notifications</a></li>
+{% endblock nav_primary_content %}
 
 {% block script %}
     {{ super() }}
