@@ -16,11 +16,6 @@ from viper.utility import Utility
 from gui import app
 
 
-@app.route('/', methods=['GET', 'POST'])
-def canon_test():
-    return redirect(url_for('sign_in'))
-
-
 @app.context_processor
 def inject_constants():
     """Inject Constants into our templates."""
@@ -114,6 +109,43 @@ def create_instance():
     return redirect(url_for('instances'))
 
 
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/<selected_instance>', methods=['GET', 'POST'])
+@viper_auth
+def dashboard(selected_instance=None):
+    # ## ignore requests for favicon.ico to the gui
+    # # TODO: Reconfigure nginx to serve up /favicon.ico
+    # if selected_instance and selected_instance.lower() == "favicon.ico":
+    #     abort(404)
+
+    # message_manager = MessageManager(config)
+    # account_manager = AccountManager(config)
+    # status_manager = StatusManager(config)
+
+    # account = account_manager.get_account(g.login)
+    # instances = account.instances
+    # messages = message_manager.get_messages(g.login, limit=5)
+
+    # if selected_instance is None:
+    #     try:
+    #         instance = instances[0]
+    #     except IndexError:
+    #         instance = None
+    # else:
+    #     instance = account.get_instance_by_name(selected_instance)
+
+    # return render_template('home.html',
+    #                        login=account.login,
+    #                        has_instances=instance is not None,
+    #                        instances=instances,
+    #                        account=account,
+    #                        status=status_manager.get_status(),
+    #                        instance=instance,
+    #                        messages=messages,
+    #                        stripe_pub_key=config.STRIPE_PUB_KEY)
+    return 'BUILDING'
+
+
 @app.route('/instances', methods=['GET'])
 @viper_auth
 def instances():
@@ -150,69 +182,12 @@ def instances_create():
                            stripe_pub_key=config.STRIPE_PUB_KEY)
 
 
-# @app.route('/instances/<selected_instance>', methods=['GET', 'POST'])
-# @viper_auth
-# def instance_details(selected_instance):
-#     """Instance details page."""
-#     login = g.login
-
-#     if 'selected_tab' in request.args:
-#         selected_tab = request.args['selected_tab']
-#     else:
-#         selected_tab = 'databases'
-
-#     account_monitor = monitor.AccountMonitor(config)
-#     account_monitoring_checks = account_monitor.get_enabled_checks(asset_type=monitor.INSTANCE_ASSET_TYPE,
-#                                                                    user_controllable_only=True)
-#     instance_manager = InstanceManager(config)
-#     user_instance = instance_manager.get_instance_by_name(login, selected_instance)
-
-#     if user_instance is None:
-#         abort(404)
-
-#     balancer = None
-#     shard_logs = None
-#     stepdown_window = user_instance.stepdown_window
-
-#     for key in ['start', 'end']:
-#         if key in stepdown_window:
-#             try:
-#                 stepdown_window[key] = stepdown_window[key].strftime('%m/%d/%Y %H:%M')
-#             except AttributeError:
-#                 stepdown_window[key] = ''
-
-#     stepdown_window.pop('election_started', None)
-
-#     try:
-#         databases = user_instance.databases
-#     except AutoReconnect:
-#         databases = None
-
-#     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
-#         shard_logs = user_instance.shard_logs
-#         balancer = user_instance.balancer
-
-#     try:
-#         enable_copy_database = user_instance.instance_connection.server_info()['versionArray'] >= [2, 4, 0, 0]
-#     except Exception:
-#         enable_copy_database = False
-
-#     return render_template('databases.html',
-#                            account_monitoring_checks=account_monitoring_checks,
-#                            balancer=balancer,
-#                            databases=databases,
-#                            instance=user_instance,
-#                            is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
-#                            login=login,
-#                            selected_tab=selected_tab,
-#                            shard_logs=shard_logs,
-#                            max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE,
-#                            enable_copy_database=enable_copy_database)
-
-
 @app.route('/instances/<selected_instance>', methods=['GET', 'POST'])
 @viper_auth
 def instance_details(selected_instance):
+    """Instance details page."""
+    login = g.login
+
     if 'selected_tab' in request.args:
         selected_tab = request.args['selected_tab']
     else:
@@ -222,11 +197,13 @@ def instance_details(selected_instance):
     account_monitoring_checks = account_monitor.get_enabled_checks(asset_type=monitor.INSTANCE_ASSET_TYPE,
                                                                    user_controllable_only=True)
     instance_manager = InstanceManager(config)
-    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    user_instance = instance_manager.get_instance_by_name(login, selected_instance)
+
+    if user_instance is None:
+        abort(404)
 
     balancer = None
     shard_logs = None
-    sorted_shard_keys = None
     stepdown_window = user_instance.stepdown_window
 
     for key in ['start', 'end']:
@@ -243,7 +220,15 @@ def instance_details(selected_instance):
     except AutoReconnect:
         databases = None
 
-    # TODO: Refactor: Unused reference.
+    if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
+        shard_logs = user_instance.shard_logs
+        balancer = user_instance.balancer
+
+    try:
+        enable_copy_database = user_instance.instance_connection.server_info()['versionArray'] >= [2, 4, 0, 0]
+    except Exception:
+        enable_copy_database = False
+
     all_shard_statistics = {}
 
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
@@ -263,28 +248,31 @@ def instance_details(selected_instance):
             shard_file_size_in_bytes = shard_statistics[Constants.FILE_SIZE_IN_BYTES]
             shard_statistics[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = shard_file_size_in_bytes / instance_total_file_size_in_bytes * 100
 
-    try:
-        enable_copy_database = user_instance.instance_connection.server_info()['versionArray'] >= [2, 4, 0, 0]
-    except Exception:
-        enable_copy_database = False
-
     return render_template('instances/instance_details.html',
                            account_monitoring_checks=account_monitoring_checks,
+                           all_shard_statistics=all_shard_statistics,
                            balancer=balancer,
                            databases=databases,
-                           # TODO: Refactor: has_whitelist_queries unused in template.
-                           has_whitelist_queries=None,
+                           enable_copy_database=enable_copy_database,
                            instance=user_instance,
-                           # TODO: Refactor: login unused in template.
-                           login=g.login,
                            is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
+                           login=login,
+                           max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE,
                            selected_tab=selected_tab,
                            shard_logs=shard_logs,
-                           all_shard_statistics=all_shard_statistics,
-                           # TODO: Refactor: sorted_shard_keys unused in template.
                            sorted_shard_keys=sorted_shard_keys,
-                           max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE,
-                           enable_copy_database=enable_copy_database)
+                           )
+
+
+@app.route('/messages')
+@viper_auth
+def messages():
+    # """Display user messages."""
+    # message_manager = MessageManager(config)
+    # messages = message_manager.get_messages(g.login)
+
+    # return render_template('messages.html', messages=messages, login=g.login)
+    return 'BUILDING'
 
 
 @app.route('/sign_in', methods=['GET', 'POST'])

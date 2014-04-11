@@ -14,9 +14,9 @@
 
 {% block nav_primary_content %}
     <!-- Fix the first and second url - brackets removed until ready -->
-    <li><a href="{ url_for('default') }">Dashboard</a></li>
+    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
     <li><a href="{{ url_for('instances') }}">Instances</a></li>
-    <li><a href="{ url_for('messages') }">Notifications</a></li>
+    <li><a href="{{ url_for('messages') }}">Notifications</a></li>
 {% endblock nav_primary_content %}
 
 {% block script %}
