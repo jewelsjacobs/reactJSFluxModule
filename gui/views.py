@@ -11,6 +11,7 @@ from viper.annunciator import Alarm, Annunciator
 from viper.billing import BillingManager, BillingException
 from viper.constants import Constants
 from viper.instance import InstanceManager
+from viper.messages import MessageManager
 from viper.utility import Utility
 
 from gui import app
@@ -264,15 +265,16 @@ def instance_details(selected_instance):
                            )
 
 
-@app.route('/messages')
+@app.route('/notifications')
 @viper_auth
-def messages():
-    # """Display user messages."""
-    # message_manager = MessageManager(config)
-    # messages = message_manager.get_messages(g.login)
+def notifications():
+    """Display account notification messages."""
+    message_manager = MessageManager(config)
+    messages = message_manager.get_messages(g.login)
 
-    # return render_template('messages.html', messages=messages, login=g.login)
-    return 'BUILDING'
+    # TODO(Anthony): Finish logic for gathering all alarms, filtering by instance, et cetera.
+    alarms = []
+    return render_template('notifications/notifications.html', alarms=alarms, login=g.login, messages=messages)
 
 
 @app.route('/sign_in', methods=['GET', 'POST'])
@@ -300,7 +302,7 @@ def sign_in():
     # if not account.accepted_msa:
     #     return redirect(url_for('msa'))
 
-    # return redirect(url_for('default'))
+    return redirect(url_for('dashboard'))
 
 
 # TODO: Refactor: This route effectively does nothing with GET. Remove GET from methods, remove request.method check and final else.
