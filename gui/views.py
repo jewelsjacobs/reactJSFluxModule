@@ -39,7 +39,7 @@ def send_email(recipient, subject, body):
 def viper_auth(func):
     """Decorator to test for auth.
 
-    Set session info to g.session, and redirect the user to the sign_in page
+    Set session info to g.session, and redirect the user to the login page
     if they aren't already signed in.
     """
     @wraps(func)
@@ -48,7 +48,7 @@ def viper_auth(func):
             g.login = session['login']
             return func(*args, **kwargs)
         else:
-            return render_template('sign_in/sign_in.html')
+            return render_template('login/login.html')
     return internal
 
 
@@ -113,7 +113,7 @@ def create_instance():
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/dashboard', methods=['GET', 'POST'])
-@app.route('/<selected_instance>', methods=['GET', 'POST'])
+# @app.route('/<selected_instance>', methods=['GET', 'POST'])
 @viper_auth
 def dashboard(selected_instance=None):
     # Ignore requests for favicon.ico to the gui.
@@ -129,13 +129,15 @@ def dashboard(selected_instance=None):
     instances = account.instances
     messages = message_manager.get_messages(g.login, limit=5)
 
-    if selected_instance is None:
-        try:
-            instance = instances[0]
-        except IndexError:
-            instance = None
-    else:
-        instance = account.get_instance_by_name(selected_instance)
+    # TODO(Anthony): Do we want this?
+    # if selected_instance is None:
+    #     try:
+    #         instance = instances[0]
+    #     except IndexError:
+    #         instance = None
+    # else:
+    #     instance = account.get_instance_by_name(selected_instance)
+    instance = account.get_instance_by_name(selected_instance)
 
     return render_template('dashboard/dashboard.html',
                            login=account.login,
@@ -279,24 +281,24 @@ def notifications():
     return render_template('notifications/notifications.html', alarms=alarms, login=g.login, messages=messages)
 
 
-@app.route('/sign_in', methods=['GET', 'POST'])
-def sign_in():
-    """User sign in."""
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """User login."""
     session.pop('login', None)
     if request.method == 'GET':
-        return render_template('sign_in/sign_in.html')
+        return render_template('login/login.html')
 
     login = request.form['login-input']
     password = request.form['password-input']
 
     account_manager = AccountManager(config)
     if not account_manager.authenticated(login, password):
-        flash('Sign in failed.')
-        return render_template('sign_in.html')
+        flash('Login failed.')
+        return render_template('login/login.html')
 
     session['login'] = login
 
-    flash('Sign in successful.')
+    flash('Login successful.')
     return redirect(url_for('instances'))
 
     # TODO(Anthony): Use these lines when ready.
@@ -307,13 +309,12 @@ def sign_in():
     return redirect(url_for('dashboard'))
 
 
-# TODO: Refactor: This route effectively does nothing with GET. Remove GET from methods, remove request.method check and final else.
 @app.route('/sign_up1', methods=['GET', 'POST'])
 def sign_up1():
-    """Sign up user; create account."""
+    """Sign up and create a user account."""
 
     if request.method == 'POST':
-        # request came from the pricing page
+        # Request came from the pricing page.
         if 'pricing_plan' in request.form:
             return render_template('sign_up1.html',
                                    pricing_plan=request.form['pricing_plan'])
@@ -347,37 +348,28 @@ def sign_up1():
 
             else:
                 ## user already exists
-                return render_template('sign_up1.html', error="user_exists")
+                return render_template('sign_up/sign_up1.html', error="user_exists")
 
     else:
-        return render_template('sign_up1.html')
+        return render_template('sign_up/sign_up1.html')
 
 
-# TODO: Refactor: Should use viper_auth.
 @app.route('/sign_up2', methods=['GET', 'POST'])
+@viper_auth
 def sign_up2():
-    if 'login' in session:
-        login = session['login']
-    else:
-        return redirect(url_for('sign_up1'))
-
     account_manager = AccountManager(config)
-    account_id = account_manager.get_account(login).id
-    return render_template('/sign_up2.html',
+    account_id = account_manager.get_account(g.login).id
+    return render_template('sign_up/sign_up2.html',
                            default_mongo_version=config.DEFAULT_MONGO_VERSION,
-                           account_login=login,
+                           account_login=g.login,
                            account_id=account_id)
 
 
 @app.route('/sign_up3', methods=['GET', 'POST'])
+@viper_auth
 def sign_up3():
-    if 'login' in session:
-        login = session['login']
-    else:
-        return redirect(url_for('sign_up1'))
-
     if 'plan' in request.form and 'name' in request.form and 'zone' in request.form:
-        return render_template('/sign_up3.html',
+        return render_template('sign_up/sign_up3.html',
                                stripe_pub_key=config.STRIPE_PUB_KEY,
                                name=request.form['name'],
                                plan=request.form['plan'],
@@ -391,7 +383,7 @@ def sign_up3():
 @app.route('/sign_up_finish', methods=['POST'])
 @viper_auth
 def sign_up_finish():
-    """Final stage of signup process."""
+    """Final stage of sign up process."""
     name = request.form['name']
     plan = request.form['plan']
     service_type = request.form['service_type']
@@ -426,14 +418,14 @@ def sign_up_finish():
     except BillingException:
         app.logger.info("Credit card declined during signup for user {}".format(g.login))
         flash('There was a problem adding your credit card. Please try again.', Constants.FLASH_ERROR)
-        return render_template('/sign_up3.html',
+        return render_template('sign_up/sign_up3.html',
                                name=name,
                                plan=plan,
                                zone=zone,
                                version=version,
                                service_type=service_type)
 
-    return render_template('/sign_up_finish.html',
+    return render_template('sign_up/sign_up_finish.html',
                            name=name,
                            plan=plan,
                            zone=zone,
