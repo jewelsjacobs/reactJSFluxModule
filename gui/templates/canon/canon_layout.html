@@ -108,7 +108,8 @@
 
                     <!-- content_area -->
                     {% block content_area %}
-                        <div class="rs-main rs-panel">
+
+                        <div class="rs-main {% block rs_main_classes %}rs-panel{% endblock %}">
 
                             {% block sidebar %}{% endblock %}
 
