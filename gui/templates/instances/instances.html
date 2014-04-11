@@ -5,105 +5,106 @@
 {% endblock title %}
 
 {% block content_area_body %}
-    <h2 class="rs-page-title">Instances</h2>
-    <div class="rs-btn-group">
-        <a href="{{ url_for('instances_create') }}"><button class="rs-btn rs-btn-primary">Add Instance</button></a>
-    </div>
+    <div class="rs-inner">
+        <h2 class="rs-page-title">Instances</h2>
+        <div class="rs-btn-group">
+            <a href="{{ url_for('instances_create') }}"><button class="rs-btn rs-btn-primary">Add Instance</button></a>
+        </div>
 
-    <table class="rs-list-table">
-        <thead>
-            <tr>
-                <th class="rs-table-status"></th>
-                <th class="rs-table-cog"></th>
-                <th>
-                    <a href="#list-table" class="rs-table-sort">
-                        <span class="rs-table-sort-text">Name</span>
-                        <span class="rs-table-sort-indicator"></span>
-                    </a>
-                </th>
-                <th>
-                    <a href="#list-table" class="rs-table-sort">
-                        <span class="rs-table-sort-text">Engine</span>
-                        <span class="rs-table-sort-indicator"></span>
-                    </a>
-                </th>
-                <th>
-                    <a href="#list-table" class="rs-table-sort">
-                        <span class="rs-table-sort-text">Type</span>
-                        <span class="rs-table-sort-indicator"></span>
-                    </a>
-                </th>
-                <th>
-                    <a href="#list-table" class="rs-table-sort">
-                        <span class="rs-table-sort-text">Version</span>
-                        <span class="rs-table-sort-indicator"></span>
-                    </a>
-                </th>
-                <th>
-                    <a href="#list-table" class="rs-table-sort">
-                        <span class="rs-table-sort-text">Zone</span>
-                        <span class="rs-table-sort-indicator"></span>
-                    </a>
-                </th>
-                <th>
-                    <a href="#list-table" class="rs-table-sort">
-                        <span class="rs-table-sort-text">Plan</span>
-                        <span class="rs-table-sort-indicator"></span>
-                    </a>
-                </th>
-                <th>
-                    <a href="#list-table" class="rs-table-sort">
-                        <span class="rs-table-sort-text">Shards</span>
-                        <span class="rs-table-sort-indicator"></span>
-                    </a>
-                </th>
-                <th>
-                    <a href="#list-table" class="rs-table-sort">
-                        <span class="rs-table-sort-text">Size(GB)</span>
-                        <span class="rs-table-sort-indicator"></span>
-                    </a>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                {% for instance in instances %}
-                    {% if instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE and instance.repair_state %}
-                        {% set repair_state = instance.repair_state.get('state', 'not running') %}
-                        {% if repair_state == instance.REPAIR_STATE_PAUSED %}
-                            {% set state_field = 'Database repair ' + instance.REPAIR_STATE_STARTED %}
+        <table class="rs-list-table">
+            <thead>
+                <tr>
+                    <th class="rs-table-status"></th>
+                    <th class="rs-table-cog"></th>
+                    <th>
+                        <a href="#list-table" class="rs-table-sort">
+                            <span class="rs-table-sort-text">Name</span>
+                            <span class="rs-table-sort-indicator"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#list-table" class="rs-table-sort">
+                            <span class="rs-table-sort-text">Engine</span>
+                            <span class="rs-table-sort-indicator"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#list-table" class="rs-table-sort">
+                            <span class="rs-table-sort-text">Type</span>
+                            <span class="rs-table-sort-indicator"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#list-table" class="rs-table-sort">
+                            <span class="rs-table-sort-text">Version</span>
+                            <span class="rs-table-sort-indicator"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#list-table" class="rs-table-sort">
+                            <span class="rs-table-sort-text">Zone</span>
+                            <span class="rs-table-sort-indicator"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#list-table" class="rs-table-sort">
+                            <span class="rs-table-sort-text">Plan</span>
+                            <span class="rs-table-sort-indicator"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#list-table" class="rs-table-sort">
+                            <span class="rs-table-sort-text">Shards</span>
+                            <span class="rs-table-sort-indicator"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#list-table" class="rs-table-sort">
+                            <span class="rs-table-sort-text">Size(GB)</span>
+                            <span class="rs-table-sort-indicator"></span>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for instance in instances %}
+                        {% if instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE and instance.repair_state %}
+                            {% set repair_state = instance.repair_state.get('state', 'not running') %}
+                            {% if repair_state == instance.REPAIR_STATE_PAUSED %}
+                                {% set state_field = 'Database repair ' + instance.REPAIR_STATE_STARTED %}
+                            {% else %}
+                                {% set state_field = 'Database repair ' + repair_state %}
+                            {% endif %}
+                        {% elif 'copy_database' in instance.document %}
+                            {% set state_field = 'Database copy ' + instance.document['copy_database'].get('state', 'scheduled') %}
                         {% else %}
-                            {% set state_field = 'Database repair ' + repair_state %}
+                            {% set state_field = none %}
                         {% endif %}
-                    {% elif 'copy_database' in instance.document %}
-                        {% set state_field = 'Database copy ' + instance.document['copy_database'].get('state', 'scheduled') %}
-                    {% else %}
-                        {% set state_field = none %}
-                    {% endif %}
 
-                    <td class="rs-table-status rs-table-status-ok"></td>
-                    <td class="rs-table-cog">
-                        <div class="rs-dropdown">
-                            <div class="rs-cog rs-dropdown-toggle"></div>
-                            <ul class="rs-dropdown-menu">
-                                <li><span class="rs-dropdown-category" id="first">Actions</span></li>
-                                <li><a href="#table-row-actions">Rename</a></li>
-                                <li><a href="#table-row-actions">Delete</a></li>
-                                <li><a href="#table-row-actions">Settings</a></li>
-                            </ul>
-                        </div>
-                    </td>
-                    <td class="rs-table-link"><a href={{ url_for('instances') }}/{{ instance.name }}>{{ instance.name }}</a></td>
-                    <td class="rs-table-link">MongoDB</td>
-                    <td class="rs-table-link">{{ instance.type }}</td>
-                    <td class="rs-table-link">{{ instance.version }}</td>
-                    <td class="rs-table-link">{{ instance.zone }}</td>
-                    <td class="rs-table-link">{{ instance.plan }}</td>
-                    <td class="rs-table-link">{{ instance.shards|count }}</td>
-                    <td class="rs-table-link">{{ instance.size }}</td>
-                {% endfor %}
-            </tr>
-        </tbody>
-    </table>
-
+                        <td class="rs-table-status rs-table-status-ok"></td>
+                        <td class="rs-table-cog">
+                            <div class="rs-dropdown">
+                                <div class="rs-cog rs-dropdown-toggle"></div>
+                                <ul class="rs-dropdown-menu">
+                                    <li><span class="rs-dropdown-category" id="first">Actions</span></li>
+                                    <li><a href="#table-row-actions">Rename</a></li>
+                                    <li><a href="#table-row-actions">Delete</a></li>
+                                    <li><a href="#table-row-actions">Settings</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td class="rs-table-link"><a href={{ url_for('instances') }}/{{ instance.name }}>{{ instance.name }}</a></td>
+                        <td class="rs-table-link">MongoDB</td>
+                        <td class="rs-table-link">{{ instance.type }}</td>
+                        <td class="rs-table-link">{{ instance.version }}</td>
+                        <td class="rs-table-link">{{ instance.zone }}</td>
+                        <td class="rs-table-link">{{ instance.plan }}</td>
+                        <td class="rs-table-link">{{ instance.shards|count }}</td>
+                        <td class="rs-table-link">{{ instance.size }}</td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
 {% endblock content_area_body %}

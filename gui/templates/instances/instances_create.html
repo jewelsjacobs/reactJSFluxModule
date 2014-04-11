@@ -41,16 +41,19 @@ TODO:
 {% block back_link_area %}<a href="/instances">&lsaquo; Back to MongoDB Instances</a>{% endblock back_link_area %}
 
 {% block content_area_body %}
-    <div class="rs-detail-section">
-        <h2 class="rs-page-title">Create Instance</h2>
-        <h3 class="rs-detail-section-title">Instance Details</h3>
+    <form id="instances-create-form" class="rs-form-create" action="{{ url_for('create_instance') }}" method="POST">
+        <div class="rs-detail-section">
+            <div class="rs-detail-section-header">
+                <h2 class="rs-page-title">Create Instance</h2>
+                <div class="rs-detail-section-title">Instance Details</div>
+            </div>
 
-        <form id="instances-create-form" class="rs-form-create" action="{{ url_for('create_instance') }}" method="POST">
+            <div class="rs-detail-section-body">
+                <!-- default input values -->
+                <input id="service_type" name="service_type" type="hidden" value="mongodb"/>
+                <input id="version" name="version" type="hidden" value="{{default_mongo_version}}"/>
+                <!-- end default input values -->
 
-            <input type="hidden" id="service_type" name="service_type" value="mongodb"/>
-            <input type="hidden" id="version" name="version" value="{{default_mongo_version}}"/>
-
-            <div class="rs-detail-section">
                 <div class="rs-control-group">
                     <label class="rs-control-label">Engine</label>
                     <div class="rs-controls">
@@ -89,18 +92,18 @@ TODO:
                 <div class="rs-control-group">
                     <label class="rs-control-label">Instance Name</label>
                     <div class="rs-controls">
-                        <input type="text" name="name" id="name" class="rs-input-large">
+                        <input id="name" name="name" class="rs-input-large" type="text">
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="rs-detail-section" id="instance-create-save-cancel">
-                <div class="rs-detail-section-header rs-btn-group">
-                    <button class="rs-btn rs-btn-primary save">Create Instance</button>
-                    <span class="action_pending"></span>
-                    <a href="{{ url_for('instances') }}" class="rs-btn rs-btn-link cancel">Cancel</a>
-                </div>
+        <div class="rs-detail-section">
+            <div class="rs-detail-section-header rs-btn-group">
+                <button class="rs-btn rs-btn-primary save">Create Instance</button>
+                <!-- <span class="action_pending"></span> -->
+                <a href="{{ url_for('instances') }}" class="rs-btn rs-btn-link cancel">Cancel</a>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 {% endblock content_area_body %}

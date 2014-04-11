@@ -4,17 +4,14 @@
     Sign In
 {% endblock title %}
 
-{% block content_area_title %}
-    Sign In
-{% endblock content_area_title %}
-
 {% block content_area_body %}
-
     <!--
         When PR github.com/rackerlabs/canon/pull/50/ is merged, use its code for
         login focus page.
     -->
-    <div id="sign-in-form-block">
+    <div class="rs-inner" id="sign-in-form-block">
+        <h2 class="rs-page-title">Sign In</h2>
+
         <form id="sign-in-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_in') }}" method="POST">
 
             <div class="rs-control-group success">
