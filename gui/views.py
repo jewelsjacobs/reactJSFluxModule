@@ -12,6 +12,7 @@ from viper.billing import BillingManager, BillingException
 from viper.constants import Constants
 from viper.instance import InstanceManager
 from viper.messages import MessageManager
+from viper.status import StatusManager
 from viper.utility import Utility
 
 from gui import app
@@ -111,40 +112,41 @@ def create_instance():
 
 
 @app.route('/', methods=['GET', 'POST'])
+@app.route('/dashboard', methods=['GET', 'POST'])
 @app.route('/<selected_instance>', methods=['GET', 'POST'])
 @viper_auth
 def dashboard(selected_instance=None):
-    # ## ignore requests for favicon.ico to the gui
-    # # TODO: Reconfigure nginx to serve up /favicon.ico
-    # if selected_instance and selected_instance.lower() == "favicon.ico":
-    #     abort(404)
+    # Ignore requests for favicon.ico to the gui.
+    # TODO: Reconfigure nginx to serve up /favicon.ico
+    if selected_instance and selected_instance.lower() == "favicon.ico":
+        abort(404)
 
-    # message_manager = MessageManager(config)
-    # account_manager = AccountManager(config)
-    # status_manager = StatusManager(config)
+    message_manager = MessageManager(config)
+    account_manager = AccountManager(config)
+    status_manager = StatusManager(config)
 
-    # account = account_manager.get_account(g.login)
-    # instances = account.instances
-    # messages = message_manager.get_messages(g.login, limit=5)
+    account = account_manager.get_account(g.login)
+    instances = account.instances
+    messages = message_manager.get_messages(g.login, limit=5)
 
-    # if selected_instance is None:
-    #     try:
-    #         instance = instances[0]
-    #     except IndexError:
-    #         instance = None
-    # else:
-    #     instance = account.get_instance_by_name(selected_instance)
+    if selected_instance is None:
+        try:
+            instance = instances[0]
+        except IndexError:
+            instance = None
+    else:
+        instance = account.get_instance_by_name(selected_instance)
 
-    # return render_template('home.html',
-    #                        login=account.login,
-    #                        has_instances=instance is not None,
-    #                        instances=instances,
-    #                        account=account,
-    #                        status=status_manager.get_status(),
-    #                        instance=instance,
-    #                        messages=messages,
-    #                        stripe_pub_key=config.STRIPE_PUB_KEY)
-    return 'BUILDING'
+    return render_template('dashboard/dashboard.html',
+                           login=account.login,
+                           has_instances=instance is not None,
+                           instances=instances,
+                           account=account,
+                           status=status_manager.get_status(),
+                           instance=instance,
+                           messages=messages,
+                           stripe_pub_key=config.STRIPE_PUB_KEY)
+
 
 
 @app.route('/instances', methods=['GET'])
