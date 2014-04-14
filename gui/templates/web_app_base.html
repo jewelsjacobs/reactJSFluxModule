@@ -7,16 +7,31 @@
     <link rel="icon" type="image/png" href="/static/art/ObjectRocketFavicon.png">
 {% endblock style %}
 
+{% block nav_utility_content %}
+    <ul class="rs-nav rs-pull-right">
+        <li class="rs-nav-item rs-dropdown rs-utility-dropdown">
+            <a class="rs-nav-link rs-dropdown-toggle" href="">Live Chat</a>
+        </li>
+        <li class="rs-nav-item rs-dropdown rs-utility-dropdown">
+            <a class="rs-nav-link rs-dropdown-toggle" href="">Support <i class="rs-caret"></i></a>
+        </li>
+        <li class="rs-nav-item rs-dropdown rs-utility-dropdown">
+            <a class="rs-nav-link rs-dropdown-toggle" href="">Account Stuff <i class="rs-caret"></i></a>
+        </li>
+    </ul>
+{% endblock nav_utility_content %}
 
 {% block brand_content %}
     <a href="#"></a>
 {% endblock brand_content %}
 
 {% block nav_primary_content %}
-    <!-- Fix the first and second url - brackets removed until ready -->
-    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-    <li><a href="{{ url_for('instances') }}">Instances</a></li>
-    <li><a href="{{ url_for('notifications') }}">Notifications</a></li>
+    <!-- TODO:
+    - Add class 'active' to the active 'li' view.
+    -->
+    <li class="rs-nav-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+    <li class="rs-nav-item"><a href="{{ url_for('instances') }}">Instances</a></li>
+    <li class="rs-nav-item"><a href="{{ url_for('notifications') }}">Notifications</a></li>
 {% endblock nav_primary_content %}
 
 {% block script %}
