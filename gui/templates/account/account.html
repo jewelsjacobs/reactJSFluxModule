@@ -4,7 +4,7 @@
     <!-- TODO:
     - Add class 'active' to the active 'li' view.
     -->
-    <li class="rs-nav-item"><a class="rs-nav-link" href="">Account Settings</a></li>
+    <li class="rs-nav-item active"><a class="rs-nav-link" href="javascript:void(0);">Account Settings</a></li>
 {% endblock nav_secondary_content %}
 
 {% block title %}
@@ -118,8 +118,10 @@
 {% endblock content_area_body %}
 
 {% block script %}
-    <script>
+    {{ super() }}
+    <script type="text/javascript">
     $(document).ready(function() {
+
         $('#update_account_contact_form').validate({
             rules: {
                 name: {

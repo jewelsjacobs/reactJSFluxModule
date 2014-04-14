@@ -4,6 +4,8 @@
     Login
 {% endblock title %}
 
+{% block nav_utility_content %}{% endblock nav_utility_content %}
+
 {% block content_area_body %}
     <!--
         When PR github.com/rackerlabs/canon/pull/50/ is merged, use its code for
@@ -24,7 +26,7 @@
             <div class="rs-control-group success">
                 <label class="rs-control-label">Password</label>
                 <div class="rs-controls">
-                    <input name="password-input" type="text" class="rs-input-medium" placeholder="Password">
+                    <input name="password-input" type="password" class="rs-input-medium" placeholder="Password">
                 </div>
             </div>
 

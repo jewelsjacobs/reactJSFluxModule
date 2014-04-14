@@ -61,7 +61,7 @@ def account():
     if account is None:
         return redirect(url_for('login'))
 
-    return render_template('account/account.html', account=account)
+    return render_template('account/account.html', account=account, login=g.login)
 
 
 @app.route('/create_instance', methods=['POST'])
@@ -315,6 +315,13 @@ def login():
     #     return redirect(url_for('msa'))
 
     return redirect(url_for('dashboard'))
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    app.logger.debug("Running logout")
+    session.pop('login', None)
+    return redirect(url_for('login'))
 
 
 @app.route('/sign_up1', methods=['GET', 'POST'])
