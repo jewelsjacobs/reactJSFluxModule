@@ -112,11 +112,10 @@ def create_instance():
 
 
 @app.route('/', methods=['GET', 'POST'])
-@app.route('/dashboard', methods=['GET', 'POST'])
-# @app.route('/<selected_instance>', methods=['GET', 'POST'])
+@app.route('/<selected_instance>', methods=['GET', 'POST'])
 @viper_auth
 def dashboard(selected_instance=None):
-    # Ignore requests for favicon.ico to the gui.
+    ## ignore requests for favicon.ico to the gui
     # TODO: Reconfigure nginx to serve up /favicon.ico
     if selected_instance and selected_instance.lower() == "favicon.ico":
         abort(404)
@@ -129,15 +128,13 @@ def dashboard(selected_instance=None):
     instances = account.instances
     messages = message_manager.get_messages(g.login, limit=5)
 
-    # TODO(Anthony): Do we want this?
-    # if selected_instance is None:
-    #     try:
-    #         instance = instances[0]
-    #     except IndexError:
-    #         instance = None
-    # else:
-    #     instance = account.get_instance_by_name(selected_instance)
-    instance = account.get_instance_by_name(selected_instance)
+    if selected_instance is None:
+        try:
+            instance = instances[0]
+        except IndexError:
+            instance = None
+    else:
+        instance = account.get_instance_by_name(selected_instance)
 
     return render_template('dashboard/dashboard.html',
                            login=account.login,
@@ -148,7 +145,6 @@ def dashboard(selected_instance=None):
                            instance=instance,
                            messages=messages,
                            stripe_pub_key=config.STRIPE_PUB_KEY)
-
 
 
 @app.route('/instances', methods=['GET'])
