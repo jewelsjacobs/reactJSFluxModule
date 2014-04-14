@@ -1,0 +1,183 @@
+{% extends 'web_app_base.html' %}
+
+{% block nav_secondary_content %}
+    <!-- TODO:
+    - Add class 'active' to the active 'li' view.
+    -->
+    <li class="rs-nav-item"><a class="rs-nav-link" href="">Account Settings</a></li>
+{% endblock nav_secondary_content %}
+
+{% block title %}
+    Account
+{% endblock title %}
+
+{% block sidebar %}
+    {% call sidebar_help(hidden=False) %}
+        <h3>Managing This Product</h3>
+        <h4>Top action helpful text</h4>
+        <p>Short blurb about best practices for a top action on this item. Try to keep this to 3 lines maximum.</p>
+        <p><a target="blank" href="#">More Details About Blurb &raquo;</a></p>
+
+        <hr>
+        <h4>Help Me With...</h4>
+        <ul>
+            <li><a target="blank" href="#">Best Practice Number One</a></li>
+            <li><a target="blank" href="#">Best Practice Number Two</a></li>
+            <li><a target="blank" href="#">Best Practice Number Three</a></li>
+        </ul>
+        <p><a target="blank" href="#">Learn More about This Product &raquo;</a></p>
+
+        <hr>
+        <h4>What's Next</h4>
+        <ul>
+            <li><a target="blank" href="#">Top Action Number One</a></li>
+            <li><a target="blank" href="#">Top Action Number Two</a></li>
+            <li><a target="blank" href="#">Top Action Number Three</a></li>
+        </ul>
+        <p><a target="blank" href="#">Visit Our Knowledge Center &raquo;</a></p>
+    {% endcall %}
+{% endblock sidebar %}
+
+{% block content_area_body %}
+    <div class="rs-detail-section">
+        <div class="rs-detail-section-header">
+            <div class="rs-detail-header-actions">
+                <!-- This could be in its own rs-detail-header, but it is here for a more compact look. -->
+                <div class="rs-dropdown">
+                    <button class="rs-btn rs-btn-action rs-dropdown-toggle">
+                        <span class="rs-cog"></span>
+                        Actions
+                        <span class="rs-caret"></span>
+                    </button>
+                    <ul class="rs-dropdown-menu" style="right:0;">
+                        <li><span class="rs-dropdown-category">Identify</span></li>
+                        <li><a href="#">Rename Item&hellip;</a></li>
+                        <li><a href="#">Tag Item&hellip;</a></li>
+                        <li><span class="rs-dropdown-category">Manage</span></li>
+                        <li><a href="#">Connect Via Terminal&hellip;</a></li>
+                        <li><a href="#">Reboot Item&hellip;</a></li>
+                        <li><a href="#">Change Password&hellip;</a></li>
+                        <li><a href="#">Delete Item&hellip;</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- This rs-page-title could be in the above mentioned rs-detail-header, but it is here for a more compact look. -->
+            <h2 class="rs-page-title">Account Settings</h2>
+            <div class="rs-detail-section-title">Login Details</div>
+        </div>
+
+        <div class="rs-detail-section-body">
+            <ul class="rs-detail-list">
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Password</div>
+                    <div class="rs-detail-value">...</div>
+                </li>
+
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Email Address</div>
+                    <div class="rs-detail-value">{{ account.email }}</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="rs-detail-section">
+        <div class="rs-detail-section-header">
+            <div class="rs-detail-section-title">Contact Information</div>
+        </div>
+
+        <div class="rs-detail-section-body">
+            <ul class="rs-detail-list">
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Name</div>
+                    <div class="rs-detail-value">{{ account.name }}</div>
+                </li>
+
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Email</div>
+                    <div class="rs-detail-value">{{ account.email }}</div>
+                </li>
+
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Phone</div>
+                    <div class="rs-detail-value">{{ account.phone }}</div>
+                </li>
+
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Company</div>
+                    <div class="rs-detail-value">{{ account.company }}</div>
+                </li>
+
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Zip Code</div>
+                    <div class="rs-detail-value">{{ account.zipcode }}</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock content_area_body %}
+
+{% block script %}
+    <script>
+    $(document).ready(function() {
+        $('#update_account_contact_form').validate({
+            rules: {
+                name: {
+                    required: true
+                },
+                email: {
+                    email: true,
+                    required: true
+                },
+                phone: {
+                    required: true
+                },
+                company: {
+                    required: true
+                },
+                zipcode: {
+                    required: true
+                }
+            },
+            highlight: function(label) {
+                $(label).closest('.control-group').addClass('error');
+            },
+            success: function(label) {
+                label
+                    .addClass('valid')
+                    .closest('.control-group').removeClass('error');
+            }
+        });
+
+
+        $('.account-input').change(function() {
+            $('#update_account_contact_button').removeAttr("disabled", "disabled");
+            $('#update_account_contact_button').removeClass('disabled');
+        });
+
+
+        $('#change_password_form').validate({
+            rules: {
+                password: {
+                    minlength: 6,
+                    required: true
+                },
+                confirmPassword: {
+                    required: true,
+                    equalTo: "#password"
+                },
+            },
+            highlight: function(label) {
+                $(label).closest('.control-group').addClass('error');
+            },
+            success: function(label) {
+                label
+                    .addClass('valid')
+                    .closest('.control-group').addClass('success');
+                $('#change_password_button').removeAttr("disabled", "disabled");
+                $('#change_password_button').removeClass('disabled');
+            }
+        });
+    });
+    </script>
+{% endblock script %}

@@ -5,6 +5,13 @@ TODO:
 - Cleanup sidebar help
 -->
 
+{% block nav_secondary_content %}
+    <!-- TODO:
+    - Add class 'active' to the active 'li' view.
+    -->
+    <li class="rs-nav-item"><a class="rs-nav-link" href="/instances/create">Create Instance</a></li>
+{% endblock nav_secondary_content %}
+
 {% block sidebar %}
     {% call sidebar_help(hidden=False) %}
         <h3>Managing This Product</h3>
@@ -32,7 +39,11 @@ TODO:
     {% endcall %}
 {% endblock sidebar %}
 
-{% block back_link_area %}<a href="/instances">&lsaquo; Back to Instances</a>{% endblock back_link_area %}
+{% block back_link_area %}
+    {% call back_link() %}
+        <a href="/instances">&lsaquo; Back to Instances</a>
+    {% endcall %}
+{% endblock back_link_area %}
 
 {% block content_area_body %}
     <div class="rs-detail-header">

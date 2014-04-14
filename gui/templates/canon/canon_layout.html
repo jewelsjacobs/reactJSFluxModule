@@ -1,3 +1,4 @@
+{%- from 'canon/canon_backlink.html' import back_link with context %}
 {%- from 'canon/canon_component_macros.html' import status_indicator with context %}
 {%- from 'canon/canon_flash_messages.html' import flash_messages with context %}
 {%- from 'canon/canon_footer.html' import footer_content with context %}
@@ -103,7 +104,7 @@
                     {% endblock %}
 
                     <!-- back_link_area -->
-                    <div class="rs-back-link">{% block back_link_area %}{% endblock %}</div>
+                    {% block back_link_area %}{% endblock %}
                     <!-- end back_link_area -->
 
                     <!-- content_area -->

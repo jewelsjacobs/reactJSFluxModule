@@ -52,6 +52,18 @@ def viper_auth(func):
     return internal
 
 
+@app.route('/account')
+@viper_auth
+def account():
+    """Account settings and controls."""
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+    if account is None:
+        return redirect(url_for('login'))
+
+    return render_template('account/account.html', account=account)
+
+
 @app.route('/create_instance', methods=['POST'])
 @viper_auth
 def create_instance():

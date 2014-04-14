@@ -13,7 +13,12 @@ TODO:
     {% endcall %}
 {% endblock sidebar %}
 
-{% block back_link_area %}<a href="/login">&lsaquo; Back to Login</a>{% endblock back_link_area %}
+{% block back_link_area %}
+    {% call back_link() %}
+        <a href="/login">&lsaquo; Back to Login</a>
+    {% endcall %}
+{% endblock back_link_area %}
+
 
 {% block content_area_body %}
     <form class="rs-form-create" action="{{ url_for('sign_up1') }}" method="POST" id="sign-up-form">
