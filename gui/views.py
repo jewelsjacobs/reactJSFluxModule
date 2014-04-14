@@ -375,9 +375,9 @@ def sign_up2():
     account_manager = AccountManager(config)
     account_id = account_manager.get_account(g.login).id
     return render_template('sign_up/sign_up2.html',
+                           account_id=account_id,
                            default_mongo_version=config.DEFAULT_MONGO_VERSION,
-                           account_login=g.login,
-                           account_id=account_id)
+                           login=g.login)
 
 
 @app.route('/sign_up3', methods=['GET', 'POST'])
@@ -385,17 +385,19 @@ def sign_up2():
 def sign_up3():
     if 'plan' in request.form and 'name' in request.form and 'zone' in request.form:
         return render_template('sign_up/sign_up3.html',
-                               stripe_pub_key=config.STRIPE_PUB_KEY,
+                               login=g.login,
                                name=request.form['name'],
                                plan=request.form['plan'],
-                               zone=request.form['zone'],
                                service_type=request.form['service_type'],
-                               version=request.form['version'])
+                               stripe_pub_key=config.STRIPE_PUB_KEY,
+                               version=request.form['version'],
+                               zone=request.form['zone'])
     else:
         return redirect(url_for('sign_up2'))
 
 
-@app.route('/sign_up_finish', methods=['POST'])
+# @app.route('/sign_up_finish', methods=['POST'])
+@app.route('/sign_up_finish', methods=['GET', 'POST'])  # FIXME: Killl this line.
 @viper_auth
 def sign_up_finish():
     """Final stage of sign up process."""
@@ -441,9 +443,10 @@ def sign_up_finish():
                                service_type=service_type)
 
     return render_template('sign_up/sign_up_finish.html',
+                           free_instance_count=free_instance_count,
+                           login=g.login,
                            name=name,
                            plan=plan,
-                           zone=zone,
                            service_type=service_type,
                            version=version,
-                           free_instance_count=free_instance_count)
+                           zone=zone)

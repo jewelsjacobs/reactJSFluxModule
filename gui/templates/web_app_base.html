@@ -27,6 +27,7 @@
                 <li class="rs-dropdown-item"><a href="#" class="rs-dropdown-link hover">Link (Hover) <span class="rs-dropdown-caption">With Caption</span></a></li>
             </ul>
         </li>
+        {% block nav_utility_content_login %}
         <li class="rs-dropdown rs-utility-dropdown">
             <a class="rs-dropdown-toggle" href="javascript:void(0);">{{ login }} <i class="rs-caret"></i></a>
             <ul class="rs-dropdown-menu hidden">
@@ -35,6 +36,7 @@
                 <li class="rs-dropdown-item"><a class="rs-dropdown-link" href="/logout">Log Out</a></li>
             </ul>
         </li>
+        {% endblock nav_utility_content_login %}
     </ul>
 {% endblock nav_utility_content %}
 
@@ -58,7 +60,7 @@
     <script type="text/javascript">
     $(document).ready(function() {
         // Utility navigation code.
-        $('li.rs-dropdown.rs-utility-dropdown').click(function(event) {
+        $('li.rs-dropdown.rs-utility-dropdown').hover(function(event) {
             $('ul.rs-dropdown-menu', this).toggleClass('visible hidden');
         });
     });

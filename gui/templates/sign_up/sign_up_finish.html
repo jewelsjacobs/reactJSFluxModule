@@ -8,69 +8,80 @@ TODO:
 
 {% block sidebar %}
     {% call sidebar_help(hidden=False) %}
-        <h4 class="rs-quiet">Instance Details</h4>
-        <ul class="rs-detail-list">
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Name</div>
-                <div class="rs-detail-value">{{ name }}</div>
-            </li>
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Plan</div>
-                <div class="rs-detail-value">{{ plan }}</div>
-            </li>
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Zone</div>
-                <div class="rs-detail-value">{{ zone }}</div>
-            </li>
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Version</div>
-                <div class="rs-detail-value">{{ version }}</div>
-            </li>
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Service Type</div>
-                <div class="rs-detail-value">{{ service_type }}</div>
-            </li>
-        </ul>
+        <h3>Confirm Details</h3>
+        <p>Confirm that the instance information is correct.</p>
     {% endcall %}
 {% endblock sidebar %}
 
 {% block content_area_body %}
     <form action="/create_instance" method="POST" id="sign_up-form">
+        <input type=hidden name="plan" value="{{ plan }}">
+        <input type=hidden name="name" value="{{ name }}">
+        <input type=hidden name="zone" value="{{ zone }}">
+        <input type=hidden name="version" value="{{ version }}">
+        <input type=hidden name="service_type" value="{{ service_type }}">
+
         <div class="rs-detail-section">
             <div class="rs-detail-section-header">
                 <h2 class="rs-page-title">Sign Up</h2>
-                <div class="rs-detail-section-title">Complete</div>
+                <div class="rs-detail-section-title">Finish</div>
             </div>
 
             <div class="rs-detail-section-body">
-                <input type=hidden name="plan" value="{{ plan }}">
-                <input type=hidden name="name" value="{{ name }}">
-                <input type=hidden name="zone" value="{{ zone }}">
-                <input type=hidden name="version" value="{{ version }}">
-                <input type=hidden name="service_type" value="{{ service_type }}">
+                <h3 class="rs-quiet">Instance Details</h3>
+                <ul class="rs-detail-list">
+                    <li class="rs-detail-item">
+                        <div class="rs-detail-key">Availability</div>
+                        <div class="rs-detail-value">
+                            {% if free_instance_count %}
+                                <span class="rs-status rs-status-ok">Available</span>
+                            {% else %}
+                                <span class="rs-status rs-status-error">None Available</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    <li class="rs-detail-item">
+                        <div class="rs-detail-key">Name</div>
+                        <div class="rs-detail-value">{{ name }}</div>
+                    </li>
+                    <li class="rs-detail-item">
+                        <div class="rs-detail-key">Plan</div>
+                        <div class="rs-detail-value">{{ plan }}</div>
+                    </li>
+                    <li class="rs-detail-item">
+                        <div class="rs-detail-key">Zone</div>
+                        <div class="rs-detail-value">{{ zone }}</div>
+                    </li>
+                    <li class="rs-detail-item">
+                        <div class="rs-detail-key">Version</div>
+                        <div class="rs-detail-value">{{ version }}</div>
+                    </li>
+                    <li class="rs-detail-item">
+                        <div class="rs-detail-key">Service Type</div>
+                        <div class="rs-detail-value">{{ service_type }}</div>
+                    </li>
+                </ul>
 
+                <h3 class="rs-quiet">Notice:</h3>
                 {% if free_instance_count %}
-                    {% set status_message = 'You are ready to create a {{ plan }}GB instance named {{ name }} in the {{ zone }} zone.' %}
-                    {{ status_indicator(status_message, 'ok') }}
-
+                    {% set status_message = 'You are ready to create a {}GB instance named {} in the {} zone.'.format(plan, name, zone) %}
+                    <p>{{ status_message }}</p>
                     <div class="rs-control-group">
                         <div class="rs-controls">
-                            <a href="{{ url_for('sign_up2') }}" class="rs-btn">Instance Information</a>
-                            <button type="submit" class="rs-btn rs-btn-primary">Create Instance</button>
+                            <button class="rs-btn rs-btn-primary" type="submit">Create Instance</button>
+                            <button class="rs-btn rs-btn-secondary" href="{{ url_for('sign_up2') }}">Instance Information</button>
                         </div>
                     </div>
                 {% else %}
-                    {% set status_message =
-                        '''Due to high demand we are not able to auto-provision a {{ plan }}GB instance in {{ zone }} at this time.
-                        A support issue has been logged and a support representative will contact you shortly to manually add your
-                        requested instance to your account.  Thanks for your patience.'''
+                    {% set status_message = '''Due to high demand we are not able to auto-provision a {}GB instance in {} at this time. A support
+                        issue has been logged and a support representative will contact you shortly to manually add your requested instance to
+                        your account. Thanks for your patience.'''.format(plan, zone)
                     %}
-                    {{ status_indicator(status_message, 'error') }}
-
+                    <p>{{ status_message }}</p>
                     <div class="rs-control-group">
                         <div class="rs-controls">
-                            <a href="/" class="btn btn-success">Login to UI</a>
-                            <a href="{{ url_for('sign_up2') }}" class="rs-btn">Instance Information</a>
+                            <button class="rs-btn rs-btn-primary" href="/">Login to UI</button>
+                            <button class="rs-btn rs-btn-secondary" href="{{ url_for('sign_up2') }}">Instance Information</button>
                         </div>
                     </div>
                 {% endif %}
