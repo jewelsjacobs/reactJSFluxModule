@@ -1,0 +1,6 @@
+# Requirements here are needed for development systems, not for the app
+# functionality; I.E., testing, building, docs, et cetera. If an item is needed
+# for the app to function, then add it to requirements.txt.
+pytest
+flake8
+tox
