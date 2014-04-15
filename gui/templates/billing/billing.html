@@ -1,0 +1,13 @@
+{% extends 'web_app_base.html' %}
+
+{% block nav_secondary_content %}
+<li class="rs-nav-item active"><a class="rs-nav-link">Billing</a></li>
+{% endblock %}
+
+{% block title %}
+Billing
+{% endblock %}
+
+{% block content_area_body %}
+{% include 'billing/current_subscription.html' %}
+{% endblock %}

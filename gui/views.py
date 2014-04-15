@@ -715,3 +715,112 @@ def sign_up_finish():
                            service_type=service_type,
                            version=version,
                            zone=zone)
+
+
+@app.route('/billing')
+@viper_auth
+def billing():
+    billing_manager = BillingManager(config)
+    invoices = {}
+    manually_invoiced = False
+    subscription = {}
+    date_format = "%B %d, %Y"
+
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+
+    if account.invoiced:
+        manually_invoiced = True
+        billing_manager = BillingManager(config)
+        plan_definition = billing_manager.get_plan_definition(g.login, billable_only=False)
+
+        if plan_definition:
+            (plan_id, plan_name) = billing_manager.get_plan_id_and_name(plan_definition)
+            subscription['name'] = plan_name + " (Custom)"
+        else:
+            subscription['name'] = "Custom Plan"
+
+        if account.invoiced_amount and account.invoiced_currency:
+            invoice_amount_in_dollars = float(account.invoiced_amount) / 100
+            subscription['amount'] = ('$%.2f' % invoice_amount_in_dollars) + " " + account.invoiced_currency.upper()
+        else:
+            subscription['amount'] = "(Amount defined by contract)"
+
+    else:
+        stripe_subscription = billing_manager.get_user_stripe_subscription(g.login)
+
+        if stripe_subscription:
+            plan = stripe_subscription['plan']
+            subscription['name'] = plan['name']
+
+            plan_cost_in_dollars = float(plan['amount']) / 100
+            subscription['amount'] = ('$%.2f' % plan_cost_in_dollars) + " " + plan['currency'].upper()
+
+            start_timestamp = datetime.datetime.fromtimestamp(stripe_subscription['start'])
+            subscription['start_date'] = start_timestamp.strftime(date_format)
+
+            next_bill_timestamp = datetime.datetime.fromtimestamp(stripe_subscription['current_period_end'])
+            subscription['next_bill_date'] = next_bill_timestamp.strftime(date_format)
+
+    stripe_invoices = billing_manager.get_account_invoices(g.login)
+
+    if stripe_invoices:
+        for invoice_datum in stripe_invoices['data']:
+            invoice = {}
+
+            invoice_timestamp = datetime.datetime.fromtimestamp(invoice_datum['date'])
+            invoice['date'] = invoice_timestamp.strftime(date_format)
+
+            if invoice_datum['lines']['subscriptions']:
+                invoice_subscription = invoice_datum['lines']['subscriptions'][0]
+
+                invoice_subscription_start_timestamp = datetime.datetime.fromtimestamp(invoice_subscription['period']['start'])
+                invoice['start_date'] = invoice_subscription_start_timestamp.strftime(date_format)
+
+                invoice_subscription_end_timestamp = datetime.datetime.fromtimestamp(invoice_subscription['period']['end'])
+                invoice['end_date'] = invoice_subscription_end_timestamp.strftime(date_format)
+
+            else:
+                invoice_start_timestamp = datetime.datetime.fromtimestamp(invoice_datum['period_start'])
+                invoice['start_date'] = invoice_start_timestamp.strftime(date_format)
+
+                invoice_end_timestamp = datetime.datetime.fromtimestamp(invoice_datum['period_end'])
+                invoice['end_date'] = invoice_end_timestamp.strftime(date_format)
+
+            invoice_amount_in_dollars = float(invoice_datum['total']) / 100
+            invoice['amount'] = ('$%.2f' % invoice_amount_in_dollars) + " " + invoice_datum['currency'].upper()
+
+            if invoice_datum['paid']:
+                invoice['status'] = 'Paid in Full'
+            else:
+                invoice['status'] = 'Due Immediately'
+
+            invoices[invoice_datum['id']] = invoice
+
+    active_card = billing_manager.get_account_active_card(g.login)
+
+    return render_template('billing/billing.html',
+                           active_card=active_card,
+                           subscription=subscription,
+                           manually_invoiced=manually_invoiced,
+                           login=g.login,
+                           invoices=invoices,
+                           stripe_pub_key=config.STRIPE_PUB_KEY)
+
+
+@app.route('/set_credit_card', methods=['POST'])
+@viper_auth
+def set_credit_card():
+    billing_manager = BillingManager(config)
+
+    try:
+        billing_manager.set_credit_card(g.login, request.form['stripe_token'])
+        flash('Credit card information updated.', Constants.FLASH_INFO)
+
+    except stripe.CardError as ex:
+        flash(ex.message, Constants.FLASH_ERROR)
+
+    if 'returntarget' in request.form:
+        return redirect(url_for(request.form['returntarget']))
+    else:
+        return redirect(url_for('billing'))
