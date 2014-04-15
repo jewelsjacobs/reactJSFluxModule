@@ -209,7 +209,7 @@ def test_copy_database(app_client):
     # database = request.form['database']
     # username = request.form['username']
     # password = request.form['password']
-    pass
+    assert False
 
 
 def test_instances(app_client):
@@ -452,7 +452,7 @@ def test_add_allowed(app_client):
 
 # @app.route('/delete_acl/<instance>/<acl_id>')
 def delete_acl(app_client):
-    pass
+    assert False
 
 
 def test_update_account_contact(app_client):
@@ -504,7 +504,7 @@ def test_set_credit_card(app_client):
     # billing_manager.set_credit_card(g.login, request.form['stripe_token'])
     # if 'returntarget' in request.form:
     #     return redirect(url_for(request.form['returntarget']))
-    pass
+    assert False
 
 
 def test_logout(app_client):
@@ -527,11 +527,11 @@ def test_reset_password(app_client):
     # if 'confirmPassword' in request.form:
     #     token = request.form['token']
     # password = request.form[Constants.PASSWORD]
-    pass
+    assert False
 
 # @app.route('/silence_alarm')
 def test_silence_alarm(app_client):
-    pass
+    assert False
 
 
 def test_billing(app_client):
@@ -545,7 +545,7 @@ def test_billing(app_client):
 # @app.route('/invoices/<invoice_id>')
 # @viper_auth
 def test_show_invoice(app_client):
-    pass
+    assert False
 
 
 def test_docs(app_client):
@@ -600,20 +600,20 @@ def test_support(app_client):
 # @viper_isadmin
 def test_admin_switch_user(app_client):
     # user_id = request.form['switchuser']
-    pass
+    assert False
 
 
 # @app.route('/remove_user', methods=['GET', 'POST'])
 # @viper_isadmin
 def test_remove_user(app_client):
     # login = request.form['login']
-    pass
+    assert False
 
 
 # @app.route('/admin/alarms', methods=['GET', 'POST'])
 # @viper_isadmin
 def test_admin_alarms(app_client):
-    pass
+    assert False
 
 
 # @app.route('/admin/associate_user', methods=['POST'])
@@ -621,14 +621,14 @@ def test_admin_alarms(app_client):
 def test_admin_associate_user(app_client):
     # login = request.form['login']
     # customer_id = request.form['customer_id']
-    pass
+    assert False
 
 
 # @app.route('/admin/sync_user', methods=['POST'])
 # @viper_isadmin
 def test_admin_sync_user(app_client):
     # login = request.form['login']
-    pass
+    assert False
 
 
 # @app.route('/admin/add_message', methods=['POST'])
@@ -636,7 +636,7 @@ def test_admin_sync_user(app_client):
 def test_admin_add_message(app_client):
     # login = request.form.get('login', None)
     # message = request.form.get('message', None)
-    pass
+    assert False
 
 
 # @app.route('/admin/set_status', methods=['GET','POST'])
@@ -645,25 +645,25 @@ def test_admin_set_status(app_client):
     # status_manager = StatusManager()
     # for i in request.form:
     #     status_manager.set_status(i, int(request.form[i]))
-    pass
+    assert False
 
 # @app.route('/admin/node_map', methods=['GET'])
 # @viper_isadmin
 def test_admin_node_map(app_client):
-    pass
+    assert False
 
 
 # @app.route('/admin/customer_report', methods=['GET'])
 # @viper_isadmin
 def test_admin_customer_report(app_client):
-    pass
+    assert False
 
 
 # @app.route('/admin/set_user_invoiced', methods=['POST'])
 # @viper_isadmin
 def test_set_user_invoiced(app_client):
     # account_name = request.form['invoiced_user']
-    pass
+    assert False
 
 
 # @app.route('/admin/set_invoiced_amount', methods=['POST'])
@@ -672,18 +672,18 @@ def test_set_invoice_amount(app_client):
     # account_id = request.form['account_id']
     # amount     = request.form['amount']
     # currency   = request.form['currency']
-    pass
+    assert False
 
 
 # @app.route('/admin/set_user_customplan', methods=['POST'])
 # @viper_isadmin
 def test_set_user_customplan(app_client):
     # account_name = request.form['customplan_user']
-    pass
+    assert False
 
 # @app.route('/admin/customer_export', methods=['GET'])
 def test_admin_download_customer_report(app_client):
-    pass
+    assert False
 
 # @app.route('/admin')
 def test_admin(app_client):
@@ -704,7 +704,7 @@ def test_alarms(app_client):
 
 # @app.route('/<instance_name>/request_compaction', methods=['POST'])
 def request_compaction(app_client):
-    pass
+    assert False
 
 
 # @app.route('/admin_create_instance', methods=['POST'])
@@ -715,18 +715,18 @@ def test_admin_create_instance(app_client):
     # service_type    = request.form['service_type']
     # version         = request.form['version']
     # zone            = request.form['zone']
-    pass
+    assert False
 
 # @app.route('/<instance_name>/alarm/clear', methods=['POST'])
 def test_alarm_clear(app_client):
     # alarm_id = request.form['alarm_id']
-    pass
+    assert False
 
 
 # @app.route('/<instance_name>/alarm/clear/all', methods=['POST'])
 def test_alarm_clear_all(app_client):
     # alarms = json.loads(request.form['alarms'])
-    pass
+    assert False
 
 # TODO: Need valid EC2 credentials
 # def test_add_ec2_settings(app_client):

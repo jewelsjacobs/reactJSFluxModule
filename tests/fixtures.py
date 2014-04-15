@@ -8,7 +8,7 @@ import pytest
 from viper.tools import qatools
 testdb = qatools.MongoTestDB()  # Test DB is now live.
 
-from viper_gui import app
+from gui import app
 
 
 def purge_dbs():
