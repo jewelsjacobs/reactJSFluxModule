@@ -1,41 +1,90 @@
 """GUI application views."""
-import requests
+from __future__ import division
 
-from flask import abort, flash, g, redirect, render_template, request, session, url_for
+# STL imports.
+import collections
+import datetime
+import json
+import locale
+import urllib
+
+# 3rd party imports.
+import bson
+import itsdangerous
+import requests
+import stripe
+
+# 3rd part from imports.
+from flask import abort, Response
+from flask import flash, request, render_template, session, redirect, url_for, g
+from flask import make_response
+from flaskext.kvsession import KVSessionExtension
 from functools import wraps
 from pymongo.errors import AutoReconnect
 from viper import config
+from werkzeug.datastructures import ImmutableMultiDict
+
+# ObjectRocket from imports.
 from viper import monitor
 from viper.account import AccountManager
-from viper.annunciator import Alarm, Annunciator
+from viper.annunciator import Annunciator, Alarm
+from viper.aws import AWSManager
 from viper.billing import BillingManager, BillingException
 from viper.constants import Constants
 from viper.instance import InstanceManager
 from viper.messages import MessageManager
+from viper.mongo_instance import MongoDBInstanceException
+from viper.mongo_sessions import MongoDBStore
+from viper.notifier import Notifier
+from viper.replica import ReplicaException
+from viper.shard import ShardManager
 from viper.status import StatusManager
-from viper.utility import Utility
+from viper.utility import Utility, FlaskUtility
 
+# Make app available in this scope.
 from gui import app
 
+# TODO: Refactor: Should be declared with app instantiation (__init.py__)
+# Define crypto key for cookies
+app.secret_key = "Super Secret Key"
+app.signing_key = "ba71f41a91e947f680d879c08982d302"
 
-@app.context_processor
-def inject_constants():
-    """Inject Constants into our templates."""
-    return {'Constants': Constants}
+# Session system.
+store = MongoDBStore(config)
+KVSessionExtension(store, app)
 
+# TODO: sniff userLanguage from navigator.language js and set locale from this
+locale.setlocale(locale.LC_ALL, '')
 
-# TODO: Refactor: Needs refactor / error checking. Should be moved elsewhere if we actually need it.
-def send_email(recipient, subject, body):
-    return requests.post(
-        "https://api.mailgun.net/v2/objectrocket.mailgun.org/messages",
-        auth=("api", "key-9i3dch4p928wedoaj4atoqxoyxb-hy29"),
-        data={"from": "ObjectRocket <support@objectrocket.com>",
-              "to": recipient,
-              "subject": subject,
-              "text": body})
+# TODO: Refactor: Should move out of controllers into runserver or app (app resides in gui/__init__.py ... I'd move the app decl out of here)
+# -----------------------------------------------------------------------
+# Configure application logging
+# -----------------------------------------------------------------------
+if config.VIPER_IN_DEV:
+    app.debug = True  # disabled in PRODUCTION, and forces logging to syslog
+else:
+    app.debug = False
+
+if not app.debug:
+    import logging
+    from logging.handlers import SysLogHandler
+    viper_syslog = SysLogHandler(address = '/dev/log', facility = SysLogHandler.LOG_LOCAL6)
+    viper_syslog.setLevel(logging.DEBUG)
+
+    viper_formatter = logging.Formatter('%(name)s: %(levelname)s %(message)s')
+    viper_syslog.setFormatter(viper_formatter)
+
+    app.logger.setLevel(logging.DEBUG)
+    app.logger_name = "gui"
+    app.logger.addHandler(viper_syslog)
+
+    app.logger.debug("Starting Viper")
 
 
 # TODO: Refactor: Should move to a Utility lib
+# -----------------------------------------------------------------------
+# Viper Decorators
+# -----------------------------------------------------------------------
 def viper_auth(func):
     """Decorator to test for auth.
 
@@ -50,6 +99,222 @@ def viper_auth(func):
         else:
             return render_template('login/login.html')
     return internal
+
+
+def viper_isadmin(func):
+    """Decorator to test that the current user session is an admin."""
+    @wraps(func)
+    def internal(*args, **kwargs):
+        try:
+            if g.login in config.ADMIN_USERS:
+                session['role'] = 'admin'
+                return func(*args, **kwargs)
+            else:
+                flash('User "%s" does not have admin privileges.' % g.login,
+                      Constants.FLASH_WARN)
+                return redirect(url_for('default'))
+        except Exception as ex:
+            ex_info = '%s: %s' % (ex.__class__.__name__, ex)
+            flash('Problem with admin function: %s' % ex_info,
+                  Constants.FLASH_ERROR)
+            return redirect(url_for('admin'))
+    return internal
+
+
+# TODO: Refactor: This scares me. If we need to limit access to DBs that should be done somewhere else like at the instance level.
+def exclude_admin_databases(check_argument):
+    """Ensures that users can't perform operations on dbs like admin and config."""
+    def decorator(method):
+        @wraps(method)
+        def check_for_admin_database(*args, **kwargs):
+            if check_argument in kwargs:
+                if kwargs[check_argument] in Constants.ADMINISTRATIVE_DATABASES:
+                    return redirect(url_for('instances'))
+            return method(*args, **kwargs)
+        return check_for_admin_database
+    return decorator
+
+
+# TODO: Refactor: This can be better accomplished using bson.json_util.
+# See api_document in annunciator.py (api_document method should probably moved elsewhere).
+def json_stringify(jsondata):
+    out = {}
+    for k, v in jsondata.iteritems():
+        if type(v) is datetime.datetime:
+            out[k] = str(v)
+        # TODO: Refactor: Bug: Unresolved reference objectid.
+        elif type(v) is bson.objectid.ObjectId:
+            out[k] = "ObjectId(" + str(v) + ")"
+        else:
+            out[k] = str(v)
+    return out
+
+
+# TODO: Refactor: Redundant. Should be moved elsewhere if we actually need it.
+def json_prettify(s):
+    out = {}
+    try:
+        out = json.dumps(json_stringify(s), sort_keys = False, indent = 2)
+    except:
+        # TODO: Refactor: Unused reference.
+        out = {}
+        # TODO make a better handler
+    return out
+
+
+# TODO: Refactor: Needs refactor. Should be moved elsewhere.
+def api_url(api_key, function, instance, data=None):
+    """ returns json data from OR url fetch """
+
+    if isinstance(data, ImmutableMultiDict):
+        data = {key: data.get(key) for key in data.keys()}
+    elif isinstance(data, dict):
+        data = data
+    else:
+        data = {}
+
+    data['api_key'] = api_key
+
+    if instance is not None:
+        url = "%s/%s/%s" % (config.API_SERVER, function, instance)
+    elif function is None:
+        url = "%s/" % (config.API_SERVER)
+    else:
+        if function.startswith('/'):
+            function = function[1:]
+        url = "%s/%s" % (config.API_SERVER, function)
+
+    out = "{}"
+
+    try:
+        f = urllib.urlopen(url, urllib.urlencode(data))
+        out = f.read()
+        return out
+
+    except Exception as ex:
+        app.logger.error("Error retrieving API URL %s: %s" % (url, ex))
+        return out
+
+
+# TODO: Refactor: Needs refactor. Should be moved elsewhere.
+def fetch_api_data(api_key, url):
+    data = {"api_key": api_key}
+    # TODO: Refactor: Shadows api_url.
+    api_url = "%s/%s" % (config.API_SERVER, url)
+
+    response_data = "{}"
+
+    try:
+        response = urllib.urlopen(api_url, urllib.urlencode(data))
+        response_data = response.read()
+        return response_data
+
+    except Exception as ex:
+        msg = '%s: %s' % (ex.__class__.__name__, str(ex))
+        error_id = Utility.obfuscate_exception_message(msg)
+        session['error_id'] = error_id
+        error_info = {
+            'path': request.path,
+            'user': getattr(g, 'login', None),
+            'api_key': getattr(g, 'api_key', None),
+            'context': 'gui fetch_api_data',
+        }
+        Utility.log_traceback(config, error_id, error_info)
+        app.logger.debug("url fetch error:" + str(ex))
+        return response_data
+
+
+# TODO: Refactor: Needs refactor / error checking. Should be moved elsewhere if we actually need it.
+def send_email(recipient, subject, body):
+    return requests.post(
+        "https://api.mailgun.net/v2/objectrocket.mailgun.org/messages",
+        auth=("api", "key-9i3dch4p928wedoaj4atoqxoyxb-hy29"),
+        data={"from": "ObjectRocket <support@objectrocket.com>",
+              "to": recipient,
+              "subject": subject,
+              "text": body})
+
+
+# TODO: Refactor: Should be moved out of controllers.
+# -----------------------------------------------------------------------
+# Configure App Handlers
+# -----------------------------------------------------------------------
+
+@app.errorhandler(BillingException)
+def stripe_exception_handler(error):
+    msg = "Billing Error: {}".format(error)
+    flash("There has been an error with your account. Please contact {}".format(config.SUPPORT_EMAIL))
+    app.logger.error(msg)
+    return redirect(url_for('account'))
+
+
+@app.errorhandler(MongoDBInstanceException)
+def mongo_instance_exception_handler(error):
+    msg = "Instance Error: {0}".format(error)
+    flash("There has been an error with your mongo instance. Please contact support@objectrocket.com")
+    app.logger.error(msg)
+    return redirect(url_for('default'))
+
+
+@app.errorhandler(ReplicaException)
+def replica_instance_exception_handler(error):
+    msg = "Instance Error: {0}".format(error)
+    flash("There has been an error with your replica instance. Please contact support@objectrocket.com")
+    app.logger.error(msg)
+    return redirect(url_for('default'))
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    """Traps tracebacks for uncaught exceptions."""
+    error_id = Utility.obfuscate_exception_message(error)
+    error_info = {
+        'path': request.path,
+        'user': getattr(g, 'login', None),
+        'context': 'gui',
+    }
+    Utility.log_traceback(config, error_id, error_info)
+    response = redirect(url_for('error'))
+    session['error_id'] = error_id
+    app.save_session(session, response)
+    return response
+
+
+@app.context_processor
+def inject_constants():
+    return {'Constants': Constants}
+
+
+# TODO: Refactor: Should be moved out of controllers.
+# -----------------------------------------------------------------------
+# Configure App Filters
+# -----------------------------------------------------------------------
+@app.template_filter('format_timestamp')
+def format_timestamp(ts):
+        return Utility.format_timestamp(ts)
+
+
+# ------------------------
+# pass through proxy API calls.  This is done because js only allows local connections, thus make
+# local calls through this auth'd proxy
+# ------------------------
+# Generic call for GUI - more efficient because it avoids an instance lookup
+@app.route('/api/<call>/<api_key>', methods=['GET', 'POST'])
+@viper_auth
+def api_call(call, api_key):
+    data = getattr(request, 'form', None)
+    return api_url(api_key, call, None, data=data)
+
+
+@app.route('/api_status', methods=['GET', 'POST'])
+@viper_auth
+def api_status():
+    url = ("%s") % (config.API_SERVER)
+    try:
+        f = urllib.urlopen(url)
+        return f.read()
+    except:
+        return "{}"
 
 
 @app.route('/account')
