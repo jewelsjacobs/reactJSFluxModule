@@ -57,15 +57,4 @@
 {% block script %}
     {{ super() }}
     {% include 'jquery_validate_js.html' %}
-
-    <script type="text/javascript">
-    $(document).ready(function() {
-        // Utility navigation code.
-        $('li.rs-dropdown.rs-utility-dropdown').hover(function(event) {
-            $('ul.rs-dropdown-menu', this).toggleClass('visible hidden');
-        });
-    });
-    </script>
-
-
 {% endblock script %}
