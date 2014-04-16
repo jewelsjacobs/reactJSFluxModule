@@ -68,7 +68,7 @@ else:
 if not app.debug:
     import logging
     from logging.handlers import SysLogHandler
-    viper_syslog = SysLogHandler(address = '/dev/log', facility = SysLogHandler.LOG_LOCAL6)
+    viper_syslog = SysLogHandler(address='/dev/log', facility=SysLogHandler.LOG_LOCAL6)
     viper_syslog.setLevel(logging.DEBUG)
 
     viper_formatter = logging.Formatter('%(name)s: %(levelname)s %(message)s')
@@ -844,3 +844,17 @@ def set_credit_card():
         return redirect(url_for(request.form['returntarget']))
     else:
         return redirect(url_for('billing'))
+
+
+@app.route('/invoices/<invoice_id>')
+@viper_auth
+def show_invoice(invoice_id):
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+
+    billing_manager = BillingManager(config)
+    invoice = billing_manager.get_invoice(g.login, invoice_id)
+
+    return render_template('billing/invoice.html',
+                           account=account,
+                           invoice=invoice)
