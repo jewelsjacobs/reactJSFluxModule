@@ -1,16 +1,19 @@
 {% macro generic_view(page_title=None) %}
-<!-- generic view -->
-<div class="rs-inner">
-    {% if page_title %}
-        <!-- page title -->
-        <h2 class="rs-page-title">{{ page_title }}</h2>
-        <!-- end page title -->
-    {% endif %}
-    <!-- generic view content -->
-    {{ caller() }}
-    <!-- end generic view content -->
-</div>
-<!-- end generic view -->
+    <!-- generic view -->
+    <div class="rs-inner">
+        {% if page_title %}
+            <!-- page title -->
+            <h2 class="rs-page-title">{{ page_title }}</h2>
+            <!-- end page title -->
+        {% endif %}
+        <!-- generic view content -->
+        {{ caller() }}
+        <!-- end generic view content -->
+    </div>
+    <!-- end generic view -->
+{% endmacro %}
+
+
 {% macro detail_header_actions() %}
     <!-- detail header actions -->
     <div class="rs-detail-header-actions">
