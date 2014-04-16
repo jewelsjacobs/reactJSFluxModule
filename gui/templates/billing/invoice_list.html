@@ -7,6 +7,7 @@
             <table class="rs-list-table rs-embedded-list-table">
                 <thead>
                     <tr>
+                        <th class="rs-table-status"></th>
                         <th>Date</th>
                         <th>ID</th>
                         <th>Period Start</th>
@@ -18,7 +19,9 @@
                 <tbody>
                     {% for invoice_id in invoices %}
                         {% set invoice = invoices[invoice_id] %}
+                        {% set paid = invoice['status'] == 'Paid in Full' %}
                         <tr>
+                            <td class="rs-table-status rs-table-status-{{ 'ok' if paid else 'warning'}}"></td>
                             <td>{{ invoice['date'] }}</td>
                             <td><a href="{{ url_for('show_invoice', invoice_id=invoice_id) }}">{{ invoice_id }}</a></td>
                             <td>{{ invoice['start_date'] }}</td>
