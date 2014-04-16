@@ -22,6 +22,12 @@ Billing
 {% endblock %}
 
 {% block content_area_body %}
-{% include 'billing/current_subscription.html' %}
-{% include 'billing/invoice_list.html' %}
+    {% include 'billing/current_subscription.html' %}
+    {% include 'billing/invoice_list.html' %}
+    {% include 'billing/cc_details.html' %}
+{% endblock %}
+
+{% block script %}
+    {{ super() }}
+    {% include 'stripe_js.html' %}
 {% endblock %}
