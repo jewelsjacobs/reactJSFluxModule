@@ -1,0 +1,68 @@
+{% macro generic_view(page_title=None) %}
+<!-- generic view -->
+<div class="rs-inner">
+    {% if page_title %}
+        <!-- page title -->
+        <h2 class="rs-page-title">{{ page_title }}</h2>
+        <!-- end page title -->
+    {% endif %}
+    <!-- generic view content -->
+    {{ caller() }}
+    <!-- end generic view content -->
+</div>
+<!-- end generic view -->
+{% macro detail_header_actions() %}
+    <!-- detail header actions -->
+    <div class="rs-detail-header-actions">
+        {{ caller() }}
+    </div>
+    <!-- end detail header actions -->
+{% endmacro %}
+
+
+{% macro detail_header(title=None, subtitle=None) %}
+    <!-- detail header -->
+    <div class="rs-detail-header">
+        {% block detail_header_action_content %}{% endblock %}
+        {% if title %}
+            <!-- detail header title -->
+            <div class="rs-detail-header-title">{{ title }}</div>
+            <!-- end detail header title -->
+        {% endif %}
+        {% if subtitle %}
+            <!-- detail header subtitle -->
+            <div class="rs-detail-header-subtitle">{{ subtitle }}</div>
+            <!-- end detail header subtitle -->
+        {% endif %}
+    </div>
+    <!-- end detail header -->
+{% endmacro %}
+
+
+{% macro detail_section(title=None) %}
+    <!-- detail section -->
+    <div class="rs-detail-section">
+        <div class="rs-detail-section-header">
+            {% if detail_header_subtitle %}
+                <!-- detail section title -->
+                <div class="rs-detail-section-title">{{ title }}</div>
+                <!-- end detail section title -->
+            {% endif %}
+        </div>
+        <!-- detail section body -->
+        <div class="rs-detail-section-body">
+            {{ caller() }}
+        </div>
+        <!-- end detail section body -->
+    </div>
+    <!-- end detail section -->
+{% endmacro %}
+
+
+{% macro create_view(action, id=None, method="POST") %}
+    <!-- create view -->
+    <form class="rs-form-create" action="{{ action }}" method="{{ method }}" {% if id %}id="{{ id }}"{% endif %}>
+        {{ caller() }}
+    </form>
+    <!-- end create view -->
+{% endmacro %}
