@@ -1,0 +1,42 @@
+<div class="rs-detail-section">
+    <div class="rs-detail-section-header">
+        <div class="rs-detail-section-title">Invoices</div>
+    </div>
+    <div class="rs-detail-section-body">
+        <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>ID</th>
+                        <th>Period Start</th>
+                        <th>Peroid End</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice_id in invoices %}
+                        {% set invoice = invoices[invoice_id] %}
+                        <tr>
+                            <td>{{ invoice['date'] }}</td>
+                            <td><a href="{{ url_for('show_invoice', invoice_id=invoice_id) }}">{{ invoice_id }}</a></td>
+                            <td>{{ invoice['start_date'] }}</td>
+                            <td>{{ invoice['end_date'] }}</td>
+                            <td>{{ invoice['amount'] }}</td>
+                            <td>{{ invoice['status'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not invoices %}
+                <div class="rs-table-overlay">
+                    <div class="rs-table-overlay-content">
+                        <div class="rs-table-overlay-title">You haven't been invoiced yet.</div>
+                        <div class="rs-table-overlay-subtitle">Invoices will show up here after they've been issued.</div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

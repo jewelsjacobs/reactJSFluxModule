@@ -8,6 +8,20 @@
 Billing
 {% endblock %}
 
+{% block sidebar %}
+    {% call sidebar_help(hidden=False) %}
+    <p>
+        ObjectRocket bills for the next month's usage in advance.
+        Your bill is prorated for any changes to your instances.
+    </p>
+    <p>
+        Questions? Check our <a href="http://docs.objectrocket.com/faq.html#billing">Billing FAQ</a>,
+        or contact us at <a href="mailto:support@objectrocket.com">support@objectrocket.com</a>.
+    </p>
+    {% endcall %}
+{% endblock %}
+
 {% block content_area_body %}
 {% include 'billing/current_subscription.html' %}
+{% include 'billing/invoice_list.html' %}
 {% endblock %}
