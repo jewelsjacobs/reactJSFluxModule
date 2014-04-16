@@ -168,9 +168,15 @@
             <div class="rs-popover-body">
                 <form id="update-password-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('update_password') }}" method="POST">
                     <div class="rs-control-group">
-                        <label class="rs-control-label">Password</label>
+                        <label class="rs-control-label">New Password</label>
                         <div class="rs-controls">
-                            <input name="name" type="text" class="rs-input rs-input-medium">
+                            <input id="password" name="password" type="text" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Confirm New Password</label>
+                        <div class="rs-controls">
+                            <input name="confirm-password" type="text" class="rs-input rs-input-medium">
                         </div>
                     </div>
                 </form>
@@ -210,36 +216,37 @@
             errorClass: 'rs-validation-block',
             errorElement: 'span',
             highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
                 $(label).closest('.rs-control-group').addClass('error');
             },
             success: function (label) {
-                $(label).closest('.rs-control-group').addClass('success');
                 $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
             }
         });
 
-        // $('#change_password_form').validate({
-        //     rules: {
-        //         password: {
-        //             minlength: 6,
-        //             required: true
-        //         },
-        //         confirmPassword: {
-        //             required: true,
-        //             equalTo: "#password"
-        //         },
-        //     },
-        //     highlight: function(label) {
-        //         $(label).closest('.control-group').addClass('error');
-        //     },
-        //     success: function(label) {
-        //         label
-        //             .addClass('valid')
-        //             .closest('.control-group').addClass('success');
-        //         $('#change_password_button').removeAttr("disabled", "disabled");
-        //         $('#change_password_button').removeClass('disabled');
-        //     }
-        // });
+        $('#update-password-popover-form').validate({
+            rules: {
+                'password': {
+                    minlength: 6,
+                    required: true
+                },
+                'confirm-password': {
+                    required: true,
+                    equalTo: '#password'
+                },
+            },
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function(label) {
+                $(label).closest('.rs-control-group').removeClass('error')
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
     });
     </script>
 {% endblock script %}
