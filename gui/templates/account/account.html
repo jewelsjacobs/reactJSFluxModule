@@ -83,7 +83,9 @@
 
     <div class="rs-detail-section">
         <div class="rs-detail-section-header">
-            <div class="rs-detail-section-title">Contact Information</div>
+            <div class="rs-detail-section-title">Contact Information
+                <button id="contact-information-target" data-popover="contact-information-popover" data-popover-target="contact-information-target" data-popover-position="right" class="rs-btn rs-btn-link rs-popover-source">Edit…</button>
+            </div>
         </div>
 
         <div class="rs-detail-section-body">
@@ -116,6 +118,52 @@
         </div>
     </div>
 {% endblock content_area_body %}
+
+{% block popovers %}
+    <div id="contact-information-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow rs-popover-arrow-top-left"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="contact-information-popover-form" class="rs-form-horizontal rs-form-small">
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Name</label>
+                        <div class="rs-controls">
+                            <input type="text" class="rs-input-medium">
+                        </div>
+                    </div>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Email</label>
+                        <div class="rs-controls">
+                            <input type="text" class="rs-input-medium">
+                        </div>
+                    </div>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Phone</label>
+                        <div class="rs-controls">
+                            <input type="text" class="rs-input-medium">
+                        </div>
+                    </div>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Company</label>
+                        <div class="rs-controls">
+                            <input type="text" class="rs-input-medium">
+                        </div>
+                    </div>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Zip</label>
+                        <div class="rs-controls">
+                            <input type="text" class="rs-input-medium">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <div class="rs-btn rs-btn-primary">Save</div>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+{% endblock popovers %}
 
 {% block script %}
     {{ super() }}

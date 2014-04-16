@@ -7,3 +7,7 @@ body.rs-responsive .rs-container {
 	max-width: 1030px;
 	margin: 0 auto;
 }
+
+.invisible {
+	display: none;
+}
