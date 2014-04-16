@@ -332,7 +332,7 @@ def account():
 @app.route('/update_account_contact', methods=['POST'])
 @viper_auth
 def update_account_contact():
-    """Update account contact info route."""
+    """Update account contact info."""
     company = request.form['company']
     email = request.form['email']
     name = request.form['name']
@@ -346,6 +346,22 @@ def update_account_contact():
 
     flash('Account successfully updated.', Constants.FLASH_INFO)
 
+    return redirect(url_for('account'))
+
+
+@app.route('/update_password', methods=['POST'])
+@viper_auth
+def update_password():
+    """Update account password."""
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+    if account is None or not account.active:
+        return redirect(url_for('sign_in'))
+
+    account_manager.update_password(account.login,
+                                    request.form[Constants.PASSWORD])
+
+    flash('Password successfully updated.')
     return redirect(url_for('account'))
 
 

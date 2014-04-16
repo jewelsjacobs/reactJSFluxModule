@@ -9,8 +9,8 @@ var showOverlay = function() {
 }
 
 $(document).ready(function() {
-	$('body').append('<div class="rs-overlay hidden"></div>');
-	overlay = $('.rs-overlay');
+	$('body').append('<div class="or-overlay hidden"></div>');
+	overlay = $('.or-overlay');
 	overlay.click(function() {
 		hidePopover();
 		hideDropdown();

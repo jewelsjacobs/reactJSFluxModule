@@ -9,5 +9,20 @@ body.rs-responsive .rs-container {
 }
 
 .invisible {
+	visibility: hidden;
+}
+
+.hidden
+{
 	display: none;
+}
+.or-overlay { /* This diverges from the canon norm, but it is needed for the JS. */
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: 999;
 }
