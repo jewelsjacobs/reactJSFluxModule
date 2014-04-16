@@ -13,7 +13,9 @@ The element which triggers a popover (probably a button) needs the following att
 - data-popover-target="<id of the targeted element for the popover>"
 - data-popover-position="<the position the popover will appear relative to the target (right, left, bottom-right, bottom-left)>"
 
-The data popover itself needs the following attributes:
+The data popover itself needs to appear in the ``{% block popover %}`` and needs the following
+attributes:
 
 - Class properties "rs-popover" and "invisible".
 - An id corresponding to the popover source data-popover value.
+
