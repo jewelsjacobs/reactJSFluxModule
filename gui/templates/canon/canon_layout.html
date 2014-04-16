@@ -1,5 +1,10 @@
-{%- from 'canon/canon_backlink.html' import back_link with context %}
+{%- from 'canon/canon_component_macros.html' import back_link with context %}
 {%- from 'canon/canon_component_macros.html' import status_indicator with context %}
+{%- from 'canon/canon_content_macros.html' import create_view with context %}
+{%- from 'canon/canon_content_macros.html' import detail_header with context %}
+{%- from 'canon/canon_content_macros.html' import detail_header_actions with context %}
+{%- from 'canon/canon_content_macros.html' import detail_section with context %}
+{%- from 'canon/canon_content_macros.html' import generic_view with context %}
 {%- from 'canon/canon_flash_messages.html' import flash_messages with context %}
 {%- from 'canon/canon_footer.html' import footer_content with context %}
 {%- from 'canon/canon_meta.html' import meta_content with context %}
@@ -115,9 +120,9 @@
                             {% block sidebar %}{% endblock %}
 
                             <div class="rs-content rs-panel">
-                                <!-- content_area content -->
+                                <!-- content_area body -->
                                 {% block content_area_body %}{% endblock %}
-                                <!-- end content_area content -->
+                                <!-- end content_area body -->
                             </div>
                         </div>
                     {% endblock %}
@@ -127,9 +132,6 @@
             </div>
         </div>
         <div class="rs-push"></div>
-
-        {% block popovers %}
-        {% endblock popovers %}
 
         <!-- footer -->
         {% block footer %}

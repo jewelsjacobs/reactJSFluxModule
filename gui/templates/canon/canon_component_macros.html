@@ -3,3 +3,11 @@
         <p class="span-12 rs-status rs-status-{{ category }}">{{ message }}</p>
     </div>
 {% endmacro %}
+
+{% macro back_link() %}
+    <div class="rs-back-link">
+        <!-- back_link content -->
+        {{ caller() }}
+        <!-- end back_link content -->
+    </div>
+{% endmacro %}
