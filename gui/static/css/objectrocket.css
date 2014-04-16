@@ -4,8 +4,14 @@
 }
 
 body.rs-responsive .rs-container {
+	height: 100%;
 	max-width: 80%;
 	margin: 0 auto;
+}
+
+.rs-sidebar {
+	height: 100%;
+	overflow: scroll;
 }
 
 .invisible {
