@@ -329,6 +329,26 @@ def account():
     return render_template('account/account.html', account=account, login=g.login)
 
 
+@app.route('/update_account_contact', methods=['POST'])
+@viper_auth
+def update_account_contact():
+    """Update account contact info route."""
+    company = request.form['company']
+    email = request.form['email']
+    name = request.form['name']
+    phone = request.form['phone']
+    zipcode = request.form['zipcode']
+
+    app.logger.debug(company+email+name+phone+zipcode)
+
+    account_manager = AccountManager(config)
+    account_manager.update_account_contact(g.login, company=company, email=email, name=name, phone=phone, zipcode=zipcode)
+
+    flash('Account successfully updated.', Constants.FLASH_INFO)
+
+    return redirect(url_for('account'))
+
+
 @app.route('/create_instance', methods=['POST'])
 @viper_auth
 def create_instance():

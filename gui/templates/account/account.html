@@ -124,41 +124,41 @@
         <div class="rs-popover-arrow rs-popover-arrow-top-left"></div>
         <div class="rs-popover-content">
             <div class="rs-popover-body">
-                <form id="contact-information-popover-form" class="rs-form-horizontal rs-form-small">
+                <form id="contact-information-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('update_account_contact') }}" method="POST">
                     <div class="rs-control-group">
                         <label class="rs-control-label">Name</label>
                         <div class="rs-controls">
-                            <input type="text" class="rs-input-medium">
+                            <input name="name" type="text" class="rs-input-medium">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Email</label>
                         <div class="rs-controls">
-                            <input type="text" class="rs-input-medium">
+                            <input name="email" type="text" class="rs-input-medium">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Phone</label>
                         <div class="rs-controls">
-                            <input type="text" class="rs-input-medium">
+                            <input name="phone" type="text" class="rs-input-medium">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Company</label>
                         <div class="rs-controls">
-                            <input type="text" class="rs-input-medium">
+                            <input name="company" type="text" class="rs-input-medium">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Zip</label>
                         <div class="rs-controls">
-                            <input type="text" class="rs-input-medium">
+                            <input name="zipcode" type="text" class="rs-input-medium">
                         </div>
                     </div>
                 </form>
             </div>
             <div class="rs-popover-footer rs-btn-group">
-                <div class="rs-btn rs-btn-primary">Save</div>
+                <button form="contact-information-popover-form" class="rs-btn rs-btn-primary save">Save</button>
                 <div class="rs-btn rs-btn-link">Cancel</div>
             </div>
         </div>
