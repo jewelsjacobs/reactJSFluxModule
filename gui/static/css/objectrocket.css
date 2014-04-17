@@ -32,3 +32,13 @@ body.rs-responsive .rs-container {
 	height: 100%;
 	z-index: 999;
 }
+
+img.invoice-logo {
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	width: 170px;
+	height: 40px;
+	background-color: black;
+	padding: 5px;
+}
