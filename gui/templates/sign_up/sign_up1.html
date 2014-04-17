@@ -23,91 +23,89 @@ TODO:
 
 {% block content_area_body %}
     {% call create_view(url_for('sign_up1'), id="sign-up-form", method="POST") %}
-        {{ detail_header(page_title="Sign Up", subtitle="Step 1 of 3") }}
+        {% call detail_header(page_title="Sign Up", subtitle="Step 1 of 3") %}{% endcall %}
         {% call detail_section(title="Account Information") %}
-            <div class="rs-detail-section-body">
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="name">Full Name</label>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="name">Full Name</label>
 
-                    <div class="rs-controls">
-                        <input type="text" name="name" class="rs-input-xlarge" id="name">
-                    </div>
+                <div class="rs-controls">
+                    <input type="text" name="name" class="rs-input-xlarge" id="name">
                 </div>
+            </div>
 
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="login">Desired Login</label>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="login">Desired Login</label>
 
-                    <div class="rs-controls">
-                        <input type="text" name="login" class="rs-input-xlarge" id="login">
-                    </div>
+                <div class="rs-controls">
+                    <input type="text" name="login" class="rs-input-xlarge" id="login">
                 </div>
+            </div>
 
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="company">Company</label>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="company">Company</label>
 
-                    <div class="rs-controls">
-                        <input type="text" name="company" class="rs-input-xlarge" id="company">
-                    </div>
+                <div class="rs-controls">
+                    <input type="text" name="company" class="rs-input-xlarge" id="company">
                 </div>
+            </div>
 
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="password">Password</label>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="password">Password</label>
 
-                    <div class="rs-controls">
-                        <input type="password" name="password" class="rs-input-xlarge" id="password">
-                    </div>
+                <div class="rs-controls">
+                    <input type="password" name="password" class="rs-input-xlarge" id="password">
                 </div>
+            </div>
 
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="confirmPassword">Confirm Password</label>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="confirmPassword">Confirm Password</label>
 
-                    <div class="rs-controls">
-                        <input type="password" name="confirmPassword" class="rs-input-xlarge" id="confirmPassword">
-                    </div>
+                <div class="rs-controls">
+                    <input type="password" name="confirmPassword" class="rs-input-xlarge" id="confirmPassword">
                 </div>
+            </div>
 
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="email">Email Address</label>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="email">Email Address</label>
 
-                    <div class="rs-controls">
-                        <input type="text" name="email" class="rs-input-xlarge" id="email">
-                        <span class="rs-help-block">This will be used for alerts and notifications.</span>
-                    </div>
+                <div class="rs-controls">
+                    <input type="text" name="email" class="rs-input-xlarge" id="email">
+                    <span class="rs-help-block">This will be used for alerts and notifications.</span>
                 </div>
+            </div>
 
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="phone">Phone Number</label>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="phone">Phone Number</label>
 
-                    <div class="rs-controls">
-                        <input type="text" name="phone" class="rs-input-xlarge" id="phone">
-                        <span class="rs-help-block">This will be used for alerts and notifications.</span>
-                    </div>
+                <div class="rs-controls">
+                    <input type="text" name="phone" class="rs-input-xlarge" id="phone">
+                    <span class="rs-help-block">This will be used for alerts and notifications.</span>
                 </div>
+            </div>
 
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="zipcode">Postal Code</label>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="zipcode">Postal Code</label>
 
-                    <div class="rs-controls">
-                        <input type="text" name="zipcode" class="rs-input-xlarge" id="zipcode">
-                    </div>
+                <div class="rs-controls">
+                    <input type="text" name="zipcode" class="rs-input-xlarge" id="zipcode">
                 </div>
+            </div>
 
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="agree">Terms of Service</label>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="agree">Terms of Service</label>
 
-                    <div class="rs-controls">
-                        <label class="rs-checkbox">
-                            <input type="checkbox" name="agree" id="agree">
-                        </label>
-                        <br>
+                <div class="rs-controls">
+                    <label class="rs-checkbox">
+                        <input type="checkbox" name="agree" id="agree">
+                    </label>
+                    <br>
 
-                        <span class="rs-help-block">
-                            By checking this box and clicking the "Next" button below you agree
-                            to the following <a href="#" id="tos">Terms and Conditions</a>. You represent and warrant
-                            that you are authorized to agree to the Trial Terms and Conditions on behalf of the
-                            customer you sign up under in the next step.
-                        </span>
-                    </div>
+                    <span class="rs-help-block">
+                        By checking this box and clicking the "Next" button below you agree
+                        to the following <a href="#" id="tos">Terms and Conditions</a>. You represent and warrant
+                        that you are authorized to agree to the Trial Terms and Conditions on behalf of the
+                        customer you sign up under in the next step.
+                    </span>
                 </div>
             </div>
 

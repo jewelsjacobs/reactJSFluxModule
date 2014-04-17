@@ -51,15 +51,23 @@
             <div class="rs-detail-header-title">{{ title }}</div>
             <!-- end detail header title -->
         {% endif %}
+        {{ caller() }}
     </div>
     <!-- end detail header -->
 {% endmacro %}
 
 
-{% macro detail_section(title=None, subtitle=None) %}
+{% macro detail_section(title=None, subtitle=None, collapsible=False, expanded=True) %}
     <!-- detail section -->
-    <div class="rs-detail-section">
+    {% if collapsible %}
+        <div class="rs-detail-section rs-collapsible-section{% if expanded %} expanded{% endif %}">
+    {% else %}
+        <div class="rs-detail-section">
+    {% endif %}
         <div class="rs-detail-section-header">
+            {% if collapsible and (title or subtitle) %}
+                <div class="rs-caret"></div>
+            {% endif %}
             {% if title %}
                 <!-- detail section title -->
                 <div class="rs-detail-section-title">{{ title }}</div>
@@ -71,7 +79,9 @@
                 <!-- end detail section subtitle -->
             {% endif %}
         </div>
-        {{ caller() }}
+        <div class="rs-detail-section-body">
+            {{ caller() }}
+        </div>
     </div>
     <!-- end detail section -->
 {% endmacro %}

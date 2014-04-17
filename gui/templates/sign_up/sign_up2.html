@@ -21,68 +21,66 @@
 
 {% block content_area_body %}
     {% call create_view(url_for('sign_up3'), id="sign-up-form", method="POST") %}
-        {{ detail_header(page_title="Sign Up", subtitle="Step 2 of 3") }}
+        {% call detail_header(page_title="Sign Up", subtitle="Step 2 of 3") %}{% endcall %}
         {% call detail_section(title="Instance Information") %}
-            <div class="rs-detail-section-body">
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="name">Instance Name</label>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="name">Instance Name</label>
 
-                    <div class="rs-controls">
-                        <input id="name" name="name" type="text" class="rs-input-xlarge">
-                    </div>
+                <div class="rs-controls">
+                    <input id="name" name="name" type="text" class="rs-input-xlarge">
                 </div>
-
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="zone">Zone</label>
-
-                    <div class="rs-controls">
-                        <select name="zone" id='zone'>
-                            <option value="US-East-IAD3" selected>US-East-IAD3, AWS Direct Connect</option>
-                            <option value="US-West">US-West, AWS Direct Connect</option>
-                            <option value="US-Chicago">ORD</option>
-                            <option value="EU-London">LON</option>
-                            <option value="AP-HongKong">HKG</option>
-                            <option value="AP-Sydney">SYD</option>
-                        </select>
-                        <span class="rs-help-block">Datacenter location.
-                            <a href="http://www.objectrocket.com/details#datacenters" target="1">Zone Details.</a>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="plan">Plan</label>
-
-                    <div class="rs-controls">
-                        <select name="plan" id='plan_select'>
-                            <option value=1>1GB SMALL $19.00/mo</option>
-                            <option value=5 selected>5GB MEDIUM $149.00/mo</option>
-                            <option value=20>20GB MEDIUM $399.00/mo</option>
-                            <option value=50>50GB MEDIUM $899.00/mo</option>
-                            <option value=100>100GB MEDIUM $1599.00/mo</option>
-                        </select>
-                        <span class="rs-help-block">
-                            Instance is incremented in shards of this size
-                            <br>
-                            (5GB Medium and larger).
-                            All prices in USD.
-                            <br>
-                            <a href="http://www.objectrocket.com/pricing#pricing" target="1">Plan and Pricing
-                                Details.</a>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="rs-control-group">
-                    <div class="rs-controls">
-                        <button id="next" type="submit" class="rs-btn rs-btn-primary">Next</button>
-                        <a href="{{ url_for('sign_up1') }}" class="rs-btn">Previous</a>
-                    </div>
-                </div>
-
-                <input type="hidden" id="service_type" name="service_type" value="mongodb"/>
-                <input type="hidden" id="version" name="version" value="{{ default_mongo_version }}"/>
             </div>
+
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="zone">Zone</label>
+
+                <div class="rs-controls">
+                    <select name="zone" id='zone'>
+                        <option value="US-East-IAD3" selected>US-East-IAD3, AWS Direct Connect</option>
+                        <option value="US-West">US-West, AWS Direct Connect</option>
+                        <option value="US-Chicago">ORD</option>
+                        <option value="EU-London">LON</option>
+                        <option value="AP-HongKong">HKG</option>
+                        <option value="AP-Sydney">SYD</option>
+                    </select>
+                    <span class="rs-help-block">Datacenter location.
+                        <a href="http://www.objectrocket.com/details#datacenters" target="1">Zone Details.</a>
+                    </span>
+                </div>
+            </div>
+
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="plan">Plan</label>
+
+                <div class="rs-controls">
+                    <select name="plan" id='plan_select'>
+                        <option value=1>1GB SMALL $19.00/mo</option>
+                        <option value=5 selected>5GB MEDIUM $149.00/mo</option>
+                        <option value=20>20GB MEDIUM $399.00/mo</option>
+                        <option value=50>50GB MEDIUM $899.00/mo</option>
+                        <option value=100>100GB MEDIUM $1599.00/mo</option>
+                    </select>
+                    <span class="rs-help-block">
+                        Instance is incremented in shards of this size
+                        <br>
+                        (5GB Medium and larger).
+                        All prices in USD.
+                        <br>
+                        <a href="http://www.objectrocket.com/pricing#pricing" target="1">Plan and Pricing
+                            Details.</a>
+                    </span>
+                </div>
+            </div>
+
+            <div class="rs-control-group">
+                <div class="rs-controls">
+                    <button id="next" type="submit" class="rs-btn rs-btn-primary">Next</button>
+                    <a href="{{ url_for('sign_up1') }}" class="rs-btn">Previous</a>
+                </div>
+            </div>
+
+            <input type="hidden" id="service_type" name="service_type" value="mongodb"/>
+            <input type="hidden" id="version" name="version" value="{{ default_mongo_version }}"/>
         {% endcall %}
     {% endcall %}
 

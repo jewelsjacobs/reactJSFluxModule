@@ -46,103 +46,88 @@ TODO:
 {% endblock back_link_area %}
 
 {% block content_area_body %}
-    <div class="rs-detail-header">
-        <div class="rs-detail-header-actions">
-            <div class="rs-dropdown">
-                <button class="rs-btn rs-btn-action rs-dropdown-toggle">
-                    <span class="rs-cog"></span>
-                    Actions
-                    <span class="rs-caret"></span>
-                </button>
-                <ul class="rs-dropdown-menu" style="right: 0;">
-                    <li><span class="rs-dropdown-category">Manage</span></li>
-                    <li><a data-popover="rename-instance-popover" data-popover-target="rename-instance-target" data-popover-position="bottom-right" class="rs-popover-source" href="javascript:void(0);">Rename Instance&hellip;</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="rs-detail-header-subtitle">Instance Details</div>
+    {% call detail_header(subtitle='Instance Details') %}
+        {% block detail_header_action_content %}
+            {% call detail_header_actions() %}
+                <li><span class="rs-dropdown-category">Manage</span></li>
+                <li><a data-popover="rename-instance-popover" data-popover-target="rename-instance-target" data-popover-position="bottom-right" class="rs-popover-source" href="javascript:void(0);">Rename Instance&hellip;</a></li>
+                <li><span class="rs-dropdown-category">Views</span></li>
+                <li><a class="or-expand-all" href="javascript:void(0);">Expand All&hellip;</a></li>
+                <li><a class="or-collapse-all" href="javascript:void(0);">Collapse All&hellip;</a></li>
+            {% endcall %}
+        {% endblock %}
         <div class="rs-detail-header-title">
             {{ instance.name }}
             <button id="rename-instance-target" data-popover="rename-instance-popover" data-popover-target="rename-instance-target" data-popover-position="bottom-right" class="rs-edit rs-popover-source"></button>
         </div>
-    </div>
+    {% endcall %}
 
-    <div class="rs-detail-section">
-        <div class="rs-detail-section-header">
-            <div class="rs-detail-section-title">Instance Details</div>
-        </div>
-
-        <div class="rs-detail-section-body">
-            <ul class="rs-detail-list">
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Status</div>
-                    <div class="rs-detail-value">
-                        <div class="rs-status rs-status-ok">Active</div>
-                    </div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Server</div>
-                    <div class="rs-detail-value">MongoDB</div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Type</div>
-                    <div class="rs-detail-value">{{instance.type}}</div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Version</div>
-                    <div class="rs-detail-value">{{instance.version}}</div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Zone</div>
-                    <div class="rs-detail-value">{{instance.zone}}</div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Plan</div>
-                    <div class="rs-detail-value">{{instance.plan}}</div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Shards</div>
-                    <div class="rs-detail-value">{{ instance.shards|count }}</div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Space Usage</div>
-                    <div class="rs-detail-value">
-                        5GB of {{ instance.size }}GB used
-                        <div class="rs-progress">
-                            <div class="rs-progress-inner">
-                                <div class="rs-segment" style="width: 40%">
-                                    <div class="rs-bar rs-bar-ok"></div>
-                                    <div class="rs-caption">Data</div>
-                                </div>
-                                <div class="rs-segment" style="width: 20%">
-                                    <div class="rs-bar rs-bar-processing"></div>
-                                    <div class="rs-caption">Allocated</div>
-                                </div>
-                                <div class="rs-segment" style="width: 40%">
-                                    <div class="rs-bar "></div>
-                                    <div class="rs-caption">Free</div>
-                                </div>
+    {% call detail_section(title='Instance Details', collapsible=True) %}
+        <ul class="rs-detail-list">
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Status</div>
+                <div class="rs-detail-value">
+                    <div class="rs-status rs-status-ok">Active</div>
+                </div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Server</div>
+                <div class="rs-detail-value">MongoDB</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Type</div>
+                <div class="rs-detail-value">{{instance.type}}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Version</div>
+                <div class="rs-detail-value">{{instance.version}}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Zone</div>
+                <div class="rs-detail-value">{{instance.zone}}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Plan</div>
+                <div class="rs-detail-value">{{instance.plan}}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Shards</div>
+                <div class="rs-detail-value">{{ instance.shards|count }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Space Usage</div>
+                <div class="rs-detail-value">
+                    5GB of {{ instance.size }}GB used
+                    <div class="rs-progress">
+                        <div class="rs-progress-inner">
+                            <div class="rs-segment" style="width: 40%">
+                                <div class="rs-bar rs-bar-ok"></div>
+                                <div class="rs-caption">Data</div>
+                            </div>
+                            <div class="rs-segment" style="width: 20%">
+                                <div class="rs-bar rs-bar-processing"></div>
+                                <div class="rs-caption">Allocated</div>
+                            </div>
+                            <div class="rs-segment" style="width: 40%">
+                                <div class="rs-bar "></div>
+                                <div class="rs-caption">Free</div>
                             </div>
                         </div>
                     </div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Connect String</div>
-                    <div class="rs-detail-value">{{ instance.host }}:{{ '%.f' | format(instance.port) }}</div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">SSL Connect String</div>
-                    <div class="rs-detail-value">{{ instance.host }}:{{ "%.f" | format(instance.port + 10000) }}</div>
-                </li>
-            </ul>
-        </div>
-    </div>
+                </div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Connect String</div>
+                <div class="rs-detail-value">{{ instance.host }}:{{ '%.f' | format(instance.port) }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">SSL Connect String</div>
+                <div class="rs-detail-value">{{ instance.host }}:{{ "%.f" | format(instance.port + 10000) }}</div>
+            </li>
+        </ul>
+    {% endcall %}
 
-    <div class="rs-detail-section rs-collapsible-section expanded">
-        <div class="rs-detail-section-header">
-            <div class="rs-caret"></div>
-            <div class="rs-detail-section-title">Active Operations</div>
-        </div>
+    {% call detail_section(title='Active Operations', collapsible=True) %}
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Database Repair</div>
@@ -157,196 +142,161 @@ TODO:
                 </div>
             </li>
         </ul>
-    </div>
+    {% endcall %}
 
-    <div class="rs-detail-section rs-collapsible-section expanded">
-        <div class="rs-detail-section-header">
-            <div class="rs-caret"></div>
-            <div class="rs-detail-section-title">Databases</div>
+    {% call detail_section(title='Databases', collapsible=True) %}
+        <div class="rs-btn-group">
+            <a href='/instances/{{ instance.name }}/create_database'><button class="rs-btn rs-btn-primary">Add Database</button></a>
+            <a href="#"><button class="rs-btn rs-btn-secondary">Copy Remote Database</button></a>
         </div>
 
-        <div class="rs-detail-section-body">
-            <div class="rs-btn-group">
-                <a href='/instances/{{ instance.name }}/create_database'><button class="rs-btn rs-btn-primary">Add Database</button></a>
-                <a href="#"><button class="rs-btn rs-btn-secondary">Copy Remote Database</button></a>
-            </div>
-
-            <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
-                <table class="rs-list-table rs-embedded-list-table">
-                    <thead>
+        <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th class="rs-table-cog"></th>
+                        <th>Name</th>
+                        <th>Objects</th>
+                        <th>Data Size</th>
+                        <th>Index Count</th>
+                        <th>Index Size</th>
+                        <th>Storage Size</th>
+                        <th>Average Object Size</th>
+                        <th>File Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for database in databases %}
                         <tr>
-                            <th class="rs-table-cog"></th>
-                            <th>Name</th>
-                            <th>Objects</th>
-                            <th>Data Size</th>
-                            <th>Index Count</th>
-                            <th>Index Size</th>
-                            <th>Storage Size</th>
-                            <th>Average Object Size</th>
-                            <th>File Size</th>
+                            <td class="rs-table-cog">
+                                <div class="rs-dropdown">
+                                    <div class="rs-cog rs-dropdown-toggle"></div>
+                                    <ul class="rs-dropdown-menu">
+                                        <li><span class="rs-dropdown-category" id="first">Identify</span></li>
+                                        <li><a href="javascript:void(0);">Edit Item&hellip;</a></li>
+                                        <li><a href="javascript:void(0);">Delete Item&hellip;</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td class="rs-table-text"><a href='/instances/{{ instance.name }}/{{ database.name }}'>{{ database.name }}</a></td>
+                            <td class="rs-table-text">{{ database.object_count }}</td>
+                            <td class="rs-table-text">{{ database.data_size_in_bytes|filesizeformat }}</td>
+                            <td class="rs-table-text">{{ database.index_count }}</td>
+                            <td class="rs-table-text">{{ database.index_size_in_bytes|filesizeformat }}</td>
+                            <td class="rs-table-text">{{ database.storage_size_in_bytes|filesizeformat }}</td>
+                            <td class="rs-table-text">{{ database.average_object_size_in_bytes|filesizeformat }}</td>
+                            <td class="rs-table-text">{{ database.file_size_in_bytes|filesizeformat}}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for database in databases %}
-                            <tr>
-                                <td class="rs-table-cog">
-                                    <div class="rs-dropdown">
-                                        <div class="rs-cog rs-dropdown-toggle"></div>
-                                        <ul class="rs-dropdown-menu">
-                                            <li><span class="rs-dropdown-category" id="first">Identify</span></li>
-                                            <li><a href="javascript:void(0);">Edit Item&hellip;</a></li>
-                                            <li><a href="javascript:void(0);">Delete Item&hellip;</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                                <td class="rs-table-text"><a href='/instances/{{ instance.name }}/{{ database.name }}'>{{ database.name }}</a></td>
-                                <td class="rs-table-text">{{ database.object_count }}</td>
-                                <td class="rs-table-text">{{ database.data_size_in_bytes|filesizeformat }}</td>
-                                <td class="rs-table-text">{{ database.index_count }}</td>
-                                <td class="rs-table-text">{{ database.index_size_in_bytes|filesizeformat }}</td>
-                                <td class="rs-table-text">{{ database.storage_size_in_bytes|filesizeformat }}</td>
-                                <td class="rs-table-text">{{ database.average_object_size_in_bytes|filesizeformat }}</td>
-                                <td class="rs-table-text">{{ database.file_size_in_bytes|filesizeformat}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
+    {% endcall %}
 
-    <div class="rs-detail-section rs-collapsible-section expanded">
-        <div class="rs-detail-section-header">
-            <div class="rs-caret"></div>
-            <div class="rs-detail-section-title">Shards</div>
+    {% call detail_section(title='Shards', collapsible=True) %}
+        <div class="rs-btn-group">
+            <!-- FIXME -->
+            <a href="{ url_for('add_shard', selected_instance=instance.name) }"><button class="rs-btn rs-btn-primary">Add Shard</button></a>
         </div>
 
-        <div class="rs-detail-section-body">
-            <div class="rs-btn-group">
-                <!-- FIXME -->
-                <a href="{ url_for('add_shard', selected_instance=instance.name) }"><button class="rs-btn rs-btn-primary">Add Shard</button></a>
-            </div>
-
-            <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
-                <table class="rs-list-table rs-embedded-list-table">
-                    <thead>
+        <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th class="rs-table-cog"></th>
+                        <th>Name</th>
+                        <th>Plan</th>
+                        <th>Data Size</th>
+                        <th>Index Size</th>
+                        <th>Storage Size</th>
+                        <th>File Size</th>
+                        <th>Shard Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shard in instance.shards %}
+                        {% set primary = shard.replica_set.primary %}
+                        {% set shard_statistics = all_shard_statistics[shard.name] %}
+                        {% set primary_oplog_time = primary.oplog_time %}
                         <tr>
-                            <th class="rs-table-cog"></th>
-                            <th>Name</th>
-                            <th>Plan</th>
-                            <th>Data Size</th>
-                            <th>Index Size</th>
-                            <th>Storage Size</th>
-                            <th>File Size</th>
-                            <th>Shard Balance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for shard in instance.shards %}
-                            {% set primary = shard.replica_set.primary %}
-                            {% set shard_statistics = all_shard_statistics[shard.name] %}
-                            {% set primary_oplog_time = primary.oplog_time %}
-                            <tr>
-                                <td class="rs-table-cog">
-                                    <div class="rs-dropdown">
-                                        <div class="rs-cog rs-dropdown-toggle"></div>
-                                        <ul class="rs-dropdown-menu">
-                                            <li><span class="rs-dropdown-category" id="first">Identify</span></li>
-                                            <li><a href="javascript:void(0);">Edit Item&hellip;</a></li>
-                                            <li><a href="javascript:void(0);">Delete Item&hellip;</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                                <!-- FIXME -->
-                                <td class="rs-table-text"><a href="{ url_for('shard', selected_instance=instance.name, selected_shard_string=shard.shard_string )}">{{ shard.name }}</a></td>
-                                <td class="rs-table-text">{{ shard.plan }}</td>
-                                <td class="rs-table-text">{{ shard_statistics[Constants.DATA_SIZE_IN_BYTES]|filesizeformat }}</td>
-                                <td class="rs-table-text">{{ shard_statistics[Constants.INDEX_SIZE_IN_BYTES]|filesizeformat }}</td>
-                                <td class="rs-table-text">{{ shard_statistics[Constants.STORAGE_SIZE_IN_BYTES]|filesizeformat }}</td>
-                                <td class="rs-table-text">{{ shard_statistics[Constants.FILE_SIZE_IN_BYTES]|filesizeformat }}</td>
-                                <td class="rs-table-text">
-                                    <div class="rs-progress">
-                                        <div class="rs-progress-inner">
-                                            <div class="rs-segment" style="width: {{ shard_statistics[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE]|round(1) }}%">
-                                                <div class="rs-bar rs-bar-ok"></div>
-                                            </div>
+                            <td class="rs-table-cog">
+                                <div class="rs-dropdown">
+                                    <div class="rs-cog rs-dropdown-toggle"></div>
+                                    <ul class="rs-dropdown-menu">
+                                        <li><span class="rs-dropdown-category" id="first">Identify</span></li>
+                                        <li><a href="javascript:void(0);">Edit Item&hellip;</a></li>
+                                        <li><a href="javascript:void(0);">Delete Item&hellip;</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <!-- FIXME -->
+                            <td class="rs-table-text"><a href="{ url_for('shard', selected_instance=instance.name, selected_shard_string=shard.shard_string )}">{{ shard.name }}</a></td>
+                            <td class="rs-table-text">{{ shard.plan }}</td>
+                            <td class="rs-table-text">{{ shard_statistics[Constants.DATA_SIZE_IN_BYTES]|filesizeformat }}</td>
+                            <td class="rs-table-text">{{ shard_statistics[Constants.INDEX_SIZE_IN_BYTES]|filesizeformat }}</td>
+                            <td class="rs-table-text">{{ shard_statistics[Constants.STORAGE_SIZE_IN_BYTES]|filesizeformat }}</td>
+                            <td class="rs-table-text">{{ shard_statistics[Constants.FILE_SIZE_IN_BYTES]|filesizeformat }}</td>
+                            <td class="rs-table-text">
+                                <div class="rs-progress">
+                                    <div class="rs-progress-inner">
+                                        <div class="rs-segment" style="width: {{ shard_statistics[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE]|round(1) }}%">
+                                            <div class="rs-bar rs-bar-ok"></div>
                                         </div>
                                     </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="rs-detail-section rs-collapsible-section expanded">
-        <div class="rs-detail-section-header">
-            <div class="rs-caret"></div>
-            <div class="rs-detail-section-title">Security</div>
-        </div>
-
-        <div class="rs-detail-section-body">
-            <div class="rs-btn-group">
-                <a class="rs-btn rs-btn-primary">Add ACL</a>
-            </div>
-
-            <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
-                <table class="rs-list-table rs-embedded-list-table">
-                    <thead>
-                        <tr>
-                            <th class="rs-table-status"></th>
-                            <th class="rs-table-cog"></th>
-                            <th>Source IP CIDR</th>
-                            <th>Action</th>
-                            <th>Description</th>
+                                </div>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody id="acl_table_body"></tbody>
-                </table>
-            </div>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
+    {% endcall %}
 
-    <div class="rs-detail-section rs-collapsible-section expanded">
-        <div class="rs-detail-section-header">
-            <div class="rs-caret"></div>
-            <div class="rs-detail-section-title">Backups</div>
+    {% call detail_section(title='Security', collapsible=True) %}
+        <div class="rs-btn-group">
+            <a class="rs-btn rs-btn-primary">Add ACL</a>
         </div>
 
-        <div class="rs-detail-section-body">
-            <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
-                <table class="rs-list-table rs-embedded-list-table">
-                    <thead>
-                        <tr>
-                            <th class="rs-table-status"></th>
-                            <th class="rs-table-cog"></th>
-                            <th>Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="backups_table_body"></tbody>
-                </table>
-            </div>
+        <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th class="rs-table-status"></th>
+                        <th class="rs-table-cog"></th>
+                        <th>Source IP CIDR</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody id="acl_table_body"></tbody>
+            </table>
         </div>
-    </div>
+    {% endcall %}
 
-    <div class="rs-detail-section rs-collapsible-section expanded">
-        <div class="rs-detail-section-header">
-            <div class="rs-caret"></div>
-            <div class="rs-detail-section-title">Additional Item Details</div>
+    {% call detail_section(title='Backups', collapsible=True) %}
+        <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th class="rs-table-status"></th>
+                        <th class="rs-table-cog"></th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="backups_table_body"></tbody>
+            </table>
         </div>
+    {% endcall %}
 
-        <div class="rs-detail-section-body">
-            <ul class="rs-detail-list">
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Created</div>
-                    <div class="rs-detail-value">{{ instance.creation_date }}</div>
-                </li>
-            </ul>
-        </div>
-    </div>
+    {% call detail_section(title='Additional Item Details', collapsible=True) %}
+        <ul class="rs-detail-list">
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Created</div>
+                <div class="rs-detail-value">{{ instance.creation_date }}</div>
+            </li>
+        </ul>
+    {% endcall %}
 {% endblock content_area_body %}
 
 {% block popovers %}

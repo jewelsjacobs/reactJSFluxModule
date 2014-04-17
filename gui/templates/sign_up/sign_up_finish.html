@@ -15,7 +15,7 @@ TODO:
 
 {% block content_area_body %}
     {% call create_view(url_for('create_instance'), id="sign-up-form", method="POST") %}
-        {{ detail_header(page_title="Sign Up", subtitle="Finished") }}
+        {% call detail_header(page_title="Sign Up", subtitle="Finished") %}{% endcall %}
         {% call detail_section(title="Instance Details") %}
 
             <input type=hidden name="plan" value="{{ plan }}">
@@ -77,7 +77,7 @@ TODO:
                     <p>{{ status_message }}</p>
                     <div class="rs-control-group">
                         <div class="rs-controls">
-                            <button class="rs-btn rs-btn-primary" href="/">Login In</button>
+                            <button class="rs-btn rs-btn-primary" href="/">Log In</button>
                             <button class="rs-btn rs-btn-secondary" href="{{ url_for('sign_up2') }}">Instance
                                 Information
                             </button>

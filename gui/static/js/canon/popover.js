@@ -2,6 +2,7 @@ var showPopover = function(source) {
 	$('.rs-tooltip').remove();
 	var popover = $("#"+source.attr("data-popover"));
 	popover.removeClass("invisible").addClass("visible");
+	hideDropdown();
 	showOverlay();
 };
 
