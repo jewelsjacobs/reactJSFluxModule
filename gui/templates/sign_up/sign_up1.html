@@ -23,7 +23,7 @@ TODO:
 
 {% block content_area_body %}
     {% call create_view(url_for('sign_up1'), id="sign-up-form", method="POST") %}
-        {{ detail_header(title="Sign Up", subtitle="Step 1 of 3") }}
+        {{ detail_header(page_title="Sign Up", subtitle="Step 1 of 3") }}
         {% call detail_section(title="Account Information") %}
             <div class="rs-detail-section-body">
                 <div class="rs-control-group">

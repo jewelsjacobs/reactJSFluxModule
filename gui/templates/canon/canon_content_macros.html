@@ -32,19 +32,24 @@
 {% endmacro %}
 
 
-{% macro detail_header(title=None, subtitle=None) %}
+{% macro detail_header(page_title=None, subtitle=None, title=None) %}
     <!-- detail header -->
     <div class="rs-detail-header">
         {% block detail_header_action_content %}{% endblock %}
-        {% if title %}
-            <!-- detail header title -->
-            <div class="rs-page-title">{{ title }}</div>
-            <!-- end detail header title -->
+        {% if page_title %}
+            <!-- page title -->
+            <div class="rs-page-title">{{ page_title }}</div>
+            <!-- end page title -->
         {% endif %}
         {% if subtitle %}
             <!-- detail header subtitle -->
             <div class="rs-detail-header-subtitle">{{ subtitle }}</div>
             <!-- end detail header subtitle -->
+        {% endif %}
+        {% if title %}
+            <!-- detail header title -->
+            <div class="rs-detail-header-title">{{ title }}</div>
+            <!-- end detail header title -->
         {% endif %}
     </div>
     <!-- end detail header -->

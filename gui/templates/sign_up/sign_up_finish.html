@@ -15,7 +15,7 @@ TODO:
 
 {% block content_area_body %}
     {% call create_view(url_for('create_instance'), id="sign-up-form", method="POST") %}
-        {{ detail_header(title="Sign Up", subtitle="Finished") }}
+        {{ detail_header(page_title="Sign Up", subtitle="Finished") }}
         {% call detail_section(title="Instance Details") %}
 
             <input type=hidden name="plan" value="{{ plan }}">
