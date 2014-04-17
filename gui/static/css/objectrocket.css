@@ -41,3 +41,10 @@ img.invoice-logo {
 	background-color: black;
 	padding: 5px;
 }
+
+/* === paragraph styles === */
+p.tos {
+	font-size: 10px;
+	text-align: left;
+	text-indent: 0;
+}

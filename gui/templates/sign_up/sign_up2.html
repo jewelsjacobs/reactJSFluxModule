@@ -20,16 +20,13 @@
 {% endblock sidebar %}
 
 {% block content_area_body %}
-    <form class="rs-form-create" action="{{ url_for('sign_up3') }}" method="POST" id="sign-up-form">
-        <div class="rs-detail-section">
-            <div class="rs-detail-section-header">
-                <h2 class="rs-page-title">Sign Up</h2>
-                <div class="rs-detail-section-title"><strong>Step 2</strong> of 3: Instance Information</div>
-            </div>
-
+    {% call create_view(url_for('sign_up3'), id="sign-up-form", method="POST") %}
+        {{ detail_header(title="Sign Up", subtitle="Step 2 of 3") }}
+        {% call detail_section(title="Instance Information") %}
             <div class="rs-detail-section-body">
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="name">Instance Name</label>
+
                     <div class="rs-controls">
                         <input id="name" name="name" type="text" class="rs-input-xlarge">
                     </div>
@@ -37,6 +34,7 @@
 
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="zone">Zone</label>
+
                     <div class="rs-controls">
                         <select name="zone" id='zone'>
                             <option value="US-East-IAD3" selected>US-East-IAD3, AWS Direct Connect</option>
@@ -54,6 +52,7 @@
 
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="plan">Plan</label>
+
                     <div class="rs-controls">
                         <select name="plan" id='plan_select'>
                             <option value=1>1GB SMALL $19.00/mo</option>
@@ -68,7 +67,8 @@
                             (5GB Medium and larger).
                             All prices in USD.
                             <br>
-                            <a href="http://www.objectrocket.com/pricing#pricing" target="1">Plan and Pricing Details.</a>
+                            <a href="http://www.objectrocket.com/pricing#pricing" target="1">Plan and Pricing
+                                Details.</a>
                         </span>
                     </div>
                 </div>
@@ -83,8 +83,9 @@
                 <input type="hidden" id="service_type" name="service_type" value="mongodb"/>
                 <input type="hidden" id="version" name="version" value="{{ default_mongo_version }}"/>
             </div>
-        </div>
-    </form>
+        {% endcall %}
+    {% endcall %}
+
 {% endblock content_area_body %}
 
 {% block script %}
@@ -117,7 +118,7 @@
                 }
             });
 
-            $('#zone').change(function() {
+            $('#zone').change(function () {
                 var selectedZone = $(this).val();
 
                 var usPrices = [
@@ -164,7 +165,7 @@
 
                 $('#plan_select').empty();
 
-                $(prices).each(function() {
+                $(prices).each(function () {
                     $('#plan_select').append($("<option>").attr('value', this.val).text(this.text));
                 });
 

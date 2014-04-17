@@ -17,25 +17,21 @@
 {% endblock sidebar %}
 
 {% block content_area_body %}
-    <form id="enter_cc_form" name="add_cc_form" method="POST" action="{{ url_for('sign_up_finish') }}" windowTitle="Add Credit Card" windowLabel="Add Card">
-        <div class="rs-detail-section">
-            <div class="rs-detail-section-header">
-                <h2 class="rs-page-title">Sign Up</h2>
-                <div class="rs-detail-section-title"><strong>Step 3</strong> of 3: Enter Billing Information</div>
-            </div>
-
+    {% call create_view(url_for('sign_up_finish'), id="sign-up-form", method="POST", windowTitle="Add Credit Card",
+    windowLabel="Add Card") %}
+        {{ detail_header(title="Sign Up", subtitle="Step 3 of 3") }}
+        {% call detail_section(title="Billing Information") %}
             <div class="rs-detail-section-body">
-                <div class="rs-control-group">
-                    <div class="rs-controls">
                         <span class="rs-help-block">
-                          <p class="muted">We accept Visa, MasterCard, American Express, Diners Club, and JCB via Stripe</p>
+                          <p>We accept Visa, MasterCard, American Express, Diners Club, and JCB via Stripe</p>
                          </span>
-                    </div>
-                </div>
 
                 <div class="rs-control-group">
                     <div class="rs-controls">
-                        <button type="button" id="add_cc_button" class="rs-btn rs-btn-primary cc_button">Add Credit Card</button>
+
+                        <button type="button" id="add_cc_button" class="rs-btn rs-btn-primary cc_button">Add Credit
+                            Card
+                        </button>
                         <a href="{{ url_for('sign_up2') }}" class="rs-btn">Previous</a>
                     </div>
                 </div>
@@ -47,9 +43,8 @@
                 <input id="service_type" name="service_type" type="hidden" value="{{ service_type }}"/>
                 <input id="version" name="version" type="hidden" value="{{ version }}"/>
             </div>
-        </div>
-    </form>
-
+        {% endcall %}
+    {% endcall %}
 {% endblock content_area_body %}
 
 {% block script %}

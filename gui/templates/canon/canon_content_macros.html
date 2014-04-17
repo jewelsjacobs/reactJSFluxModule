@@ -14,10 +14,19 @@
 {% endmacro %}
 
 
-{% macro detail_header_actions() %}
+{% macro detail_header_actions(actions_name='Actions') %}
     <!-- detail header actions -->
     <div class="rs-detail-header-actions">
-        {{ caller() }}
+        <div class="rs-dropdown">
+            <button class="rs-btn rs-btn-action rs-dropdown-toggle">
+                <span class="rs-cog"></span>
+                {{ actions_name }}
+                <span class="rs-caret"></span>
+            </button>
+            <ul class="rs-dropdown-menu" style="right:0;">
+                {{ caller() }}
+            </ul>
+        </div>
     </div>
     <!-- end detail header actions -->
 {% endmacro %}
@@ -29,7 +38,7 @@
         {% block detail_header_action_content %}{% endblock %}
         {% if title %}
             <!-- detail header title -->
-            <div class="rs-detail-header-title">{{ title }}</div>
+            <div class="rs-page-title">{{ title }}</div>
             <!-- end detail header title -->
         {% endif %}
         {% if subtitle %}
@@ -42,21 +51,22 @@
 {% endmacro %}
 
 
-{% macro detail_section(title=None) %}
+{% macro detail_section(title=None, subtitle=None) %}
     <!-- detail section -->
     <div class="rs-detail-section">
         <div class="rs-detail-section-header">
-            {% if detail_header_subtitle %}
+            {% if title %}
                 <!-- detail section title -->
                 <div class="rs-detail-section-title">{{ title }}</div>
                 <!-- end detail section title -->
             {% endif %}
+            {% if subtitle %}
+                <!-- detail section subtitle -->
+                <div class="rs-detail-section-subtitle">{{ subtitle }}</div>
+                <!-- end detail section subtitle -->
+            {% endif %}
         </div>
-        <!-- detail section body -->
-        <div class="rs-detail-section-body">
-            {{ caller() }}
-        </div>
-        <!-- end detail section body -->
+        {{ caller() }}
     </div>
     <!-- end detail section -->
 {% endmacro %}
@@ -64,7 +74,8 @@
 
 {% macro create_view(action, id=None, method="POST") %}
     <!-- create view -->
-    <form class="rs-form-create" action="{{ action }}" method="{{ method }}" {% if id %}id="{{ id }}"{% endif %}>
+    <form class="rs-form-create"
+          action="{{ action }}" method="{{ method }}" {% if id %}id="{{ id }}"{% endif %} {{ kwargs|xmlattr }}>
         {{ caller() }}
     </form>
     <!-- end create view -->

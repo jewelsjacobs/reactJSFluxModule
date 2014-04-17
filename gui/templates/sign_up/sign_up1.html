@@ -21,18 +21,14 @@ TODO:
     {% endcall %}
 {% endblock back_link_area %}
 
-
 {% block content_area_body %}
-    <form class="rs-form-create" action="{{ url_for('sign_up1') }}" method="POST" id="sign-up-form">
-        <div class="rs-detail-section">
-            <div class="rs-detail-section-header">
-                <h2 class="rs-page-title">Sign Up</h2>
-                <div class="rs-detail-section-title"><strong>Step 1</strong> of 3: Account Information</div>
-            </div>
-
+    {% call create_view(url_for('sign_up1'), id="sign-up-form", method="POST") %}
+        {{ detail_header(title="Sign Up", subtitle="Step 1 of 3") }}
+        {% call detail_section(title="Account Information") %}
             <div class="rs-detail-section-body">
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="name">Full Name</label>
+
                     <div class="rs-controls">
                         <input type="text" name="name" class="rs-input-xlarge" id="name">
                     </div>
@@ -40,6 +36,7 @@ TODO:
 
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="login">Desired Login</label>
+
                     <div class="rs-controls">
                         <input type="text" name="login" class="rs-input-xlarge" id="login">
                     </div>
@@ -47,6 +44,7 @@ TODO:
 
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="company">Company</label>
+
                     <div class="rs-controls">
                         <input type="text" name="company" class="rs-input-xlarge" id="company">
                     </div>
@@ -54,6 +52,7 @@ TODO:
 
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="password">Password</label>
+
                     <div class="rs-controls">
                         <input type="password" name="password" class="rs-input-xlarge" id="password">
                     </div>
@@ -61,6 +60,7 @@ TODO:
 
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="confirmPassword">Confirm Password</label>
+
                     <div class="rs-controls">
                         <input type="password" name="confirmPassword" class="rs-input-xlarge" id="confirmPassword">
                     </div>
@@ -68,6 +68,7 @@ TODO:
 
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="email">Email Address</label>
+
                     <div class="rs-controls">
                         <input type="text" name="email" class="rs-input-xlarge" id="email">
                         <span class="rs-help-block">This will be used for alerts and notifications.</span>
@@ -76,6 +77,7 @@ TODO:
 
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="phone">Phone Number</label>
+
                     <div class="rs-controls">
                         <input type="text" name="phone" class="rs-input-xlarge" id="phone">
                         <span class="rs-help-block">This will be used for alerts and notifications.</span>
@@ -84,6 +86,7 @@ TODO:
 
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="zipcode">Postal Code</label>
+
                     <div class="rs-controls">
                         <input type="text" name="zipcode" class="rs-input-xlarge" id="zipcode">
                     </div>
@@ -117,8 +120,9 @@ TODO:
             {% if pricing_plan %}
                 <input type="hidden" name="requested_plan" value="{{ pricing_plan }}">
             {% endif %}
-        </div>
-    </form>
+        {% endcall %}
+    {% endcall %}
+
 {% endblock content_area_body %}
 
 {% block script %}
