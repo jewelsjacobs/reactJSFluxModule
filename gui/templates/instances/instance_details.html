@@ -196,8 +196,9 @@ TODO:
 
     {% call detail_section(title='Shards', collapsible=True) %}
         <div class="rs-btn-group">
-            <!-- FIXME -->
-            <a href="{ url_for('add_shard', selected_instance=instance.name) }"><button class="rs-btn rs-btn-primary">Add Shard</button></a>
+            <form action="{{ url_for('add_shard', selected_instance=instance.name) }}" method="POST">
+                <button type="submit" class="rs-btn rs-btn-primary">Add Shard</button>
+            </form>
         </div>
 
         <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">

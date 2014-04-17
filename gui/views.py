@@ -37,7 +37,7 @@ from viper.mongo_instance import MongoDBInstanceException
 from viper.mongo_sessions import MongoDBStore
 from viper.notifier import Notifier
 from viper.replica import ReplicaException
-from viper.shard import ShardManager
+from viper.shard import ShardManager, ShardException
 from viper.status import StatusManager
 from viper.utility import Utility, FlaskUtility
 
@@ -925,3 +925,18 @@ def show_invoice(invoice_id):
                            account=account,
                            invoice=invoice,
                            format_timestamp=Utility.format_timestamp)
+
+
+@app.route('/add_shard/<selected_instance>', methods=['POST'])
+@viper_auth
+def add_shard(selected_instance):
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    
+    if not instance:
+        abort(404)
+
+    instance.add_shard()
+    Utility.log_to_db(config, "Shard added.", {'login': g.login, 'area': 'gui'})
+    flash('Shard added successfully.')
+    return redirect(url_for('instance_details', selected_instance=selected_instance))
