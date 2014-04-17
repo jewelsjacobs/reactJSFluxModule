@@ -500,22 +500,15 @@ def instances_create():
 @viper_auth
 def instance_details(selected_instance):
     """Instance details page."""
-    login = g.login
-
-    if 'selected_tab' in request.args:
-        selected_tab = request.args['selected_tab']
-    else:
-        selected_tab = 'databases'
-
-    account_monitor = monitor.AccountMonitor(config)
-    account_monitoring_checks = account_monitor.get_enabled_checks(asset_type=monitor.INSTANCE_ASSET_TYPE,
-                                                                   user_controllable_only=True)
     instance_manager = InstanceManager(config)
-    user_instance = instance_manager.get_instance_by_name(login, selected_instance)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
 
     if user_instance is None:
         abort(404)
 
+    account_monitor = monitor.AccountMonitor(config)
+    account_monitoring_checks = account_monitor.get_enabled_checks(asset_type=monitor.INSTANCE_ASSET_TYPE,
+                                                                   user_controllable_only=True)
     balancer = None
     shard_logs = None
     stepdown_window = user_instance.stepdown_window
@@ -543,39 +536,68 @@ def instance_details(selected_instance):
     except Exception:
         enable_copy_database = False
 
-    all_shard_statistics = {}
+    aggregate_stats = {}
+    size_totals = {}
 
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
         shard_logs = user_instance.shard_logs
         sorted_shard_keys = sorted(shard_logs)
         balancer = user_instance.balancer
 
-        instance_total_file_size_in_bytes = 0
+        # The total size in bytes of the data held in all database.
+        total_data_size = 0
+
+        # The total size in bytes of the data files that hold the databases.
+        total_file_size = 0
+
+        # The total amount of space in bytes allocated to collections in all database for document storage.
+        total_storage_size = 0
 
         for shard in user_instance.shards:
-            shard_statistics = shard.replica_set.primary.aggregate_database_statistics
-            all_shard_statistics[shard.name] = shard_statistics
-            instance_total_file_size_in_bytes += shard_statistics[Constants.FILE_SIZE_IN_BYTES]
+            shard_stats = shard.replica_set.primary.aggregate_database_statistics
+            aggregate_stats[shard.name] = shard_stats
 
-        for shard_name in all_shard_statistics:
-            shard_statistics = all_shard_statistics[shard_name]
-            shard_file_size_in_bytes = shard_statistics[Constants.FILE_SIZE_IN_BYTES]
-            shard_statistics[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = shard_file_size_in_bytes / instance_total_file_size_in_bytes * 100
+            # Aggregate data, file, and storage stats across all shards.
+            total_data_size += shard_stats[Constants.DATA_SIZE_IN_BYTES]
+            total_file_size += shard_stats[Constants.FILE_SIZE_IN_BYTES]
+            total_storage_size += shard_stats[Constants.STORAGE_SIZE_IN_BYTES]
+
+        # Serialize size totals.
+        size_totals['total_data_size'] = total_data_size
+        size_totals['total_file_size'] = total_file_size
+        size_totals['total_storage_size'] = total_storage_size
+
+        # Round percentage totals.
+        data_percentage = round((float(total_data_size) / float(total_file_size)) * 100, 2)
+        storage_percentage = round((float(total_storage_size) / float(total_file_size)) * 100, 2)
+        remaining_percentage = round(100 - data_percentage - storage_percentage, 2)
+
+        # Serialize percentage totals.
+        size_totals['percentages'] = {
+            'data': data_percentage,
+            'storage': storage_percentage,
+            'remaining': remaining_percentage,
+        }
+
+        # Calculate shard balance percentage per shard.
+        for shard_name in aggregate_stats:
+            shard_stats = aggregate_stats[shard_name]
+            shard_file_size_in_bytes = shard_stats[Constants.FILE_SIZE_IN_BYTES]
+            shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = round((float(shard_file_size_in_bytes) / float(total_file_size)) * 100, 2)
 
     return render_template('instances/instance_details.html',
                            account_monitoring_checks=account_monitoring_checks,
-                           all_shard_statistics=all_shard_statistics,
+                           aggregate_stats=aggregate_stats,
                            balancer=balancer,
                            databases=databases,
                            enable_copy_database=enable_copy_database,
                            instance=user_instance,
                            is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
-                           login=login,
+                           login=g.login,
                            max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE,
-                           selected_tab=selected_tab,
+                           size_totals=size_totals,
                            shard_logs=shard_logs,
-                           sorted_shard_keys=sorted_shard_keys,
-                           )
+                           sorted_shard_keys=sorted_shard_keys)
 
 
 @app.route('/rename_instance', methods=['POST'])

@@ -67,6 +67,7 @@ TODO:
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Status</div>
                 <div class="rs-detail-value">
+                <!-- FIXME(Anthony): What should this actually indicate? -->
                     <div class="rs-status rs-status-ok">Active</div>
                 </div>
             </li>
@@ -97,19 +98,19 @@ TODO:
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Space Usage</div>
                 <div class="rs-detail-value">
-                    5GB of {{ instance.size }}GB used
+                    <span>5GB of {{ instance.size }}GB used</span>
                     <div class="rs-progress">
                         <div class="rs-progress-inner">
-                            <div class="rs-segment" style="width: 40%">
+                            <div class="rs-segment" style="width: {{ size_totals['percentages']['data'] }}%">
                                 <div class="rs-bar rs-bar-ok"></div>
                                 <div class="rs-caption">Data</div>
                             </div>
-                            <div class="rs-segment" style="width: 20%">
+                            <div class="rs-segment" style="width: {{ size_totals['percentages']['storage'] }}%">
                                 <div class="rs-bar rs-bar-processing"></div>
                                 <div class="rs-caption">Allocated</div>
                             </div>
-                            <div class="rs-segment" style="width: 40%">
-                                <div class="rs-bar "></div>
+                            <div class="rs-segment" style="width: {{ size_totals['percentages']['remaining'] }}%">
+                                <div class="rs-bar"></div>
                                 <div class="rs-caption">Free</div>
                             </div>
                         </div>
@@ -216,7 +217,7 @@ TODO:
                 <tbody>
                     {% for shard in instance.shards %}
                         {% set primary = shard.replica_set.primary %}
-                        {% set shard_statistics = all_shard_statistics[shard.name] %}
+                        {% set shard_statistics = aggregate_stats[shard.name] %}
                         {% set primary_oplog_time = primary.oplog_time %}
                         <tr>
                             <td class="rs-table-cog">
