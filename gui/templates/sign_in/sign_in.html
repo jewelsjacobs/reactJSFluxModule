@@ -1,7 +1,7 @@
 {% extends 'web_app_base.html' %}
 
 {% block title %}
-    Login
+    Sign In
 {% endblock title %}
 
 {% block nav_utility_content %}{% endblock nav_utility_content %}
@@ -12,9 +12,9 @@
         login focus page.
     -->
     <div class="rs-inner" id="login-form-block">
-        <h2 class="rs-page-title">Login</h2>
+        <h2 class="rs-page-title">Sign In</h2>
 
-        <form id="login-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('login') }}" method="POST">
+        <form id="login-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_in') }}" method="POST">
 
             <div class="rs-control-group success">
                 <label class="rs-control-label">Login</label>
@@ -30,7 +30,7 @@
                 </div>
             </div>
 
-            <button class="rs-btn rs-btn-login" type="submit">Login</button>
+            <button class="rs-btn rs-btn-login" type="submit">Sign In</button>
         </form>
         <br/> <!-- FIXME: YUK! -->
         <div class="rs-control-group success">

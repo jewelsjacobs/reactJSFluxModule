@@ -88,7 +88,7 @@ if not app.debug:
 def viper_auth(func):
     """Decorator to test for auth.
 
-    Set session info to g.session, and redirect the user to the login page
+    Set session info to g.session, and redirect the user to the log in page
     if they aren't already signed in.
     """
     @wraps(func)
@@ -97,7 +97,7 @@ def viper_auth(func):
             g.login = session['login']
             return func(*args, **kwargs)
         else:
-            return render_template('login/login.html')
+            return render_template('sign_in/sign_in.html')
     return internal
 
 
@@ -324,7 +324,7 @@ def account():
     account_manager = AccountManager(config)
     account = account_manager.get_account(g.login)
     if account is None:
-        return redirect(url_for('login'))
+        return redirect(url_for('sign_in'))
 
     return render_template('account/account.html', account=account, login=g.login)
 
@@ -363,6 +363,60 @@ def update_password():
 
     flash('Password successfully updated.')
     return redirect(url_for('account'))
+
+
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/<selected_instance>', methods=['GET', 'POST'])
+@viper_auth
+def dashboard(selected_instance=None):
+    ## ignore requests for favicon.ico to the gui
+    # TODO: Reconfigure nginx to serve up /favicon.ico
+    if selected_instance and selected_instance.lower() == "favicon.ico":
+        abort(404)
+
+    message_manager = MessageManager(config)
+    account_manager = AccountManager(config)
+    status_manager = StatusManager(config)
+
+    account = account_manager.get_account(g.login)
+    instances = account.instances
+    messages = message_manager.get_messages(g.login, limit=5)
+
+    if selected_instance is None:
+        try:
+            instance = instances[0]
+        except IndexError:
+            instance = None
+    else:
+        instance = account.get_instance_by_name(selected_instance)
+
+    return render_template('dashboard/dashboard.html',
+                           login=account.login,
+                           has_instances=instance is not None,
+                           instances=instances,
+                           account=account,
+                           status=status_manager.get_status(),
+                           instance=instance,
+                           messages=messages,
+                           stripe_pub_key=config.STRIPE_PUB_KEY)
+
+
+@app.route('/instances', methods=['GET'])
+@viper_auth
+def instances():
+    """"Display account instances."""
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+    instances = account.instances
+
+    return render_template('instances/instances.html',
+                           account=account,
+                           api_keys=account.instance_api_keys,
+                           instances=instances,
+                           login=g.login,
+                           Utility=Utility,
+                           default_mongo_version=config.DEFAULT_MONGO_VERSION,
+                           stripe_pub_key=config.STRIPE_PUB_KEY)
 
 
 @app.route('/create_instance', methods=['POST'])
@@ -422,60 +476,6 @@ def create_instance():
 
     # return redirect(url_for('instance_details', selected_instance=name))
     return redirect(url_for('instances'))
-
-
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/<selected_instance>', methods=['GET', 'POST'])
-@viper_auth
-def dashboard(selected_instance=None):
-    ## ignore requests for favicon.ico to the gui
-    # TODO: Reconfigure nginx to serve up /favicon.ico
-    if selected_instance and selected_instance.lower() == "favicon.ico":
-        abort(404)
-
-    message_manager = MessageManager(config)
-    account_manager = AccountManager(config)
-    status_manager = StatusManager(config)
-
-    account = account_manager.get_account(g.login)
-    instances = account.instances
-    messages = message_manager.get_messages(g.login, limit=5)
-
-    if selected_instance is None:
-        try:
-            instance = instances[0]
-        except IndexError:
-            instance = None
-    else:
-        instance = account.get_instance_by_name(selected_instance)
-
-    return render_template('dashboard/dashboard.html',
-                           login=account.login,
-                           has_instances=instance is not None,
-                           instances=instances,
-                           account=account,
-                           status=status_manager.get_status(),
-                           instance=instance,
-                           messages=messages,
-                           stripe_pub_key=config.STRIPE_PUB_KEY)
-
-
-@app.route('/instances', methods=['GET'])
-@viper_auth
-def instances():
-    """"Display account instances."""
-    account_manager = AccountManager(config)
-    account = account_manager.get_account(g.login)
-    instances = account.instances
-
-    return render_template('instances/instances.html',
-                           account=account,
-                           api_keys=account.instance_api_keys,
-                           instances=instances,
-                           login=g.login,
-                           Utility=Utility,
-                           default_mongo_version=config.DEFAULT_MONGO_VERSION,
-                           stripe_pub_key=config.STRIPE_PUB_KEY)
 
 
 @app.route('/instances/create', methods=['GET'])
@@ -578,6 +578,35 @@ def instance_details(selected_instance):
                            )
 
 
+@app.route('/rename_instance', methods=['POST'])
+@viper_auth
+def rename_instance():
+    current_name = request.form['current-name']
+    new_name = request.form['new-name']
+    instance_manager = InstanceManager(config)
+    app.logger.debug("renaming %s to %s:" % (current_name, new_name))
+
+    import ipdb;ipdb.set_trace()
+
+    if not current_name:
+        message = "Cannot rename an empty instance name"
+        app.logger.error(message)
+        return redirect(url_for('instances'))
+
+    if not new_name:
+        message = "Cannot rename instance %s: A non-empty new instance name is required." % (current_name)
+        flash(message, Constants.FLASH_ERROR)
+        return redirect(url_for('instances'))
+
+    if instance_manager.instance_exists(login, new_name):
+        message = "Cannot rename instance %s to %s: An instance named %s already exists." % (current_name, new_name, new_name)
+        flash(message, Constants.FLASH_ERROR)
+        return redirect(url_for('instances'))
+
+    instance_manager.rename_instance(login, current_name, new_name)
+    return redirect(url_for('instances'))
+
+
 @app.route('/notifications')
 @viper_auth
 def notifications():
@@ -590,25 +619,24 @@ def notifications():
     return render_template('notifications/notifications.html', alarms=alarms, login=g.login, messages=messages)
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """User login."""
+@app.route('/sign_in', methods=['GET', 'POST'])
+def sign_in():
+    """User sign in route."""
     session.pop('login', None)
     if request.method == 'GET':
-        return render_template('login/login.html')
+        return render_template('sign_in/sign_in.html')
 
     login = request.form['login-input']
     password = request.form['password-input']
 
     account_manager = AccountManager(config)
     if not account_manager.authenticated(login, password):
-        flash('Login failed.')
-        return render_template('login/login.html')
+        flash('Sign in failed.')
+        return render_template('sign_in/sign_in.html')
 
     session['login'] = login
 
-    flash('Login successful.')
-    return redirect(url_for('instances'))
+    flash('Sign in successful.')
 
     # TODO(Anthony): Use these lines when ready.
     # account = account_manager.get_account(login)
@@ -622,7 +650,7 @@ def login():
 def logout():
     app.logger.debug("Running logout")
     session.pop('login', None)
-    return redirect(url_for('login'))
+    return redirect(url_for('sign_in'))
 
 
 @app.route('/sign_up1', methods=['GET', 'POST'])

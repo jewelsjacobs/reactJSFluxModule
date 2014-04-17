@@ -18,8 +18,7 @@ body.rs-responsive .rs-container {
 	visibility: hidden;
 }
 
-.hidden
-{
+.hidden {
 	display: none;
 }
 .or-overlay { /* This diverges from the canon norm, but it is needed for the JS. */

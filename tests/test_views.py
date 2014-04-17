@@ -88,7 +88,7 @@ def test_login(app_client):
     response = app_client.get('/sign_in')
     assert response.status_code == 200
     assert "Sign In" in response.data
-    response = app_client.post('/login', data=dict(login=login, password=login), follow_redirects=True)
+    response = app_client.post('/sign_in', data=dict(login=login, password=login), follow_redirects=True)
     assert response.status_code == 200
 
 
