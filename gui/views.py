@@ -875,4 +875,5 @@ def show_invoice(invoice_id):
 
     return render_template('billing/invoice.html',
                            account=account,
-                           invoice=invoice)
+                           invoice=invoice,
+                           format_timestamp=Utility.format_timestamp)
