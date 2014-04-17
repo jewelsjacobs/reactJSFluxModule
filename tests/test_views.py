@@ -356,7 +356,7 @@ def test_account(app_client):
 def test_external(app_client):
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/external')
+        response = client.get('/new_relic')
         print(response.data)
         assert response.status_code == 200
 
