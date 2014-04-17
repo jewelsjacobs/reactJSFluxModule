@@ -1,1 +1,3 @@
-http://mon1/viper-1.1.2-py27-none-any.whl
+Flask-KVSession==0.3.1
+Flask==0.9
+http://mon1/viper-1.2.0-py27-none-any.whl

@@ -586,8 +586,6 @@ def rename_instance():
     instance_manager = InstanceManager(config)
     app.logger.debug("renaming %s to %s:" % (current_name, new_name))
 
-    import ipdb;ipdb.set_trace()
-
     if not current_name:
         message = "Cannot rename an empty instance name"
         app.logger.error(message)
@@ -598,12 +596,12 @@ def rename_instance():
         flash(message, Constants.FLASH_ERROR)
         return redirect(url_for('instances'))
 
-    if instance_manager.instance_exists(login, new_name):
+    if instance_manager.instance_exists(g.login, new_name):
         message = "Cannot rename instance %s to %s: An instance named %s already exists." % (current_name, new_name, new_name)
         flash(message, Constants.FLASH_ERROR)
         return redirect(url_for('instances'))
 
-    instance_manager.rename_instance(login, current_name, new_name)
+    instance_manager.rename_instance(g.login, current_name, new_name)
     return redirect(url_for('instances'))
 
 
