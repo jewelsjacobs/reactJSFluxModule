@@ -1,0 +1,81 @@
+{% extends "web_app_base.html" %}
+
+{% block nav_secondary_content %}
+    {% include "admin/admin_secondary_nav.html" %}
+{% endblock %}
+
+
+{% block content_area_body %}
+{% call detail_header(page_title="Billing") %}{% endcall %}
+{% call create_view(url_for('admin_associate_user'), id="associate_form", method="POST") %}
+        {% call detail_section(title="Associate Users", subtitle="Associate ObjectRocket and Stripe users.") %}
+            <div class="rs-detail-section-body">
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="login">User ID</label>
+                    <div class="rs-controls">
+                        <input type="text" name="login" class="rs-input-xlarge" id="login">
+                        <p class="rs-help-block">Value from users.login.</p>
+                    </div>
+                </div>
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="customer_id">Secret Access Key</label>
+                    <div class="rs-controls">
+                        <input type="text" name="customer_id" class="rs-input-xlarge" id="customer_id">
+                        <p class="rs-help-block">Value from Stripe; customer_id, starts with "cus_".</p>
+                    </div>
+                </div>
+                <div class="rs-control-group">
+                    <div class="rs-controls">
+                        <button type="submit" id="associate_button" class="rs-btn rs-btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+            {% endcall %}
+    {% endcall %}
+
+    {% call create_view(url_for('admin_sync_user'), id="sync_form", method="POST") %}
+        {% call detail_section(title="Sync Users", subtitle="Synchronize ObjectRocket and Stripe users.") %}
+            <div class="rs-detail-section-body">
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="login">User ID</label>
+                    <div class="rs-controls">
+                        <input type="text" name="login" class="rs-input-xlarge" id="login">
+                        <p class="rs-help-block">Value from users.login.</p>
+                    </div>
+                </div>
+                <div class="rs-control-group">
+                    <div class="rs-controls">
+                        <button type="submit" id="associate_button" class="rs-btn rs-btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+            {% endcall %}
+    {% endcall %}
+
+    {% call create_view(url_for('set_user_invoiced'), id="invoice_user_form", method="POST") %}
+        {% call detail_section(title="Manually Invoice",
+        subtitle="Set user as manually invoiced, so the automated billing system will ignore them.") %}
+            <div class="rs-detail-section-body">
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="invoiced_user">User ID</label>
+                    <div class="rs-controls">
+                        <input type="text" name="invoiced_user" class="rs-input-xlarge" id="invoiced_user">
+                        <p class="rs-help-block">Value from users.login.</p>
+                    </div>
+                </div>
+                <div class="rs-control-group">
+                    <div class="rs-controls">
+                        <button type="submit" id="associate_button" class="rs-btn rs-btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+            {% endcall %}
+    {% endcall %}
+
+    {# TODO: Add "set invoiced amount" #}
+    {# TODO: Add "mark custom stripe plan" #}
+{% endblock %}
+
+{% block script %}
+    {{ super() }}
+{% endblock %}

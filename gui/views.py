@@ -1205,3 +1205,129 @@ def delete_acl(instance, acl_id):
     return redirect(url_for('instance_details', selected_instance=instance, selected_tab='acls'))
 
 
+@app.route('/admin')
+@viper_auth
+@viper_isadmin
+def admin():
+    billing_manager = BillingManager(config)
+    status_manager = StatusManager(config)
+    instance_manager = InstanceManager(config)
+    return render_template('admin/admin.html',
+                           rev=billing_manager.get_billed_revenue(),
+                           status=status_manager.get_status(),
+                           checkouts=instance_manager.get_checkouts_by_type())
+
+
+@app.route('/admin/billing')
+@viper_auth
+@viper_isadmin
+def admin_billing():
+    return render_template('admin/billing.html')
+
+
+@app.route('/admin/customer_management')
+@viper_auth
+@viper_isadmin
+def admin_customer_management():
+    return render_template('admin/customer_management.html')
+
+@app.route('/admin/inventory')
+@viper_auth
+@viper_isadmin
+def admin_inventory():
+    return render_template('admin/inventory.html')
+
+
+@app.route('/admin/revenue')
+@viper_auth
+@viper_isadmin
+def admin_revenue():
+    return render_template('admin/revenue.html')
+
+
+@app.route('/admin/status_management')
+@viper_auth
+@viper_isadmin
+def admin_status_management():
+    return render_template('admin/status_management.html')
+
+@app.route('/admin/user_management')
+@viper_auth
+@viper_isadmin
+def admin_user_management():
+    return render_template('admin/user_management.html')
+
+
+@app.route('/admin/billing/associate_user', methods=['POST'])
+@viper_auth
+@viper_isadmin
+def admin_associate_user():
+    login = request.form['login']
+    customer_id = request.form['customer_id']
+    if not login or not customer_id:
+        flash('Provide a valid UserID and CustomerID.', Constants.FLASH_WARN)
+        return redirect(url_for('admin_billing'))
+
+    billing_manager = BillingManager(config)
+    if billing_manager.associate_billing_account(login, customer_id):
+        flash('Account "%s" has been associated with billing account "%s".'
+              % (login, customer_id))
+        return redirect(url_for('admin_billing'))
+    else:
+        flash('Could not associate account "%s" with billing account "%s".'
+              % (login, customer_id), Constants.FLASH_ERROR)
+        return redirect(url_for('admin_billing'))
+
+
+@app.route('/admin/billing/sync_user', methods=['POST'])
+@viper_auth
+@viper_isadmin
+def admin_sync_user():
+    if not request.form.get('login', None):
+        flash('Provide a valid account login.', Constants.FLASH_WARN)
+        return redirect(url_for('admin'))
+
+    login = request.form['login']
+    account_manager = AccountManager(config)
+    billing_manager = BillingManager(config)
+    account = account_manager.get_account(login)
+
+    if account is None:
+        flash('Could not find account for "%s"' % login, Constants.FLASH_WARN)
+        return redirect(url_for('admin_billing'))
+    else:
+        if billing_manager.synchronize_billing_details(account.login):
+            flash('Accounts have been synchronized for "%s".' % login)
+        else:
+            flash('Synchronization has failed. '
+                  'More information has been logged to the database.')
+        return redirect(url_for('admin_billing'))
+
+
+@app.route('/admin/set_user_invoiced', methods=['POST'])
+@viper_auth
+@viper_isadmin
+def set_user_invoiced():
+    account_name = request.form['invoiced_user']
+    try:
+        billing_manager = BillingManager(config)
+        billing_manager.mark_account_as_manually_invoiced(account_name)
+        flash('User {} marked as invoiced.'.format(account_name), Constants.FLASH_INFO)
+        return redirect(url_for('admin_customer_report'))
+    except Exception:
+        flash('Error marking user {} as invoiced: '.format(account_name), Constants.FLASH_ERROR)
+        return redirect(url_for('admin_billing'))
+
+
+@app.route('/admin/customer_management/customer_report', methods=['GET'])
+@viper_auth
+@viper_isadmin
+def admin_customer_report():
+    account_manager = AccountManager(config)
+    accounts_summary = account_manager.accounts_summary
+    billing_manager = BillingManager(config)
+    return render_template('admin/customer_report.html',
+                           accounts_summary=accounts_summary,
+                           account_manager=account_manager,
+                           # TODO: Refactor: billing_manager unused in template.
+                           billing_manager=billing_manager)
