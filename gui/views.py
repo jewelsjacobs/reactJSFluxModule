@@ -600,6 +600,94 @@ def instance_details(selected_instance):
                            sorted_shard_keys=sorted_shard_keys)
 
 
+@app.route('/create_instance_user/<selected_instance>', methods=['GET', 'POST'])
+@app.route('/create_instance_user/<selected_instance>/<selected_database>', methods=['GET', 'POST'])
+@exclude_admin_databases(check_argument='selected_database')
+@viper_auth
+def create_instance_user(selected_instance, selected_database=None):
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    if user_instance:
+        try:
+            if not selected_database:
+                selected_database = request.form['database']
+
+            user = request.form['username']
+            password = request.form['password']
+
+            if user_instance.has_database(selected_database):
+                # The database exists, just add a user to it.
+                user_instance.add_user(selected_database, user, password)
+            else:
+                # The database does not exist, add it and the user.
+                user_instance.add_database(selected_database, user, password)
+
+        except Exception as ex:
+
+            flash_message = None
+
+            if hasattr(ex, 'code'):
+                if ex.code == Constants.MAX_DATABASES_REACHED:
+                    flash_message = "Error adding database: This instance's plan is limited to a single database."
+                elif ex.code == Constants.NO_USERS_FOR_EMPTY_DBS:
+                    flash_message = "Error adding user: You may not add users to empty databases without users."
+
+            if flash_message is None:
+                exception_uuid = Utility.obfuscate_exception_message(ex.message)
+                flash_message = ("There was a problem with your request. If "
+                                 "this problem persists, contact "
+                                 "<a mailto:%s>%s</a> and provide Error ID %s.")
+
+                flash_message = flash_message % (config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid)
+
+                error_info = {
+                    'path': request.path,
+                    'user': getattr(g, 'login', None),
+                    'context': 'gui',
+                }
+
+                Utility.log_traceback(config, exception_uuid, error_info)
+
+            flash(flash_message, Constants.FLASH_ERROR)
+
+    return redirect(url_for('instance_details', selected_instance=selected_instance))
+
+
+@app.route('/drop_database', methods=['POST'])
+@viper_auth
+def drop_database():
+    selected_database = request.form['db']
+    selected_instance = request.form['instance']
+
+    if selected_database in Constants.ADMINISTRATIVE_DATABASES:
+        flash("Administrative databases cannot be dropped", Constants.FLASH_WARN)
+
+    # Verify this db actually belongs to this account.
+    database_found = False
+
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    for database in instance.databases:
+        if database.name == selected_database:
+            database_found = True
+
+    if database_found:
+        try:
+            instance.instance_connection.drop_database(selected_database)
+            flash("Database %s dropped." % selected_database, Constants.FLASH_INFO)
+        except Exception as ex:
+            exception_message = "Failed to drop database %s for account %s, instance %s: %s" % (selected_database, g.login, instance.name, ex)
+            exception_uuid = Utility.obfuscate_exception_message(exception_message)
+            flash_message = ("A problem occurred while dropping database %s. If the problem persists, please contact <a href='mailto:%s'>%s</a> "
+                             "and provide Error ID %s." % (selected_database, config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid))
+            flash(flash_message, Constants.FLASH_ERROR)
+    else:
+        flash("Error dropping database %s: database not found." % selected_database, Constants.FLASH_ERROR)
+
+    return redirect('/instances/%s' % selected_instance)
+
+
 @app.route('/rename_instance', methods=['POST'])
 @viper_auth
 def rename_instance():

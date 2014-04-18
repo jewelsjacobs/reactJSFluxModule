@@ -1,3 +1,4 @@
+/* === canon overwrites === */
 .rs-nav-brand a {
   background: transparent url('/static/art/objectrocket.png') no-repeat center center;
   display: block;
@@ -30,6 +31,10 @@ body.rs-responsive .rs-container {
 	width: 100%;
 	height: 100%;
 	z-index: 999;
+}
+
+span.rs-validation-block {
+	padding-left: 0;
 }
 
 img.invoice-logo {
