@@ -15,7 +15,7 @@
 {% block content_area_body %}
 
 
-{{ detail_header(title="External Integration Settings") }}
+{% call detail_header(page_title="External Integration Settings") %}{% endcall %}
     {% set action = 'add_ec2_settings' %}
     {% if obfuscated_ec2_access_key %}
         {% set action = 'delete_ec2_settings' %}
