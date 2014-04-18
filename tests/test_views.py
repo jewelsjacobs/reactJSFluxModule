@@ -356,16 +356,25 @@ def test_account(app_client):
 def test_external(app_client):
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/new_relic')
+        response = client.get('/external')
+        print(response.data)
+        assert response.status_code == 302
+
+
+def test_new_relic(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get('/external/new_relic')
         print(response.data)
         assert response.status_code == 200
 
 
-def add_new_relic_key(app_client):
+def test_add_new_relic_key(app_client):
     new_relic_key = 'A' * 40
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/add_new_relic_key',  data=dict(new_relic_key=new_relic_key), follow_redirects=True)
+        response = client.post('/external/add_new_relic_key', data=dict(new_relic_key=new_relic_key),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -373,7 +382,38 @@ def add_new_relic_key(app_client):
 def test_delete_new_relic_key(app_client):
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/delete_new_relic_key', follow_redirects=True)
+        response = client.post('/external/delete_new_relic_key', follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_amazon(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get('/external/amazon')
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_add_ec2_settings(app_client, monkeypatch):
+
+    monkeypatch.setattr("viper.aws.AWSManager.validate_credentials", lambda(x): True)
+
+    ec2_access_key = 'test_key'
+    ec2_secret_key = 'test_key'
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/external/add_ec2_settings', data=dict(ec2_access_key=ec2_access_key,
+                                                                        ec2_secret_key=ec2_secret_key),
+                               follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_delete_ec2_settings(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/external/delete_ec2_settings', follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -727,34 +767,6 @@ def test_alarm_clear(app_client):
 def test_alarm_clear_all(app_client):
     # alarms = json.loads(request.form['alarms'])
     assert False
-
-# TODO: Need valid EC2 credentials
-# def test_add_ec2_settings(app_client):
-#     ec2_region = 'us-west'
-#     ec2_security_group = 'test'
-#     ec2_access_key = 'test'
-#     ec2_secret_key = 'test'
-#     with app_client as client:
-#         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-#         response = client.post('/add_ec2_settings',
-#                                data=dict(
-#                                    ec2_region=ec2_region,
-#                                    ec2_security_group=ec2_security_group,
-#                                    ec2_access_key=ec2_access_key,
-#                                    ec2_secret_key=ec2_secret_key,
-#                                 ),
-#                                 follow_redirects=True)
-#         print(response.data)
-#         assert response.status_code == 200
-
-# TODO: Need valid EC2 credentials
-# def test_delete_ec2_settings(app_client):
-#     with app_client as client:
-#         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-#         response = client.post('/delete_ec2_settings', follow_redirects=True)
-#         print(response.data)
-#         assert response.status_code == 200
-
 
 
 # TODO: Uncomment once tests are decoupled and can work with replica set instances

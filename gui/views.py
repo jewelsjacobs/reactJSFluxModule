@@ -646,8 +646,8 @@ def sign_in():
     if request.method == 'GET':
         return render_template('sign_in/sign_in.html')
 
-    login = request.form['login-input']
-    password = request.form['password-input']
+    login = request.form['login']
+    password = request.form['password']
 
     account_manager = AccountManager(config)
     if not account_manager.authenticated(login, password):
