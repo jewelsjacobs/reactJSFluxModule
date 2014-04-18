@@ -1,0 +1,89 @@
+{% extends "web_app_base.html" %}
+
+{% block nav_secondary_content %}
+    {% include "external/external_secondary_nav.html" %}
+{% endblock %}
+
+{% block sidebar %}
+    {% call sidebar_help(hidden=False) %}
+        <span class="rs-help-block">After adding a key, ObjectRocket will begin sending data for each of your instances
+            to New Relic. You can disable New Relic monitoring for a specific instance on that instance's settings page.
+        </span>
+    {% endcall %}
+{% endblock sidebar %}
+
+{% block content_area_body %}
+    {% call detail_header(page_title="External Integration Settings") %}{% endcall %}
+    {% set action = 'add_new_relic_key' %}
+    {% set id = 'set_license_key_form' %}
+    {% if obfuscated_new_relic_key %}
+        {% set action = 'delete_new_relic_key' %}
+        {% set id = 'delete_license_key_form' %}
+    {% endif %}
+    {% call create_view(url_for(action), id=id, method="POST") %}
+        {% call detail_section(title="New Relic Instance Monitoring") %}
+            <div class="rs-detail-section-body">
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="license_key">New Relic License Key</label>
+
+                    <div class="rs-controls">
+                        {% if obfuscated_new_relic_key %}
+                            <input type="text" class="rs-input-xlarge" readonly
+                                   placeholder="{{ obfuscated_new_relic_key }}">
+                        {% else %}
+                            <input class="rs-input-xlarge" type="text" name="license_key" id="license_key"
+                                   placeholder="Enter License Key">
+                        {% endif %}
+                        <span class="rs-help-block">Enable New Relic monitoring of your ObjectRocket instances by
+                            setting a license key. You will need a New Relic
+                            <a href=http://newrelic.com/signup target=1>login</a>. Once created, you can grab your
+                            license key from your <a href=https://rpm.newrelic.com/accounts target=1>accounts</a> page.
+                        </span>
+                    </div>
+                </div>
+                <div class="rs-control-group">
+                    <div class="rs-controls">
+                        {% if obfuscated_new_relic_key %}
+                            <button type="submit" id="delete_license_key_button" class="rs-btn rs-btn-primary">
+                                Delete License Key
+                            </button>
+                        {% else %}
+                            <button type="submit" id="set_license_key_button" disabled="disabled"
+                                    class="rs-btn rs-btn-primary disabled">Set License Key
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endcall %}
+    {% endcall %}
+{% endblock %}
+
+{% block script %}
+    {{ super() }}
+    <script>
+        $(document).ready(function () {
+
+            $('#set_license_key_form').validate({
+                rules: {
+                    license_key: {
+                        minlength: 40,
+                        required: true
+                    }
+                },
+                highlight: function (label) {
+                    $(label).closest('.rs-control-group').addClass('error');
+                },
+                success: function (label) {
+                    label
+                            .addClass('valid')
+                            .closest('.rs-control-group').addClass('success');
+                    $('#set_license_key_button').removeAttr("disabled", "disabled");
+                    $('#set_license_key_button').removeClass('disabled');
+                }
+            });
+        });
+
+    </script>
+
+{% endblock %}

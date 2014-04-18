@@ -734,8 +734,8 @@ def sign_in():
     if request.method == 'GET':
         return render_template('sign_in/sign_in.html')
 
-    login = request.form['login-input']
-    password = request.form['password-input']
+    login = request.form['login']
+    password = request.form['password']
 
     account_manager = AccountManager(config)
     if not account_manager.authenticated(login, password):
@@ -1013,6 +1013,149 @@ def show_invoice(invoice_id):
                            account=account,
                            invoice=invoice,
                            format_timestamp=Utility.format_timestamp)
+
+@app.route('/external')
+@viper_auth
+def external():
+    return redirect(url_for('new_relic'))
+
+@app.route('/external/new_relic')
+@viper_auth
+def new_relic():
+    def obfuscate(str):
+        return '{}{}'.format('*' * (len(str) - 4), str[-4:])
+
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+
+    obfuscated_new_relic_key = None
+
+    if account.new_relic_key:
+        obfuscated_new_relic_key = obfuscate(account.new_relic_key)
+
+    return render_template('external/new_relic.html',
+                           obfuscated_new_relic_key=obfuscated_new_relic_key,
+                           login=g.login)
+
+
+@app.route('/external/add_new_relic_key', methods=['POST'])
+@viper_auth
+def add_new_relic_key():
+    """Update account contact info route."""
+    try:
+        new_relic_key = request.form['license_key']
+        account_manager = AccountManager(config)
+        account_manager.add_new_relic_key(g.login, new_relic_key, enable_on_all_instances=True)
+        flash('Your New Relic license key was successfully updated. If your information does not appear on the New Relic site within 30 minutes, '
+              'please contact support.', "ok")
+
+    except Exception as ex:
+        exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        flash_message = ("There was a problem with your New Relic license key. If this problem persists and you "
+                         "believe your key is valid, please contact support and provide Error ID {}.".format(
+            exception_uuid))
+        flash(flash_message, Constants.FLASH_ERROR)
+
+    return redirect(url_for('new_relic'))
+
+
+@app.route('/external/delete_new_relic_key', methods=['POST'])
+@viper_auth
+def delete_new_relic_key():
+    """Update account contact info route."""
+    try:
+        account_manager = AccountManager(config)
+        account_manager.delete_new_relic_key(g.login)
+        flash('Your New Relic license key was successfully deleted.', "ok")
+
+    except Exception as ex:
+        exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        flash_message = ("There was a problem with deleting your license key. If this problem persists, please contact "
+                         "support and provide Error ID {}.".format(exception_uuid))
+        flash(flash_message, Constants.FLASH_ERROR)
+
+    return redirect(url_for('new_relic'))
+
+
+@app.route('/external/amazon')
+@viper_auth
+def amazon():
+    def obfuscate(str):
+        return '{}{}'.format('*' * (len(str) - 4), str[-4:])
+
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+
+    obfuscated_ec2_access_key = None
+    obfuscated_ec2_secret_key = None
+
+    if account.aws_access_key_id:
+        obfuscated_ec2_access_key = obfuscate(account.aws_access_key_id)
+        obfuscated_ec2_secret_key = obfuscate(account.aws_secret_access_key)
+
+    return render_template('external/amazon.html',
+                           obfuscated_ec2_access_key=obfuscated_ec2_access_key,
+                           obfuscated_ec2_secret_key=obfuscated_ec2_secret_key,
+                           login=g.login)
+
+
+
+@app.route('/external/add_ec2_settings', methods=['POST'])
+@viper_auth
+def add_ec2_settings():
+    """Add EC2 settings route."""
+
+    ec2_region = request.form.get('ec2_region')
+    ec2_security_group = request.form.get('ec2_security_group', None)
+    ec2_access_key = request.form.get('ec2_access_key')
+    ec2_secret_key = request.form.get('ec2_secret_key')
+    aws_manager = AWSManager(config, ec2_region, ec2_access_key, ec2_secret_key)
+
+    print(aws_manager.validate_credentials())
+
+    error = False
+    if not aws_manager.validate_credentials():
+        error = True
+        flash("Your AWS keys could not be validated. If this problem persists and you believe your keys are valid, "
+              "please contact support.", Constants.FLASH_ERROR)
+    elif ec2_security_group and not aws_manager.validate_security_group(ec2_security_group):
+        error = True
+        flash("Invalid EC2 security group", Constants.FLASH_ERROR)
+
+    if error is True:
+        return redirect(url_for('amazon'))
+
+    account_manager = AccountManager(config)
+    account_manager.add_aws_credentials(g.login, ec2_region, ec2_access_key, ec2_secret_key)
+
+    account = account_manager.get_account(g.login)
+
+    for instance in account.instances:
+        instance.update_attribute('settings.create_acls_for_aws_ips', ['on'])
+
+    flash("""Your AWS keys were successfully updated.
+    If your AWS-synchronized ACLs are not applied within 30 minutes, please contact support.""", "ok")
+
+    return redirect(url_for('amazon'))
+
+
+@app.route('/external/delete_ec2_settings', methods=['POST'])
+@viper_auth
+def delete_ec2_settings():
+    """Delete EC2 settings route."""
+    try:
+        account_manager = AccountManager(config)
+        account_manager.delete_aws_credentials(g.login)
+        flash('Your AWS keys were successfully deleted.', Constants.FLASH_INFO)
+
+    except Exception as ex:
+        exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        flash_message = """There was a problem with deleting your AWS keys.
+        If this problem persists, please contact support and provide Error ID {}.""".format(exception_uuid)
+        flash(flash_message, Constants.FLASH_ERROR)
+        Utility.log_traceback(config, exception_uuid)
+
+    return redirect(url_for('amazon'))
 
 
 @app.route('/add_shard/<selected_instance>', methods=['POST'])
