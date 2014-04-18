@@ -249,7 +249,7 @@ TODO:
 
     {% call detail_section(title='Security', collapsible=True) %}
         <div class="rs-btn-group">
-            <a class="rs-btn rs-btn-primary">Add ACL</a>
+            <button id="add-acl-target" data-popover="add-acl-popover" data-popover-target="add-acl-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source">Add ACL</button>
         </div>
 
         <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
@@ -265,6 +265,13 @@ TODO:
                 </thead>
                 <tbody id="acl_table_body"></tbody>
             </table>
+            <div class="rs-table-overlay">
+                <div class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-title">You don't have any ACLs yet.</div>
+                    <div class="rs-table-overlay-subtitle">Create one now by clicking on the Add ACL button.</div>
+                    <div class="rs-table-overlay-message">Access Control Lists (ACLs) allow you to limit who connects to your MongoDB instance.</div>
+                </div>
+            </div>
         </div>
     {% endcall %}
 
@@ -394,12 +401,81 @@ TODO:
         </div>
     </div>
     <!-- end delete database popover -->
+
+    <!-- add acl popover -->
+    <div id="add-acl-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="add-acl-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('add_allowed', instance=instance.name) }}" method="POST">
+                    <p>Access Control Lists (ACLs) allow you to limit who connects to your MongoDB instance. By default, no one is allowed to connect. If you know the set of IP addresses you wish to connect from, you can add them here. If you don't, or if you're connecting from a service such as Heroku that uses dynamic ranges of IP addresses, you can select "any" here; You'll still be able to limit access via the login/password pairs that you configure, and you can still encrypt your connections with SSL!</p>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">IP Address</label>
+                        <div class="rs-controls">
+                            <input id="acl" name="cidr_mask" type="text" placeholder="1.1.1.1/24" class="rs-input rs-input-large">
+                            <p class="rs-help-block">Must be a <a href="http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing" target="1">CIDR</a> IP address, or <span class="strong-blue">any</span> to allow any source IP.</p>
+                        </div>
+                    </div>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Description</label>
+                        <div class="rs-controls">
+                            <input id="description" name="description" type="text" class="rs-input rs-input-large">
+                            <p class="rs-help-block">Enter a short description for this ACL.</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="add-acl-popover-form-button" form="add-acl-popover-form" class="rs-btn rs-btn-primary">Add ACL</button>
+                <button class="rs-btn rs-btn-link">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- end add acl popover -->
 {% endblock popovers %}
 
 {% block script %}
     {{ super() }}
     <script type="text/javascript">
     $(document).ready(function() {
+
+        // Instance API key.
+        var apiKey = {{ instance.api_key|tojson|safe }};
+
+        // Render ACL data into the ACLs table.
+        function displayACLs(aclsTable) {
+            var apiURL = "/api/acls/" + apiKey;
+
+            $.ajax({
+                url: apiURL,
+                dataType: 'json',
+                type: 'POST',
+                data: {},
+                success: function(jsonData) {
+                    var aclData = jsonData['data'];
+
+                    if (aclData.length == 0) {
+                        $('#notification_div').append($("#noAclMessage").html());
+                    }
+
+                    aclData.map(function(aclObject) {
+                        var cidrMask = aclObject['cidr_mask'];
+                        var description = aclObject['description'] ? aclObject['description'] : "";
+                        var id = aclObject['_id']['$oid'];
+                        var instance = aclObject['instance'];
+                        var port = aclObject['port'];
+                        var deleteButton = $("#aclDeleteButton").html()
+
+                        var aclRowData = [deleteButton.format(instance, id),
+                                          cidrMask,
+                                          'Allow', // Why hardcode this?
+                                          description];
+                        aclsTable.fnAddData(aclRowData);
+                    });
+                }
+            });
+        }
+
         // Validation for renaming instances.
         $('#rename-instance-popover-form').validate({
             rules: {

@@ -53,3 +53,8 @@ p.tos {
 	text-align: left;
 	text-indent: 0;
 }
+
+/* === colors === */
+.strong-blue {
+	color: #0088cc;
+}

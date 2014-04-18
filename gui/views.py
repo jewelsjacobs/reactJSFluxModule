@@ -1163,7 +1163,7 @@ def delete_ec2_settings():
 def add_shard(selected_instance):
     instance_manager = InstanceManager(config)
     instance = instance_manager.get_instance_by_name(g.login, selected_instance)
-    
+
     if not instance:
         abort(404)
 
@@ -1171,3 +1171,37 @@ def add_shard(selected_instance):
     Utility.log_to_db(config, "Shard added.", {'login': g.login, 'area': 'gui'})
     flash('Shard added successfully.')
     return redirect(url_for('instance_details', selected_instance=selected_instance))
+
+
+@app.route('/add_allowed/<instance>', methods=['GET', 'POST'])
+@viper_auth
+def add_allowed(instance):
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, instance)
+
+    cidr_mask = request.form['cidr_mask']
+    description  = request.form['description']
+
+    # Logic to handle allow any with "ANY" keyword.
+    if str(cidr_mask).lower().strip() == "any":
+        user_instance.add_acl('0.0.0.0/1', "Allow Any")
+        user_instance.add_acl('128.0.0.0/1', "Allow Any")
+    else:
+        user_instance.add_acl(cidr_mask, description)
+
+    return redirect(url_for('instance_details',
+                            selected_instance = instance,
+                            selected_tab = 'acls'))
+
+
+@app.route('/delete_acl/<instance>/<acl_id>')
+@viper_auth
+def delete_acl(instance, acl_id):
+    """Delete instance ACL."""
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, instance)
+    user_instance.delete_acl(acl_id)
+
+    return redirect(url_for('instance_details', selected_instance=instance, selected_tab='acls'))
+
+
