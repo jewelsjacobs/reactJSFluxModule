@@ -1,6 +1,9 @@
 import json
+import pytest
 
 from fixtures import app_client, testdb
+
+xfail = pytest.mark.xfail
 
 
 # TODO: Move to settings file
@@ -656,19 +659,19 @@ def test_admin_alarms(app_client):
     assert False
 
 
-# @app.route('/admin/associate_user', methods=['POST'])
-# @viper_isadmin
+@xfail(reason="Test not implemented. Need to create a fixture for associated Stripe ID")
 def test_admin_associate_user(app_client):
     # login = request.form['login']
     # customer_id = request.form['customer_id']
-    assert False
+    pass
 
 
-# @app.route('/admin/sync_user', methods=['POST'])
-# @viper_isadmin
 def test_admin_sync_user(app_client):
-    # login = request.form['login']
-    assert False
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/billing/sync_user', data=dict(login=login), follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 
 # @app.route('/admin/add_message', methods=['POST'])
@@ -699,31 +702,40 @@ def test_admin_customer_report(app_client):
     assert False
 
 
-# @app.route('/admin/set_user_invoiced', methods=['POST'])
-# @viper_isadmin
 def test_set_user_invoiced(app_client):
-    # account_name = request.form['invoiced_user']
-    assert False
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/billing/set_user_invoiced', data=dict(invoiced_user=login), follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 
-# @app.route('/admin/set_invoiced_amount', methods=['POST'])
-# @viper_isadmin
 def test_set_invoice_amount(app_client):
-    # account_id = request.form['account_id']
-    # amount     = request.form['amount']
-    # currency   = request.form['currency']
-    assert False
+    amount = 100
+    currency = 'USD'
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/billing/set_invoiced_amount', data=dict(account_id=login,
+                                                                             amount=amount,
+                                                                             currency=currency), follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 
-# @app.route('/admin/set_user_customplan', methods=['POST'])
-# @viper_isadmin
 def test_set_user_customplan(app_client):
     # account_name = request.form['customplan_user']
-    assert False
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/billing/set_user_customplan', data=dict(customplan_user=login),
+                               follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
 
 # @app.route('/admin/customer_export', methods=['GET'])
 def test_admin_download_customer_report(app_client):
     assert False
+
 
 # @app.route('/admin')
 def test_admin(app_client):

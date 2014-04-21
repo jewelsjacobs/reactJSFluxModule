@@ -6,21 +6,25 @@
 
 
 {% block content_area_body %}
-{% call detail_header(page_title="Billing") %}{% endcall %}
-{% call create_view(url_for('admin_associate_user'), id="associate_form", method="POST") %}
+    {% call detail_header(page_title="Billing") %}{% endcall %}
+    {% call create_view(url_for('admin_associate_user'), id="associate_form", method="POST") %}
         {% call detail_section(title="Associate Users", subtitle="Associate ObjectRocket and Stripe users.") %}
             <div class="rs-detail-section-body">
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="login">User ID</label>
+
                     <div class="rs-controls">
                         <input type="text" name="login" class="rs-input-xlarge" id="login">
+
                         <p class="rs-help-block">Value from users.login.</p>
                     </div>
                 </div>
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="customer_id">Secret Access Key</label>
+
                     <div class="rs-controls">
                         <input type="text" name="customer_id" class="rs-input-xlarge" id="customer_id">
+
                         <p class="rs-help-block">Value from Stripe; customer_id, starts with "cus_".</p>
                     </div>
                 </div>
@@ -30,7 +34,7 @@
                     </div>
                 </div>
             </div>
-            {% endcall %}
+        {% endcall %}
     {% endcall %}
 
     {% call create_view(url_for('admin_sync_user'), id="sync_form", method="POST") %}
@@ -38,18 +42,20 @@
             <div class="rs-detail-section-body">
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="login">User ID</label>
+
                     <div class="rs-controls">
                         <input type="text" name="login" class="rs-input-xlarge" id="login">
+
                         <p class="rs-help-block">Value from users.login.</p>
                     </div>
                 </div>
                 <div class="rs-control-group">
                     <div class="rs-controls">
-                        <button type="submit" id="associate_button" class="rs-btn rs-btn-primary">Submit</button>
+                        <button type="submit" id="sync_button" class="rs-btn rs-btn-primary">Submit</button>
                     </div>
                 </div>
             </div>
-            {% endcall %}
+        {% endcall %}
     {% endcall %}
 
     {% call create_view(url_for('set_user_invoiced'), id="invoice_user_form", method="POST") %}
@@ -58,22 +64,91 @@
             <div class="rs-detail-section-body">
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="invoiced_user">User ID</label>
+
                     <div class="rs-controls">
                         <input type="text" name="invoiced_user" class="rs-input-xlarge" id="invoiced_user">
+
                         <p class="rs-help-block">Value from users.login.</p>
                     </div>
                 </div>
                 <div class="rs-control-group">
                     <div class="rs-controls">
-                        <button type="submit" id="associate_button" class="rs-btn rs-btn-primary">Submit</button>
+                        <button type="submit" id="invoiced_button" class="rs-btn rs-btn-primary">Submit</button>
                     </div>
                 </div>
             </div>
-            {% endcall %}
+        {% endcall %}
     {% endcall %}
 
-    {# TODO: Add "set invoiced amount" #}
-    {# TODO: Add "mark custom stripe plan" #}
+    {% call create_view(url_for('set_invoice_amount'), id="set_invoice_amount_form", method="POST") %}
+        {% call detail_section(title="Set Invoice Amount",
+        subtitle="Sets the amount IN CENTS an invoiced account is billed per month.") %}
+            <div class="rs-detail-section-body">
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="account_id">User ID</label>
+
+                    <div class="rs-controls">
+                        <input type="text" name="account_id" class="rs-input-xlarge" id="account_id">
+
+                        <p class="rs-help-block">Enter the invoiced account ID.</p>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="amount">Amount in cents</label>
+
+                    <div class="rs-controls">
+                        <input type="text" name="amount" class="rs-input-xlarge" id="amount" min="0">
+
+                        <p class="rs-help-block">Enter the amount in cents of the invoice.</p>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="currency">Currency</label>
+
+                    <div class="rs-controls">
+                        <select name="currency">
+                            <option value="USD" selected>USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                        </select>
+
+                        <p class="rs-help-block">The currency type of the invoice.</p>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <div class="rs-controls">
+                        <button type="submit" id="amount_button" class="rs-btn rs-btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+        {% endcall %}
+    {% endcall %}
+
+    {% call create_view(url_for('set_user_customplan'), id="customplan_form", method="POST") %}
+        {% call detail_section(title="Custom Stripe Plan",
+        subtitle="Set a custom Stripe plan; the automated billing system won't sign them up for a standard plan.") %}
+            <div class="rs-detail-section-body">
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="customplan_user">User ID</label>
+
+                    <div class="rs-controls">
+                        <input type="text" name="customplan_user" class="rs-input-xlarge" id="customplan_user">
+
+                        <p class="rs-help-block">Enter the User ID that has a custom Stripe plan.</p>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <div class="rs-controls">
+                        <button type="submit" id="customplan_button" class="rs-btn rs-btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+        {% endcall %}
+    {% endcall %}
 {% endblock %}
 
 {% block script %}

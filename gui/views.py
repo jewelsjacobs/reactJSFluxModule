@@ -1271,7 +1271,7 @@ def admin_associate_user():
     billing_manager = BillingManager(config)
     if billing_manager.associate_billing_account(login, customer_id):
         flash('Account "%s" has been associated with billing account "%s".'
-              % (login, customer_id))
+              % (login, customer_id), 'ok')
         return redirect(url_for('admin_billing'))
     else:
         flash('Could not associate account "%s" with billing account "%s".'
@@ -1297,14 +1297,14 @@ def admin_sync_user():
         return redirect(url_for('admin_billing'))
     else:
         if billing_manager.synchronize_billing_details(account.login):
-            flash('Accounts have been synchronized for "%s".' % login)
+            flash('Accounts have been synchronized for "%s".' % login, 'ok')
         else:
             flash('Synchronization has failed. '
-                  'More information has been logged to the database.')
+                  'More information has been logged to the database.', Constants.FLASH_ERROR)
         return redirect(url_for('admin_billing'))
 
 
-@app.route('/admin/set_user_invoiced', methods=['POST'])
+@app.route('/admin/billing/set_user_invoiced', methods=['POST'])
 @viper_auth
 @viper_isadmin
 def set_user_invoiced():
@@ -1312,11 +1312,10 @@ def set_user_invoiced():
     try:
         billing_manager = BillingManager(config)
         billing_manager.mark_account_as_manually_invoiced(account_name)
-        flash('User {} marked as invoiced.'.format(account_name), Constants.FLASH_INFO)
-        return redirect(url_for('admin_customer_report'))
+        flash('User {} marked as invoiced.'.format(account_name), 'ok')
     except Exception:
         flash('Error marking user {} as invoiced: '.format(account_name), Constants.FLASH_ERROR)
-        return redirect(url_for('admin_billing'))
+    return redirect(url_for('admin_billing'))
 
 
 @app.route('/admin/customer_management/customer_report', methods=['GET'])
@@ -1331,3 +1330,34 @@ def admin_customer_report():
                            account_manager=account_manager,
                            # TODO: Refactor: billing_manager unused in template.
                            billing_manager=billing_manager)
+
+
+@app.route('/admin/billing/set_invoiced_amount', methods=['POST'])
+@viper_auth
+@viper_isadmin
+def set_invoice_amount():
+    account_id = request.form['account_id']
+    try:
+        amount = request.form['amount']
+        currency = request.form['currency']
+        billing_manager = BillingManager(config)
+        billing_manager.set_invoiced_amount(account_id, amount, currency)
+        flash('Invoiced amount set as {} {} for account {}.'.format(amount, currency, account_id), 'ok')
+    except Exception as ex:
+        flash('Error setting invoice amount for user {}: {}'.format(account_id, ex), Constants.FLASH_ERROR)
+    return redirect(url_for('admin_billing'))
+
+
+@app.route('/admin/billing/set_user_customplan', methods=['POST'])
+@viper_auth
+@viper_isadmin
+def set_user_customplan():
+    account_name = request.form['customplan_user']
+    try:
+        billing_manager = BillingManager(config)
+        billing_manager.mark_account_with_custom_plan(account_name)
+        flash('User {} marked with custom Stripe plan.'.format(account_name), 'ok')
+    except Exception as ex:
+        flash('Error marking user {} with custom Stripe plan: {}'.format(account_name, ex), Constants.FLASH_ERROR)
+    return redirect(url_for('admin_billing'))
+
