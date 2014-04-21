@@ -4,43 +4,45 @@
     Sign In
 {% endblock title %}
 
-{% block nav_utility_content %}{% endblock nav_utility_content %}
+{% block body %}
+    <div class="rs-panel or-focus-panel">
 
-{% block content_area_body %}
-    <!--
-        When PR github.com/rackerlabs/canon/pull/50/ is merged, use its code for
-        login focus page.
-    -->
-    <div class="rs-inner" id="login-form-block">
-        <h2 class="rs-page-title">Sign In</h2>
+        <div class="or-focus-panel-login">
+            <div class="or-login-brand"></div>
+            <div class="or-login-form">
+               <p class="or-login-welcome">Welcome to the ObjectRocket Control Panel!</p>
 
-        <form id="login-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_in') }}" method="POST">
+                <form id="login-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_in') }}" method="POST">
 
-            <div class="rs-control-group success">
-                <label class="rs-control-label">Login</label>
-                <div class="rs-controls">
-                    <input name="login" type="text" class="rs-input-medium" placeholder="Login">
+                    <div class="rs-control-group success">
+                        <label class="rs-control-label">Login</label>
+                        <input name="login" type="text" class="rs-input rs-input-medium" placeholder="Login">
+                    </div>
+
+                    <div class="rs-control-group success">
+                        <label class="rs-control-label">Password</label>
+                        <input name="password" type="password" class="rs-input rs-input-medium" placeholder="Password">
+                    </div>
+
+                    <div class="rs-btn-group">
+                        <button class="rs-btn rs-btn-login" type="submit">Sign In</button>
+                    </div>
+                </form>
+                <div class="rs-control-group">
+                    <p><a href="javascript:void(0);">Forgot your password?</a></p>
                 </div>
             </div>
-
-            <div class="rs-control-group success">
-                <label class="rs-control-label">Password</label>
-                <div class="rs-controls">
-                    <input name="password" type="password" class="rs-input-medium" placeholder="Password">
-                </div>
-            </div>
-
-            <button class="rs-btn rs-btn-login" type="submit">Sign In</button>
-        </form>
-        <br/> <!-- FIXME: YUK! -->
-        <div class="rs-control-group success">
-            <!-- FIXME(Anthony): Add password reset route and href here. -->
-            <p><a href="javascript:void(0);">Forgot your password?</a></p>
-            <p>Need an account? Get <a href="/sign_up1">one here.</a></p>
         </div>
-    </div>
 
-{% endblock content_area_body %}
+        <div class="or-focus-panel-links">
+            <div class="or-focus-panel-links-pull-right">
+                <p>Need an account? <a href="/sign_up1">Get one here »</a></p>
+            </div>
+        </div>
+
+    </div>
+{% endblock body %}
+
 
 {% block script %}
     {{ super() }}

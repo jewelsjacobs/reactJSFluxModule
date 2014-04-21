@@ -47,6 +47,58 @@ img.invoice-logo {
 	padding: 5px;
 }
 
+/* === focus panel code === */
+.or-focus-panel {
+	top: 50%;
+	left: 50%;
+	margin: -192px 0 0 -325px;
+	position: absolute;
+}
+
+.or-login-brand {
+	background: url('/static/art/objectrocket.png') no-repeat 50% / 60%;
+	display: inline-block;
+	float: left;
+	height: 57px;
+	margin-top: 95px;
+	padding: 40px;
+	width: 192px;
+}
+
+.or-focus-panel-login {
+  min-width: 630px;
+}
+
+.or-focus-panel-login .rs-control-label, .or-focus-panel-login .rs-input {
+	display: block;
+}
+
+.or-login-welcome {
+	font-weight: bold;
+	font-size: 1.1em;
+	margin-bottom: 40px;
+}
+
+.or-login-form {
+	float: left;
+	margin: 30px 0;
+	padding: 40px 50px;
+	border-left: 1px solid #ddd;
+}
+#login-form + .rs-control-group {
+	margin: 25px 0 0;
+}
+
+.or-focus-panel .or-focus-panel-links {
+	bottom: -14%;
+	position: absolute;
+	right: 0;
+}
+
+.or-focus-panel-links .or-focus-panel-links-right {
+	right: 0;
+}
+
 /* === paragraph styles === */
 p.tos {
 	font-size: 10px;
