@@ -13,28 +13,16 @@
 
 {% block sidebar %}
     {% call sidebar_help(hidden=False) %}
-        <h3>Managing This Product</h3>
-        <h4>Top action helpful text</h4>
-        <p>Short blurb about best practices for a top action on this item. Try to keep this to 3 lines maximum.</p>
-        <p><a target="blank" href="#">More Details About Blurb &raquo;</a></p>
+        <h3>Account Settings</h3>
+        <h4>Login Details</h4>
+        <p>To update your login password, click on the edit icon next to the password field. You will need to use the new password next time you log in.</p>
 
         <hr>
-        <h4>Help Me With...</h4>
-        <ul>
-            <li><a target="blank" href="#">Best Practice Number One</a></li>
-            <li><a target="blank" href="#">Best Practice Number Two</a></li>
-            <li><a target="blank" href="#">Best Practice Number Three</a></li>
-        </ul>
-        <p><a target="blank" href="#">Learn More about This Product &raquo;</a></p>
+        <h4>Contact Information</h4>
+        <p>To update your contact information, click on the edit icon next to the section header. This will update your contact information in our system.</p>
 
-        <hr>
-        <h4>What's Next</h4>
-        <ul>
-            <li><a target="blank" href="#">Top Action Number One</a></li>
-            <li><a target="blank" href="#">Top Action Number Two</a></li>
-            <li><a target="blank" href="#">Top Action Number Three</a></li>
-        </ul>
-        <p><a target="blank" href="#">Visit Our Knowledge Center &raquo;</a></p>
+        <br>
+        <h5><a target="blank" href="http://docs.objectrocket.com/">Visit Our Knowledge Center &raquo;</a></h5>
     {% endcall %}
 {% endblock sidebar %}
 
@@ -50,14 +38,9 @@
                         <span class="rs-caret"></span>
                     </button>
                     <ul class="rs-dropdown-menu" style="right:0;">
-                        <li><span class="rs-dropdown-category">Identify</span></li>
-                        <li><a href="#">Rename Item&hellip;</a></li>
-                        <li><a href="#">Tag Item&hellip;</a></li>
                         <li><span class="rs-dropdown-category">Manage</span></li>
-                        <li><a href="#">Connect Via Terminal&hellip;</a></li>
-                        <li><a href="#">Reboot Item&hellip;</a></li>
-                        <li><a href="#">Change Password&hellip;</a></li>
-                        <li><a href="#">Delete Item&hellip;</a></li>
+                        <li><a data-popover="contact-information-popover" data-popover-target="contact-information-target" data-popover-position="right" class="rs-popover-source" href="javascript:void(0);">Update Info&hellip;</a></li>
+                        <li><a data-popover="update-password-popover" data-popover-target="update-password-target" data-popover-position="right" class="rs-popover-source" href="javascript:void(0);">Update Password&hellip;</a></li>
                     </ul>
                 </div>
             </div>
