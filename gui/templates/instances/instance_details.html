@@ -282,14 +282,21 @@ TODO:
             <table class="rs-list-table rs-embedded-list-table">
                 <thead>
                     <tr>
-                        <th class="rs-table-status"></th>
-                        <th class="rs-table-cog"></th>
+                        <th></th>
                         <th>Date</th>
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody id="backups_table_body"></tbody>
+                <tbody id="backups-table-body">
+                </tbody>
             </table>
+            <div id="backups-table-overlay" class="rs-table-overlay">
+                <div class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-title">You don't have any backups yet.</div>
+                    <div class="rs-table-overlay-subtitle">Backups will be created for you automatically.</div>
+                    <div class="rs-table-overlay-message">Backups are created per your backup plan. If you would like an upgraded plan, or need a backup restored, please <a href="mailto:support@objectrocket.com">contact us</a>.</div>
+                </div>
+            </div>
         </div>
     {% endcall %}
 
@@ -474,10 +481,12 @@ TODO:
                 success: function(jsonData) {
                     var aclData = jsonData['data'];
 
+                    // If ACLs are found, then remove the table overlay.
                     if (aclData.length > 0) {
                         $('#acls-table-overlay').addClass('hidden');
                     }
 
+                    // Map each ACL onto this function.
                     aclData.map(function(aclObject) {
                         var cidrMask = aclObject['cidr_mask'];
                         var description = aclObject['description'] ? aclObject['description'] : "";
@@ -519,8 +528,67 @@ TODO:
             });
         }
 
+        // Render backup data into the backups table.
+        function displayBackups($backupsTable) {
+            var apiURL = "/api/backups/" + apiKey;
+
+            $.ajax({
+                url: apiURL,
+                dataType: 'json',
+                type: 'POST',
+                data: {},
+                success: function(jsonData){
+                    var backupData = jsonData['data'];
+                    console.log(backupData);
+
+                    // If backups are found, then remove the table overlay.
+                    if (backupData.length > 0) {
+                        $('#backups-table-overlay').addClass('hidden');
+                    }
+
+                    // Map each backup onto this function.
+                    backupData.map(function(backupObject) {
+                        var status_message = backupObject['error_msg'];
+                        var filename = backupObject['filename'];
+                        var formattedTimestamp = backupObject['timestamp_formatted'];
+                        var id = backupObject['_id']['$oid'];
+                        var port = backupObject['port'];
+                        var timestamp = backupObject['timestamp'];
+
+                        var $tooltip = $('<span>');
+                        $tooltip.attr('data-title', 'If you need a backup restored, please <a href="mailto:support@objectrocket.com">contact us</a>.');
+                        $tooltip.attr('data-delay', 0.1);
+                        $tooltip.addClass('rs-icon-help');
+
+                        var $backupRow = $('<tr>');
+                        $backupRow.append($('<td>').append($tooltip));
+                        $backupRow.append($('<td>').text(formattedTimestamp));
+                        $backupRow.append($('<td>').text(status_message));
+                        $backupsTable.append($backupRow);
+
+                        // Bind tooltip listener.
+                        $tooltip.hover(function(event) {
+                            removeTooltips();
+                            clearTimeout(removeTipTimer);
+                            clearTimeout(attachTipTimer);
+                            var tooltip = new Object();
+                            tooltip.contents = $(this).attr('data-title');
+                            tooltip.delay = $(this).attr('data-delay');
+                            tooltip.left = event.clientX;
+                            tooltip.top = $(document).scrollTop()+event.clientY;
+                            attachTooltip(tooltip);
+                        }, function(e) {
+                            clearTimeout(attachTipTimer);
+                            removeTipTimer = setTimeout(function(){removeTooltips();}, hideTipTimeout);
+                        });
+                    });
+                }
+            });
+        }
+
         // Asynchronous calls.
         displayACLs($('#acls-table-body'));
+        displayBackups($('#backups-table-body'));
 
         // Validation for renaming instances.
         $('#rename-instance-popover-form').validate({
