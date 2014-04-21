@@ -582,9 +582,8 @@ def _calculate_sharded_instance_usage(instance):
 
         # Aggregate data, file, and storage stats across all shards.
         total_data_size += shard_stats[Constants.DATA_SIZE_IN_BYTES]
-        # TODO(Anthony): Do we want these guys in the stats?
-        # total_data_size += shard_stats[Constants.INDEX_SIZE_IN_BYTES]  # Plus indexes.
-        # total_data_size += shard_stats[Constants.NAMESPACE_SIZE_IN_BYTES]  # Plus ns.
+        total_data_size += shard_stats[Constants.INDEX_SIZE_IN_BYTES]
+        total_data_size += shard_stats[Constants.NAMESPACE_SIZE_IN_BYTES]
         total_file_size += shard_stats[Constants.FILE_SIZE_IN_BYTES]
         total_storage_size += shard_stats[Constants.STORAGE_SIZE_IN_BYTES]
 
@@ -1207,18 +1206,24 @@ def add_allowed(instance):
         user_instance.add_acl(cidr_mask, description)
 
     return redirect(url_for('instance_details',
-                            selected_instance = instance,
-                            selected_tab = 'acls'))
+                            selected_instance=instance,
+                            selected_tab='acls'))
 
 
-@app.route('/delete_acl/<instance>/<acl_id>')
+@app.route('/delete_acl/<instance>', methods=['POST'])
+@app.route('/delete_acl/<instance>/<acl_id>', methods=['POST'])
 @viper_auth
-def delete_acl(instance, acl_id):
+def delete_acl(instance, acl_id=None):
     """Delete instance ACL."""
+    if acl_id is None:
+        acl_id = request.form['acl-id']
+
     instance_manager = InstanceManager(config)
     user_instance = instance_manager.get_instance_by_name(g.login, instance)
     user_instance.delete_acl(acl_id)
 
-    return redirect(url_for('instance_details', selected_instance=instance, selected_tab='acls'))
+    return redirect(url_for('instance_details',
+                            selected_instance=instance,
+                            selected_tab='acls'))
 
 
