@@ -5,6 +5,7 @@ from viper import config
 from gui import app
 
 app.config['API_SERVER'] = config.API_SERVER
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 app.secret_key = "Super Secret Key"
 app.debug = True

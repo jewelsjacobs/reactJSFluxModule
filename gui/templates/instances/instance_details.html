@@ -98,20 +98,22 @@ TODO:
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Space Usage</div>
                 <div class="rs-detail-value">
-                    <span>{{ size_totals['total_data_size']|filesizeformat }} of 5 GB used</span>
+                    <span>{{ usage_totals['total_data_size']|filesizeformat }} of 5 GB used</span>
                     <div class="rs-progress">
                         <div class="rs-progress-inner">
-                            <div id="usage-bar-data" class="rs-segment" style="width: {{ size_totals['percentages']['data'] }}%">
+                            <div id="usage-bar-data" class="rs-segment" style="width: {{ usage_totals['percentages']['data'] }}%;">
                                 <div class="rs-bar rs-bar-ok"></div>
-                                <div class="rs-caption">Data</div>
+                                <!-- Avoid caption overcrowding. -->
+                                {% if usage_totals['percentages']['data'] > 5 %}<div class="rs-caption">Data</div>{% endif %}
                             </div>
-                            <div id="usage-bar-storage" class="rs-segment" style="width: {{ size_totals['percentages']['storage'] }}%">
+                            <div id="usage-bar-storage" class="rs-segment" style="width: {{ usage_totals['percentages']['storage'] }}%;">
                                 <div class="rs-bar rs-bar-processing"></div>
                                 <div class="rs-caption">Allocated</div>
                             </div>
-                            <div id="usage-bar-remainder" class="rs-segment" style="width: {{ size_totals['percentages']['remaining'] }}%">
+                            <div id="usage-bar-remainder" class="rs-segment" style="width: {{ usage_totals['percentages']['remaining'] }}%;">
                                 <div class="rs-bar"></div>
-                                <div class="rs-caption">Free</div>
+                                <!-- Avoid caption overcrowding. -->
+                                {% if usage_totals['percentages']['remaining'] > 5 %}<div class="rs-caption">Free</div>{% endif %}
                             </div>
                         </div>
                     </div>
