@@ -258,16 +258,16 @@ TODO:
             <table class="rs-list-table rs-embedded-list-table">
                 <thead>
                     <tr>
-                        <th class="rs-table-status"></th>
-                        <th class="rs-table-cog"></th>
+                        <th></th>
                         <th>Source IP CIDR</th>
                         <th>Action</th>
                         <th>Description</th>
                     </tr>
                 </thead>
-                <tbody id="acl_table_body"></tbody>
+                <tbody id="acls-table-body">
+                </tbody>
             </table>
-            <div class="rs-table-overlay">
+            <div id="acls-table-overlay" class="rs-table-overlay">
                 <div class="rs-table-overlay-content">
                     <div class="rs-table-overlay-title">You don't have any ACLs yet.</div>
                     <div class="rs-table-overlay-subtitle">Create one now by clicking on the Add ACL button.</div>
@@ -445,7 +445,7 @@ TODO:
         var apiKey = {{ instance.api_key|tojson|safe }};
 
         // Render ACL data into the ACLs table.
-        function displayACLs(aclsTable) {
+        function displayACLs(aclsTableBody) {
             var apiURL = "/api/acls/" + apiKey;
 
             $.ajax({
@@ -456,8 +456,8 @@ TODO:
                 success: function(jsonData) {
                     var aclData = jsonData['data'];
 
-                    if (aclData.length == 0) {
-                        $('#notification_div').append($("#noAclMessage").html());
+                    if (aclData.length > 0) {
+                        $('#acls-table-overlay').addClass('hidden');
                     }
 
                     aclData.map(function(aclObject) {
@@ -465,18 +465,18 @@ TODO:
                         var description = aclObject['description'] ? aclObject['description'] : "";
                         var id = aclObject['_id']['$oid'];
                         var instance = aclObject['instance'];
-                        var port = aclObject['port'];
-                        var deleteButton = $("#aclDeleteButton").html()
+                        // var port = aclObject['port'];
+                        // var deleteButton = $("#aclDeleteButton").html()
 
-                        var aclRowData = [deleteButton.format(instance, id),
-                                          cidrMask,
-                                          'Allow', // Why hardcode this?
-                                          description];
-                        aclsTable.fnAddData(aclRowData);
+                        var aclEntry = '<tr><td class="rs-delete"></td><td>' + cidrMask + '</td><td>Allow</td><td>' + description + '</td></tr>';
+                        aclsTableBody.append(aclEntry);
                     });
                 }
             });
         }
+
+        // Asynchronous calls.
+        displayACLs($('#acls-table-body'));
 
         // Validation for renaming instances.
         $('#rename-instance-popover-form').validate({
