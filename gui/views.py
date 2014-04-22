@@ -787,10 +787,9 @@ def sign_in():
 
     flash('Sign in successful.')
 
-    # TODO(Anthony): Use these lines when ready.
-    # account = account_manager.get_account(login)
-    # if not account.accepted_msa:
-    #     return redirect(url_for('msa'))
+    account = account_manager.get_account(login)
+    if not account.accepted_msa:
+        return redirect(url_for('msa'))
 
     return redirect(url_for('dashboard'))
 
@@ -928,6 +927,27 @@ def sign_up_finish():
                            service_type=service_type,
                            version=version,
                            zone=zone)
+
+
+@app.route('/msa')
+@viper_auth
+def msa():
+    return render_template('sign_up/msa.html')
+
+
+@app.route('/msa_agree')
+@viper_auth
+def msa_agree():
+    # Record agreement, then redirect to home.
+    account_manager = AccountManager(config)
+    account_manager.accept_msa(g.login)
+    return redirect(url_for('dashboard'))
+
+
+@app.route('/msa_disagree')
+@viper_auth
+def msa_disagree():
+    return render_template('sign_up/msa_disagree.html')
 
 
 @app.route('/billing')
