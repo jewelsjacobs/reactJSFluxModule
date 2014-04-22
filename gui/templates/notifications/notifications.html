@@ -1,108 +1,90 @@
 {% extends 'web_app_base.html' %}
 
-<!--
-TODO:
-- Finish filtering logic
-- Finish JS wiring
-- Finish alarms logic
--->
-
-<!-- FIXME(Anthony): Use this block when filtering options are added. -->
-<!-- % block rs_main_classes %% endblock % -->
-
-{% block sidebar %}
-    {% call sidebar_filtering() %}
-        <h2 class="rs-page-title">Notifications</h2>
-    {% endcall %}
-{% endblock sidebar %}
-
 {% block content_area_body %}
-
-    <div class="rs-detail-section rs-collapsible-section expanded">
-        <div class="rs-detail-section-header">
-            <div class="rs-caret"></div>
-            <div class="rs-detail-section-title">Messages</div>
-        </div>
-
-        <div class="rs-detail-section-body">
-            {% if messages %}
-                <table id="messages-table" class="table table-striped">
-                    <thead>
+    {% call detail_header(page_title='Notifications') %}{% endcall %}
+    {% call detail_section(title='Messages', collapsible=true) %}
+        <div class="rs-embedded-list-table-wrapper rs-embedded-large">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in messages|sort(attribute='date', reverse=true) %}
                         <tr>
-                            <th>Date</th>
-                            <th>Message</th>
+                            <td>{{ message.date }}</td>
+                            <td>{{ message.message }}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for message in messages %}
-                            <tr>
-                                <td width="240"><i class="icon-comment"></i>{{ message['date'].strftime('%Y-%d-%m %H:%M:%S') }}</td>
-                                <td><p class="text-warning">{{ message["message"] }}</p></td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not messages %}
                 <div class="rs-table-overlay">
                     <div class="rs-table-overlay-content">
-                        <div class="rs-table-overlay-title">You don't have any messages yet.</div>
-                        <div class="rs-table-overlay-subtitle">You will see any new messages here when they are generated.</div>
-                        <!-- <div class="rs-table-overlay-message">An additional line to explain why this is useful and a link for more info. Learn more about <a href="javascript:void(0);">[product] <i class="rs-icon-external"></i></a></div> -->
+                        <div class="rs-table-overlay-title">
+                            You don't have any messages yet.
+                        </div>
+                        <div class="rs-table-overlay-subtitle">
+                            New messages will show up here automatically.
+                        </div>
                     </div>
                 </div>
             {% endif %}
         </div>
-    </div>
-
-    <div class="rs-detail-section rs-collapsible-section expanded">
-        <div class="rs-detail-section-header">
-            <div class="rs-caret"></div>
-            <div class="rs-detail-section-title">Alarms</div>
-        </div>
-
-        <div class="rs-detail-section-body">
-            {% if alarms %}
-                <table id="alarms-table" class="table table-striped">
-                    <thead>
+    {% endcall %}
+    {% call detail_section(title='Alarms', collapsible=true) %}
+        <div class="rs-embedded-list-table-wrapper rs-embedded-large">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th>Asset ID</th>
+                        <th>Event</th>
+                        <th>Severity</th>
+                        <th>Data</th>
+                        <th>Count</th>
+                        <th>Created</th>
+                        <th>Last Seen</th>
+                        <th>Notified</th>
+                        <th>State</th>
+                        <th>Clear</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alarm in alarms|sort(attribute='last_updated', reverse=true) %}
                         <tr>
-                            <th>Date</th>
-                            <th>Alarm</th>
+                            <td>{{ alarm.asset_id }}</td>
+                            <td>{{ alarm.event_code }}</td>
+                            <td>{{ alarm.severity|title }}</td>
+                            <td>{{ alarm.supplemental_data }}</td>
+                            <td>{{ alarm.count }}</td>
+                            <td>{{ alarm.creation_date }}</td>
+                            <td>{{ alarm.last_updated }}</td>
+                            <td>{{ alarm.last_notified }}</td>
+                            <td>{{ alarm.state|title }}</td>
+                            <td><form action="{{ url_for('clear_alarm') }}" method="POST">
+                                    <button type="submit" class="rs-delete"></button>
+                                    <input type="hidden" name="alarm_id" value="{{ alarm.id }}">
+                                </form>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for alarm in alarms %}
-                            <tr>
-                                <td width="240"><i class="icon-comment"></i>{{ alarm['date'].strftime('%Y-%d-%m %H:%M:%S') }}</td>
-                                <td><p class="text-warning">{{ alarm["alarm"] }}</p></td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not alarms %}
                 <div class="rs-table-overlay">
                     <div class="rs-table-overlay-content">
-                        <div class="rs-table-overlay-title">You don't have any alarms yet.</div>
-                        <div class="rs-table-overlay-subtitle">You will see any new alarms here when they are generated.</div>
-                        <!-- <div class="rs-table-overlay-message">An additional line to explain why this is useful and a link for more info. Learn more about <a href="javascript:void(0);">[product] <i class="rs-icon-external"></i></a></div> -->
+                        <div class="rs-table-overlay-title">
+                            You don't have any alarms yet.
+                        </div>
+                        <div class="rs-table-overlay-subtitle">
+                            New alarms will show up here automatically.
+                        </div>
                     </div>
                 </div>
             {% endif %}
         </div>
-    </div>
 
-{% endblock content_area_body %}
-
-{% block script %}
-    {{ super() }}
-
-    <script>
-    $(document).ready(function() {
-        $('#messages-table').dataTable({
-            "sPaginationType": "bootstrap",
-            "sDom": '<"top"f>rt<"bottom"ilp><"clear">',
-            "bStateSave": true,
-            "oLanguage": {"sLengthMenu": "_MENU_ records per page"},
-        });
-    });
-    </script>
-{% endblock script %}
+    {% endcall %}
+{% endblock %}

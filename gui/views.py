@@ -762,10 +762,27 @@ def notifications():
     """Display account notification messages."""
     message_manager = MessageManager(config)
     messages = message_manager.get_messages(g.login)
+    annunciator = Annunciator(config)
+    alarms = annunciator.get_alarms_for_login(g.login)
+    alarms = [alarm for alarm in alarms if not (alarm.state == Alarm.CLEARED or alarm.support_only)]
+    return render_template('notifications/notifications.html',
+                           alarms=alarms,
+                           login=g.login,
+                           messages=messages)
 
-    # TODO(Anthony): Finish logic for gathering all alarms, filtering by instance, et cetera.
-    alarms = []
-    return render_template('notifications/notifications.html', alarms=alarms, login=g.login, messages=messages)
+@app.route('/clear_alarm', methods=['POST'])
+@viper_auth
+def clear_alarm():
+    """Clears alarms."""
+    alarm_id = request.form['alarm_id']
+    annunciator = Annunciator(config)
+    alarm = annunciator.get_alarm(alarm_id)
+
+    if alarm.login == g.login:
+        annunciator.mark_alarm_as_cleared(alarm.id)
+        flash('Alarm cleared.')
+
+    return redirect(url_for('notifications'))
 
 
 @app.route('/sign_in', methods=['GET', 'POST'])
