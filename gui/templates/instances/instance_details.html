@@ -148,9 +148,22 @@ TODO:
     {% endcall %}
 
     {% call detail_section(title='Databases', collapsible=True) %}
+        <!-- FIXME(Anthony): This is jank. This logic should be pulled into the controller. -->
+        {% set add_database_enabled = is_sharded_instance or (not is_sharded_instance and databases|count < max_databases_per_replica_set_instances) %}
+        {% if not (add_database_enabled and enable_copy_database) %}
+            {% set copy_database_enabled = false %}
+        {% elif 'copy_database' not in instance.document %}
+            {% set copy_database_enabled = true %}
+        {% elif instance.document['copy_database'].get('state', 'failed') == 'failed' %}
+            {% set copy_database_enabled = true %}
+        {% else %}
+            {% set copy_database_enabled = false %}
+        {% endif %}
+
         <div class="rs-btn-group">
-            <button id="add-database-target" data-popover="add-database-popover" data-popover-target="add-database-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source">Add Database</button>
-            <button id="copy-remote-database-target" data-popover="copy-remote-database-popover" data-popover-target="copy-remote-database-target" data-popover-position="bottom-right" class="rs-btn rs-btn-secondary rs-popover-source">Copy Remote Database</button>
+            <!-- TODO(Anthony): Scripting on these lines should be moved to controller. -->
+            <button id="add-database-target" data-popover="add-database-popover" data-popover-target="add-database-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source{% if not add_database_enabled %} disabled{% endif %}">Add Database</button>
+            <button id="copy-remote-database-target" data-popover="copy-remote-database-popover" data-popover-target="copy-remote-database-target" data-popover-position="bottom-right" class="rs-btn rs-btn-secondary rs-popover-source{% if not copy_database_enabled %} disabled{% endif %}">Copy Remote Database</button>
         </div>
 
         <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
@@ -373,18 +386,39 @@ TODO:
         <div class="rs-popover-arrow"></div>
         <div class="rs-popover-content">
             <div class="rs-popover-body">
-                <form id="copy-remote-database-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('create_instance_user', selected_instance=instance.name) }}" method="POST">
+                <form id="copy-remote-database-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('copy_database', selected_instance=instance.name ) }}" method="POST">
                     <div class="rs-control-group">
-                        <label class="rs-control-label">New Name</label>
+                        <label class="rs-control-label">Connect String</label>
                         <div class="rs-controls">
-                            <input name="new-name" type="text" placeholder="{{ instance.name }}" class="rs-input rs-input-medium">
-                            <input name="current-name" type="hidden" value="{{ instance.name }}">
+                            <input name="connect_string" type="text" placeholder="my.host.com:12345" class="rs-input rs-input-medium">
                         </div>
                     </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Database Name</label>
+                        <div class="rs-controls">
+                            <input name="database" type="text" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Database Username</label>
+                        <div class="rs-controls">
+                            <input name="username" type="text" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Database Password</label>
+                        <div class="rs-controls">
+                            <input name="password" type="password" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
                 </form>
             </div>
             <div class="rs-popover-footer rs-btn-group">
-                <button id="copy-remote-database-popover-form-button" form="copy-remote-database-popover-form" class="rs-btn rs-btn-primary save">Rename</button>
+                <button id="copy-remote-database-popover-form-button" form="copy-remote-database-popover-form" class="rs-btn rs-btn-primary save">Copy Database</button>
                 <div class="rs-btn rs-btn-link">Cancel</div>
             </div>
         </div>

@@ -546,6 +546,7 @@ def instance_details(selected_instance):
         balancer = user_instance.balancer
         aggregate_stats, usage_totals = _calculate_sharded_instance_usage(user_instance)
 
+    import ipdb;ipdb.set_trace()
     return render_template('instances/instance_details.html',
                            account_monitoring_checks=account_monitoring_checks,
                            aggregate_stats=aggregate_stats,
@@ -670,6 +671,33 @@ def create_instance_user(selected_instance, selected_database=None):
     return redirect(url_for('instance_details', selected_instance=selected_instance))
 
 
+@app.route('/rename_instance', methods=['POST'])
+@viper_auth
+def rename_instance():
+    current_name = request.form['current-name']
+    new_name = request.form['new-name']
+    instance_manager = InstanceManager(config)
+    app.logger.debug("renaming %s to %s:" % (current_name, new_name))
+
+    if not current_name:
+        message = "Cannot rename an empty instance name"
+        app.logger.error(message)
+        return redirect(url_for('instances'))
+
+    if not new_name:
+        message = "Cannot rename instance %s: A non-empty new instance name is required." % (current_name)
+        flash(message, Constants.FLASH_ERROR)
+        return redirect(url_for('instances'))
+
+    if instance_manager.instance_exists(g.login, new_name):
+        message = "Cannot rename instance %s to %s: An instance named %s already exists." % (current_name, new_name, new_name)
+        flash(message, Constants.FLASH_ERROR)
+        return redirect(url_for('instances'))
+
+    instance_manager.rename_instance(g.login, current_name, new_name)
+    return redirect(url_for('instances'))
+
+
 @app.route('/drop_database', methods=['POST'])
 @viper_auth
 def drop_database():
@@ -704,31 +732,29 @@ def drop_database():
     return redirect('/instances/%s' % selected_instance)
 
 
-@app.route('/rename_instance', methods=['POST'])
+@app.route('/copy_database/<selected_instance>', methods=['GET', 'POST'])
 @viper_auth
-def rename_instance():
-    current_name = request.form['current-name']
-    new_name = request.form['new-name']
+def copy_database(selected_instance):
+    """Copy database."""
     instance_manager = InstanceManager(config)
-    app.logger.debug("renaming %s to %s:" % (current_name, new_name))
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
 
-    if not current_name:
-        message = "Cannot rename an empty instance name"
-        app.logger.error(message)
-        return redirect(url_for('instances'))
+    if user_instance:
+        try:
+            connect_string = request.form['connect_string']
+            database = request.form['database']
+            username = request.form['username']
+            password = request.form['password']
 
-    if not new_name:
-        message = "Cannot rename instance %s: A non-empty new instance name is required." % (current_name)
-        flash(message, Constants.FLASH_ERROR)
-        return redirect(url_for('instances'))
+            # The database exists, just add a user to it
+            user_instance.copy_database(database, database, connect_string, username, password)
+            flash('Database copy has been scheduled.', Constants.FLASH_INFO)
+        except Exception as ex:
+            flash_message = "Error copying database: %s" % ex
+            flash(flash_message, Constants.FLASH_ERROR)
 
-    if instance_manager.instance_exists(g.login, new_name):
-        message = "Cannot rename instance %s to %s: An instance named %s already exists." % (current_name, new_name, new_name)
-        flash(message, Constants.FLASH_ERROR)
-        return redirect(url_for('instances'))
-
-    instance_manager.rename_instance(g.login, current_name, new_name)
-    return redirect(url_for('instances'))
+    return redirect(url_for('instance_details',
+                            selected_instance = selected_instance))
 
 
 @app.route('/notifications')
