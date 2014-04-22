@@ -546,7 +546,6 @@ def instance_details(selected_instance):
         balancer = user_instance.balancer
         aggregate_stats, usage_totals = _calculate_sharded_instance_usage(user_instance)
 
-    import ipdb;ipdb.set_trace()
     return render_template('instances/instance_details.html',
                            account_monitoring_checks=account_monitoring_checks,
                            aggregate_stats=aggregate_stats,
