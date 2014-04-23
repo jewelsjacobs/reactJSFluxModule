@@ -1,8 +1,6 @@
 import json
 import pytest
 
-from fixtures import app_client, testdb
-
 xfail = pytest.mark.xfail
 
 
