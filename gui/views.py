@@ -1445,3 +1445,41 @@ def set_user_customplan():
         flash('Error marking user {} with custom Stripe plan: {}'.format(account_name, ex), Constants.FLASH_ERROR)
     return redirect(url_for('admin_billing'))
 
+
+@app.route('/admin/user_management/switch_user', methods=['POST'])
+@viper_auth
+@viper_isadmin
+def admin_switch_user():
+    user_id = request.form['switchuser']
+    account_manager = AccountManager(config)
+    if account_manager.get_account(user_id):
+        session['login'] = user_id
+        return redirect(url_for('dashboard'))
+    else:
+        flash('Provide a valid user to switch to.', Constants.FLASH_ERROR)
+        return redirect(url_for('admin_user_management'))
+
+
+@app.route('/admin/user_management/remove_user', methods=['POST'])
+@viper_auth
+@viper_isadmin
+def admin_remove_user():
+    login = request.form['login']
+    billing_manager = BillingManager(config)
+    account_manager = AccountManager(config)
+    instance_manager = InstanceManager(config)
+
+    account = account_manager.get_account(login)
+    if account is None:
+        flash('User "%s" does not exist.' % login, Constants.FLASH_ERROR)
+    elif not account.active:
+        flash('User "%s" is already deactivated.' % login, Constants.FLASH_WARN)
+    else:
+        instance_manager.recycle_instances(account.login)
+
+        if account.stripe_account:
+            billing_manager.unsubscribe_customer(account.login)
+
+        account_manager.deactivate_account(account.login)
+        flash('User "%s" successfully deactivated' % login, 'ok')
+    return redirect(url_for('admin_user_management'))
