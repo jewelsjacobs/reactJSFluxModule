@@ -1,0 +1,60 @@
+<div class="rs-embedded-list-table-wrapper rs-embedded-large">
+    <table class="rs-list-table rs-embedded-list-table">
+        <thead>
+            <tr>
+                {%- if admin %}
+                    <th>Login</th>
+                {% endif %}
+                <th>Asset ID</th>
+                <th>Event</th>
+                <th>Severity</th>
+                <th>Data</th>
+                <th>Count</th>
+                <th>Created</th>
+                <th>Last Seen</th>
+                <th>Notified</th>
+                <th>State</th>
+                {%- if not admin %}
+                    <th>Clear</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for alarm in alarms|sort(attribute='last_updated', reverse=true) %}
+                <tr>
+                    {%- if admin %}
+                        <td>{{ alarm.login }}</td>
+                    {% endif %}
+                    <td>{{ alarm.asset_id }}</td>
+                    <td>{{ alarm.event_code }}</td>
+                    <td>{{ alarm.severity|title }}</td>
+                    <td>{{ alarm.supplemental_data }}</td>
+                    <td>{{ alarm.count }}</td>
+                    <td>{{ alarm.creation_date }}</td>
+                    <td>{{ alarm.last_updated }}</td>
+                    <td>{{ alarm.last_notified }}</td>
+                    <td>{{ alarm.state|title }}</td>
+                    {%- if not admin %}
+                        <td><form action="{{ url_for('clear_alarm') }}" method="POST">
+                                <button type="submit" class="rs-delete"></button>
+                                <input type="hidden" name="alarm_id" value="{{ alarm.id }}">
+                            </form>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if not alarms %}
+        <div class="rs-table-overlay">
+            <div class="rs-table-overlay-content">
+                <div class="rs-table-overlay-title">
+                    You don't have any alarms yet.
+                </div>
+                <div class="rs-table-overlay-subtitle">
+                    New alarms will show up here automatically.
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>

@@ -691,6 +691,8 @@ def test_admin_set_status(app_client):
     # status_manager = StatusManager()
     # for i in request.form:
     #     status_manager.set_status(i, int(request.form[i]))
+    # ImmutableMultiDict([('API', u'0'), ('network', u'0'), ('west', u'1'), ('east', u'0'), ('driver', u'0'), ('system', u'0')])
+    # Values are 0, 1 or 2
     pass
 
 # @app.route('/admin/node_map', methods=['GET'])
