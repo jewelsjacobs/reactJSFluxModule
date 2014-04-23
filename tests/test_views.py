@@ -207,12 +207,13 @@ def test_delete_instance_user(app_client):
 
 
 # @app.route('/copy_database/<selected_instance>', methods=['GET', 'POST'])
+@xfail(reason="Test not implemented.")
 def test_copy_database(app_client):
     # connect_string = request.form['connect_string']
     # database = request.form['database']
     # username = request.form['username']
     # password = request.form['password']
-    assert False
+    pass
 
 
 def test_instances(app_client):
@@ -494,8 +495,9 @@ def test_add_allowed(app_client):
 
 
 # @app.route('/delete_acl/<instance>/<acl_id>')
+@xfail(reason="Test not implemented.")
 def delete_acl(app_client):
-    assert False
+    pass
 
 
 def test_update_account_contact(app_client):
@@ -543,11 +545,12 @@ def test_update_password(app_client):
 
 
 # @app.route('/set_credit_card', methods=['POST'])
+@xfail(reason="Test not implemented.")
 def test_set_credit_card(app_client):
     # billing_manager.set_credit_card(g.login, request.form['stripe_token'])
     # if 'returntarget' in request.form:
     #     return redirect(url_for(request.form['returntarget']))
-    assert False
+    pass
 
 
 def test_logout(app_client):
@@ -565,16 +568,18 @@ def test_logout(app_client):
 
 
 # @app.route('/reset_password', methods=['GET', 'POST'])
+@xfail(reason="Test not implemented.")
 def test_reset_password(app_client):
     # login = request.form[Constants.LOGIN]
     # if 'confirmPassword' in request.form:
     #     token = request.form['token']
     # password = request.form[Constants.PASSWORD]
-    assert False
+    pass
 
 # @app.route('/silence_alarm')
+@xfail(reason="Test not implemented.")
 def test_silence_alarm(app_client):
-    assert False
+    pass
 
 
 def test_billing(app_client):
@@ -586,9 +591,9 @@ def test_billing(app_client):
 
 
 # @app.route('/invoices/<invoice_id>')
-# @viper_auth
+@xfail(reason="Test not implemented.")
 def test_show_invoice(app_client):
-    assert False
+    pass
 
 
 def test_docs(app_client):
@@ -639,24 +644,20 @@ def test_support(app_client):
         assert response.status_code == 200
 
 
-# @app.route('/admin/switch_user', methods=['POST'])
-# @viper_isadmin
 def test_admin_switch_user(app_client):
-    # user_id = request.form['switchuser']
-    assert False
-
-
-# @app.route('/remove_user', methods=['GET', 'POST'])
-# @viper_isadmin
-def test_remove_user(app_client):
-    # login = request.form['login']
-    assert False
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/user_management/switch_user', data=dict(switchuser=login),
+                               follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 
 # @app.route('/admin/alarms', methods=['GET', 'POST'])
 # @viper_isadmin
+@xfail(reason="Test not implemented.")
 def test_admin_alarms(app_client):
-    assert False
+    pass
 
 
 @xfail(reason="Test not implemented. Need to create a fixture for associated Stripe ID")
@@ -676,30 +677,33 @@ def test_admin_sync_user(app_client):
 
 # @app.route('/admin/add_message', methods=['POST'])
 # @viper_isadmin
+@xfail(reason="Test not implemented.")
 def test_admin_add_message(app_client):
     # login = request.form.get('login', None)
     # message = request.form.get('message', None)
-    assert False
+    pass
 
 
 # @app.route('/admin/set_status', methods=['GET','POST'])
 # @viper_isadmin
+@xfail(reason="Test not implemented.")
 def test_admin_set_status(app_client):
     # status_manager = StatusManager()
     # for i in request.form:
     #     status_manager.set_status(i, int(request.form[i]))
-    assert False
+    pass
 
 # @app.route('/admin/node_map', methods=['GET'])
-# @viper_isadmin
+@xfail(reason="Test not implemented.")
 def test_admin_node_map(app_client):
-    assert False
+    pass
 
 
 # @app.route('/admin/customer_report', methods=['GET'])
 # @viper_isadmin
+@xfail(reason="Test not implemented.")
 def test_admin_customer_report(app_client):
-    assert False
+    pass
 
 
 def test_set_user_invoiced(app_client):
@@ -723,7 +727,6 @@ def test_set_invoice_amount(app_client):
 
 
 def test_set_user_customplan(app_client):
-    # account_name = request.form['customplan_user']
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
         response = client.post('/admin/billing/set_user_customplan', data=dict(customplan_user=login),
@@ -733,8 +736,9 @@ def test_set_user_customplan(app_client):
 
 
 # @app.route('/admin/customer_export', methods=['GET'])
+@xfail(reason="Test not implemented.")
 def test_admin_download_customer_report(app_client):
-    assert False
+    pass
 
 
 # @app.route('/admin')
@@ -755,11 +759,13 @@ def test_alarms(app_client):
 
 
 # @app.route('/<instance_name>/request_compaction', methods=['POST'])
+@xfail(reason="Test not implemented.")
 def request_compaction(app_client):
-    assert False
+    pass
 
 
 # @app.route('/admin_create_instance', methods=['POST'])
+@xfail(reason="Test not implemented.")
 def test_admin_create_instance(app_client):
     # account_name    = request.form['account_name']
     # name            = request.form['name']
@@ -767,31 +773,33 @@ def test_admin_create_instance(app_client):
     # service_type    = request.form['service_type']
     # version         = request.form['version']
     # zone            = request.form['zone']
-    assert False
+    pass
 
 # @app.route('/<instance_name>/alarm/clear', methods=['POST'])
+@xfail(reason="Test not implemented.")
 def test_alarm_clear(app_client):
     # alarm_id = request.form['alarm_id']
-    assert False
+    pass
 
 
 # @app.route('/<instance_name>/alarm/clear/all', methods=['POST'])
+@xfail(reason="Test not implemented.")
 def test_alarm_clear_all(app_client):
     # alarms = json.loads(request.form['alarms'])
-    assert False
+    pass
 
 
-# TODO: Uncomment once tests are decoupled and can work with replica set instances
-# def test_repair_database(app_client):
-#     with app_client as client:
-#         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-#         response = client.post('/instances/{}/repair'.format(instance_name),
-#                                data={
-#                                    'database-name': database_name,
-#                                    },
-#                                 follow_redirects=True)
-#         print(response.data)
-#         assert response.status_code == 200
+@xfail(reason="Test env needs support for replica set instances.")
+def test_repair_database(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/instances/{}/repair'.format(instance_name),
+                               data={
+                                   'database-name': database_name,
+                                   },
+                                follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 
 def test_drop_database(app_client):
@@ -811,5 +819,14 @@ def test_delete_instance(app_client):
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
         response = client.post('/{}/delete'.format(instance_name), follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_admin_remove_user(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/user_management/remove_user', data=dict(login=login),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
