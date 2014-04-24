@@ -756,7 +756,6 @@ def test_set_user_customplan(app_client):
         assert response.status_code == 200
 
 
-# @app.route('/admin')
 def test_admin(app_client):
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
