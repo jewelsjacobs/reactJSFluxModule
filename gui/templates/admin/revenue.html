@@ -4,11 +4,26 @@
     {% include "admin/admin_secondary_nav.html" %}
 {% endblock %}
 
-
 {% block content_area_body %}
-    test
-{% endblock %}
+    {% call detail_section(title='Revenue Estimation', collapsible=True) %}
+        <div class="rs-embedded-list-table-wrapper rs-embedded-large">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                <tr>
+                    <th>Revenue per Month</th>
+                    <th>Customers</th>
+                    <th>Subscribers</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><p class="lead">${{ revenue['cents']/100 }}</p></td>
+                    <td><p class="lead">{{ revenue['customers'] }}</p></td>
+                    <td><p class="lead">{{ revenue['subscribers'] }}</p></td>
+                </tr>
 
-{% block script %}
-    {{ super() }}
+                </tbody>
+            </table>
+        </div>
+    {% endcall %}
 {% endblock %}
