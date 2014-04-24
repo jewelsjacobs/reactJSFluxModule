@@ -779,16 +779,27 @@ def request_compaction(app_client):
     pass
 
 
-# @app.route('/admin_create_instance', methods=['POST'])
-@xfail(reason="Test not implemented.")
 def test_admin_create_instance(app_client):
-    # account_name    = request.form['account_name']
-    # name            = request.form['name']
-    # plan_size_in_gb = int(request.form['plan'])
-    # service_type    = request.form['service_type']
-    # version         = request.form['version']
-    # zone            = request.form['zone']
-    pass
+    instance_name = 'admin_test_instance'
+    plan = 5
+    service_type = 'mongodb'
+    version = '2.4.6'
+    zone = 'US-West'
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/instance_management/create_instance'.format(instance_name),
+                               data=dict(
+                                   account_name=login,
+                                   name=instance_name,
+                                   plan=plan,
+                                   service_type=service_type,
+                                   version=version,
+                                   zone=zone,
+                               ),
+                                follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
 
 # @app.route('/<instance_name>/alarm/clear', methods=['POST'])
 @xfail(reason="Test not implemented.")

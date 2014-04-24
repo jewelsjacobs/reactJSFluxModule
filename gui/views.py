@@ -1440,7 +1440,7 @@ def delete_acl(instance, acl_id=None):
 @viper_auth
 @viper_isadmin
 def admin():
-    return render_template('admin/admin.html')
+    return redirect(url_for('admin_alarms'))
 
 
 @app.route('/admin/billing')
@@ -1632,7 +1632,7 @@ def admin_set_status():
 def admin_alarms():
     annunciator = Annunciator(config)
     alarms = annunciator.get_all_alarms()
-    return render_template('admin/admin_alarms.html',
+    return render_template('admin/alarms.html',
                            admin=True,
                            alarms=alarms)
 
@@ -1675,3 +1675,68 @@ def admin_customer_reports():
 def admin_export_customer_report():
     return Response(AccountManager(config).get_csv_report(),
                     mimetype='text/csv')
+
+
+@app.route('/admin/instance_management', methods=['GET'])
+@viper_auth
+@viper_isadmin
+def admin_instance_management():
+    return render_template('admin/instance_management.html')
+
+
+from pprint import pprint
+@app.route('/admin/instance_management/create_instance', methods=['POST'])
+@viper_auth
+@viper_isadmin
+def admin_create_instance():
+    pprint(request.form)
+    account_name    = request.form['account_name']
+    name            = request.form['name']
+    plan_size_in_gb = int(request.form['plan'])
+    service_type    = request.form['service_type']
+    version         = request.form['version']
+    zone            = request.form['zone']
+
+    # HACK ALERT HACK ALERT HACK ALERT HACK ALERT
+    if service_type == Constants.MONGODB_SERVICE:
+        if int(plan_size_in_gb) == 1:
+            instance_type = Constants.MONGODB_REPLICA_SET_INSTANCE
+        else:
+            instance_type = Constants.MONGODB_SHARDED_INSTANCE
+
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(account_name)
+    instance_manager = InstanceManager(config)
+
+    if instance_manager.instance_exists(g.login, name):
+        flash_message = "Cannot create instance '{}': an instance with this name already exists.".format(name)
+        flash(flash_message, Constants.FLASH_ERROR)
+        return redirect(url_for('admin_instance_management'))
+
+    if not instance_manager.free_instance_count(plan_size_in_gb, zone, version, service_type, instance_type):
+        flash_message = "Cannot create instance '{}': no instances available for plan {}, zone {}, version {}.".format(
+            name, plan_size_in_gb, zone, version)
+        flash(flash_message, Constants.FLASH_ERROR)
+
+        subject = "Instance not available in UI."
+        body = "Login {} attempted to add {} instance type {} with plan: {} zone: {} name: {}, version: {}".format(
+            g.login, service_type, instance_type, plan_size_in_gb, zone, name, version)
+        send_email(config.SUPPORT_EMAIL, subject, body)
+        return redirect(url_for('admin_instance_management'))
+
+    try:
+        Utility.log_to_db(config, "Created instance.", {'login': g.login, 'area': 'gui', 'instance_name': name})
+        account.add_instance(name, zone, plan_size_in_gb, version, service_type, instance_type)
+    except Exception as ex:
+        exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        flash_message = ("There was a problem creating an instance. If this problem persists please contact support "
+                         "and provide Error ID {}.".format(exception_uuid))
+        flash(flash_message, Constants.FLASH_ERROR)
+        log_message = "Failed to create instance for login {}, plan {}, zone {}, name {}: {}".format(g.login,
+                                                                                                     plan_size_in_gb,
+                                                                                                     zone,
+                                                                                                     name,
+                                                                                                     ex)
+        app.logger.error(log_message)
+
+    return redirect(url_for('admin_instance_management'))
