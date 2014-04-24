@@ -6,8 +6,8 @@
 
 {% block content_area_body %}
     {% call detail_header(page_title="Status Management") %}{% endcall %}
-    {% call create_view(url_for('admin_add_message'), id="add_message_form", method="POST") %}
-        {% call detail_section(title="Send Message") %}
+    {% call detail_section(title="Send Message", collapsible=True) %}
+        {% call create_view(url_for('admin_add_message'), id="add_message_form", method="POST") %}
             <div class="rs-control-group">
                 <label class="rs-control-label" for="login">User ID</label>
 
@@ -34,27 +34,27 @@
         {% endcall %}
     {% endcall %}
 
-    {% call create_view(url_for('admin_set_status'), id="set_status_form", method="POST") %}
-        {% call detail_section(title="Set Status") %}
-            {% for s in status %}
+    {% call detail_section(title="Set Status", collapsible=True) %}
+        {% call create_view(url_for('admin_set_status'), id="set_status_form", method="POST") %}
+            {% for stat in status %}
                 <div class="rs-control-group">
-                    <label class="rs-control-label" for="{{ s['_id'] }}">{{ s['_id']|title }}</label>
+                    <label class="rs-control-label" for="{{ stat['_id'] }}">{{ stat['_id']|title }}</label>
 
                     <div class="rs-controls">
                         <label class="rs-radio">
-                            <input type="radio" name="{{ s['_id'] }}" value="0" checked="checked">
+                            <input type="radio" name="{{ stat['_id'] }}" value="0" checked="checked">
                             <strong>Ok</strong><br>
                         </label>
                         <label class="rs-radio">
-                            <input type="radio" name="{{ s['_id'] }}" value="1">
+                            <input type="radio" name="{{ stat['_id'] }}" value="1">
                             <strong>Warning</strong>
                         </label>
                         <label class="rs-radio">
-                            <input type="radio" name="{{ s['_id'] }}" value="2">
+                            <input type="radio" name="{{ stat['_id'] }}" value="2">
                             <strong>Error</strong>
                         </label>
 
-                        <p class="rs-help-block">{{ s['description'] }}</p>
+                        <p class="rs-help-block">{{ stat['description'] }}</p>
                     </div>
                 </div>
             {% endfor %}
