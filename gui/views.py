@@ -1389,10 +1389,8 @@ def delete_acl(instance, acl_id=None):
 @viper_isadmin
 def admin():
     billing_manager = BillingManager(config)
-    instance_manager = InstanceManager(config)
     return render_template('admin/admin.html',
-                           rev=billing_manager.get_billed_revenue(),
-                           checkouts=instance_manager.get_checkouts_by_type())
+                           rev=billing_manager.get_billed_revenue())
 
 
 @app.route('/admin/billing')
@@ -1407,12 +1405,6 @@ def admin_billing():
 @viper_isadmin
 def admin_customer_management():
     return render_template('admin/customer_management.html')
-
-@app.route('/admin/inventory')
-@viper_auth
-@viper_isadmin
-def admin_inventory():
-    return render_template('admin/inventory.html')
 
 
 @app.route('/admin/revenue')
@@ -1620,3 +1612,15 @@ def admin_alarms():
     return render_template('admin/admin_alarms.html',
                            admin=True,
                            alarms=alarms)
+
+
+@app.route('/admin/inventory', methods=['GET'])
+@viper_auth
+@viper_isadmin
+def admin_inventory():
+    instance_manager = InstanceManager(config)
+    node_map = Utility.get_node_map(config)
+    checkouts=instance_manager.get_checkouts_by_type()
+    return render_template('admin/inventory.html',
+                           checkouts=checkouts,
+                           node_map=node_map)
