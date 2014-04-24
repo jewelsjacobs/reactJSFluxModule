@@ -711,11 +711,20 @@ def test_admin_revenue(app_client):
         assert response.status_code == 200
 
 
-# @app.route('/admin/customer_report', methods=['GET'])
-# @viper_isadmin
-@xfail(reason="Test not implemented.")
-def test_admin_customer_report(app_client):
-    pass
+def test_admin_customer_reports(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password))
+        response = client.get('/admin/customer_reports')
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_admin_export_customer_report(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password))
+        response = client.get('/admin/customer_reports/export')
+        print(response.data)
+        assert response.status_code == 200
 
 
 def test_set_user_invoiced(app_client):
@@ -745,12 +754,6 @@ def test_set_user_customplan(app_client):
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
-
-
-# @app.route('/admin/customer_export', methods=['GET'])
-@xfail(reason="Test not implemented.")
-def test_admin_download_customer_report(app_client):
-    pass
 
 
 # @app.route('/admin')
