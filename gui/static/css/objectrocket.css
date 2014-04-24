@@ -1,72 +1,72 @@
 /* === canon overwrites === */
 .rs-nav-brand a {
-  background: transparent url('/static/art/objectrocket.png') no-repeat center center;
-  display: block;
+    background: transparent url('/static/art/objectrocket.png') no-repeat center center;
+    display: block;
 }
 
 body.rs-responsive .rs-container {
-	height: 100%;
-	max-width: 80%;
-	margin: 0 auto;
+    height: 100%;
+    max-width: 80%;
+    margin: 0 auto;
 }
 
 .rs-sidebar {
-	height: 100%;
-	overflow: scroll;
+    height: 100%;
+    overflow: scroll;
 }
 
 .invisible {
-	visibility: hidden;
+    visibility: hidden;
 }
 
 .hidden {
-	display: none;
+    display: none;
 }
 .or-overlay { /* This diverges from the canon norm, but it is needed for the JS. */
-	position: fixed;
-	top: 0px;
-	left: 0px;
-	right: 0px;
-	bottom: 0px;
-	width: 100%;
-	height: 100%;
-	z-index: 999;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
 }
 
 span.rs-validation-block {
-	padding-left: 0;
+    padding-left: 0;
 }
 
 img.invoice-logo {
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	border-radius: 6px;
-	width: 170px;
-	height: 40px;
-	background-color: black;
-	padding: 5px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    width: 170px;
+    height: 40px;
+    background-color: black;
+    padding: 5px;
 }
 
 .rs-dropdown-menu .rs-btn.rs-btn-link {
-	text-align: left;
+    text-align: left;
 }
 
 /* === focus panel code === */
 .or-focus-panel {
-	top: 50%;
-	left: 50%;
-	margin: -192px 0 0 -325px;
-	position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -192px 0 0 -325px;
+    position: absolute;
 }
 
 .or-login-brand {
-	background: url('/static/art/objectrocket.png') no-repeat 50% / 60%;
-	display: inline-block;
-	float: left;
-	height: 57px;
-	margin-top: 95px;
-	padding: 40px;
-	width: 192px;
+    background: url('/static/art/objectrocket.png') no-repeat 50% / 60%;
+    display: inline-block;
+    float: left;
+    height: 57px;
+    margin-top: 95px;
+    padding: 40px;
+    width: 192px;
 }
 
 .or-focus-panel-login {
@@ -74,52 +74,52 @@ img.invoice-logo {
 }
 
 .or-focus-panel-login .rs-control-label, .or-focus-panel-login .rs-input {
-	display: block;
+    display: block;
 }
 
 .or-login-welcome {
-	font-weight: bold;
-	font-size: 1.1em;
-	margin-bottom: 40px;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 40px;
 }
 
 .or-login-form {
-	float: left;
-	margin: 30px 0;
-	padding: 40px 50px;
-	border-left: 1px solid #ddd;
+    float: left;
+    margin: 30px 0;
+    padding: 40px 50px;
+    border-left: 1px solid #ddd;
 }
 #login-form + .rs-control-group {
-	margin: 25px 0 0;
+    margin: 25px 0 0;
 }
 
 .or-focus-panel .or-focus-panel-links {
-	bottom: -14%;
-	position: absolute;
-	right: 0;
+    bottom: -14%;
+    position: absolute;
+    right: 0;
 }
 
 .or-focus-panel-links .or-focus-panel-links-right {
-	right: 0;
+    right: 0;
 }
 
 /* === generic styles === */
 .align-center {
-	text-align: center;
+    text-align: center;
 }
 
 .width-halfem {
-	width: 0.5em;
+    width: 0.5em;
 }
 
 /* === paragraph styles === */
 p.tos {
-	font-size: 10px;
-	text-align: left;
-	text-indent: 0;
+    font-size: 10px;
+    text-align: left;
+    text-indent: 0;
 }
 
 /* === colors === */
 .strong-blue {
-	color: #0088cc;
+    color: #0088cc;
 }
