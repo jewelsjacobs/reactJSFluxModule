@@ -60,11 +60,12 @@ TODO:
                 </ul>
             </div>
         </div>
+        <div class="rs-detail-header-subtitle">Instance Details</div>
         <div class="rs-detail-header-title">
             {{ instance.name }}
             <button id="rename-instance-target" data-popover="rename-instance-popover" data-popover-target="rename-instance-target" data-popover-position="bottom-right" class="rs-edit rs-popover-source"></button>
         </div>
-    {% endcall %}
+    </div>
 
     {% call detail_section(title='Instance Details', collapsible=True) %}
         <ul class="rs-detail-list">
