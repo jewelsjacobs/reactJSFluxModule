@@ -1398,19 +1398,13 @@ def admin_billing():
     return render_template('admin/billing.html')
 
 
-@app.route('/admin/customer_management')
-@viper_auth
-@viper_isadmin
-def admin_customer_management():
-    return render_template('admin/customer_management.html')
-
-
 @app.route('/admin/status_management')
 @viper_auth
 @viper_isadmin
 def admin_status_management():
     status_manager = StatusManager(config)
     return render_template('admin/status_management.html', status=status_manager.get_status(),)
+
 
 @app.route('/admin/user_management')
 @viper_auth
@@ -1477,20 +1471,6 @@ def set_user_invoiced():
     except Exception:
         flash('Error marking user {} as invoiced: '.format(account_name), Constants.FLASH_ERROR)
     return redirect(url_for('admin_billing'))
-
-
-@app.route('/admin/customer_management/customer_report', methods=['GET'])
-@viper_auth
-@viper_isadmin
-def admin_customer_report():
-    account_manager = AccountManager(config)
-    accounts_summary = account_manager.accounts_summary
-    billing_manager = BillingManager(config)
-    return render_template('admin/customer_report.html',
-                           accounts_summary=accounts_summary,
-                           account_manager=account_manager,
-                           # TODO: Refactor: billing_manager unused in template.
-                           billing_manager=billing_manager)
 
 
 @app.route('/admin/billing/set_invoiced_amount', methods=['POST'])
@@ -1624,3 +1604,22 @@ def admin_revenue():
     billing_manager = BillingManager(config)
     return render_template('admin/revenue.html',
                            revenue=billing_manager.get_billed_revenue())
+
+
+@app.route('/admin/customer_reports', methods=['GET'])
+@viper_auth
+@viper_isadmin
+def admin_customer_reports():
+    account_manager = AccountManager(config)
+    accounts_summary = account_manager.accounts_summary
+    return render_template('admin/customer_reports.html',
+                           accounts_summary=accounts_summary,
+                           account_manager=account_manager)
+
+
+@app.route('/admin/customer_reports/export', methods=['GET'])
+@viper_auth
+@viper_isadmin
+def admin_export_customer_report():
+    return Response(AccountManager(config).get_csv_report(),
+                    mimetype='text/csv')
