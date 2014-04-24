@@ -4,45 +4,44 @@
     {% include "admin/admin_secondary_nav.html" %}
 {% endblock %}
 
-
 {% block content_area_body %}
     {% call detail_header(page_title="User Management") %}{% endcall %}
-    {% call create_view(url_for('admin_switch_user'), id="switch_user_form", method="POST") %}
-        {% call detail_section(title="Switch User", subtitle="Become a different user.") %}
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="switchuser">User ID</label>
+    {% call detail_section(title="Switch User", subtitle="Become a different user.", collapsible=True) %}
+        {% call create_view(url_for('admin_switch_user'), id="switch_user_form", method="POST") %}
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="switchuser">User ID</label>
 
-                    <div class="rs-controls">
-                        <input type="text" name="switchuser" class="rs-input-xlarge" id="switchuser">
+                <div class="rs-controls">
+                    <input type="text" name="switchuser" class="rs-input-xlarge" id="switchuser">
 
-                        <p class="rs-help-block">Value from users.login.</p>
-                    </div>
+                    <p class="rs-help-block">Value from users.login.</p>
                 </div>
-                <div class="rs-control-group">
-                    <div class="rs-controls">
-                        <button type="submit" id="associate_button" class="rs-btn rs-btn-primary">Submit</button>
-                    </div>
+            </div>
+            <div class="rs-control-group">
+                <div class="rs-controls">
+                    <button type="submit" id="associate_button" class="rs-btn rs-btn-primary">Submit</button>
                 </div>
+            </div>
         {% endcall %}
     {% endcall %}
 
-    {% call create_view(url_for('admin_remove_user'), id="rmuser_form", method="POST") %}
-        {% call detail_section(title="Remove User", subtitle="Sets users.status to False, alters the password, removes
-         Stripe subscription, all instances are assigned to the recycle pool.") %}
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="switchuser">User ID</label>
+    {% call detail_section(title="Remove User", subtitle="Sets users.status to False, alters the password, removes
+         Stripe subscription, all instances are assigned to the recycle pool.", collapsible=True) %}
+        {% call create_view(url_for('admin_remove_user'), id="rmuser_form", method="POST") %}
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="switchuser">User ID</label>
 
-                    <div class="rs-controls">
-                        <input type="text" name="login" class="rs-input-xlarge" id="rmuser">
+                <div class="rs-controls">
+                    <input type="text" name="login" class="rs-input-xlarge" id="rmuser">
 
-                        <p class="rs-help-block">Value from users.login.</p>
-                    </div>
+                    <p class="rs-help-block">Value from users.login.</p>
                 </div>
-                <div class="rs-control-group">
-                    <div class="rs-controls">
-                        <button type="submit" id="associate_button" class="rs-btn rs-btn-primary">Submit</button>
-                    </div>
+            </div>
+            <div class="rs-control-group">
+                <div class="rs-controls">
+                    <button type="submit" id="associate_button" class="rs-btn rs-btn-primary">Submit</button>
                 </div>
+            </div>
         {% endcall %}
     {% endcall %}
 {% endblock %}
