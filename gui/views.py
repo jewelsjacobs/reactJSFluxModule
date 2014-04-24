@@ -864,7 +864,7 @@ def collection(selected_instance, selected_database, selected_collection):
     except ValueError:
         sample_document = None
 
-    return render_template('schema.html',
+    return render_template('instances/collection.html',
                            instance=user_instance,
                            database=user_database,
                            chunks=chunks,

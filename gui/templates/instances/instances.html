@@ -74,8 +74,8 @@ TODO:
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    {% for instance in instances %}
+                {% for instance in instances %}
+                    <tr>
                         {% if instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE and instance.repair_state %}
                             {% set repair_state = instance.repair_state.get('state', 'not running') %}
                             {% if repair_state == instance.REPAIR_STATE_PAUSED %}
@@ -109,8 +109,8 @@ TODO:
                         <td class="rs-table-link">{{ instance.plan }}</td>
                         <td class="rs-table-link">{{ instance.shards|count }}</td>
                         <td class="rs-table-link">{{ instance.size }}</td>
-                    {% endfor %}
-                </tr>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

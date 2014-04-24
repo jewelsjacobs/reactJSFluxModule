@@ -1,0 +1,720 @@
+{% extends 'web_app_base.html' %}
+
+<!--
+TODO:
+- Cleanup sidebar help
+-->
+
+{% block nav_secondary %}{% endblock nav_secondary %}
+
+{% block sidebar %}
+    {% call sidebar_help(hidden=False) %}
+        <h3>Managing This Product</h3>
+        <h4>Top action helpful text</h4>
+        <p>Short blurb about best practices for a top action on this item. Try to keep this to 3 lines maximum.</p>
+        <p><a target="blank" href="#">More Details About Blurb &raquo;</a></p>
+
+        <hr>
+        <h4>Help Me With...</h4>
+        <ul>
+            <li><a target="blank" href="#">Best Practice Number One</a></li>
+            <li><a target="blank" href="#">Best Practice Number Two</a></li>
+            <li><a target="blank" href="#">Best Practice Number Three</a></li>
+        </ul>
+        <p><a target="blank" href="#">Learn More about This Product &raquo;</a></p>
+
+        <hr>
+        <h4>What's Next</h4>
+        <ul>
+            <li><a target="blank" href="#">Top Action Number One</a></li>
+            <li><a target="blank" href="#">Top Action Number Two</a></li>
+            <li><a target="blank" href="#">Top Action Number Three</a></li>
+        </ul>
+        <p><a target="blank" href="#">Visit Our Knowledge Center &raquo;</a></p>
+    {% endcall %}
+{% endblock sidebar %}
+
+{% block back_link_area %}
+    {% call back_link() %}
+        <a href="{{ url_for('database', selected_instance=instance.name, selected_database=database.name) }}">&lsaquo; Back to Database Details</a>
+    {% endcall %}
+{% endblock back_link_area %}
+
+{% block content_area_body %}
+    <!-- detail header section -->
+    <div class="rs-detail-header">
+        <div class="rs-detail-header-actions">
+            <div class="rs-dropdown">
+                <button class="rs-btn rs-btn-action rs-dropdown-toggle">
+                    <span class="rs-cog"></span>
+                    Actions
+                    <span class="rs-caret"></span>
+                </button>
+                <ul class="rs-dropdown-menu" style="right:0;">
+                    <li><span class="rs-dropdown-category">Manage</span></li>
+                    <li><a data-popover="add-user-popover" data-popover-target="add-user-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add User&hellip;</a></li>
+                    <li><a data-popover="add-collection-popover" data-popover-target="add-collection-target" data-popover-position="bottom-right" class="rs-popover-source">Add Collection&hellip;</a></li>
+                    <li><span class="rs-dropdown-category">Views</span></li>
+                    <li><a class="rs-btn rs-btn-link or-expand-all">Expand All&hellip;</a></li>
+                    <li><a class="rs-btn rs-btn-link or-collapse-all">Collapse All&hellip;</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="rs-detail-header-subtitle">Collection Details</div>
+        <div class="rs-detail-header-title">{{ collection.name }}</div>
+    </div>
+    <!-- end detail header section -->
+
+    <!-- detail section -->
+    <div class="rs-detail-section">
+        <div class="rs-detail-section-header">
+            <div class="rs-detail-section-title">Collection Details</div>
+        </div>
+
+        <div class="rs-detail-section-body">
+            <ul class="rs-detail-list">
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Documents</div>
+                    <div class="rs-detail-value">{{ collection.document_count }}</div>
+                </li>
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Size</div>
+                    <div class="rs-detail-value">{{ collection.size }}</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- end detail section -->
+
+    <!-- detail section -->
+    <div class="rs-detail-section">
+        <div class="rs-detail-section-header">
+            <div class="rs-detail-section-title">Shard Key</div>
+        </div>
+        <div class="rs-detail-section-body">
+            <pre>{{ shard_keys }}</pre>
+        </div>
+    </div>
+    <!-- end detail section -->
+
+    <!-- detail section -->
+    <div class="rs-detail-section">
+        <div class="rs-detail-section-header">
+            <div class="rs-detail-section-title">Schema Sample</div>
+        </div>
+        <div class="rs-detail-section-body">
+            <pre>{{ sample_document }}</pre>
+        </div>
+    </div>
+    <!-- end detail section -->
+
+    <!-- detail section -->
+    <div class="rs-detail-section">
+        <div class="rs-detail-section-header">
+            <div class="rs-detail-section-title">Indexes</div>
+        </div>
+        <div class="rs-detail-section-body">
+            <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
+                <table class="rs-list-table rs-embedded-list-table">
+                    <thead>
+                    <tr>
+                    <th class="rs-table-cog"></th>
+                    <th>Name</th>
+                    <th>Key</th>
+                    <th>Sort</th>
+                    <th>Version</th>
+                    <th>Background</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for index in indexes %}
+                        <tr>
+                            <td class="rs-table-cog">
+                                <div class="rs-dropdown">
+                                    <div class="rs-cog rs-dropdown-toggle"></div>
+                                    <ul class="rs-dropdown-menu">
+                                        <li><span class="rs-dropdown-category" id="first">Identify</span></li>
+                                        <li><a href="javascript:void(0);">Edit Item&hellip;</a></li>
+                                        <li><a href="javascript:void(0);">Delete Item&hellip;</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td class="rs-table-text">{{ index['name'] }}</td>
+                            <td class="rs-table-text">{{ index['key'] }}</td>
+                            <td class="rs-table-text">{{ index['sort'] }}</td>
+                            <td class="rs-table-text">{{ index['v'] }}</td>
+                            <td class="rs-table-text">{{ index['background'] }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- end detail section -->
+
+    <!-- detail section -->
+    <div class="rs-detail-section">
+        <div class="rs-detail-section-header">
+            <div class="rs-detail-section-title">Additional Item Details</div>
+        </div>
+        <div class="rs-detail-section-body">
+            <ul class="rs-detail-list">
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Created</div>
+                    <div class="rs-detail-value">Mar 26, 2013 - 5:35 pm UTC</div>
+                </li>
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Updated</div>
+                    <div class="rs-detail-value">Aug 22, 2013 - 11:43 pm UTC</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- end detail section -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ul class="breadcrumb">
+  <li><a href={{ url_for('instances') }}>My Instances</a> <span class="divider">/</span></li>
+  <li><a href={{ url_for('instances') }}/{{ instance.name }}>{{ instance.name }}</a> <span class="divider">/</span></li>
+  <li><a href={{ url_for('instances') }}/{{ instance.name }}/{{ database.name }}>{{ database.name }}</a> <span class="divider">/</span></li>
+  <li><a href={{ url_for('instances') }}/{{ instance.name }}/{{ database.name }}/{{ collection.name }} >{{ collection.name }}</a></li>
+  <li class="pull-right">{{ instance.host }}:{{ instance.port }}/{{ database.name }}</li>
+</ul>
+
+<div id="tabbable">
+        <ul class="nav nav-tabs">
+            <li {% if selected_tab == 'schema' %}class="active"{% endif %}><a data-toggle="tab" href="#schema">Schema</a></li>
+            <li {% if selected_tab == 'indexes' %}class="active"{% endif %}><a data-toggle="tab" href="#indexes">Indexes</a></li>
+
+            {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+                <li {% if selected_tab == 'shardkey' %}class="active"{% endif %}><a data-toggle="tab"  href="#shardkey">Shard Key</a></li>
+                <li {% if selected_tab == 'chunks' %}class="active"{% endif %}><a data-toggle="tab"  href="#chunks">Chunks</a></li>
+            {% endif %}
+
+        </ul>
+        <div id="my-tab-content" class="tab-content">
+            <div id="schema" {% if selected_tab == 'schema' %}class="tab-pane active"{% else %}class="tab-pane"{% endif %}>
+                <div class="alert alert-info">The schema data is an example of the first document in the collection for reference</div>
+
+                {% if sample_document == None %}
+                    <pre>Cannot render sample document: document contains binary data.</pre>
+                {% else %}
+
+                    <pre class="prettyprint" >{{ sample_document }}</pre>
+                {% endif %}
+
+            </div>
+
+            <div id="indexes" {% if selected_tab == 'indexes' %}class="tab-pane active"{% else %}class="tab-pane"{% endif %}>
+
+                <a data-toggle="modal" href="#index_modal" class="btn btn-primary btn-medium">Add Index</a>
+                <table class="table table-striped" id="mydatatable3">
+                    <thead><tr>
+                      <th>Name</th>
+                      <th>Key</th>
+                      <th>Sort</th>
+                      <th>Version</th>
+                      <th>Background</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for index in indexes %}
+                    <tr>
+                      <td>{{ index['name'] }}</td>
+                      <td>{{ index['key'] }}</td>
+                      <td>{{ index['sort'] }}</td>
+                      <td>{{ index['v'] }}</td>
+                      <td>{{ index['background'] }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                  </table>
+
+            </div>
+            <div id="shardkey" {% if selected_tab == 'shardkey' %}class="tab-pane active"{% else %}class="tab-pane"{% endif %}>
+
+                {% if shard_keys %}
+                    <pre class="prettyprint" >{{ shard_keys }}</pre>
+                {% else %}
+                  <a data-toggle="modal" href="#key" class="btn btn-primary btn-medium">Define Shard Key</a>
+                {% endif %}
+
+            </div>
+            <div id="chunks" {% if selected_tab == 'chunks' %}class="tab-pane active"{% else %}class="tab-pane"{% endif %}>
+
+                <table class="table table-striped" id="mydatatable1">
+                    <thead><tr>
+                      <th>Chunk ID</th>
+                      <th>Shard Name</th>
+                      <th>Min</th>
+                      <th>Max</th>
+                    </tr></thead>
+                    <tbody>
+                    {% if chunks %}
+                    {% for c in chunks %}
+                    <tr>
+                      <td>{{ c['_id'] }}</td>
+                      <td>shard_{{ c['shard'] }}</td>
+                      <td>{{ c['min']['_id'] }}</td>
+                      <td>{{ c['max']['_id'] }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                    {% endif %}
+                  </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+<div id="key" class="modal hide fade in" style="display: none; ">
+
+<div class="modal-header">
+  <a class="close" data-dismiss="modal">×</a>
+  <h3>Define Shard Keys</h3>
+</div>
+
+      <div class="modal-body">
+          <form id="shard_key_form" action="/shard_collection/{{instance.name}}/{{database.name}}/{{collection.name}}" method="POST" class="form-horizontal">
+          <fieldset>
+              <div class="control-group">
+                  <div class="controls">
+                      <div id="shard_key_input_div">
+                          <label id='keys-label' class="control-label" for="keys">Enter Shard Key:</label>
+
+                    <input id="shardkeys" name="shardkeys" type="text">
+                    <p class="help-block">Key(s) on which to shard this collection.</p>
+                    <br>
+
+                    <button class="btn" type="button" id="add_key_button">Add Key</button>
+                    <span id="hashed_key_checkbox_span">
+                      <input type="checkbox" name="hashed_key_checkbox" id="hashed_key_checkbox" value="ascending"/>
+                              Hashed
+                      <p></p>
+                    </span>
+                    <div id="shard_key_div" align="center">
+                        <label id="shard_key_label"><b>Selected Shard Keys:</b></label>
+                        <pre id="shard_key_pre"></pre>
+                    </div>
+                    <span id="create_index_checkbox_span">
+                      <input type="checkbox" checked="checked" name="create_indexes" id="create_index_checkbox" value="{{ true }}" />
+                              Create New Indexes
+                    </span>
+                    <span>
+                        <p class="help-block">
+                            A background index will be created for these keys.
+                            <br>If a suitable index is not found a new index will be created.
+                        </p>
+                    </span>
+              </div>
+
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="modal-footer">
+          <button type="submit"id="define_keys_button" class="btn btn-success">Define Keys</button>
+          <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+
+
+<div class="container">
+    <div id="index_modal" class="modal hide fade in" style="display: none; ">
+
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">×</a>
+          <h3>Add Index</h3>
+        </div>
+
+        <div class="modal-body row">
+            <form id="index_form" action="/create_index/{{instance.name}}/{{database.name}}/{{collection.name}}" method="POST" class="form-horizontal">
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls span12">
+                        <label id='index-keys-label' class="control-label" for="index">Enter Index Key:&nbsp;</label>
+                        <input  class="span4" id="indexkeys" name="indexkeys" type="text">
+                        <select class="span4" name="sort_order" id="sort_order">
+                            <option value="-1">Descending</option>
+                            <option value="1">Ascending</option>
+                        </select>
+                    </div>
+
+                    <div class="controls">
+                      <div class="">
+                        <button class="btn" type="button" id="add_index_key_button">Add Key</button>
+                      </div>
+                    </div>
+
+                    <div class="controls ">
+                        <div class="" id="index_key_div" align="center">
+                            <label id="index_key_label"><b>Selected Index Keys:</b></label>
+                            <pre id="index_key_pre"></pre>
+                        </div>
+
+                        <span id="">
+                            <label>Name:</label><input type="text" name="name" id="name" placeholder="Optional name">
+                            <br><br>
+                            <input type="checkbox" name="background" id="background" value="true" checked="checked">Background
+                            &nbsp;&nbsp;&nbsp;
+                            <input type="checkbox" name="unique" id="unique" value="true">&nbsp;Unique
+                    </span>
+                    </div>
+                </div>
+            </fieldset>
+          </div>
+
+
+      <div class="modal-footer">
+          <button type="submit"id="add_index_button" class="btn btn-success">Add Index</button>
+          <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+      </div>
+
+  </form>
+</div>
+{% endblock content_area_body %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% block script %}
+    <script type="text/javascript">
+    $(document).ready(function(){
+        var instanceVersion = {{ instance.version|tojson|safe }};
+        hashedKeyEnabled = false;
+
+        var versionDigits = instanceVersion.split('.');
+        var majorVersion = versionDigits[0];
+        var minorVersion = versionDigits[1];
+
+        if (majorVersion >= 2) {
+            if (minorVersion >= 4) {
+                hashedKeyEnabled = true;
+            }
+        }
+
+        if (hashedKeyEnabled) {
+            $('#hashed_key_checkbox').attr('checked', true);
+            $("#sort_order").append("<option value='hashed'>Hashed</option>");
+        } else {
+            $('#hashed_key_checkbox_span').hide();
+            $('#hashed_key_checkbox_div').hide();
+            $('#shard_key_input_div').show();
+        }
+
+
+        $('#add_index_key_button').click(function() {
+            var indexKey = $('#indexkeys').val();
+
+            if (indexKey) {
+                if (indexKey === '') {
+                    return false;
+                }
+
+                var indexKeys = $('#index_key_div').data('keys');
+
+                if (!indexKeys) {
+                    indexKeys = {};
+                }
+
+                if (!indexKeys.indexKey) {
+                    var indexKeyDirection = $('#sort_order').val();
+
+                    if (indexKeyDirection == 'hashed') {
+                        indexKeys = {};
+                    } else {
+                        for (key in indexKeys) {
+                            if (indexKeys[key] == 'hashed'){
+                                delete indexKeys[key];
+                            }
+                        }
+                    }
+
+                    indexKeys[indexKey] = indexKeyDirection;
+                    $('#index_key_div').data('keys', indexKeys);
+
+                    $('#index_key_pre').text(JSON.stringify(indexKeys));
+                    $('#indexkeys').val('');
+                }
+            }
+        });
+
+        $('#index_modal').on('hidden', function () {
+            $('#index_key_div').data('keys', {});
+            $('#indexkeys').val('');
+            $('#index_key_pre').text('');
+            // $('#keys-label').removeClass('valid invalid');
+            // $('#keys-label').closest('.control-group').removeClass('error success');
+            // var validator = $("#index_key_form").validate();
+            // validator.resetForm();
+        });
+
+        // Clear the shard key list when the modal appears
+        $('#key').on('hidden', function () {
+            $('#shard_key_div').data('keys', {});
+            $('#shardkeys').val('');
+            $('#shard_key_pre').text('');
+            $('#keys-label').removeClass('valid invalid');
+            $('#keys-label').closest('.control-group').removeClass('error success');
+            var validator = $("#shard_key_form").validate();
+            validator.resetForm();
+        });
+
+        function containsInvalidShardKeyCharacters(value) {
+            if (value == '') {
+                return true;
+            }
+
+            var unpermitted_char_regex = /[\/\\\"\*\<\>\:\|\?\{\}\,]/;
+            result = unpermitted_char_regex.test(value);
+            return result;
+        }
+
+        $('#hashed_key_checkbox').click(function() {
+            if ($('#hashed_key_checkbox').is(':unchecked')){
+                $('#shard_key_div').data('keys', {});
+                $('#shard_key_pre').text('');
+                $('#shardkeys').val('');
+            }
+        });
+
+        $('#add_key_button').click(function() {
+            var shardKey = $('#shardkeys').val();
+
+            if (shardKey) {
+                if (shardKey === '') {
+                    return false;
+                }
+
+                if (containsInvalidShardKeyCharacters(shardKey)){
+                    var validator = $('#shard_key_form').validate();
+                    validator.showErrors({"shardkeys": 'Cannot contain /\ ",*<>:|?{}'});
+                    return false;
+                }
+
+                var shardKeys = $('#shard_key_div').data('keys');
+
+                if (!shardKeys) {
+                    shardKeys = {};
+                }
+
+                if (!shardKeys.shardKey) {
+                    var shardKeyLabel = '<label>' + $('#shardkeys').val() + '</label>'
+                    var shardKeyQualifier = 1;
+
+                    if ($('#hashed_key_checkbox').is(':checked')) {
+                        shardKeyQualifier = 'hashed';
+                        shardKeys = {};
+                    }
+
+                    shardKeys[shardKey] = shardKeyQualifier;
+                    $('#shard_key_div').data('keys', shardKeys);
+
+                    $('#shard_key_pre').text(JSON.stringify(shardKeys));
+                    $('#shardkeys').val('');
+                }
+            }
+        });
+
+        $('#add_index_button').click(function() {
+            var indexKeys = $('#index_key_div').data('keys');
+
+            if (!indexKeys) {
+                var validator = $("#index_form").validate();
+                validator.showErrors({"indexkeys": "An index key is required."});
+                return false;
+            }
+            var encodedIndexKeys = JSON.stringify(indexKeys);
+            $("#index_form").append("<input type='hidden' name='all_index_keys' value='" + encodedIndexKeys + "' >");
+
+        });
+
+        $('#define_keys_button').click(function() {
+            var shardKeys = $('#shard_key_div').data('keys');
+
+            if (!shardKeys) {
+                var validator = $("#shard_key_form").validate();
+                validator.showErrors({"shardkeys": "A shard key is required."});
+                return false;
+            }
+            var encodedShardKeys = JSON.stringify(shardKeys);
+            $("#shard_key_form").append("<input type='hidden' name='all_shard_keys' value='" + encodedShardKeys + "' >");
+        });
+
+        $.validator.addMethod("noSpecialCharacters", function(value, element) {
+            return !containsInvalidShardKeyCharacters(value);
+        }, 'Cannot contain /\. "*<>:|?{}');
+
+        $('#shard_key_form').validate({
+          rules: {
+          },
+          highlight: function(label) {
+            $(label).closest('.control-group').addClass('error');
+          },
+          success: function(label) {
+            label
+              .text('OK!').addClass('valid')
+              .closest('.control-group').addClass('success');
+          }
+        });
+
+        $('#index_form').validate({
+          rules: {
+            key1: {
+              minlength: 1,
+              required: true
+            }
+          },
+          highlight: function(label) {
+            $(label).closest('.control-group').addClass('error');
+          },
+          success: function(label) {
+            label
+              .text('OK!').addClass('valid')
+              .closest('.control-group').addClass('success');
+          }
+        });
+
+      $('#mydatatable1').dataTable( {
+        "sPaginationType": "bootstrap",
+        "bStateSave": true,
+        "bFilter": true,
+        "iDisplayLength": 50,
+        "sDom": '<"top"f>rt<"bottom"ilp><"clear">',
+        "oLanguage": {
+        "sLengthMenu": "_MENU_ records per page"
+          }
+      });
+
+      $('#mydatatable2').dataTable( {
+        "sPaginationType": "bootstrap",
+        "bStateSave": true,
+        "bFilter": true,
+        "iDisplayLength": 50,
+        "sDom": '<"top"f>rt<"bottom"ilp><"clear">',
+        "oLanguage": {
+        "sLengthMenu": "_MENU_ records per page"
+          }
+      });
+
+      $('#mydatatable3').dataTable( {
+        "sPaginationType": "bootstrap",
+        "bStateSave": true,
+        "bFilter": true,
+        "iDisplayLength": 50,
+        "sDom": '<"top"f>rt<"bottom"ilp><"clear">',
+        "oLanguage": {
+        "sLengthMenu": "_MENU_ records per page"
+          }
+      });
+
+    });
+
+    totalcount = 0;
+    counter = 1;
+
+    function addQueryOption() {
+
+      $("#querydiv").append("\
+        <p id='q" + counter + "'>\
+        <a href='#' class='btn btn-primary btn-mini' onClick='removeQueryOption(\"#q"+counter+"\"); return false;'>x</a> \
+        Field <input name='query_key_" + counter + "' type='text' size=30 />\
+        <select name='query_expr_" + counter +"'>\
+         <option value='eq'>eq</option>\
+         <option value='ne'>ne</option>\
+         <option value='lt'>lt</option>\
+         <option value='gt'>gt</option>\
+        </select>\
+        <input name='query_value_" + counter + "' type='text' size=30 />\
+        </p>");
+
+       totalcount = totalcount + 1;
+       counter = counter + 1;
+       addSubmit();
+
+    }
+
+    function removeQueryOption(id) {
+        $(id).remove();
+        totalcount = totalcount - 1;
+
+        if (totalcount <= 0) {
+            deleteSubmit();
+            totalcount = 0;
+        }
+    }
+
+    function addSubmit() {
+        /* $("#submitdiv").replaceWith("<div id='submitdiv'><button type='button' onclick='javascript:get_query_results(); return false;'>Run Query</button></div>"); */
+        $("#submitdiv").replaceWith("<div id='submitdiv'><button class='btn btn-primary btn-medium' type='submit'>Run Query</button></div>");
+    }
+
+    function deleteSubmit() {
+        $("#submitdiv").replaceWith("<div id='submitdiv'></div>");
+    }
+
+        function geturl(send_data) {
+            var r = $.ajax({
+             type: 'POST',
+             url: 'www.google.com',
+             data: send_data,
+             async: false
+            }).responseText;
+            return r;
+        };
+
+        function get_query_results() {
+            form_serial = $('#queryform').serialize();
+            server_data = geturl(form_serial);
+
+            $("#lol").html("<div id=\"lol\">Date: " + server_data + "</div>");
+
+            return false;
+        }
+
+    </script>
+{% endblock script %}
