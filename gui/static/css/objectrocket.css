@@ -47,6 +47,10 @@ img.invoice-logo {
 	padding: 5px;
 }
 
+.rs-dropdown-menu .rs-btn.rs-btn-link {
+	text-align: left;
+}
+
 /* === focus panel code === */
 .or-focus-panel {
 	top: 50%;
@@ -102,6 +106,10 @@ img.invoice-logo {
 /* === generic styles === */
 .align-center {
 	text-align: center;
+}
+
+.width-halfem {
+	width: 0.5em;
 }
 
 /* === paragraph styles === */

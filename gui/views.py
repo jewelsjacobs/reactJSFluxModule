@@ -643,6 +643,38 @@ def rename_instance():
     return redirect(url_for('instances'))
 
 
+@app.route('/add_instance_user/<selected_instance>', methods=['GET', 'POST'])
+@viper_auth
+def add_instance_user(selected_instance):
+    """Adds a user to each database in this instance"""
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    user = request.form['username']
+    password = request.form['password']
+
+    for database in instance.databases:
+        try:
+            instance.add_user(database.name, user, password)
+        except Exception as ex:
+            exception_uuid = Utility.obfuscate_exception_message(ex.message)
+            flash_message = ("There was a problem updating user information for instance %s. If "
+                             "this problem persists, contact "
+                             "<a mailto:%s>%s</a> and provide Error ID %s." )
+
+            flash_message = flash_message % (instance.name, config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid)
+
+            error_info = {
+                'path': request.path,
+                'user': getattr(g, 'login', None),
+                'context': 'gui'
+            }
+            Utility.log_traceback(config, exception_uuid, error_info)
+            flash(flash_message, Constants.FLASH_ERROR)
+
+    return redirect(url_for('instances'))
+
+
 @app.route('/create_instance_user/<selected_instance>', methods=['GET', 'POST'])
 @app.route('/create_instance_user/<selected_instance>/<selected_database>', methods=['GET', 'POST'])
 @exclude_admin_databases(check_argument='selected_database')
@@ -694,7 +726,26 @@ def create_instance_user(selected_instance, selected_database=None):
 
             flash(flash_message, Constants.FLASH_ERROR)
 
-    return redirect(url_for('instance_details', selected_instance=selected_instance))
+    return redirect(url_for('database', selected_instance=selected_instance, selected_database=selected_database))
+
+
+@app.route('/delete_instance_user/<selected_instance>/<selected_database>', methods=['GET', 'POST'])
+@app.route('/delete_instance_user/<selected_instance>/<selected_database>/<username>', methods=['GET', 'POST'])
+@exclude_admin_databases(check_argument='selected_database')
+@viper_auth
+def delete_instance_user(selected_instance, selected_database, username=None):
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    if username is None:
+        username = request.form['username']
+
+    user_instance.delete_user(selected_database, username)
+
+    return redirect(url_for('database',
+                            selected_instance=selected_instance,
+                            selected_database=selected_database,
+                            selected_tab='collections'))
 
 
 @app.route('/drop_database', methods=['POST'])
@@ -774,6 +825,7 @@ def database(selected_instance, selected_database):
     is_sharded_instance = user_instance.type == Constants.MONGODB_SHARDED_INSTANCE
     default_autohash_on_id = is_sharded_instance and user_instance.plan < config.DEFAULT_AUTO_HASH_ON_ID_CUTOFF_IN_GB
 
+    # import ipdb;ipdb.set_trace()
     return render_template('instances/instance_database.html',
                            collections=user_database.collections,
                            database=user_database,

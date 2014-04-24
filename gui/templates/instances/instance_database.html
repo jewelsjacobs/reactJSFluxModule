@@ -41,18 +41,28 @@ TODO:
 {% endblock back_link_area %}
 
 {% block content_area_body %}
-    {% call detail_header(subtitle='Database Details', title=database.name) %}
-        {% block detail_header_action_content %}
-            {% call detail_header_actions() %}
-                <li><span class="rs-dropdown-category">Manage</span></li>
-                <li><a data-popover="add-user-popover" data-popover-target="add-user-target" data-popover-position="bottom-right" class="rs-popover-source" href="javascript:void(0);">Add User&hellip;</a></li>
-                <li><a data-popover="add-collection-popover" data-popover-target="add-collection-target" data-popover-position="bottom-right" class="rs-popover-source" href="javascript:void(0);">Add Collection&hellip;</a></li>
-                <li><span class="rs-dropdown-category">Views</span></li>
-                <li><a class="or-expand-all" href="javascript:void(0);">Expand All&hellip;</a></li>
-                <li><a class="or-collapse-all" href="javascript:void(0);">Collapse All&hellip;</a></li>
-            {% endcall %}
-        {% endblock %}
-    {% endcall %}
+    <div class="rs-detail-header">
+        <div class="rs-detail-header-actions">
+            <div class="rs-dropdown">
+                <button class="rs-btn rs-btn-action rs-dropdown-toggle">
+                    <span class="rs-cog"></span>
+                    Actions
+                    <span class="rs-caret"></span>
+                </button>
+                <ul class="rs-dropdown-menu" style="right:0;">
+                    <li><span class="rs-dropdown-category">Manage</span></li>
+                    <li><a data-popover="add-user-popover" data-popover-target="add-user-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add User&hellip;</a></li>
+                    <li><a data-popover="add-collection-popover" data-popover-target="add-collection-target" data-popover-position="bottom-right" class="rs-popover-source">Add Collection&hellip;</a></li>
+                    <li><span class="rs-dropdown-category">Views</span></li>
+                    <li><a class="rs-btn rs-btn-link or-expand-all">Expand All&hellip;</a></li>
+                    <li><a class="rs-btn rs-btn-link or-collapse-all">Collapse All&hellip;</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="rs-detail-header-subtitle">Database Details</div>
+        <div class="rs-detail-header-title">{{ database.name }}</div>
+    </div>
 
     {% call detail_section(title='Database Details', collapsible=True) %}
         <ul class="rs-detail-list">
@@ -91,25 +101,18 @@ TODO:
             <table class="rs-list-table rs-embedded-list-table">
                 <thead>
                     <tr>
-                        <th class="rs-table-cog"></th>
+                        <th class="width-halfem"></th>
                         <th>Username</th>
                     </tr>
                 </thead>
                 <tbody>
+                {% set usercount = 0 %}
                 {% for user in users %}
                     <tr>
-                        <td class="rs-table-cog">
-                            <div class="rs-dropdown">
-                                <div class="rs-cog rs-dropdown-toggle"></div>
-                                <ul class="rs-dropdown-menu">
-                                    <li><span class="rs-dropdown-category" id="first">Identify</span></li>
-                                    <li><a href="javascript:void(0);">Edit Item&hellip;</a></li>
-                                    <li><a href="javascript:void(0);">Delete Item&hellip;</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                        <td class="rs-table-text">{{ user }}</td>
+                        <td><button id="delete-user-target-{{ usercount }}" data-count="{{ usercount }}" data-popover="delete-user-popover" data-popover-target="delete-user-target-{{ usercount }}" data-popover-position="right" class="rs-delete rs-popover-source"></button></td>
+                        <td class="rs-table-text" id="user-{{ usercount }}">{{ user }}</td>
                     </tr>
+                    {% set usercount = usercount + 1 %}
                 {% endfor %}
                 </tbody>
             </table>
@@ -252,6 +255,25 @@ TODO:
         </div>
     </div>
     <!-- end add collection popover -->
+
+    <!-- delete user popover -->
+    <div id="delete-user-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="delete-user-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('delete_instance_user', selected_instance=instance.name, selected_database=database.name) }}" method="POST">
+                    <p><b>Permanently delete</b> user <b id="delete-user-popover-name"></b> from database?</p>
+                    <p>This will permanently delete the user from this database!</p>
+                    <input id="delete-user-input" name="username" type="hidden" value="">
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="delete-user-popover-form-button" form="delete-user-popover-form" class="rs-btn rs-btn-primary">Delete User</button>
+                <button class="rs-btn rs-btn-link">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- end delete user popover -->
 {% endblock popovers %}
 
 {% block script %}
@@ -351,6 +373,7 @@ TODO:
             }
         });
 
+        // Listener for the add collection button.
         $('#add-collection-popover-form-button').click(function(event) {
             event.preventDefault();
             $form = $('#add-collection-popover-form');
@@ -396,6 +419,20 @@ TODO:
                 $(label).closest('.rs-control-group').removeClass('error');
                 $(label).closest('.rs-control-group').addClass('success');
             }
+        });
+
+
+        // Listener for delete user buttons.
+        $('button[data-popover="delete-user-popover"]').each(function() {
+            $(this).click(function() {
+                // Get the user's name.
+                var count = $(this).attr('data-count');
+                var name = $('#user-' + count).text();
+
+                // Inject the database's name into popover.
+                $('#delete-user-popover-name').text(name);
+                $('#delete-user-input').val(name);
+            });
         });
 
     });
