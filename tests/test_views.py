@@ -694,10 +694,13 @@ def test_admin_set_status(app_client):
         assert response.status_code == 200
 
 
-# @app.route('/admin/node_map', methods=['GET'])
-@xfail(reason="Test not implemented.")
-def test_admin_node_map(app_client):
-    pass
+
+def test_admin_inventory(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get('/admin/inventory')
+        print(response.data)
+        assert response.status_code == 200
 
 
 # @app.route('/admin/customer_report', methods=['GET'])
