@@ -653,11 +653,12 @@ def test_admin_switch_user(app_client):
         assert response.status_code == 200
 
 
-# @app.route('/admin/alarms', methods=['GET', 'POST'])
-# @viper_isadmin
-@xfail(reason="Test not implemented.")
 def test_admin_alarms(app_client):
-    pass
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get('/admin/alarms', follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 
 @xfail(reason="Test not implemented. Need to create a fixture for associated Stripe ID")
@@ -675,25 +676,25 @@ def test_admin_sync_user(app_client):
         assert response.status_code == 200
 
 
-# @app.route('/admin/add_message', methods=['POST'])
-# @viper_isadmin
-@xfail(reason="Test not implemented.")
 def test_admin_add_message(app_client):
-    # login = request.form.get('login', None)
-    # message = request.form.get('message', None)
-    pass
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/status_management/add_message',
+                               data=dict(login=login, message='Test message'),
+                               follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 
-# @app.route('/admin/set_status', methods=['GET','POST'])
-# @viper_isadmin
-@xfail(reason="Test not implemented.")
 def test_admin_set_status(app_client):
-    # status_manager = StatusManager()
-    # for i in request.form:
-    #     status_manager.set_status(i, int(request.form[i]))
-    # ImmutableMultiDict([('API', u'0'), ('network', u'0'), ('west', u'1'), ('east', u'0'), ('driver', u'0'), ('system', u'0')])
-    # Values are 0, 1 or 2
-    pass
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/status_management/set_status',
+                               data=dict(api=0, east=1, driver=2, network=0,  system=1, west=2),
+                               follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
 
 # @app.route('/admin/node_map', methods=['GET'])
 @xfail(reason="Test not implemented.")

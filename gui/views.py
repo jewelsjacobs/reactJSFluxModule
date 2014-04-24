@@ -1516,7 +1516,7 @@ def admin_set_status():
     return redirect(url_for('admin_status_management'))
 
 
-@app.route('/admin/alarms', methods=['GET', 'POST'])
+@app.route('/admin/alarms', methods=['GET'])
 @viper_auth
 @viper_isadmin
 def admin_alarms():
