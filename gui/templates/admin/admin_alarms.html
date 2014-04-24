@@ -1,0 +1,12 @@
+{% extends "web_app_base.html" %}
+
+{% block nav_secondary_content %}
+    {% include "admin/admin_secondary_nav.html" %}
+{% endblock %}
+
+{% block content_area_body %}
+    {% call detail_section(title='Alarms', collapsible=true) %}
+        {% include 'notifications/alarms.html' %}
+    {% endcall %}
+{% endblock %}
+

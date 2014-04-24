@@ -1389,11 +1389,9 @@ def delete_acl(instance, acl_id=None):
 @viper_isadmin
 def admin():
     billing_manager = BillingManager(config)
-    status_manager = StatusManager(config)
     instance_manager = InstanceManager(config)
     return render_template('admin/admin.html',
                            rev=billing_manager.get_billed_revenue(),
-                           status=status_manager.get_status(),
                            checkouts=instance_manager.get_checkouts_by_type())
 
 
@@ -1428,7 +1426,8 @@ def admin_revenue():
 @viper_auth
 @viper_isadmin
 def admin_status_management():
-    return render_template('admin/status_management.html')
+    status_manager = StatusManager(config)
+    return render_template('admin/status_management.html', status=status_manager.get_status(),)
 
 @app.route('/admin/user_management')
 @viper_auth
@@ -1578,3 +1577,46 @@ def admin_remove_user():
         account_manager.deactivate_account(account.login)
         flash('User "%s" successfully deactivated' % login, 'ok')
     return redirect(url_for('admin_user_management'))
+
+
+@app.route('/admin/status_management/add_message', methods=['POST'])
+@viper_auth
+@viper_isadmin
+def admin_add_message():
+        login = request.form.get('login', None)
+        message = request.form.get('message', None)
+
+        if not message:
+            flash("Empty body, no message sent.", Constants.FLASH_ERROR)
+        try:
+            notifier = Notifier(config)
+            if login:
+                notifier.send_message(login, message)
+            else:
+                notifier.send_global_message(message)
+            flash("Message posted", 'ok')
+        except Exception as ex:
+            flash("Message send failed: %s" % ex, Constants.FLASH_ERROR)
+        return redirect(url_for('admin_status_management'))
+
+
+@app.route('/admin/status_management/set_status', methods=['POST'])
+@viper_auth
+@viper_isadmin
+def admin_set_status():
+    status_manager = StatusManager(config)
+    for i in request.form:
+        status_manager.set_status(i, int(request.form[i]))
+    flash('Status updated.', 'ok')
+    return redirect(url_for('admin_status_management'))
+
+
+@app.route('/admin/alarms', methods=['GET'])
+@viper_auth
+@viper_isadmin
+def admin_alarms():
+    annunciator = Annunciator(config)
+    alarms = annunciator.get_all_alarms()
+    return render_template('admin/admin_alarms.html',
+                           admin=True,
+                           alarms=alarms)
