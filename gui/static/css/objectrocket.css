@@ -123,3 +123,8 @@ p.tos {
 .strong-blue {
     color: #0088cc;
 }
+
+/* === Link pointers === */
+a {
+    cursor: pointer;
+}
