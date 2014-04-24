@@ -616,6 +616,33 @@ def _calculate_sharded_instance_usage(instance):
     return aggregate_stats, usage_totals
 
 
+@app.route('/rename_instance', methods=['POST'])
+@viper_auth
+def rename_instance():
+    current_name = request.form['current-name']
+    new_name = request.form['new-name']
+    instance_manager = InstanceManager(config)
+    app.logger.debug("renaming %s to %s:" % (current_name, new_name))
+
+    if not current_name:
+        message = "Cannot rename an empty instance name"
+        app.logger.error(message)
+        return redirect(url_for('instances'))
+
+    if not new_name:
+        message = "Cannot rename instance %s: A non-empty new instance name is required." % (current_name)
+        flash(message, Constants.FLASH_ERROR)
+        return redirect(url_for('instances'))
+
+    if instance_manager.instance_exists(g.login, new_name):
+        message = "Cannot rename instance %s to %s: An instance named %s already exists." % (current_name, new_name, new_name)
+        flash(message, Constants.FLASH_ERROR)
+        return redirect(url_for('instances'))
+
+    instance_manager.rename_instance(g.login, current_name, new_name)
+    return redirect(url_for('instances'))
+
+
 @app.route('/create_instance_user/<selected_instance>', methods=['GET', 'POST'])
 @app.route('/create_instance_user/<selected_instance>/<selected_database>', methods=['GET', 'POST'])
 @exclude_admin_databases(check_argument='selected_database')
@@ -668,33 +695,6 @@ def create_instance_user(selected_instance, selected_database=None):
             flash(flash_message, Constants.FLASH_ERROR)
 
     return redirect(url_for('instance_details', selected_instance=selected_instance))
-
-
-@app.route('/rename_instance', methods=['POST'])
-@viper_auth
-def rename_instance():
-    current_name = request.form['current-name']
-    new_name = request.form['new-name']
-    instance_manager = InstanceManager(config)
-    app.logger.debug("renaming %s to %s:" % (current_name, new_name))
-
-    if not current_name:
-        message = "Cannot rename an empty instance name"
-        app.logger.error(message)
-        return redirect(url_for('instances'))
-
-    if not new_name:
-        message = "Cannot rename instance %s: A non-empty new instance name is required." % (current_name)
-        flash(message, Constants.FLASH_ERROR)
-        return redirect(url_for('instances'))
-
-    if instance_manager.instance_exists(g.login, new_name):
-        message = "Cannot rename instance %s to %s: An instance named %s already exists." % (current_name, new_name, new_name)
-        flash(message, Constants.FLASH_ERROR)
-        return redirect(url_for('instances'))
-
-    instance_manager.rename_instance(g.login, current_name, new_name)
-    return redirect(url_for('instances'))
 
 
 @app.route('/drop_database', methods=['POST'])
@@ -754,6 +754,102 @@ def copy_database(selected_instance):
 
     return redirect(url_for('instance_details',
                             selected_instance = selected_instance))
+
+
+@app.route('/instances/<selected_instance>/<selected_database>', methods=['GET', 'POST'])
+@exclude_admin_databases(check_argument='selected_database')
+@viper_auth
+def database(selected_instance, selected_database):
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    user_database = user_instance.get_database(selected_database)
+    user_instances = [i for i in instance_manager.get_account_instances(g.login)
+                      if i.name != selected_instance and i.type == Constants.MONGODB_SHARDED_INSTANCE]
+
+    if 'selected_tab' in request.args:
+        selected_tab = request.args['selected_tab']
+    else:
+        selected_tab = 'collections'
+
+    is_sharded_instance = user_instance.type == Constants.MONGODB_SHARDED_INSTANCE
+    default_autohash_on_id = is_sharded_instance and user_instance.plan < config.DEFAULT_AUTO_HASH_ON_ID_CUTOFF_IN_GB
+
+    # import ipdb;ipdb.set_trace()
+    return render_template('instances/instance_database.html',
+                           collections=user_database.collections,
+                           database=user_database,
+                           default_autohash_on_id=default_autohash_on_id,
+                           instance=user_instance,
+                           is_sharded_instance=is_sharded_instance,
+                           login=g.login,
+                           selected_tab=selected_tab,
+                           users=user_database.users,
+                           # TODO: Refactor: user_instances unused in template.
+                           user_instances=user_instances)
+
+
+@app.route('/instances/<selected_instance>/<selected_database>/<selected_collection>', methods=['GET', 'POST'])
+@exclude_admin_databases(check_argument='selected_database')
+@viper_auth
+def collection(selected_instance, selected_database, selected_collection):
+    if 'selected_tab' in request.args:
+        selected_tab = request.args['selected_tab']
+    else:
+        selected_tab = 'schema'
+
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    user_database = user_instance.get_database(selected_database)
+    user_collection = user_database.get_collection(selected_collection)
+    indexes = user_database.get_indexes(user_collection)
+    shard_keys = user_database.get_shard_keys(user_collection)
+    if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
+        chunks = user_instance.get_chunks(user_collection)
+    else:
+        chunks = []
+
+    try:
+        sample_document = json_prettify(user_database.get_sample_document(selected_collection))
+    except ValueError:
+        sample_document = None
+
+    return render_template('schema.html',
+                           instance=user_instance,
+                           database=user_database,
+                           chunks=chunks,
+                           collection=user_collection,
+                           sample_document=sample_document,
+                           indexes=indexes,
+                           selected_tab=selected_tab,
+                           shard_keys=shard_keys)
+
+
+@app.route('/create_collection/<selected_instance>/<selected_database>', methods=['POST'])
+@exclude_admin_databases(check_argument='selected_database')
+@viper_auth
+def create_collection(selected_instance, selected_database):
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    user_database = user_instance.get_database(selected_database)
+
+    try:
+        if 'all_shard_keys' in request.form:
+            all_shard_keys = request.form['all_shard_keys']
+            shard_keys = json.loads(all_shard_keys, object_pairs_hook=collections.OrderedDict)
+            user_database.shard_collection(request.form['collection'], shard_keys=shard_keys)
+        else:
+            user_database.add_collection(request.form['collection'])
+    except Exception as ex:
+        exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        flash_message = ("There was a problem creating this collection. If this problem persists, contact <a mailto:%s>%s</a> "
+                         "and provide Error ID %s." % (config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid))
+        flash(flash_message, Constants.FLASH_ERROR)
+        app.logger.error(ex)
+
+    return redirect(url_for('database',
+                            selected_instance = selected_instance,
+                            selected_database = selected_database,
+                            selected_tab = 'collections'))
 
 
 @app.route('/notifications')

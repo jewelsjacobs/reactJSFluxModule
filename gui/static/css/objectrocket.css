@@ -99,6 +99,11 @@ img.invoice-logo {
 	right: 0;
 }
 
+/* === generic styles === */
+.align-center {
+	text-align: center;
+}
+
 /* === paragraph styles === */
 p.tos {
 	font-size: 10px;
