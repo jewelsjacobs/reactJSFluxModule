@@ -592,12 +592,12 @@ def _calculate_sharded_instance_usage(instance):
     usage_totals['total_file_size'] = total_file_size
     usage_totals['total_storage_size'] = total_storage_size
 
-    # Get plan size in bytes.
-    plan_size_in_bytes = instance.plan * 1024 * 1024 * 1024
+    # Get size in bytes.
+    size_in_bytes = instance.size * 1024 * 1024 * 1024
 
     # Round percentage totals.
-    data_percentage = round((float(total_data_size) / float(plan_size_in_bytes)) * 100, 2)
-    storage_percentage = round((float(total_storage_size) / float(plan_size_in_bytes)) * 100, 2)
+    data_percentage = round((float(total_data_size) / float(size_in_bytes)) * 100, 2)
+    storage_percentage = round((float(total_storage_size) / float(size_in_bytes)) * 100, 2)
     remaining_percentage = round(100 - data_percentage - storage_percentage, 2)
 
     # Serialize percentage totals.
@@ -774,7 +774,6 @@ def database(selected_instance, selected_database):
     is_sharded_instance = user_instance.type == Constants.MONGODB_SHARDED_INSTANCE
     default_autohash_on_id = is_sharded_instance and user_instance.plan < config.DEFAULT_AUTO_HASH_ON_ID_CUTOFF_IN_GB
 
-    # import ipdb;ipdb.set_trace()
     return render_template('instances/instance_database.html',
                            collections=user_database.collections,
                            database=user_database,

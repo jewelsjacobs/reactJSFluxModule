@@ -57,45 +57,24 @@ TODO:
     {% call detail_section(title='Database Details', collapsible=True) %}
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
+                <div class="rs-detail-key">Data Size</div>
+                <div class="rs-detail-value">{{ database.data_size_in_bytes|filesizeformat }}</div>
+            </li>
+            <li class="rs-detail-item">
                 <div class="rs-detail-key">Objects</div>
                 <div class="rs-detail-value">{{ database.object_count }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Average Object Size</div>
+                <div class="rs-detail-value">{{ (database.average_object_size_in_bytes if database.average_object_size_in_bytes else 0)|filesizeformat }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Indexes</div>
                 <div class="rs-detail-value">{{ database.index_count }}</div>
             </li>
             <li class="rs-detail-item">
-                <div class="rs-detail-key">Objects</div>
-                <div class="rs-detail-value">{{ database.object_count }}</div>
-            </li>
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Size</div>
-                <div class="rs-detail-value">{{database.data_size_in_bytes|filesizeformat}}</div>
-            </li>
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Space Usage</div>
-                <div class="rs-detail-value">
-                    <div class="rs-progress">
-                        <div class="rs-progress-inner">
-                            <div class="rs-segment" style="width: 50%">
-                                <div class="rs-bar rs-bar-ok"></div>
-                                <div class="rs-caption">Data</div>
-                            </div>
-                            <div class="rs-segment" style="width: 20%">
-                                <div class="rs-bar rs-bar-ok"></div>
-                                <div class="rs-caption">Index</div>
-                            </div>
-                            <div class="rs-segment" style="width: 10%">
-                                <div class="rs-bar rs-bar-ok"></div>
-                                <div class="rs-caption">Storage</div>
-                            </div>
-                            <div class="rs-segment" style="width: 20%">
-                                <div class="rs-bar rs-bar-ok"></div>
-                                <div class="rs-caption">File</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="rs-detail-key">Index Size</div>
+                <div class="rs-detail-value">{{ database.index_size_in_bytes }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Users</div>
@@ -106,7 +85,6 @@ TODO:
 
     {% call detail_section(title='Users', collapsible=True) %}
         <div class="rs-btn-group">
-            <!-- <a href='/instances/{{ instance.name }}/create_database'><button class="rs-btn rs-btn-primary">Add User</button></a> -->
             <button id="add-user-target" data-popover="add-user-popover" data-popover-target="add-user-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source">Add User</button>
         </div>
         <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
@@ -140,7 +118,6 @@ TODO:
 
     {% call detail_section(title='Collections', collapsible=True) %}
         <div class="rs-btn-group">
-            <!-- <a href='/instances/{{ instance.name }}/create_database'><button class="rs-btn rs-btn-primary">Add Collection</button></a> -->
             <button id="add-collection-target" data-popover="add-collection-popover" data-popover-target="add-collection-target" data-popover-position="right" class="rs-btn rs-btn-primary rs-popover-source">Add Collection</button>
         </div>
 
@@ -231,9 +208,9 @@ TODO:
                     <div id="shard-keys-group">
                         <div class="rs-control-group">
                             <hr/>
-                            <label class="rs-control-label">Shard on hashed _id</label>
+                            <label class="rs-control-label">Automatically hash on _id</label>
                             <div class="rs-controls">
-                                <input id="autohash-checkbox" name="autohash-checkbox" type="checkbox" checked="true" value="ascending">
+                                <input id="autohash-checkbox" name="autohash-checkbox" type="checkbox"{% if default_autohash_on_id %} checked="true"{% endif %} value="ascending">
                             </div>
                         </div>
 
@@ -281,6 +258,13 @@ TODO:
     {{ super() }}
     <script type="text/javascript" src="/static/js/shard_key.js"></script>
     <script type="text/javascript">
+    var toggleShardKeyInputDisplay = function() {
+        if ($('#autohash-checkbox').is(':unchecked')) {
+            $('#shard-keys-input').removeClass('hidden');
+        } else {
+            $('#shard-keys-input').addClass('hidden');
+        }
+    }
 
     // FIXME(Anthony): This is quite bad. We shouldn't interpolate jinja variables into the JS.
     $(document).ready(function() {
@@ -316,12 +300,9 @@ TODO:
         }
 
         // Show shard key input if autohash-checkbox is not checked.
+        toggleShardKeyInputDisplay();
         $('#autohash-checkbox').change(function() {
-            if ($('#autohash-checkbox').is(':unchecked')) {
-                $('#shard-keys-input').removeClass('hidden');
-            } else {
-                $('#shard-keys-input').addClass('hidden');
-            }
+            toggleShardKeyInputDisplay();
         });
 
         // Clear data when hashed-key-checkbox is clicked.

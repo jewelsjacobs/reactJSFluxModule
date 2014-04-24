@@ -86,7 +86,7 @@ TODO:
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Space Usage</div>
                 <div class="rs-detail-value">
-                    <span>{{ usage_totals['total_data_size']|filesizeformat }} of 5 GB used</span>
+                    <span>{{ usage_totals['total_data_size']|filesizeformat }} of {{ instance.size }} GB used</span>
                     <div class="rs-progress">
                         <div class="rs-progress-inner">
                             <div id="usage-bar-data" class="rs-segment" style="width: {{ usage_totals['percentages']['data'] }}%;">
