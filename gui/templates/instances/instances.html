@@ -74,6 +74,7 @@ TODO:
                 </tr>
             </thead>
             <tbody>
+                {% set instancecount = 0 %}
                 {% for instance in instances %}
                     <tr>
                         {% if instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE and instance.repair_state %}
@@ -92,16 +93,15 @@ TODO:
                         <td class="rs-table-status rs-table-status-ok"></td>
                         <td class="rs-table-cog">
                             <div class="rs-dropdown">
-                                <div class="rs-cog rs-dropdown-toggle"></div>
+                                <div id="instance-{{ instancecount }}" class="rs-cog rs-dropdown-toggle"></div>
                                 <ul class="rs-dropdown-menu">
                                     <li><span class="rs-dropdown-category" id="first">Actions</span></li>
-                                    <li><a href="#table-row-actions">Rename</a></li>
-                                    <li><a href="#table-row-actions">Delete</a></li>
-                                    <li><a href="#table-row-actions">Settings</a></li>
+                                    <li><a data-popover="rename-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Rename</a></li>
+                                    <li><a data-popover="delete-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Delete</a></li>
                                 </ul>
                             </div>
                         </td>
-                        <td class="rs-table-link"><a href={{ url_for('instances') }}/{{ instance.name }}>{{ instance.name }}</a></td>
+                        <td id="instance-{{ instancecount }}-count" class="rs-table-link"><a href={{ url_for('instances') }}/{{ instance.name }}>{{ instance.name }}</a></td>
                         <td class="rs-table-link">MongoDB</td>
                         <td class="rs-table-link">{{ instance.type }}</td>
                         <td class="rs-table-link">{{ instance.version }}</td>
@@ -110,8 +110,87 @@ TODO:
                         <td class="rs-table-link">{{ instance.shards|count }}</td>
                         <td class="rs-table-link">{{ instance.size }}</td>
                     </tr>
+                    {% set instancecount = instancecount + 1 %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
 {% endblock content_area_body %}
+
+{% block popovers %}
+    <!-- rename instance popover -->
+    <div id="rename-instance-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="rename-instance-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('rename_instance') }}" method="POST">
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">New Name</label>
+                        <div class="rs-controls">
+                            <input id="new-name" name="new-name" type="text" placeholder="" class="rs-input rs-input-medium">
+                            <input id="current-name" name="current-name" type="hidden" value="">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="rename-instance-popover-form-button" form="rename-instance-popover-form" class="rs-btn rs-btn-primary save">Rename</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end rename instance popover -->
+
+    <!-- rename instance popover -->
+    <div id="delete-instance-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="delete-instance-popover-form" class="rs-form-horizontal rs-form-small" action="" method="POST">
+                    <p><strong>Permanently delete</strong> instance <b id="delete-instance-popover-name"></b>?</p>
+                    <p>This will permanently delete the instance and all data within its databases!</p>
+                    <input id="instance-input" name="instance" type="hidden" value="">
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="delete-instance-popover-form-button" form="delete-instance-popover-form" class="rs-btn rs-btn-primary save">Delete Instance</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end rename instance popover -->
+{% endblock popovers %}
+
+{% block script %}
+    {{ super() }}
+    <script type="text/javascript">
+    $(document).ready(function() {
+        // Listener for renaming instances.
+        $('a[data-popover="rename-instance-popover"]').each(function() {
+            $(this).click(function() {
+                // Get the instance name.
+                var count = $(this).attr('data-count');
+                var name = $('#instance-' + count + '-count').text();
+
+                // Inject the instance name into popover.
+                $('#new-name').attr('placeholder', name);
+                $('#current-name').val(name);
+            });
+        });
+
+        // Listener for deleting instances.
+        $('a[data-popover="delete-instance-popover"]').each(function() {
+            $(this).click(function() {
+                // Get the instance name.
+                var count = $(this).attr('data-count');
+                var name = $('#instance-' + count + '-count').text();
+
+                // Inject the instance name into popover.
+                $('#delete-instance-popover-form').attr('action', '/' + name + '/delete');
+                $('#instance-input').val(name);
+            });
+        });
+
+    });
+    </script>
+{% endblock script %}

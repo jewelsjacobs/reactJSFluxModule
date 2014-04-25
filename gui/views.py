@@ -496,6 +496,15 @@ def instances_create():
                            stripe_pub_key=config.STRIPE_PUB_KEY)
 
 
+@app.route('/<instance_name>/delete', methods=['POST'])
+@viper_auth
+def delete_instance(instance_name):
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, instance_name)
+    instance_manager.recycle_instance(instance.id)
+    return redirect(url_for('instances'))
+
+
 @app.route('/instances/<selected_instance>', methods=['GET', 'POST'])
 @viper_auth
 def instance_details(selected_instance):
