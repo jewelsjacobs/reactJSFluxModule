@@ -1008,6 +1008,93 @@ def clear_alarm():
     return redirect(url_for('notifications'))
 
 
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    session.pop('login', None)
+    serializer = itsdangerous.URLSafeTimedSerializer(app.signing_key)
+    account_manager = AccountManager(config)
+
+    if request.method == 'POST':
+        #  The user is requesting a reset token (Step 1).
+        if Constants.LOGIN in request.form:
+            login = request.form[Constants.LOGIN]
+            account = account_manager.get_account(login)
+
+            if account is not None and account.active:
+                # Generate reset token.
+                pr_host = config.PASSWORD_RESET_HOST
+                pr_token = serializer.dumps(login)
+                pr_link = ('%s/reset_password?token=%s'
+                           % (pr_host, pr_token))
+
+                subject = 'ObjectRocket Password Reset Request'
+                body = (Constants.RESET_PASSWORD_TEMPLATE
+                        % (login, pr_link))
+
+                # Email to user.
+                send_email(account.email, subject, body)
+                app.logger.info('Password reset email sent to login %s'
+                                % login)
+                return render_template('reset_email_sent.html')
+
+            elif account is not None:
+                # Account is deactivated.
+                flash('The specified account is currently deactivated. '
+                      'Contact support@objectrocket.com to reactivate.',
+                      Constants.FLASH_WARN)
+                return redirect(url_for('sign_in'))
+
+            else:
+                # Account does not exist.
+                flash('The specified account does not exist.',
+                      Constants.FLASH_WARN)
+                return redirect(url_for('sign_in'))
+
+        # User's token is valid, changing password (Step 3).
+        if 'confirmPassword' in request.form:
+            token = request.form['token']
+
+            # Ensure token is still valid.
+            try:
+                max_age = config.PASSWORD_RESET_TOKEN_TTL_IN_SECONDS
+                login = serializer.loads(token, max_age=max_age)
+                password = request.form[Constants.PASSWORD]
+
+                account_manager.update_password(login, password)
+                flash('Password successfully reset. Please login.',
+                      Constants.FLASH_INFO)
+                return redirect(url_for('sign_in'))
+
+            except itsdangerous.BadSignature:
+                app.logger.info('Bad password reset token presented: %s'
+                                % token)
+                flash("Your password reset token was invalid. Try again.",
+                      Constants.FLASH_ERROR)
+                return redirect(url_for('sign_in'))
+
+    # The user has a token and wants to validate it (Step 2).
+    if request.method == 'GET':
+        token = request.args.get('token')
+        if token:
+            try:
+                max_age = config.PASSWORD_RESET_TOKEN_TTL_IN_SECONDS
+                serializer.loads(token, max_age=max_age)
+                return render_template('change_password.html',
+                                       token=token)
+
+            except itsdangerous.BadSignature:
+                app.logger.info('Bad password reset token presented: %s'
+                                % token)
+                flash('Your password reset token was invalid. Try again.',
+                      Constants.FLASH_ERROR)
+                return redirect(url_for('sign_in'))
+
+        else:
+            flash('Your password reset token was invalid. Try again.',
+                  Constants.FLASH_ERROR)
+            return redirect(url_for('sign_in'))
+
+
 @app.route('/sign_in', methods=['GET', 'POST'])
 def sign_in():
     """User sign in route."""

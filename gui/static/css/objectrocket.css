@@ -99,6 +99,12 @@ img.invoice-logo {
     right: 0;
 }
 
+.or-focus-panel .or-focus-panel-messages {
+    top: -9%;
+    position: absolute;
+    width: 100%;
+}
+
 .or-focus-panel-links .or-focus-panel-links-right {
     right: 0;
 }

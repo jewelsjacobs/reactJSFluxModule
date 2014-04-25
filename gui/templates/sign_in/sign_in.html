@@ -7,6 +7,12 @@
 {% block body %}
     <div class="rs-panel or-focus-panel">
 
+        <div class="or-focus-panel-messages">
+            {% block flash_messages %}
+                {{ flash_messages() }}
+            {% endblock %}
+        </div>
+
         <div class="or-focus-panel-login">
             <div class="or-login-brand"></div>
             <div class="or-login-form">
@@ -14,22 +20,22 @@
 
                 <form id="login-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_in') }}" method="POST">
 
-                    <div class="rs-control-group success">
+                    <div class="rs-control-group">
                         <label class="rs-control-label">Login</label>
                         <input name="login" type="text" class="rs-input rs-input-medium" placeholder="Login">
                     </div>
 
-                    <div class="rs-control-group success">
+                    <div class="rs-control-group">
                         <label class="rs-control-label">Password</label>
                         <input name="password" type="password" class="rs-input rs-input-medium" placeholder="Password">
                     </div>
 
                     <div class="rs-btn-group">
-                        <button class="rs-btn rs-btn-login" type="submit">Sign In</button>
+                        <button form="login-form" class="rs-btn rs-btn-login">Sign In</button>
                     </div>
                 </form>
                 <div class="rs-control-group">
-                    <p><a href="javascript:void(0);">Forgot your password?</a></p>
+                    <p><a href="#">Forgot your password?</a></p>
                 </div>
             </div>
         </div>
@@ -41,9 +47,35 @@
         </div>
 
     </div>
+
+    {% block script %}
+        {{ super() }}
+        <script type="text/javascript">
+        $(document).ready(function() {
+            // Validation for password reset form.
+            $('#login-form').validate({
+                rules: {
+                    login: {
+                        required: true,
+                    },
+                    password: {
+                        required: true,
+                    },
+                },
+                errorClass: 'rs-validation-block',
+                errorElement: 'span',
+                highlight: function(label) {
+                    $(label).closest('.rs-control-group').removeClass('success');
+                    $(label).closest('.rs-control-group').addClass('error');
+                },
+                success: function(label) {
+                    $(label).closest('.rs-control-group').removeClass('error');
+                    $(label).closest('.rs-control-group').addClass('success');
+                },
+            });
+
+        });
+        </script>
+    {% endblock script %}
+
 {% endblock body %}
-
-
-{% block script %}
-    {{ super() }}
-{% endblock script %}
