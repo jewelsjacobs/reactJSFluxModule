@@ -1807,3 +1807,20 @@ def admin_create_instance():
         app.logger.error(log_message)
 
     return redirect(url_for('admin_instance_management'))
+
+
+@app.route('/instances/<selected_instance>/repair', methods=['POST'])
+@exclude_admin_databases(check_argument='selected_database')
+@viper_auth
+def repair_database(selected_instance):
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    selected_database = request.form.get('database-name')
+    if instance.repair_state:
+        flash('Database %s has already been scheduled for repair.' % selected_database, Constants.FLASH_WARN)
+    elif instance.get_database(selected_database) is None:
+        flash('No database was selected for repair.', Constants.FLASH_WARN)
+    else:
+        instance.start_repairing_database(selected_database)
+        flash('Database %s has been scheduled for repair.' % selected_database, 'ok')
+    return redirect(url_for('instance_details', selected_instance=selected_instance))

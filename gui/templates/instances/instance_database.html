@@ -53,6 +53,11 @@ TODO:
                     <li><span class="rs-dropdown-category">Manage</span></li>
                     <li><a data-popover="add-user-popover" data-popover-target="add-user-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add User&hellip;</a></li>
                     <li><a data-popover="add-collection-popover" data-popover-target="add-collection-target" data-popover-position="bottom-right" class="rs-popover-source">Add Collection&hellip;</a></li>
+                    {% if not is_sharded_instance %}
+                        <li><a data-popover="repair-database-popover" data-popover-target="repair-database-target"
+                               data-popover-position="bottom-right" class="rs-popover-source">
+                            Repair Database&hellip;</a></li>
+                    {% endif %}
                     <li><span class="rs-dropdown-category">Views</span></li>
                     <li><a class="rs-btn rs-btn-link or-expand-all">Expand All&hellip;</a></li>
                     <li><a class="rs-btn rs-btn-link or-collapse-all">Collapse All&hellip;</a></li>
@@ -61,7 +66,14 @@ TODO:
         </div>
 
         <div class="rs-detail-header-subtitle">Database Details</div>
-        <div class="rs-detail-header-title">{{ database.name }}</div>
+        <div class="rs-detail-header-title">
+            {{ database.name }}
+            {% if not is_sharded_instance %}
+                <button id="repair-database-target" data-popover="repair-database-popover"
+                        data-popover-target="repair-database-target" data-popover-position="bottom-right"
+                        class="rs-cog rs-popover-source"></button>
+            {% endif %}
+        </div>
     </div>
 
     {% call detail_section(title='Database Details', collapsible=True) %}
@@ -282,6 +294,28 @@ TODO:
         </div>
     </div>
     <!-- end delete user popover -->
+        <!-- repair database popover -->
+    <div id="repair-database-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="repair-database-popover-form" class="rs-form-horizontal rs-form-small"
+                      action="{{ url_for('repair_database', selected_instance=instance.name) }}" method="POST">
+                    <div class="rs-control-group">
+                        <strong>Warning</strong>: Your instance will be <strong>unavailable</strong> while we repair
+                        your database.
+                    </div>
+                    <input id="database-name" name="database-name" type="hidden" value={{ database.name }}>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="repair-database-popover-form-button" form="repair-database-popover-form"
+                        class="rs-btn rs-btn-primary">Repair</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end repair database popover -->
 {% endblock popovers %}
 
 {% block script %}
