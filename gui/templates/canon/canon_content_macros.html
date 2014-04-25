@@ -60,7 +60,7 @@
 {% macro detail_section(title=None, subtitle=None, collapsible=False, expanded=True) %}
     <!-- detail section -->
     {% if collapsible %}
-        <div class="rs-detail-section rs-collapsible-section{% if expanded %} expanded{% endif %}">
+        <div class="rs-detail-section rs-collapsible-section{% if expanded %} expanded{% else %} collapsed{% endif %}">
     {% else %}
         <div class="rs-detail-section">
     {% endif %}

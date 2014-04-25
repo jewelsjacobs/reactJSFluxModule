@@ -780,7 +780,7 @@ def drop_database():
     else:
         flash("Error dropping database %s: database not found." % selected_database, Constants.FLASH_ERROR)
 
-    return redirect('/instances/%s' % selected_instance)
+    return redirect(url_for('instance_details', selected_instance=selected_instance))
 
 
 @app.route('/copy_database/<selected_instance>', methods=['GET', 'POST'])
@@ -899,9 +899,75 @@ def create_collection(selected_instance, selected_database):
         app.logger.error(ex)
 
     return redirect(url_for('database',
-                            selected_instance = selected_instance,
-                            selected_database = selected_database,
-                            selected_tab = 'collections'))
+                            selected_instance=selected_instance,
+                            selected_database=selected_database,
+                            selected_tab='collections'))
+
+
+@app.route('/shard_collection/<selected_instance>/<selected_db>/<selected_collection>', methods=['POST'])
+@exclude_admin_databases(check_argument='selected_db')
+@viper_auth
+def shard_collection(selected_instance, selected_db, selected_collection):
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    user_database = user_instance.get_database(selected_db)
+
+    all_shard_keys = request.form['all-shard-keys']
+    shard_keys = json.loads(all_shard_keys, object_pairs_hook=collections.OrderedDict)
+    app.logger.debug("shard keys are " + repr(shard_keys))
+
+    create_indexes = request.form.get('create-indexes', False)
+
+    try:
+        user_database.shard_collection(selected_collection, shard_keys=shard_keys, create_indexes=create_indexes)
+    except Exception as ex:
+        exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        flash_message = ("There was a problem applying this shard key. If this problem persists, contact <a mailto:%s>%s</a> and "
+                         "provide Error ID %s." % (config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid))
+        flash(flash_message, Constants.FLASH_ERROR)
+
+    return redirect(url_for('collection',
+                            selected_instance=selected_instance,
+                            selected_database=selected_db,
+                            selected_collection=selected_collection,
+                            selected_tab='shardkey'))
+
+
+@app.route('/create_index/<selected_instance>/<selected_db>/<selected_collection>', methods=['GET', 'POST'])
+@exclude_admin_databases(check_argument='selected_db')
+@viper_auth
+def create_index(selected_instance, selected_db, selected_collection):
+    background = request.form.get('background', True)
+    drop_dups = request.form.get('dropdups', False)
+    index_name = request.form.get('name', '')
+    unique = request.form.get('unique', False)
+
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    user_database = user_instance.get_database(selected_db)
+
+    all_index_keys = request.form['all-index-keys']
+    index_keys = json.loads(all_index_keys, object_pairs_hook=collections.OrderedDict)
+
+    try:
+        user_database.add_index(selected_collection,
+                                index_keys,
+                                background=background,
+                                dropdups=drop_dups,
+                                index_name=index_name,
+                                unique=unique)
+    except Exception as ex:
+        # # TODO: Refactor: Unused reference. flash() should probably be using this.
+        # exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        # flash_message = ("There was a problem creating this index. If this problem persists, contact <a mailto:%s>%s</a> and "
+        #                  "provide Error ID %s." % (config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid))
+        flash(ex.message, Constants.FLASH_ERROR)
+
+    return redirect(url_for('collection',
+                            selected_instance=selected_instance,
+                            selected_database=selected_db,
+                            selected_collection=selected_collection,
+                            selected_tab='indexes'))
 
 
 @app.route('/notifications')

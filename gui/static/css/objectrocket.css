@@ -112,6 +112,14 @@ img.invoice-logo {
     width: 0.5em;
 }
 
+.min-height-1em {
+    min-height: 1em;
+}
+
+.vertical-padding-helfem {
+    padding: 0.5em 0;
+}
+
 /* === paragraph styles === */
 p.tos {
     font-size: 10px;

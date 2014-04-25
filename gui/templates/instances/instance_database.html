@@ -90,6 +90,14 @@ TODO:
                 <div class="rs-detail-key">Users</div>
                 <div class="rs-detail-value">{{ users|count }}</div>
             </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Database Connect String</div>
+                <div class="rs-detail-value">{{ instance.host }}:{{ instance.port }}/{{ database.name }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">SSL Database Connect String</div>
+                <div class="rs-detail-value">{{ instance.host }}:{{ "%.f" | format(instance.port + 10000) }}/{{ database.name }}</div>
+            </li>
         </ul>
     {% endcall %}
 
@@ -238,7 +246,7 @@ TODO:
                                 <label id="shard_key_label" class="rs-control-label">Selected Shard Keys</label>
                                 <div class="rs-controls">
                                     <div id="shard-key-div" class="align-center">
-                                        <pre id="shard-key-pre" style="min-height: 20px;"></pre>
+                                        <pre id="shard-key-pre" class="min-height-1em"></pre>
                                         <p class="rs-help-block">A background index will be created for these keys.</p>
                                     </div>
                                 </div>

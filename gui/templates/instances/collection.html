@@ -51,9 +51,6 @@ TODO:
                     <span class="rs-caret"></span>
                 </button>
                 <ul class="rs-dropdown-menu" style="right:0;">
-                    <li><span class="rs-dropdown-category">Manage</span></li>
-                    <li><a data-popover="add-user-popover" data-popover-target="add-user-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add User&hellip;</a></li>
-                    <li><a data-popover="add-collection-popover" data-popover-target="add-collection-target" data-popover-position="bottom-right" class="rs-popover-source">Add Collection&hellip;</a></li>
                     <li><span class="rs-dropdown-category">Views</span></li>
                     <li><a class="rs-btn rs-btn-link or-expand-all">Expand All&hellip;</a></li>
                     <li><a class="rs-btn rs-btn-link or-collapse-all">Collapse All&hellip;</a></li>
@@ -66,616 +63,225 @@ TODO:
     </div>
     <!-- end detail header section -->
 
-    <!-- detail section -->
-    <div class="rs-detail-section">
-        <div class="rs-detail-section-header">
-            <div class="rs-detail-section-title">Collection Details</div>
+    {% call detail_section(title="Collection Details", collapsible=True) %}
+        <ul class="rs-detail-list">
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Documents</div>
+                <div class="rs-detail-value">{{ collection.document_count }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Size</div>
+                <div class="rs-detail-value">{{ collection.size }}</div>
+            </li>
+        </ul>
+    {% endcall %}
+
+    {% call detail_section(title="Indexes", collapsible=True) %}
+        <div class="rs-btn-group">
+            <button id="add-index-target" data-popover="add-index-popover" data-popover-target="add-index-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source">Add Index</button>
         </div>
 
-        <div class="rs-detail-section-body">
-            <ul class="rs-detail-list">
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Documents</div>
-                    <div class="rs-detail-value">{{ collection.document_count }}</div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Size</div>
-                    <div class="rs-detail-value">{{ collection.size }}</div>
-                </li>
-            </ul>
+        <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Key</th>
+                        <th>Sort</th>
+                        <th>Version</th>
+                        <th>Background</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for index in indexes %}
+                    <tr>
+                        <td class="rs-table-text">{{ index['name'] }}</td>
+                        <td class="rs-table-text">{{ index['key'] }}</td>
+                        <td class="rs-table-text">{{ index['sort'] }}</td>
+                        <td class="rs-table-text">{{ index['v'] }}</td>
+                        <td class="rs-table-text">{{ index['background'] }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% if not indexes %}
+                <div id="index-table-overlay" class="rs-table-overlay">
+                    <div class="rs-table-overlay-content">
+                        <div class="rs-table-overlay-title">You don't have any indexes yet.</div>
+                        <div class="rs-table-overlay-subtitle">Create one now by clicking on the Add Index button.</div>
+                        <div class="rs-table-overlay-message">Indexes provide high performance read operations for frequently used queries.</div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
-    </div>
-    <!-- end detail section -->
+    {% endcall %}
 
-    <!-- detail section -->
-    <div class="rs-detail-section">
-        <div class="rs-detail-section-header">
-            <div class="rs-detail-section-title">Shard Key</div>
-        </div>
-        <div class="rs-detail-section-body">
-            <pre>{{ shard_keys }}</pre>
-        </div>
-    </div>
-    <!-- end detail section -->
-
-    <!-- detail section -->
-    <div class="rs-detail-section">
-        <div class="rs-detail-section-header">
-            <div class="rs-detail-section-title">Schema Sample</div>
-        </div>
-        <div class="rs-detail-section-body">
+    {% call detail_section(title="Schema Sample", collapsible=True) %}
+        {% if sample_document == None %}
+            <pre>Cannot render sample document: document contains binary data.</pre>
+        {% else %}
             <pre>{{ sample_document }}</pre>
-        </div>
-    </div>
-    <!-- end detail section -->
+        {% endif %}
+    {% endcall %}
 
-    <!-- detail section -->
-    <div class="rs-detail-section">
-        <div class="rs-detail-section-header">
-            <div class="rs-detail-section-title">Indexes</div>
-        </div>
-        <div class="rs-detail-section-body">
-            <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
+    {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+        {% call detail_section(title="Shard Key", collapsible=True) %}
+            {% if shard_keys %}
+                <pre>{{ shard_keys }}</pre>
+            {% else %}
+                <div class="align-center">
+                    <button id="add-shard-keys-target" data-popover="add-shard-keys-popover" data-popover-target="add-shard-keys-target" data-popover-position="right" class="rs-btn rs-btn-primary rs-popover-source">Shard Collection</button>
+                </div>
+            {% endif %}
+
+        {% endcall %}
+
+        {% call detail_section(title="Chunks", collapsible=True) %}
+            <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
                 <table class="rs-list-table rs-embedded-list-table">
                     <thead>
-                    <tr>
-                    <th class="rs-table-cog"></th>
-                    <th>Name</th>
-                    <th>Key</th>
-                    <th>Sort</th>
-                    <th>Version</th>
-                    <th>Background</th>
-                    </tr>
+                        <tr>
+                            <th>Chunk ID</th>
+                            <th>Shard Name</th>
+                            <th>Min</th>
+                            <th>Max</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {% for index in indexes %}
-                        <tr>
-                            <td class="rs-table-cog">
-                                <div class="rs-dropdown">
-                                    <div class="rs-cog rs-dropdown-toggle"></div>
-                                    <ul class="rs-dropdown-menu">
-                                        <li><span class="rs-dropdown-category" id="first">Identify</span></li>
-                                        <li><a href="javascript:void(0);">Edit Item&hellip;</a></li>
-                                        <li><a href="javascript:void(0);">Delete Item&hellip;</a></li>
-                                    </ul>
-                                </div>
-                            </td>
-                            <td class="rs-table-text">{{ index['name'] }}</td>
-                            <td class="rs-table-text">{{ index['key'] }}</td>
-                            <td class="rs-table-text">{{ index['sort'] }}</td>
-                            <td class="rs-table-text">{{ index['v'] }}</td>
-                            <td class="rs-table-text">{{ index['background'] }}</td>
-                        </tr>
-                    {% endfor %}
+                    {% if chunks %}
+                        {% for chunk in chunks %}
+                            <tr>
+                                <td>{{ chunk['_id'] }}</td>
+                                <td>shard_{{ chunk['shard'] }}</td>
+                                <td>{{ chunk['min']['_id'] }}</td>
+                                <td>{{ chunk['max']['_id'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-    <!-- end detail section -->
+        {% endcall %}
+    {% endif %}
 
-    <!-- detail section -->
-    <div class="rs-detail-section">
-        <div class="rs-detail-section-header">
-            <div class="rs-detail-section-title">Additional Item Details</div>
-        </div>
-        <div class="rs-detail-section-body">
-            <ul class="rs-detail-list">
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Created</div>
-                    <div class="rs-detail-value">Mar 26, 2013 - 5:35 pm UTC</div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Updated</div>
-                    <div class="rs-detail-value">Aug 22, 2013 - 11:43 pm UTC</div>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <!-- end detail section -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<ul class="breadcrumb">
-  <li><a href={{ url_for('instances') }}>My Instances</a> <span class="divider">/</span></li>
-  <li><a href={{ url_for('instances') }}/{{ instance.name }}>{{ instance.name }}</a> <span class="divider">/</span></li>
-  <li><a href={{ url_for('instances') }}/{{ instance.name }}/{{ database.name }}>{{ database.name }}</a> <span class="divider">/</span></li>
-  <li><a href={{ url_for('instances') }}/{{ instance.name }}/{{ database.name }}/{{ collection.name }} >{{ collection.name }}</a></li>
-  <li class="pull-right">{{ instance.host }}:{{ instance.port }}/{{ database.name }}</li>
-</ul>
-
-<div id="tabbable">
-        <ul class="nav nav-tabs">
-            <li {% if selected_tab == 'schema' %}class="active"{% endif %}><a data-toggle="tab" href="#schema">Schema</a></li>
-            <li {% if selected_tab == 'indexes' %}class="active"{% endif %}><a data-toggle="tab" href="#indexes">Indexes</a></li>
-
-            {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
-                <li {% if selected_tab == 'shardkey' %}class="active"{% endif %}><a data-toggle="tab"  href="#shardkey">Shard Key</a></li>
-                <li {% if selected_tab == 'chunks' %}class="active"{% endif %}><a data-toggle="tab"  href="#chunks">Chunks</a></li>
-            {% endif %}
-
-        </ul>
-        <div id="my-tab-content" class="tab-content">
-            <div id="schema" {% if selected_tab == 'schema' %}class="tab-pane active"{% else %}class="tab-pane"{% endif %}>
-                <div class="alert alert-info">The schema data is an example of the first document in the collection for reference</div>
-
-                {% if sample_document == None %}
-                    <pre>Cannot render sample document: document contains binary data.</pre>
-                {% else %}
-
-                    <pre class="prettyprint" >{{ sample_document }}</pre>
-                {% endif %}
-
-            </div>
-
-            <div id="indexes" {% if selected_tab == 'indexes' %}class="tab-pane active"{% else %}class="tab-pane"{% endif %}>
-
-                <a data-toggle="modal" href="#index_modal" class="btn btn-primary btn-medium">Add Index</a>
-                <table class="table table-striped" id="mydatatable3">
-                    <thead><tr>
-                      <th>Name</th>
-                      <th>Key</th>
-                      <th>Sort</th>
-                      <th>Version</th>
-                      <th>Background</th>
-                    </tr></thead>
-                    <tbody>
-                    {% for index in indexes %}
-                    <tr>
-                      <td>{{ index['name'] }}</td>
-                      <td>{{ index['key'] }}</td>
-                      <td>{{ index['sort'] }}</td>
-                      <td>{{ index['v'] }}</td>
-                      <td>{{ index['background'] }}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                  </table>
-
-            </div>
-            <div id="shardkey" {% if selected_tab == 'shardkey' %}class="tab-pane active"{% else %}class="tab-pane"{% endif %}>
-
-                {% if shard_keys %}
-                    <pre class="prettyprint" >{{ shard_keys }}</pre>
-                {% else %}
-                  <a data-toggle="modal" href="#key" class="btn btn-primary btn-medium">Define Shard Key</a>
-                {% endif %}
-
-            </div>
-            <div id="chunks" {% if selected_tab == 'chunks' %}class="tab-pane active"{% else %}class="tab-pane"{% endif %}>
-
-                <table class="table table-striped" id="mydatatable1">
-                    <thead><tr>
-                      <th>Chunk ID</th>
-                      <th>Shard Name</th>
-                      <th>Min</th>
-                      <th>Max</th>
-                    </tr></thead>
-                    <tbody>
-                    {% if chunks %}
-                    {% for c in chunks %}
-                    <tr>
-                      <td>{{ c['_id'] }}</td>
-                      <td>shard_{{ c['shard'] }}</td>
-                      <td>{{ c['min']['_id'] }}</td>
-                      <td>{{ c['max']['_id'] }}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                    {% endif %}
-                  </table>
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container">
-<div id="key" class="modal hide fade in" style="display: none; ">
-
-<div class="modal-header">
-  <a class="close" data-dismiss="modal">×</a>
-  <h3>Define Shard Keys</h3>
-</div>
-
-      <div class="modal-body">
-          <form id="shard_key_form" action="/shard_collection/{{instance.name}}/{{database.name}}/{{collection.name}}" method="POST" class="form-horizontal">
-          <fieldset>
-              <div class="control-group">
-                  <div class="controls">
-                      <div id="shard_key_input_div">
-                          <label id='keys-label' class="control-label" for="keys">Enter Shard Key:</label>
-
-                    <input id="shardkeys" name="shardkeys" type="text">
-                    <p class="help-block">Key(s) on which to shard this collection.</p>
-                    <br>
-
-                    <button class="btn" type="button" id="add_key_button">Add Key</button>
-                    <span id="hashed_key_checkbox_span">
-                      <input type="checkbox" name="hashed_key_checkbox" id="hashed_key_checkbox" value="ascending"/>
-                              Hashed
-                      <p></p>
-                    </span>
-                    <div id="shard_key_div" align="center">
-                        <label id="shard_key_label"><b>Selected Shard Keys:</b></label>
-                        <pre id="shard_key_pre"></pre>
-                    </div>
-                    <span id="create_index_checkbox_span">
-                      <input type="checkbox" checked="checked" name="create_indexes" id="create_index_checkbox" value="{{ true }}" />
-                              Create New Indexes
-                    </span>
-                    <span>
-                        <p class="help-block">
-                            A background index will be created for these keys.
-                            <br>If a suitable index is not found a new index will be created.
-                        </p>
-                    </span>
-              </div>
-
-          </div>
-        </fieldset>
-      </div>
-
-      <div class="modal-footer">
-          <button type="submit"id="define_keys_button" class="btn btn-success">Define Keys</button>
-          <a href="#" class="btn" data-dismiss="modal">Cancel</a>
-      </div>
-
-    </div>
-  </form>
-</div>
-
-
-
-<div class="container">
-    <div id="index_modal" class="modal hide fade in" style="display: none; ">
-
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">×</a>
-          <h3>Add Index</h3>
-        </div>
-
-        <div class="modal-body row">
-            <form id="index_form" action="/create_index/{{instance.name}}/{{database.name}}/{{collection.name}}" method="POST" class="form-horizontal">
-            <fieldset>
-                <div class="control-group">
-                    <div class="controls span12">
-                        <label id='index-keys-label' class="control-label" for="index">Enter Index Key:&nbsp;</label>
-                        <input  class="span4" id="indexkeys" name="indexkeys" type="text">
-                        <select class="span4" name="sort_order" id="sort_order">
-                            <option value="-1">Descending</option>
-                            <option value="1">Ascending</option>
-                        </select>
-                    </div>
-
-                    <div class="controls">
-                      <div class="">
-                        <button class="btn" type="button" id="add_index_key_button">Add Key</button>
-                      </div>
-                    </div>
-
-                    <div class="controls ">
-                        <div class="" id="index_key_div" align="center">
-                            <label id="index_key_label"><b>Selected Index Keys:</b></label>
-                            <pre id="index_key_pre"></pre>
-                        </div>
-
-                        <span id="">
-                            <label>Name:</label><input type="text" name="name" id="name" placeholder="Optional name">
-                            <br><br>
-                            <input type="checkbox" name="background" id="background" value="true" checked="checked">Background
-                            &nbsp;&nbsp;&nbsp;
-                            <input type="checkbox" name="unique" id="unique" value="true">&nbsp;Unique
-                    </span>
-                    </div>
-                </div>
-            </fieldset>
-          </div>
-
-
-      <div class="modal-footer">
-          <button type="submit"id="add_index_button" class="btn btn-success">Add Index</button>
-          <a href="#" class="btn" data-dismiss="modal">Cancel</a>
-      </div>
-
-  </form>
-</div>
 {% endblock content_area_body %}
 
+{% block popovers %}
+    <!-- add index popover -->
+    <div id="add-index-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="add-index-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('create_index', selected_instance=instance.name, selected_db=database.name, selected_collection=collection.name) }}" method="POST">
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Index Key</label>
+                        <div class="rs-controls">
+                            <input id="indexkeys" name="indexkeys" type="text" class="rs-input rs-input-medium">
+                            <span class="rs-help-block">Indexes to add to this collection.</span>
+                            <select id="sort-order" name="sort-order">
+                                <option value="1">Ascending</option>
+                                <option value="-1">Descending</option>
+                            </select>
+                            <span><input type="checkbox" name="background" id="background" value="true" checked="checked">&nbsp;Background</span>
+                            <span><input type="checkbox" name="unique" id="unique" value="true">&nbsp;Unique</span>
+                            <div class="vertical-padding-helfem">
+                                <button id="add-index-key-button" form="" class="rs-btn rs-btn-primary">Add Key</button>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Name</label>
+                        <div class="rs-controls">
+                            <input id="name" name="name" type="text" placeholder="Optional Name">
+                        </div>
+                    </div>
 
+                    <div class="rs-control-group">
+                        <label id="index-key-label" class="rs-control-label">Selected Index Keys</label>
+                        <div id="index-key-div" class="rs-controls">
+                            <pre id="index-key-pre" class="align-center min-height-1em"></pre>
+                            <span class="rs-help-block">These indexes will be applied to your collection.</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="add-index-popover-form-button" form="add-index-popover-form" class="rs-btn rs-btn-primary save">Add Index</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end add database popover -->
 
+    <!-- add shard keys popover -->
+    <div id="add-shard-keys-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div id="key" class="rs-popover-body">
+                <form id="add-shard-key-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('shard_collection', selected_instance=instance.name, selected_db=database.name, selected_collection=collection.name) }}" method="POST" class="form-horizontal">
 
+                    <div class="rs-control-group">
+                        <label id="keys-label" class="rs-control-label">Enter Shard Key</label>
+                        <div id="shard-key-input-div" class="rs-controls">
+                            <input id="shardkeys" name="shardkeys" type="text" class="rs-input rs-input-medium">
+                            <span class="rs-help-block">Key(s) on which to shard this collection.</span>
 
+                            <span id="hashed-key-checkbox-span">
+                                <input id="hashed-key-checkbox" name="hashed-key-checkbox" type="checkbox" value="ascending"/>&nbsp;Hashed
+                            </span>
+                            <div>
+                                <button id="add-key-button" class="rs-btn rs-btn-primary" form="">Add Key</button>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div id="shard-keys" class="rs-control-group">
+                        <label id="shard-key-label" class="rs-control-label">Selected Shard Keys</label>
+                        <div class="rs-controls">
+                            <div id="shard-key-div" class="align-center">
+                                <pre id="shard-key-pre" class="min-height-1em"></pre>
+                                <span class="rs-help-block">
+                                    A background index will be created for these keys.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-
-
-
-
-
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="add-shard-key-popover-form-button" form="add-shard-key-popover-form" class="rs-btn rs-btn-primary save">Define Keys</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end shard keys popover -->
+{% endblock popovers %}
 
 {% block script %}
+    {{ super() }}
     <script type="text/javascript">
-    $(document).ready(function(){
-        var instanceVersion = {{ instance.version|tojson|safe }};
-        hashedKeyEnabled = false;
-
-        var versionDigits = instanceVersion.split('.');
-        var majorVersion = versionDigits[0];
-        var minorVersion = versionDigits[1];
-
-        if (majorVersion >= 2) {
-            if (minorVersion >= 4) {
-                hashedKeyEnabled = true;
-            }
-        }
-
-        if (hashedKeyEnabled) {
-            $('#hashed_key_checkbox').attr('checked', true);
-            $("#sort_order").append("<option value='hashed'>Hashed</option>");
-        } else {
-            $('#hashed_key_checkbox_span').hide();
-            $('#hashed_key_checkbox_div').hide();
-            $('#shard_key_input_div').show();
-        }
-
-
-        $('#add_index_key_button').click(function() {
-            var indexKey = $('#indexkeys').val();
-
-            if (indexKey) {
-                if (indexKey === '') {
-                    return false;
-                }
-
-                var indexKeys = $('#index_key_div').data('keys');
-
-                if (!indexKeys) {
-                    indexKeys = {};
-                }
-
-                if (!indexKeys.indexKey) {
-                    var indexKeyDirection = $('#sort_order').val();
-
-                    if (indexKeyDirection == 'hashed') {
-                        indexKeys = {};
-                    } else {
-                        for (key in indexKeys) {
-                            if (indexKeys[key] == 'hashed'){
-                                delete indexKeys[key];
-                            }
-                        }
-                    }
-
-                    indexKeys[indexKey] = indexKeyDirection;
-                    $('#index_key_div').data('keys', indexKeys);
-
-                    $('#index_key_pre').text(JSON.stringify(indexKeys));
-                    $('#indexkeys').val('');
-                }
-            }
-        });
-
-        $('#index_modal').on('hidden', function () {
-            $('#index_key_div').data('keys', {});
-            $('#indexkeys').val('');
-            $('#index_key_pre').text('');
-            // $('#keys-label').removeClass('valid invalid');
-            // $('#keys-label').closest('.control-group').removeClass('error success');
-            // var validator = $("#index_key_form").validate();
-            // validator.resetForm();
-        });
-
-        // Clear the shard key list when the modal appears
-        $('#key').on('hidden', function () {
-            $('#shard_key_div').data('keys', {});
-            $('#shardkeys').val('');
-            $('#shard_key_pre').text('');
-            $('#keys-label').removeClass('valid invalid');
-            $('#keys-label').closest('.control-group').removeClass('error success');
-            var validator = $("#shard_key_form").validate();
-            validator.resetForm();
-        });
-
-        function containsInvalidShardKeyCharacters(value) {
-            if (value == '') {
-                return true;
-            }
-
-            var unpermitted_char_regex = /[\/\\\"\*\<\>\:\|\?\{\}\,]/;
-            result = unpermitted_char_regex.test(value);
-            return result;
-        }
-
-        $('#hashed_key_checkbox').click(function() {
-            if ($('#hashed_key_checkbox').is(':unchecked')){
-                $('#shard_key_div').data('keys', {});
-                $('#shard_key_pre').text('');
-                $('#shardkeys').val('');
-            }
-        });
-
-        $('#add_key_button').click(function() {
-            var shardKey = $('#shardkeys').val();
-
-            if (shardKey) {
-                if (shardKey === '') {
-                    return false;
-                }
-
-                if (containsInvalidShardKeyCharacters(shardKey)){
-                    var validator = $('#shard_key_form').validate();
-                    validator.showErrors({"shardkeys": 'Cannot contain /\ ",*<>:|?{}'});
-                    return false;
-                }
-
-                var shardKeys = $('#shard_key_div').data('keys');
-
-                if (!shardKeys) {
-                    shardKeys = {};
-                }
-
-                if (!shardKeys.shardKey) {
-                    var shardKeyLabel = '<label>' + $('#shardkeys').val() + '</label>'
-                    var shardKeyQualifier = 1;
-
-                    if ($('#hashed_key_checkbox').is(':checked')) {
-                        shardKeyQualifier = 'hashed';
-                        shardKeys = {};
-                    }
-
-                    shardKeys[shardKey] = shardKeyQualifier;
-                    $('#shard_key_div').data('keys', shardKeys);
-
-                    $('#shard_key_pre').text(JSON.stringify(shardKeys));
-                    $('#shardkeys').val('');
-                }
-            }
-        });
-
-        $('#add_index_button').click(function() {
-            var indexKeys = $('#index_key_div').data('keys');
-
-            if (!indexKeys) {
-                var validator = $("#index_form").validate();
-                validator.showErrors({"indexkeys": "An index key is required."});
-                return false;
-            }
-            var encodedIndexKeys = JSON.stringify(indexKeys);
-            $("#index_form").append("<input type='hidden' name='all_index_keys' value='" + encodedIndexKeys + "' >");
-
-        });
-
-        $('#define_keys_button').click(function() {
-            var shardKeys = $('#shard_key_div').data('keys');
-
-            if (!shardKeys) {
-                var validator = $("#shard_key_form").validate();
-                validator.showErrors({"shardkeys": "A shard key is required."});
-                return false;
-            }
-            var encodedShardKeys = JSON.stringify(shardKeys);
-            $("#shard_key_form").append("<input type='hidden' name='all_shard_keys' value='" + encodedShardKeys + "' >");
-        });
-
-        $.validator.addMethod("noSpecialCharacters", function(value, element) {
-            return !containsInvalidShardKeyCharacters(value);
-        }, 'Cannot contain /\. "*<>:|?{}');
-
-        $('#shard_key_form').validate({
-          rules: {
-          },
-          highlight: function(label) {
-            $(label).closest('.control-group').addClass('error');
-          },
-          success: function(label) {
-            label
-              .text('OK!').addClass('valid')
-              .closest('.control-group').addClass('success');
-          }
-        });
-
-        $('#index_form').validate({
-          rules: {
-            key1: {
-              minlength: 1,
-              required: true
-            }
-          },
-          highlight: function(label) {
-            $(label).closest('.control-group').addClass('error');
-          },
-          success: function(label) {
-            label
-              .text('OK!').addClass('valid')
-              .closest('.control-group').addClass('success');
-          }
-        });
-
-      $('#mydatatable1').dataTable( {
-        "sPaginationType": "bootstrap",
-        "bStateSave": true,
-        "bFilter": true,
-        "iDisplayLength": 50,
-        "sDom": '<"top"f>rt<"bottom"ilp><"clear">',
-        "oLanguage": {
-        "sLengthMenu": "_MENU_ records per page"
-          }
-      });
-
-      $('#mydatatable2').dataTable( {
-        "sPaginationType": "bootstrap",
-        "bStateSave": true,
-        "bFilter": true,
-        "iDisplayLength": 50,
-        "sDom": '<"top"f>rt<"bottom"ilp><"clear">',
-        "oLanguage": {
-        "sLengthMenu": "_MENU_ records per page"
-          }
-      });
-
-      $('#mydatatable3').dataTable( {
-        "sPaginationType": "bootstrap",
-        "bStateSave": true,
-        "bFilter": true,
-        "iDisplayLength": 50,
-        "sDom": '<"top"f>rt<"bottom"ilp><"clear">',
-        "oLanguage": {
-        "sLengthMenu": "_MENU_ records per page"
-          }
-      });
-
-    });
-
     totalcount = 0;
     counter = 1;
 
     function addQueryOption() {
+        $("#querydiv").append("\
+            <p id='q" + counter + "'>\
+            <a href='#' class='btn btn-primary btn-mini' onClick='removeQueryOption(\"#q"+counter+"\"); return false;'>x</a> \
+            Field <input name='query_key_" + counter + "' type='text' size=30 />\
+            <select name='query_expr_" + counter +"'>\
+            <option value='eq'>eq</option>\
+            <option value='ne'>ne</option>\
+            <option value='lt'>lt</option>\
+            <option value='gt'>gt</option>\
+            </select>\
+            <input name='query_value_" + counter + "' type='text' size=30 />\
+            </p>");
 
-      $("#querydiv").append("\
-        <p id='q" + counter + "'>\
-        <a href='#' class='btn btn-primary btn-mini' onClick='removeQueryOption(\"#q"+counter+"\"); return false;'>x</a> \
-        Field <input name='query_key_" + counter + "' type='text' size=30 />\
-        <select name='query_expr_" + counter +"'>\
-         <option value='eq'>eq</option>\
-         <option value='ne'>ne</option>\
-         <option value='lt'>lt</option>\
-         <option value='gt'>gt</option>\
-        </select>\
-        <input name='query_value_" + counter + "' type='text' size=30 />\
-        </p>");
-
-       totalcount = totalcount + 1;
-       counter = counter + 1;
-       addSubmit();
-
+        totalcount = totalcount + 1;
+        counter = counter + 1;
+        addSubmit();
     }
 
     function removeQueryOption(id) {
@@ -697,24 +303,205 @@ TODO:
         $("#submitdiv").replaceWith("<div id='submitdiv'></div>");
     }
 
-        function geturl(send_data) {
-            var r = $.ajax({
-             type: 'POST',
-             url: 'www.google.com',
-             data: send_data,
-             async: false
-            }).responseText;
-            return r;
-        };
+    function geturl(send_data) {
+        var r = $.ajax({
+            type: 'POST',
+            url: 'www.google.com',
+            data: send_data,
+            async: false
+        }).responseText;
 
-        function get_query_results() {
-            form_serial = $('#queryform').serialize();
-            server_data = geturl(form_serial);
+        return r;
+    };
 
-            $("#lol").html("<div id=\"lol\">Date: " + server_data + "</div>");
+    function get_query_results() {
+        form_serial = $('#queryform').serialize();
+        server_data = geturl(form_serial);
 
-            return false;
+        $("#lol").html("<div id=\"lol\">Date: " + server_data + "</div>");
+
+        return false;
+    }
+
+    function containsInvalidShardKeyCharacters(value) {
+        if (value == '') {
+            return true;
         }
 
+        var unpermitted_char_regex = /[\/\\\"\*\<\>\:\|\?\{\}\,]/;
+        result = unpermitted_char_regex.test(value);
+        return result;
+    }
+
+    $(document).ready(function() {
+        var instanceVersion = {{ instance.version|tojson|safe }};
+        hashedKeyEnabled = false;
+
+        var versionDigits = instanceVersion.split('.');
+        var majorVersion = versionDigits[0];
+        var minorVersion = versionDigits[1];
+
+        if (majorVersion >= 2) {
+            if (minorVersion >= 4) {
+                hashedKeyEnabled = true;
+            }
+        }
+
+        // Allow creation of hashed keys if hashedKeyEnabled.
+        if (hashedKeyEnabled) {
+            $('#hashed-key-checkbox').attr('checked', true);
+            $('#sort-order').append('<option value="hashed">Hashed</option>');
+        } else {
+            $('#hashed-key-checkbox-span').hide();
+            $('#shard-key-input-div').show();
+        }
+
+        // Update the list of index keys as they are added.
+        $('#add-index-key-button').click(function() {
+            var indexKey = $('#indexkeys').val();
+
+            if (indexKey) {
+                if (indexKey === '') {
+                    return false;
+                }
+
+                var indexKeys = $('#index-key-div').data('keys');
+
+                if (!indexKeys) {
+                    indexKeys = {};
+                }
+
+                if (!indexKeys.indexKey) {
+                    var indexKeyDirection = $('#sort-order').val();
+
+                    if (indexKeyDirection == 'hashed') {
+                        indexKeys = {};
+                    } else {
+                        for (key in indexKeys) {
+                            if (indexKeys[key] == 'hashed'){
+                                delete indexKeys[key];
+                            }
+                        }
+                    }
+
+                    indexKeys[indexKey] = indexKeyDirection;
+                    $('#index-key-div').data('keys', indexKeys);
+
+                    $('#index-key-pre').text(JSON.stringify(indexKeys));
+                    $('#indexkeys').val('');
+                }
+            }
+        });
+
+        // Clear data when hashed-key-checkbox is clicked.
+        $('#hashed-key-checkbox').click(function() {
+            $('#shard-key-div').data('keys', {});
+            $('#shard-key-pre').text('');
+            $('#shardkeys').val('');
+        });
+
+        // Update the list of shard keys as they are added.
+        $('#add-key-button').click(function() {
+            var shardKey = $('#shardkeys').val();
+
+            if (shardKey) {
+                if (shardKey === '') {
+                    return false;
+                }
+
+                if (containsInvalidShardKeyCharacters(shardKey)){
+                    var validator = $('#add-shard-key-popover-form').validate();
+                    validator.showErrors({"shardkeys": 'Cannot contain /\ ",*<>:|?{}'});
+                    return false;
+                }
+
+                var shardKeys = $('#shard-key-div').data('keys');
+
+                if (!shardKeys) {
+                    shardKeys = {};
+                }
+
+                if (!shardKeys.shardKey) {
+                    var shardKeyLabel = '<label>' + $('#shardkeys').val() + '</label>'
+                    var shardKeyQualifier = 1;
+
+                    if ($('#hashed-key-checkbox').is(':checked')) {
+                        shardKeyQualifier = 'hashed';
+                        shardKeys = {};
+                    }
+
+                    shardKeys[shardKey] = shardKeyQualifier;
+                    $('#shard-key-div').data('keys', shardKeys);
+
+                    $('#shard-key-pre').text(JSON.stringify(shardKeys));
+                    $('#shardkeys').val('');
+                }
+            }
+        });
+
+        /* === VALIDATION === */
+        // Listener for Add Index button.
+        $('#add-index-popover-form-button').click(function() {
+            var indexKeys = $('#index-key-div').data('keys');
+
+            if (!indexKeys) {
+                var validator = $("#add-index-popover-form").validate();
+                validator.showErrors({"indexkeys": "An index key is required."});
+                return false;
+            }
+            var encodedIndexKeys = JSON.stringify(indexKeys);
+            $("#add-index-popover-form").append("<input type='hidden' name='all-index-keys' value='" + encodedIndexKeys + "' >");
+
+        });
+
+        // Listener to validate shardKeys.
+        $('#add-shard-key-popover-form-button').click(function() {
+            var shardKeys = $('#shard-key-div').data('keys');
+
+            if (!shardKeys) {
+                var validator = $("#add-shard-key-popover-form").validate();
+                validator.showErrors({"shardkeys": "A shard key is required."});
+                return false;
+            }
+            var encodedShardKeys = JSON.stringify(shardKeys);
+            $("#add-shard-key-popover-form").append("<input type='hidden' name='all-shard-keys' value='" + encodedShardKeys + "' >");
+        });
+
+        // Add validator method.
+        $.validator.addMethod("noSpecialCharacters", function(value, element) {
+            return !containsInvalidShardKeyCharacters(value);
+        }, 'Cannot contain /\. "*<>:|?{}');
+
+        // Validate Define Keys form.
+        $('#add-shard-key-popover-form').validate({
+            rules: {},
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function(label) {
+                $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
+
+        // Validation for Add Index form.
+        $('#add-index-popover-form').validate({
+            rules: {},
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function(label) {
+                $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
+
+    });
     </script>
 {% endblock script %}
