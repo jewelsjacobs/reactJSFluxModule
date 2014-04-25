@@ -1035,7 +1035,7 @@ def reset_password():
                 send_email(account.email, subject, body)
                 app.logger.info('Password reset email sent to login %s'
                                 % login)
-                return render_template('reset_email_sent.html')
+                return render_template('sign_in/reset_email_sent.html')
 
             elif account is not None:
                 # Account is deactivated.
@@ -1079,7 +1079,7 @@ def reset_password():
             try:
                 max_age = config.PASSWORD_RESET_TOKEN_TTL_IN_SECONDS
                 serializer.loads(token, max_age=max_age)
-                return render_template('change_password.html',
+                return render_template('sign_in/change_password.html',
                                        token=token)
 
             except itsdangerous.BadSignature:
@@ -1107,7 +1107,7 @@ def sign_in():
 
     account_manager = AccountManager(config)
     if not account_manager.authenticated(login, password):
-        flash('Sign in failed.')
+        flash('Sign in failed.', Constants.FLASH_ERROR)
         return render_template('sign_in/sign_in.html')
 
     session['login'] = login

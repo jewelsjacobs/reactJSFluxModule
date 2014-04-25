@@ -56,6 +56,7 @@ img.invoice-logo {
     top: 50%;
     left: 50%;
     margin: -192px 0 0 -325px;
+    max-width: 730px;
     position: absolute;
 }
 
@@ -93,10 +94,16 @@ img.invoice-logo {
     margin: 25px 0 0;
 }
 
-.or-focus-panel .or-focus-panel-links {
+.or-focus-panel .or-focus-panel-link-pull-right {
     bottom: -14%;
     position: absolute;
     right: 0;
+}
+
+.or-focus-panel .or-focus-panel-link-pull-left {
+    bottom: -14%;
+    position: absolute;
+    left: 0;
 }
 
 .or-focus-panel .or-focus-panel-messages {
@@ -105,8 +112,8 @@ img.invoice-logo {
     width: 100%;
 }
 
-.or-focus-panel-links .or-focus-panel-links-right {
-    right: 0;
+.or-popover-login-overwrite {
+    width: 400px;
 }
 
 /* === generic styles === */
