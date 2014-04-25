@@ -552,6 +552,7 @@ def instance_details(selected_instance):
                            balancer=balancer,
                            databases=databases,
                            enable_copy_database=enable_copy_database,
+                           get_host_zone=Utility.get_host_zone,
                            instance=user_instance,
                            is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
                            login=g.login,

@@ -1,0 +1,91 @@
+<!-- Begin shard info -->
+<div class="rs-btn-group">
+    <form action="{{ url_for('add_shard', selected_instance=instance.name) }}" method="POST">
+        <button type="submit" class="rs-btn rs-btn-primary">Add Shard</button>
+    </form>
+</div>
+
+<div class="rs-embedded-list-table-wrapper rs-embedded-large">
+    <table class="rs-list-table rs-embedded-list-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Plan</th>
+                <th>Data Size</th>
+                <th>Index Size</th>
+                <th>Storage Size</th>
+                <th>File Size</th>
+                <th>Shard Balance</th>
+                <th>Replica Set Information</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for shard in instance.shards %}
+                {% set primary = shard.replica_set.primary %}
+                {% set shard_statistics = aggregate_stats[shard.name] %}
+                {% set primary_oplog_time = primary.oplog_time %}
+                <tr>
+                    <td class="rs-table-text">{{ shard.name }}</td>
+                    <td class="rs-table-text">{{ shard.plan }}</td>
+                    <td class="rs-table-text">{{ shard_statistics[Constants.DATA_SIZE_IN_BYTES]|filesizeformat }}</td>
+                    <td class="rs-table-text">{{ shard_statistics[Constants.INDEX_SIZE_IN_BYTES]|filesizeformat }}</td>
+                    <td class="rs-table-text">{{ shard_statistics[Constants.STORAGE_SIZE_IN_BYTES]|filesizeformat }}</td>
+                    <td class="rs-table-text">{{ shard_statistics[Constants.FILE_SIZE_IN_BYTES]|filesizeformat }}</td>
+                    <td class="rs-table-text">
+                        <div class="rs-progress">
+                            <div class="rs-progress-inner">
+                                <div class="rs-segment" style="width: {{ shard_statistics[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE]|round(1) }}%">
+                                    <div class="rs-bar rs-bar-ok"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="replset-info" id="replset-info-{{ shard.name }}">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Role</th>
+                                    <th>Health</th>
+                                    <th>Zone</th>
+                                    <th>Delay</th>
+                                    <th>Last Heartbeat</th>
+                                    <th>Compaction State</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in primary.status.members %}
+                                    {% set member_health = 'HEALTHY' if member.health == 1 else 'FAULT' %}
+                                    {% set zone = get_host_zone(member.name) %}
+                                    {% if member.stateStr == 'PRIMARY' %}
+                                        {% set delay = '(Primary)' %}
+                                        {% set heartbeat = '(Primary)' %}
+                                    {% elif member.stateStr == 'ARBITER' %}
+                                        {% set delay = '(Arbiter)' %}
+                                    {% else %}
+                                        {% set delay = primary_oplog_time.as_datetime() - member.optime.as_datetime() %}
+                                    {% endif %}
+                                    {% if member.stateStr != 'PRIMARY' %}
+                                        {% set heartbeat = member.lastHeartbeat %}
+                                    {% endif %}
+                                    {% set compaction_state, timestamp = instance.get_compaction_shard_member_state_by_name(shard.shard_string, member.name) %}
+                                    {% if compaction_state and timestamp %}
+                                        {% set compaction_state = '{} | {}'.format(compaction_state, timestamp) %}
+                                    {% endif %}
+                                    <tr>
+                                        <td>{{ member.stateStr }}</td>
+                                        <td>{{ member_health }}</td>
+                                        <td>{{ zone }}</td>
+                                        <td>{{ delay }}</td>
+                                        <td>{{ heartbeat }}</td>
+                                        <td>{{ compaction_state }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<!-- End shard info

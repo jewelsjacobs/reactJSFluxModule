@@ -204,64 +204,13 @@ TODO:
         </div>
     {% endcall %}
 
-    {% call detail_section(title='Shards', collapsible=True) %}
-        <div class="rs-btn-group">
-            <form action="{{ url_for('add_shard', selected_instance=instance.name) }}" method="POST">
-                <button type="submit" class="rs-btn rs-btn-primary">Add Shard</button>
-            </form>
-        </div>
-
-        <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
-            <table class="rs-list-table rs-embedded-list-table">
-                <thead>
-                    <tr>
-                        <th class="rs-table-cog"></th>
-                        <th>Name</th>
-                        <th>Plan</th>
-                        <th>Data Size</th>
-                        <th>Index Size</th>
-                        <th>Storage Size</th>
-                        <th>File Size</th>
-                        <th>Shard Balance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for shard in instance.shards %}
-                    {% set primary = shard.replica_set.primary %}
-                    {% set shard_statistics = aggregate_stats[shard.name] %}
-                    {% set primary_oplog_time = primary.oplog_time %}
-                    <tr>
-                        <td class="rs-table-cog">
-                            <div class="rs-dropdown">
-                                <div class="rs-cog rs-dropdown-toggle"></div>
-                                <ul class="rs-dropdown-menu">
-                                    <li><span class="rs-dropdown-category" id="first">Identify</span></li>
-                                    <li><a href="javascript:void(0);">Edit Item&hellip;</a></li>
-                                    <li><a href="javascript:void(0);">Delete Item&hellip;</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                        <!-- FIXME -->
-                        <td class="rs-table-text"><a href="{ url_for('shard', selected_instance=instance.name, selected_shard_string=shard.shard_string )}">{{ shard.name }}</a></td>
-                        <td class="rs-table-text">{{ shard.plan }}</td>
-                        <td class="rs-table-text">{{ shard_statistics[Constants.DATA_SIZE_IN_BYTES]|filesizeformat }}</td>
-                        <td class="rs-table-text">{{ shard_statistics[Constants.INDEX_SIZE_IN_BYTES]|filesizeformat }}</td>
-                        <td class="rs-table-text">{{ shard_statistics[Constants.STORAGE_SIZE_IN_BYTES]|filesizeformat }}</td>
-                        <td class="rs-table-text">{{ shard_statistics[Constants.FILE_SIZE_IN_BYTES]|filesizeformat }}</td>
-                        <td class="rs-table-text">
-                            <div class="rs-progress">
-                                <div class="rs-progress-inner">
-                                    <div class="rs-segment" style="width: {{ shard_statistics[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE]|round(1) }}%">
-                                        <div class="rs-bar rs-bar-ok"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+        {% set shard_section_title = 'Shards' %}
+    {% else %}
+        {% set shard_section_title = 'Replica Set' %}
+    {% endif %}
+    {% call detail_section(title=shard_section_title, collapsible=True) %}
+        {% include 'instances/shard_info.html' %}
     {% endcall %}
 
     {% call detail_section(title='Security', collapsible=True) %}
