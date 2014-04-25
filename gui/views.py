@@ -1912,6 +1912,26 @@ def admin_create_instance():
     return redirect(url_for('admin_instance_management'))
 
 
+@app.route('/<instance_name>/compact', methods=['POST'])
+@viper_auth
+def compact_instance(instance_name):
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, instance_name)
+
+    if not instance.stepdown_scheduled:
+        flash('Please schedule a stepdown window for before requesting compaction.', 'warning')
+        return redirect(url_for('instance_details', selected_instance=instance_name))
+
+    compaction_state = instance.compression.get(instance.COMPACTION_STATE)
+    acceptable_states = (None, instance.COMPACTION_STATE_COMPRESSED, instance.COMPACTION_STATE_ABORTED)
+    if compaction_state not in acceptable_states:
+        flash('Instance %s is currently undergoing compaction.' % instance.name, Constants.FLASH_ERROR)
+        return redirect(url_for('instance_details', selected_instance=instance_name))
+
+    instance.request_compression()
+    flash('Compaction requested for instance %s.' % instance.name, 'ok')
+    return redirect(url_for('instance_details', selected_instance=instance_name))
+
 @app.route('/instances/<selected_instance>/repair', methods=['POST'])
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
