@@ -206,11 +206,13 @@ TODO:
 
     {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
         {% set shard_section_title = 'Shards' %}
+        {% set shard_section_include = 'instances/shard_info.html' %}
     {% else %}
         {% set shard_section_title = 'Replica Set' %}
+        {% set shard_section_include = 'instances/replica_set_info.html' %}
     {% endif %}
     {% call detail_section(title=shard_section_title, collapsible=True) %}
-        {% include 'instances/shard_info.html' %}
+        {% include shard_section_include %}
     {% endcall %}
 
     {% call detail_section(title='Security', collapsible=True) %}
