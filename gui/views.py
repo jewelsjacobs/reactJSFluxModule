@@ -685,6 +685,8 @@ def add_instance_user(selected_instance):
     return redirect(url_for('instances'))
 
 
+# TODO(Anthony): This route should be broken into two routes. One for DB creation,
+# and one for user creation.
 @app.route('/create_instance_user/<selected_instance>', methods=['GET', 'POST'])
 @app.route('/create_instance_user/<selected_instance>/<selected_database>', methods=['GET', 'POST'])
 @exclude_admin_databases(check_argument='selected_database')
@@ -704,6 +706,10 @@ def create_instance_user(selected_instance, selected_database=None):
             if user_instance.has_database(selected_database):
                 # The database exists, just add a user to it.
                 user_instance.add_user(selected_database, user, password)
+
+                # Redirect to database because that's where this request came from.
+                # See refactor note above.
+                return redirect(url_for('database', selected_instance=selected_instance, selected_database=selected_database))
             else:
                 # The database does not exist, add it and the user.
                 user_instance.add_database(selected_database, user, password)
@@ -736,7 +742,7 @@ def create_instance_user(selected_instance, selected_database=None):
 
             flash(flash_message, Constants.FLASH_ERROR)
 
-    return redirect(url_for('database', selected_instance=selected_instance, selected_database=selected_database))
+        return redirect(url_for('instance_details', selected_instance=selected_instance))
 
 
 @app.route('/delete_instance_user/<selected_instance>/<selected_database>', methods=['GET', 'POST'])
@@ -875,12 +881,13 @@ def collection(selected_instance, selected_database, selected_collection):
         sample_document = None
 
     return render_template('instances/collection.html',
-                           instance=user_instance,
-                           database=user_database,
                            chunks=chunks,
                            collection=user_collection,
-                           sample_document=sample_document,
+                           database=user_database,
                            indexes=indexes,
+                           instance=user_instance,
+                           login=g.login,
+                           sample_document=sample_document,
                            selected_tab=selected_tab,
                            shard_keys=shard_keys)
 

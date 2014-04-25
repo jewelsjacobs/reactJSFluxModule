@@ -1,10 +1,7 @@
 {% extends 'web_app_base.html' %}
 
 {% block nav_secondary_content %}
-    <!-- TODO:
-    - Add class 'active' to the active 'li' view.
-    -->
-    <li class="rs-nav-item active"><a class="rs-nav-link" href="javascript:void(0);">Account Settings</a></li>
+    <li class="rs-nav-item active"><a class="rs-nav-link" href="#">Account Settings</a></li>
 {% endblock nav_secondary_content %}
 
 {% block title %}
@@ -39,8 +36,8 @@
                     </button>
                     <ul class="rs-dropdown-menu" style="right:0;">
                         <li><span class="rs-dropdown-category">Manage</span></li>
-                        <li><a data-popover="contact-information-popover" data-popover-target="contact-information-target" data-popover-position="right" class="rs-popover-source" href="javascript:void(0);">Update Info&hellip;</a></li>
-                        <li><a data-popover="update-password-popover" data-popover-target="update-password-target" data-popover-position="right" class="rs-popover-source" href="javascript:void(0);">Update Password&hellip;</a></li>
+                        <li><a data-popover="contact-information-popover" data-popover-target="contact-information-target" data-popover-position="right" class="rs-btn rs-btn-link rs-popover-source">Update Info&hellip;</a></li>
+                        <li><a data-popover="update-password-popover" data-popover-target="update-password-target" data-popover-position="right" class="rs-btn rs-btn-link rs-popover-source">Update Password&hellip;</a></li>
                     </ul>
                 </div>
             </div>

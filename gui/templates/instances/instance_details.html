@@ -126,23 +126,6 @@ TODO:
         </ul>
     {% endcall %}
 
-    {% call detail_section(title='Active Operations', collapsible=True) %}
-        <ul class="rs-detail-list">
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Database Repair</div>
-                <div class="rs-detail-value">
-                    <span class="rs-status rs-status-disabled">Not running</span>
-                </div>
-            </li>
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Database Copy</div>
-                <div class="rs-detail-value">
-                    <span class="rs-status rs-status-processing">In progress</span>
-                </div>
-            </li>
-        </ul>
-    {% endcall %}
-
     {% call detail_section(title='Databases', collapsible=True) %}
         <!-- FIXME(Anthony): This is jank. This logic should be pulled into the controller. -->
         {% set add_database_enabled = is_sharded_instance or (not is_sharded_instance and databases|count < max_databases_per_replica_set_instances) %}
@@ -384,7 +367,7 @@ TODO:
         <div class="rs-popover-content">
             <div class="rs-popover-body">
                 <form id="delete-database-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('drop_database') }}" method="POST">
-                    <p><strong>Permanently delete</strong> database <span id="delete-database-popover-name"></span>?</p>
+                    <p><b>Permanently delete</b> database <b id="delete-database-popover-name"></b>?</p>
                     <p>This will permanently delete all data within this database!</p>
                     <input name="instance" type="hidden" value="{{ instance.name }}">
                     <input id="delete-database-db-input" name="db" type="hidden" value="">
