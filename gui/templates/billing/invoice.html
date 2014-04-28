@@ -12,12 +12,6 @@
 {% set amount_due = '%8.2f' | format(invoice.amount_due / 100) %}
 {% set invoice_status = 'Paid In Full' if invoice.paid else 'Payment Due' %}
 
-
-{% block nav_secondary_content %}
-<li class="rs-nav-item"><a class="rs-nav-link" href="{{ url_for('billing') }}">Billing</a></li>
-<li class="rs-nav-item active"><a class="rs-nav-link">Invoices</a></li>
-{% endblock %}
-
 {% block title %}
 Invoice {{ invoice['id'] }}
 {% endblock %}
