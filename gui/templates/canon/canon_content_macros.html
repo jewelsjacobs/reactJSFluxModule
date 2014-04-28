@@ -95,3 +95,15 @@
     </form>
     <!-- end create view -->
 {% endmacro %}
+
+{% macro nav_secondary_content() %}
+                <div class="rs-nav-secondary">
+                    <div class="rs-container">
+                        <ul class="rs-nav">
+                            <!-- nav_secondary content -->
+                            {{ caller() }}
+                            <!-- end nav_secondary content -->
+                        </ul>
+                    </div>
+                </div>
+{% endmacro %}

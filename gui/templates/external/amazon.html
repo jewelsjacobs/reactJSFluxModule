@@ -1,7 +1,9 @@
 {% extends "web_app_base.html" %}
 
-{% block nav_secondary_content %}
-    {% include "external/external_secondary_nav.html" %}
+{% block nav_secondary %}
+    {% call nav_secondary_content() %}
+        {% include "external/external_secondary_nav.html" %}
+    {% endcall %}
 {% endblock %}
 
 {% block sidebar %}
