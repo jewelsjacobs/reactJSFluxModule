@@ -64,10 +64,8 @@ TODO:
                     <p>{{ status_message }}</p>
                     <div class="rs-control-group">
                         <div class="rs-controls">
+                            <a href="{{ url_for('sign_up2') }}" class="rs-btn rs-btn-secondary">Back</a>
                             <button class="rs-btn rs-btn-primary" type="submit">Create Instance</button>
-                            <button class="rs-btn rs-btn-secondary" href="{{ url_for('sign_up2') }}">Instance
-                                Information
-                            </button>
                         </div>
                     </div>
                 {% else %}
@@ -77,10 +75,8 @@ TODO:
                     <p>{{ status_message }}</p>
                     <div class="rs-control-group">
                         <div class="rs-controls">
+                            <a href="{{ url_for('sign_up2') }}" class="rs-btn rs-btn-secondary">Back</a>
                             <button class="rs-btn rs-btn-primary" href="/">Log In</button>
-                            <button class="rs-btn rs-btn-secondary" href="{{ url_for('sign_up2') }}">Instance
-                                Information
-                            </button>
                         </div>
                     </div>
                 {% endif %}
