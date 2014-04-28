@@ -4,183 +4,183 @@
     Dashboard
 {% endblock title %}
 
+<<<<<<< Updated upstream
+=======
+{% block style %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="/static/css/dygraph.css"/>
+{% endblock style %}
+
+
+{% if has_instances %}
+    {% block nav_secondary_content %}
+        {% for _instance in instances %}
+            <li class="rs-nav-item{% if _instance.name == instance.name %} active{% endif %}"><a class="rs-nav-link" href="{{ url_for('dashboard', selected_instance=_instance.name) }}">{{ _instance.name }}</a></li>
+        {% endfor %}
+    {% endblock nav_secondary_content %}
+{% endif %}
+
+>>>>>>> Stashed changes
 {% block content_area_body %}
-    <div class="rs-inner">
+    <!-- rs inner -->
+    <div class="rs-detail-header">
         <h2 class="rs-page-title">Dashboard</h2>
+    </div>
 
-        <div class="stats-well">
-            <table class="table table-striped" width=100%>
-                <tr>
-                    <td>Queries/Sec</td><td>Inserts/Sec</td><td>Updates/Sec</td><td>Deletes/Sec</td><td>Commands/Sec</td>
-                </tr>
-                <tr>
-                    <td><span class="lead" id="query">0</span></td>
-                    <td><span class="lead" id="insert">0</span></td>
-                    <td><span class="lead" id="update">0</span></td>
-                    <td><span class="lead" id="delete">0</span></td>
-                    <td><span class="lead" id="command">0</span></td>
-                </tr>
-            </table>
-        </div>
-        <div class="histogram-well">
-            <h6>Opcounters/Sec</h6>
-            <div class="pull-right" id="graphdiv-legend1"></div>
-            <br>
+    {% if not has_instances %}
 
-            <div class="well-graph" id="graphdiv1"></div>
-            <br>
-
-            <h6>Network/Sec</h6>
-            <div class="pull-right" id="graphdiv-legend2"></div>
-            <br>
-
-            <div class="well-graph" id="graphdiv2"></div>
-            <br>
-
-            <h6>Disk Space Usage</h6>
-            <div class="pull-right" id="graphdiv-legend3"></div>
-            <br>
-
-            <div class="well-graph" id="graphdiv3"></div>
-            <br>
-        </div>
-        <iframe src="https://rpm.newrelic.com/public/charts/lhkU651Os5U" width="500" height="300" scrolling="no" frameborder="no"></iframe>
-        <iframe src="https://rpm.newrelic.com/public/charts/lfQcYbJfH0V" width="500" height="300" scrolling="no" frameborder="no"></iframe>
-
-        {% if not has_instances %}
+        {% call detail_section() %}
             {% if not account.stripe_account or account.invoiced %}
-                <div class="row-fluid">
-                    <div class="alert alert-info">
-                        <strong>To create an instance, you'll need to add your credit card information below.</strong>
-                    </div>
-                    <form id="enter_cc_form" name="add_cc_form" method="POST" action="{{ url_for('set_credit_card') }}" windowTitle="Add Credit Card" windowLabel="Add Card">
-                        <button type="button" id="add_cc_button" class="btn btn-success cc_button">Add Credit Card</button>
+                <div class="rs-btn-group">
+                    <div class="alert alert-info"><strong>To create an instance, you'll need to add your credit card information below.</strong></div>
+                    <form id="enter_cc_form" name="add_cc_form" action="{{ url_for('set_credit_card') }}" method="POST" windowTitle="Add Credit Card" windowLabel="Add Card" class="rs-form-horizontal rs-form-small">
+                        <button type="button" id="add_cc_button" class="rs-btn rs-btn-primary cc_button">Add Credit Card</button>
                         <input type="hidden" name="stripe_token" id="stripe_token" returntarget="/">
                     </form>
                 </div>
             {% else %}
-                <div class="row-fluid">
-                    <div class="alert alert-info">
-                        You don't have any instances defined. You can <a href="{{ url_for('instances') }}">add an instance here.</a>
-                    </div>
+                <div class="rs-btn-group">
+                    <div class="alert alert-info">You don't have any instances defined.</div>
+                    <a href="{{ url_for('instances_create') }}" class="rs-btn rs-btn-primary">Add Instance</a>
                 </div>
             {% endif %}
-        {% else %}
-            <div class="row-fluid">
-                <div class="span9">
+        {% endcall %}
 
-                    <div class="input-append">
-                        <div class="btn-group">
-                            <a class="btn btn-primary btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
-                                Instance: {{ instance.name }}
-                                <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                {% for instance in instances %}
-                                    <li><a href="{{ url_for('dashboard', selected_instance=instance.name) }}">{{ instance.name }}</a></li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
+    {% else %}
 
-                    <div class="stats-well">
-                        <table class="table table-striped" width=100%>
-                            <tr>
-                                <td>Queries/Sec</td>
-                                <td>Inserts/Sec</td>
-                                <td>Updates/Sec</td>
-                                <td>Deletes/Sec</td>
-                                <td>Commands/Sec</td>
-                            </tr>
-                            <tr>
-                                <td><span class="lead" id="query">0</span></td>
-                                <td><span class="lead" id="insert">0</span></td>
-                                <td><span class="lead" id="update">0</span></td>
-                                <td><span class="lead" id="delete">0</span></td>
-                                <td><span class="lead" id="command">0</span></td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div class="histogram-well">
-                        <h6>Opcounters/Sec</h6>
-                        <div class="pull-right" id="graphdiv-legend1"></div>
-                        <br>
-
-                        <div class="well-graph" id="graphdiv1"></div>
-                        <br>
-
-                        <h6>Network/Sec</h6>
-                        <div class="pull-right" id="graphdiv-legend2"></div>
-                        <br>
-
-                        <div class="well-graph" id="graphdiv2"></div>
-                        <br>
-
-                        <h6>Disk Space Usage</h6>
-                        <div class="pull-right" id="graphdiv-legend3"></div>
-                        <br>
-
-                        <div class="well-graph" id="graphdiv3"></div>
-                        <br>
-                    </div>
-                </div>
-
-                <!-- FIXME: -->
-                <div class="span3">
-                    <div class="status-well">
-                        {% for state in status %}
-                            <span class="status status-warning" rel="{{ state['_id'] }}" title="{{ state['description'] }}" name="{{ state['_id'] }}" id="{{ state['_id'] }}">{{ state['_id'] }}</span>
-                        {% endfor %}
-
-                        <br><br>
-                        <a rel="status_what" title="Status" id="status" data-content="Status shows the status of the various elements of the ObjectRocket system.  Each element shows a simple color to indicate it's status.<br><ul><li><span class='status status-success'>&nbsp;</span>  The component is functioning normal</li><li><span class='status status-warning'>&nbsp;</span>  The component may have a fault, but service is not effected</li><li><span class='status status-important'>&nbsp;</span> The component has experienced a fault.</li></ul><br>More detail on the component failures and/or any service interuptions and/or maintenance can be seen in the <a href={{ url_for('notifications') }}>messages</a> area.">What is this?</a>
-                    </div>
-
-                    <div class="plan-well">
-                        <table class="table">
-                            <thead>
-                                <tr><th>Plan</th><th>Zone</th><th>Shards</th><th>Total Size</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>{{ instance.plan }}GB</td><td>{{ instance.zone }}</td><td>{{ instance.shard_count }}</td><td>{{ instance.size }}GB</td></tr>
-                            </tbody>
-                        </table>
-
-                        <!-- FIXME: -->
-                        <a href="{ url_for('cluster', selected_instance=instance.name) }" class="btn btn-primary btn-small">Manage Shards</a>
-
-                        <br><br>
-                        <a rel="plan_what" title="Plan" id="plan" data-content="ObjectRocket is a sharded system, when you add space, you do so by adding a shard.  Shards are added in the plan size.  Shards can be added manually at any time, or automatically via the RocketScale&trade; service.">What is this?</a>
-                    </div>
-
-                    <div class="messages-well">
-                        {% if messages|count > 0 %}
-                            {% for message in messages %}
-                                <p class="text-warning"><i class="icon-comment"></i> <b>{{ message.date.strftime('%Y-%m-%d %H:%M:%S') }}</b><br>{{ message.message }}</p>
-                            {% endfor %}
-                        {% else %}
-                            <p class="muted">No Messages</p>
-                        {% endif %}
-
-                        <div class="pull-right"><a href="{{ url_for('notifications') }}">All Messages</a></div>
-                        <a rel="messages_what" title="Messages" id="messages" data-content="This area is when messages about any system issues, actions taken by the system on your behalf, or account or billing problems will be shown. More detail on messages is <a href={{ url_for('notifications') }}>available here</a>.">What is this?</a>
-                    </div>
-
-                    <div class="tips-well">
-                        <p class="muted"><i class="icon-flag"></i> Did you know you can use the command line utilities <a href="https://github.com/objectrocket/rocketstat">rocketstat</a> and <a href="https://github.com/objectrocket/rockettop">rockettop</a> to show performance via the API similar to mongostat and mongotop?</p>
-                    </div>
-                </div>
+        {% call detail_section(title="Stats") %}
+            <div class="stats-well">
+                <table class="table table-striped" width="100%">
+                    <tr>
+                        <td>Queries/Sec</td>
+                        <td>Inserts/Sec</td>
+                        <td>Updates/Sec</td>
+                        <td>Deletes/Sec</td>
+                        <td>Commands/Sec</td>
+                    </tr>
+                    <tr>
+                        <td><span class="lead" id="query">0</span></td>
+                        <td><span class="lead" id="insert">0</span></td>
+                        <td><span class="lead" id="update">0</span></td>
+                        <td><span class="lead" id="delete">0</span></td>
+                        <td><span class="lead" id="command">0</span></td>
+                    </tr>
+                </table>
             </div>
-        {% endif %}
-    </div>
+        {% endcall %}
 
-    <!-- % include 'credit_card_management.html' % -->
+        {% call detail_section(title="Histograms") %}
+            <div class="histogram-well">
+                <h6>Opcounters/Sec</h6>
+                <div class="pull-right" id="graphdiv-legend1"></div>
+                <br/>
 
+                <div class="well-graph" id="graphdiv1"></div>
+                <br/>
+
+                <h6>Network/Sec</h6>
+                <div class="pull-right" id="graphdiv-legend2"></div>
+                <br/>
+
+                <div class="well-graph" id="graphdiv2"></div>
+                <br/>
+
+                <h6>Disk Space Usage</h6>
+                <div class="pull-right" id="graphdiv-legend3"></div>
+                <br/>
+
+                <div class="well-graph" id="graphdiv3"></div>
+                <br/>
+            </div>
+        {% endcall %}
+
+        {% call detail_section(title="Status") %}
+            <div class="status-well">
+            {% for s in status %}
+                <span class="status status-warning" rel="{{ s['_id'] }}" title="{{ s['description'] }}" name="{{ s['_id'] }}" id="{{ s['_id'] }}">{{ s['_id'] }}</span>
+            {% endfor %}
+                <br/><br/>
+                <a rel="status_what" title="Status" id="status" data-content="
+                    Status shows the status of the various elements of the ObjectRocket system.  Each element shows a simple
+                    color to indicate it's status.<br/>
+                    <ul>
+                    <li><span class='status status-success'>&nbsp;</span>  The component is functioning normal</li>
+                    <li><span class='status status-warning'>&nbsp;</span>  The component may have a fault, but service is not effected</li>
+                    <li><span class='status status-important'>&nbsp;</span> The component has experienced a fault.</li>
+                    </ul><br/>
+                    More detail on the component failures and/or any service interuptions and/or maintenance can be seen in the
+                    <a href={{ url_for('notifications') }}>notifications</a> area.">What is this?
+                </a>
+            </div>
+        {% endcall %}
+
+        {% call detail_section(title="Plan") %}
+            <div class="plan-well">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Plan</th>
+                        <th>Zone</th>
+                        <th>Shards</th>
+                        <th>Total Size</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ instance.plan }}GB</td>
+                            <td>{{ instance.zone }}</td>
+                            <td>{{ instance.shard_count }}</td>
+                            <td>{{ instance.size }}GB</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <a href="{{ url_for('cluster', selected_instance=instance.name) }}" class="rs-btn rs-btn-primary">{% if instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE %}Manage Members{% else %}Manage Shards{% endif %}</a>
+                <br/><br/>
+                <a rel="plan_what" title="Plan" id="plan" data-content="
+                    ObjectRocket is a sharded system, when you add space, you do
+                    so by adding a shard.  Shards are added in the plan size.  Shards can be added manually at any time, or automatically via the RocketScale&trade; service.
+                    ">What is this?
+                </a>
+            </div>
+        {% endcall %}
+
+        {% call detail_section(title="Messages") %}
+            <div class="messages-well">
+                {% if messages|count > 0 %}
+                    {% for m in messages %}
+                        <p class="text-warning">
+                            <i class="icon-comment"> </i> <b>{{  m.date.strftime('%Y-%m-%d %H:%M:%S') }}</b><br/> {{ m.message }}
+                        </p>
+                    {% endfor %}
+
+                {% else %}
+                    <p class="muted">No Messages</p>
+                {% endif %}
+
+                <div class="pull-right"><a href="{{ url_for('notifications') }}">Notifications</a></div>
+                <a rel="messages_what" title="Messages" id="messages" data-content="
+                    This area is when messages about any system issues, actions taken by the system on your behalf, or account or billing problems will be shown. More detail on messages is <a href={{ url_for('notifications') }}>available here</a>.
+                    ">What is this?
+                </a>
+            </div>
+        {% endcall %}
+
+        {% call detail_section(title="Tips") %}
+            <div class="tips-well">
+                <p class="muted">
+                    <i class="icon-flag"> </i> Did you know you can use the command line utilities
+                    <a href="https://github.com/objectrocket/rocketstat">rocketstat</a> and <a href="https://github.com/objectrocket/rockettop">rockettop</a> to show performance via the API similar to mongostat and mongotop?
+                </p>
+            </div>
+        {% endcall %}
+
+    {% endif %}
 {% endblock content_area_body %}
 
 {% block script %}
     {{ super() }}
+
+    <script type="text/javascript" src="/static/js/dygraph-combined.js"></script>
     <script type="text/javascript">
 
     // Timeseries graphs.
@@ -188,125 +188,109 @@
     var networkURL = "{{ url_for('api_timeseries', name='network', selected_instance=instance.name) }}";
     var diskURL = "{{ url_for('api_timeseries', name='disk', selected_instance=instance.name) }}";
 
-    function getTimeseriesData(url,name){
-    $.get(url, {}, function(data) {
-      // console.log(data);
-      name.updateOptions( { 'file': data } );
+    function getTimeseriesData(url, name) {
+        $.get(url, {}, function(data) {
+            name.updateOptions( { 'file': data } );
+        });
+    }
+
+    var g1 = new Dygraph( document.getElementById("graphdiv1"), opcountersURL, {
+        legend: "always",
+        fillGraph: true,
+        gridLineColor: "#cccccc",
+        height: 100,
+        labelsDiv: "graphdiv-legend1",
+        labelsSeparateLines: false,
+        axisLabelFontSize: 10,
+        axisLabelColor: "#333333",
+        axisLineColor: "#333333",
+        maxNumberWidth: 12,
+        labels: [ "Date", "Getmore", "Insert", "Update", "Command", "Query", "Delete" ]
     });
+
+    var g2 = new Dygraph(document.getElementById("graphdiv2"), networkURL, {
+        legend: "always",
+        fillGraph: true,
+        gridLineColor: "#cccccc",
+        height: 100,
+        labelsDiv: "graphdiv-legend2",
+        labelsSeparateLines: false,
+        axisLabelFontSize: 10,
+        axisLabelColor: "#333333",
+        axisLineColor: "#333333",
+        maxNumberWidth: 12,
+        labelsKMG2: true,
+        labels: [ "Date", "BytesOut", "BytesIn" ]
+    });
+
+    var g3 = new Dygraph(document.getElementById("graphdiv3"), diskURL, {
+        legend: "always",
+        fillGraph: true,
+        gridLineColor: "#cccccc",
+        height: 100,
+        labelsDiv: "graphdiv-legend3",
+        labelsSeparateLines: false,
+        axisLabelFontSize: 10,
+        axisLabelColor: "#333333",
+        axisLineColor: "#333333",
+        maxNumberWidth: 12,
+        labelsKMG2: true,
+        stackedGraph: false,
+        labels: [ "Date", "Data Size", "File Size", "Storage Size", "Index Size" ]
+    });
+
+    // Set an elements value.
+    function setElement(id, value) {
+        if (id != "" && id != null && id != " ") {
+            document.getElementById(id).innerHTML = value;
+        }
     }
 
-    var g1 = new Dygraph(
-    document.getElementById("graphdiv1"),
-    opcountersURL,
-    {
-      legend: "always",
-      fillGraph: true,
-      gridLineColor: "#cccccc",
-      height: 100,
-      labelsDiv: "graphdiv-legend1",
-      labelsSeparateLines: false,
-      axisLabelFontSize: 10,
-      axisLabelColor: "#333333",
-      axisLineColor: "#333333",
-      maxNumberWidth: 12,
-      labels: [ "Date", "Getmore", "Insert", "Update", "Command", "Query", "Delete" ]
-    }
-    );
-
-    var g2 = new Dygraph(
-    document.getElementById("graphdiv2"),
-    networkURL,
-    {
-      legend: "always",
-      fillGraph: true,
-      gridLineColor: "#cccccc",
-      height: 100,
-      labelsDiv: "graphdiv-legend2",
-      labelsSeparateLines: false,
-      axisLabelFontSize: 10,
-      axisLabelColor: "#333333",
-      axisLineColor: "#333333",
-      maxNumberWidth: 12,
-      labelsKMG2: true,
-      labels: [ "Date", "BytesOut", "BytesIn" ]
-    }
-    );
-
-    var g3 = new Dygraph(
-    document.getElementById("graphdiv3"),
-    diskURL,
-    {
-      legend: "always",
-      fillGraph: true,
-      gridLineColor: "#cccccc",
-      height: 100,
-      labelsDiv: "graphdiv-legend3",
-      labelsSeparateLines: false,
-      axisLabelFontSize: 10,
-      axisLabelColor: "#333333",
-      axisLineColor: "#333333",
-      maxNumberWidth: 12,
-      labelsKMG2: true,
-      stackedGraph: false,
-      labels: [ "Date", "Data Size", "File Size", "Storage Size", "Index Size" ]
-    }
-    );
-
-    // set an elements value
-    function setElement(id,value){
-    if (id != "" && id != null && id != " "){
-       document.getElementById(id).innerHTML = value;
-    }
+    // Set an elements class.
+    function setElementClass(id, value) {
+        if (id != "" && id != null && id != " ") {
+            document.getElementById(id).className = value;
+        }
     }
 
-    // set an elements class
-    function setElementClass(id,value){
-    if (id != "" && id != null && id != " "){
-       document.getElementById(id).className = value;
-    }
+    // Get an elements value.
+    function getElement(id) {
+        return document.getElementById(id).innerHTML;
     }
 
-    // get an elements value
-    function getElement(id){
-    return document.getElementById(id).innerHTML;
+    function serverStatus(d) {
+        stats = ['query','insert','update','delete','command'];
+        for ( var i = 0; i < stats.length; i++ ) {
+            setElement(stats[i],d['data']['opcounters'][stats[i]]);
+        }
     }
 
-    function serverStatus(d){
-    stats = ['query','insert','update','delete','command'];
-    for ( var i = 0; i < stats.length; i++ ){
-      setElement(stats[i],d['data']['opcounters'][stats[i]]);
-    }
-    }
-
-    // FIXME:
     function fetchServerStatus(){
-    $.getJSON("{ url_for('api_serverstatus', selected_instance=instance.name) }", {}, function(json) {
-    //console.log(json);
-    serverStatus(json);
-    });
+        $.getJSON("{{ url_for('api_serverstatus', selected_instance=instance.name) }}", {}, function(json) {
+            serverStatus(json);
+        });
     }
 
     function refresh_status_box() {
-    $.getJSON('/api_status', function(data) {
-      var statuses = ['status-success', 'status-important', 'status-warning'];
+        $.getJSON('/api_status', function(data) {
+            var statuses = ['status-success', 'status-important', 'status-warning'];
 
-      data.data.forEach(function(element) {
-        var selector = $('#' + element._id),
-            status   = statuses[element.status];
+            data.data.forEach(function(element) {
+                var selector = $('#' + element._id),
+                status   = statuses[element.status];
 
-        if(!selector.hasClass(status)) {
-          selector.removeClass();
-          selector.addClass('status');
-          selector.addClass(status);
-        }
-
-      });
-    });
+                if(!selector.hasClass(status)) {
+                    selector.removeClass();
+                    selector.addClass('status');
+                    selector.addClass(status);
+                }
+            });
+        });
     }
 
 
     $(document).ready(function() {
-        $('.status').tooltip({"placement": "top"});
+        // $('.status').tooltip({"placement": "top"});
         refresh_status_box();
         setInterval(refresh_status_box, 9000);
 
@@ -319,11 +303,12 @@
         setInterval('getTimeseriesData(diskURL,g3)',4000);
 
         // Init popovers.
-        $("[rel=status_what]").popover({"placement":"left","html":true});
-        $("[rel=plan_what]").popover({"placement":"left","html":true});
-        $("[rel=messages_what]").popover({"placement":"left","html":true});
+        // $("[rel=status_what]").popover({"placement": "left", "html": true});
+        // $("[rel=plan_what]").popover({"placement": "left", "html": true});
+        // $("[rel=messages_what]").popover({"placement": "left", "html": true});
 
         var loaded=true;
+
     });
     </script>
 {% endblock script %}

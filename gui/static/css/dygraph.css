@@ -1,0 +1,21 @@
+    .dygraph-label {
+      /* This applies to the title, x-axis label and y-axis label */
+      font-family: helvetica, sans-serif;
+      font-color: #333333;
+      font-style: normal;
+      font-size: 12px;
+    }
+    .dygraph-title {
+      /* This rule only applies to the chart title */
+      font-size: 12px;
+      font-style: normal;
+      font-color: #333333;
+      font-family: helvetica, sans-serif;
+    }
+    .dygraph-ylabel {
+      font-size: 12px;
+      font-color: #333333;
+    }
+    .dygraph-label {
+      font-size: 12px;
+    }

@@ -718,6 +718,44 @@ def rename_instance():
     return redirect(url_for('instance_details', selected_instance=new_name))
 
 
+@app.route('/instances/<selected_instance>/cluster', methods=['GET', 'POST'])
+@viper_auth
+def cluster(selected_instance):
+    # account_manager = AccountManager(config)
+    # account = account_manager.get_account(g.login)
+
+    # instance_manager = InstanceManager(config)
+    # instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    # instance_total_file_size_in_bytes = 0
+
+    # all_shard_statistics = {}
+    # free_shard_count = None
+
+    # if instance.type == Constants.MONGODB_SHARDED_INSTANCE:
+    #     for shard in instance.shards:
+    #         shard_statistics = shard.replica_set.primary.aggregate_database_statistics
+    #         all_shard_statistics[shard.name] = shard_statistics
+    #         instance_total_file_size_in_bytes += shard_statistics[Constants.FILE_SIZE_IN_BYTES]
+
+    #     for shard_name in all_shard_statistics:
+    #         shard_statistics = all_shard_statistics[shard_name]
+    #         shard_file_size_in_bytes = shard_statistics[Constants.FILE_SIZE_IN_BYTES]
+    #         shard_statistics[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = shard_file_size_in_bytes / instance_total_file_size_in_bytes * 100
+
+    #     shard_manager = ShardManager(config)
+    #     free_shard_count = shard_manager.get_free_shard_count(instance.plan, instance.zone, instance.version)
+
+    # return render_template('cluster.html',
+    #                        account=account,
+    #                        all_shard_statistics=all_shard_statistics,
+    #                        Constants=Constants,
+    #                        instance=instance,
+    #                        shard_count=free_shard_count,
+    #                        utility=Utility)
+
+    return redirect(url_for('dashboard'))
+
+
 @app.route('/add_instance_user/<selected_instance>', methods=['GET', 'POST'])
 @viper_auth
 def add_instance_user(selected_instance):
