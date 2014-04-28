@@ -638,20 +638,21 @@ def rename_instance():
     if not current_name:
         message = "Cannot rename an empty instance name"
         app.logger.error(message)
-        return redirect(url_for('instances'))
+        return redirect(url_for('instance_details', selected_instance=current_name))
 
     if not new_name:
         message = "Cannot rename instance %s: A non-empty new instance name is required." % (current_name)
         flash(message, canon_constants.STATUS_ERROR)
-        return redirect(url_for('instances'))
+        return redirect(url_for('instance_details', selected_instance=current_name))
 
     if instance_manager.instance_exists(g.login, new_name):
         message = "Cannot rename instance %s to %s: An instance named %s already exists." % (current_name, new_name, new_name)
         flash(message, canon_constants.STATUS_ERROR)
-        return redirect(url_for('instances'))
+        return redirect(url_for('instance_details', selected_instance=current_name))
 
     instance_manager.rename_instance(g.login, current_name, new_name)
-    return redirect(url_for('instances'))
+    flash('Instance successfully renamed.', canon_constants.STATUS_OK)
+    return redirect(url_for('instance_details', selected_instance=new_name))
 
 
 @app.route('/add_instance_user/<selected_instance>', methods=['GET', 'POST'])
