@@ -4,6 +4,8 @@
     Dashboard
 {% endblock title %}
 
+{% block nav_secondary %}{% endblock nav_secondary %}
+
 {% block content_area_body %}
     <div class="rs-inner">
         <h2 class="rs-page-title">Dashboard</h2>
@@ -183,11 +185,10 @@
     {{ super() }}
     <script type="text/javascript">
 
-    // FIXME:
-    // timeseries graphs
-    var opcountersURL = "{ url_for('api_timeseries', name='opcounters', selected_instance=instance.name) }";
-    var networkURL = "{ url_for('api_timeseries', name='network', selected_instance=instance.name) }";
-    var diskURL = "{ url_for('api_timeseries', name='disk', selected_instance=instance.name) }";
+    // Timeseries graphs.
+    var opcountersURL = "{{ url_for('api_timeseries', name='opcounters', selected_instance=instance.name) }}";
+    var networkURL = "{{ url_for('api_timeseries', name='network', selected_instance=instance.name) }}";
+    var diskURL = "{{ url_for('api_timeseries', name='disk', selected_instance=instance.name) }}";
 
     function getTimeseriesData(url,name){
     $.get(url, {}, function(data) {

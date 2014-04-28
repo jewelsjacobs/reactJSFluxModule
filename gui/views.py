@@ -318,6 +318,69 @@ def api_status():
         return "{}"
 
 
+@app.route('/api_collection_stats/<selected_instance>/<database>/<collection>', methods=['GET', 'POST'])
+@viper_auth
+def api_collection_stats(selected_instance, database, collection):
+    url = "/db/%s/collection/%s/stats/get" % (database, collection)
+
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    response = fetch_api_data(user_instance.api_key, url)
+    response_data = json.loads(response)
+
+    # (Anthony) If an exception takes place in viper_api.controllers then response_data['data']
+    # will be a string, not a dict as is expected. Moreover, if a urllib exception takes place
+    # in fetch_api_data, then response_data will be an empty dict, causing a KeyError below.
+    if not isinstance(response_data.get('data'), dict):
+        return redirect(url_for('error'))
+
+    response_data['data']['collection'] = collection
+    return json.dumps(response_data)
+
+
+@app.route('/api_status/<selected_instance>', methods=['GET', 'POST'])
+@viper_auth
+def api_status_instance(selected_instance):
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    return api_url(user_instance.api_key, "status", selected_instance)
+
+
+@app.route('/api_timeseries/<name>/<selected_instance>', methods=['GET'])
+@viper_auth
+def api_timeseries(name, selected_instance):
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    if instance is None:
+        return ''
+    return instance.get_timeseries_data(name)
+
+
+@app.route('/api_serverStatus/<selected_instance>', methods=['GET'])
+@viper_auth
+def api_serverstatus(selected_instance):
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    if user_instance and user_instance.api_key:
+        return api_url(user_instance.api_key, "serverStatus/persecond/get", None)
+    else:
+        return "{}"
+
+
+# ----------------------------------------------------------------------------
+# Normal urls as part of the app.
+# ----------------------------------------------------------------------------
+
+
+@app.route('/error', methods=['GET'])
+def error():
+    login = session.get('login', '')
+    error_id = session.pop('error_id', '')
+    return render_template('500.html', login=login, error_id=error_id, support_email=config.SUPPORT_EMAIL)
+
+
 @app.route('/account')
 @viper_auth
 def account():
