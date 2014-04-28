@@ -772,10 +772,12 @@ def test_alarms(app_client):
         assert response.status_code == 200
 
 
-# @app.route('/<instance_name>/request_compaction', methods=['POST'])
-@xfail(reason="Test not implemented.")
-def request_compaction(app_client):
-    pass
+def test_compact_instance(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/{}/compact'.format(instance_name), follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 
 def test_admin_create_instance(app_client):
