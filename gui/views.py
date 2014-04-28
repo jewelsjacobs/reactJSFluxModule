@@ -25,6 +25,7 @@ from viper import config
 from werkzeug.datastructures import ImmutableMultiDict
 
 # ObjectRocket from imports.
+from canon import constants as canon_constants
 from viper import monitor
 from viper.account import AccountManager
 from viper.annunciator import Annunciator, Alarm
@@ -111,12 +112,12 @@ def viper_isadmin(func):
                 return func(*args, **kwargs)
             else:
                 flash('User "%s" does not have admin privileges.' % g.login,
-                      Constants.FLASH_WARN)
+                      canon_constants.STATUS_WARNING)
                 return redirect(url_for('default'))
         except Exception as ex:
             ex_info = '%s: %s' % (ex.__class__.__name__, ex)
             flash('Problem with admin function: %s' % ex_info,
-                  Constants.FLASH_ERROR)
+                  canon_constants.STATUS_ERROR)
             return redirect(url_for('admin'))
     return internal
 
@@ -243,7 +244,7 @@ def send_email(recipient, subject, body):
 @app.errorhandler(BillingException)
 def stripe_exception_handler(error):
     msg = "Billing Error: {}".format(error)
-    flash("There has been an error with your account. Please contact {}".format(config.SUPPORT_EMAIL))
+    flash("There has been an error with your account. Please contact support.", canon_constants.STATUS_ERROR)
     app.logger.error(msg)
     return redirect(url_for('account'))
 
@@ -251,7 +252,7 @@ def stripe_exception_handler(error):
 @app.errorhandler(MongoDBInstanceException)
 def mongo_instance_exception_handler(error):
     msg = "Instance Error: {0}".format(error)
-    flash("There has been an error with your mongo instance. Please contact support@objectrocket.com")
+    flash("There has been an error with your mongo instance. Please contact support.", canon_constants.STATUS_ERROR)
     app.logger.error(msg)
     return redirect(url_for('default'))
 
@@ -344,7 +345,7 @@ def update_account_contact():
     account_manager = AccountManager(config)
     account_manager.update_account_contact(g.login, company=company, email=email, name=name, phone=phone, zipcode=zipcode)
 
-    flash('Account successfully updated.', Constants.FLASH_INFO)
+    flash('Account successfully updated.', canon_constants.STATUS_OK)
 
     return redirect(url_for('account'))
 
@@ -361,7 +362,7 @@ def update_password():
     account_manager.update_password(account.login,
                                     request.form[Constants.PASSWORD])
 
-    flash('Password successfully updated.')
+    flash('Password successfully updated.', canon_constants.STATUS_OK)
     return redirect(url_for('account'))
 
 
@@ -442,13 +443,13 @@ def create_instance():
 
     if instance_manager.instance_exists(g.login, name):
         flash_message = "Cannot create instance '%s': an instance with this name already exists." % name
-        flash(flash_message, Constants.FLASH_ERROR)
+        flash(flash_message, canon_constants.STATUS_ERROR)
         return redirect(url_for('instances'))
 
     if not instance_manager.free_instance_count(plan_size_in_gb, zone, version, service_type, instance_type):
         flash_message = ("Cannot create instance '%s': no instances are available for plan %s, zone %s, version %s."
                          % (name, plan_size_in_gb, zone, version))
-        flash(flash_message, Constants.FLASH_ERROR)
+        flash(flash_message, canon_constants.STATUS_ERROR)
 
         subject = "Instance not available in UI."
         body = "Login %s attempted to add %s instance type %s with plan: %s zone: %s name: %s, version: %s" % (
@@ -463,16 +464,16 @@ def create_instance():
             account.add_instance(name, zone, plan_size_in_gb, version, service_type, instance_type)
         except Exception as ex:
             exception_uuid = Utility.obfuscate_exception_message(ex.message)
-            flash_message = ("There was a problem creating an instance. If this problem persists, contact <a mailto:%s>%s</a> "
-                             "and provide Error ID %s." % (config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid))
-            flash(flash_message, Constants.FLASH_ERROR)
+            flash_message = ("There was a problem creating an instance. If this problem persists, contact"
+                             "support and provide Error ID %s." % (exception_uuid))
+            flash(flash_message, canon_constants.STATUS_ERROR)
 
             log_message = "Failed to create instance for login %s, plan %s, zone %s, name %s: %s" % (g.login, plan_size_in_gb, zone, name, ex)
             app.logger.error(log_message)
             return redirect(url_for('instances'))
     else:
         flash_message = "Please contact support if you need more than %d instances"
-        flash(flash_message % config.MAX_INSTANCES_PER_USER, Constants.FLASH_WARN)
+        flash(flash_message % config.MAX_INSTANCES_PER_USER, canon_constants.STATUS_WARNING)
 
     # return redirect(url_for('instance_details', selected_instance=name))
     return redirect(url_for('instances'))
@@ -641,12 +642,12 @@ def rename_instance():
 
     if not new_name:
         message = "Cannot rename instance %s: A non-empty new instance name is required." % (current_name)
-        flash(message, Constants.FLASH_ERROR)
+        flash(message, canon_constants.STATUS_ERROR)
         return redirect(url_for('instances'))
 
     if instance_manager.instance_exists(g.login, new_name):
         message = "Cannot rename instance %s to %s: An instance named %s already exists." % (current_name, new_name, new_name)
-        flash(message, Constants.FLASH_ERROR)
+        flash(message, canon_constants.STATUS_ERROR)
         return redirect(url_for('instances'))
 
     instance_manager.rename_instance(g.login, current_name, new_name)
@@ -669,10 +670,9 @@ def add_instance_user(selected_instance):
         except Exception as ex:
             exception_uuid = Utility.obfuscate_exception_message(ex.message)
             flash_message = ("There was a problem updating user information for instance %s. If "
-                             "this problem persists, contact "
-                             "<a mailto:%s>%s</a> and provide Error ID %s." )
+                             "this problem persists, contact support and provide Error ID %s.")
 
-            flash_message = flash_message % (instance.name, config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid)
+            flash_message = flash_message % (instance.name, exception_uuid)
 
             error_info = {
                 'path': request.path,
@@ -680,7 +680,7 @@ def add_instance_user(selected_instance):
                 'context': 'gui'
             }
             Utility.log_traceback(config, exception_uuid, error_info)
-            flash(flash_message, Constants.FLASH_ERROR)
+            flash(flash_message, canon_constants.STATUS_ERROR)
 
     return redirect(url_for('instances'))
 
@@ -727,10 +727,9 @@ def create_instance_user(selected_instance, selected_database=None):
             if flash_message is None:
                 exception_uuid = Utility.obfuscate_exception_message(ex.message)
                 flash_message = ("There was a problem with your request. If "
-                                 "this problem persists, contact "
-                                 "<a mailto:%s>%s</a> and provide Error ID %s.")
+                                 "this problem persists, contact support and provide Error ID %s.")
 
-                flash_message = flash_message % (config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid)
+                flash_message = flash_message % (exception_uuid)
 
                 error_info = {
                     'path': request.path,
@@ -740,7 +739,7 @@ def create_instance_user(selected_instance, selected_database=None):
 
                 Utility.log_traceback(config, exception_uuid, error_info)
 
-            flash(flash_message, Constants.FLASH_ERROR)
+            flash(flash_message, canon_constants.STATUS_ERROR)
 
         return redirect(url_for('instance_details', selected_instance=selected_instance))
 
@@ -771,7 +770,7 @@ def drop_database():
     selected_instance = request.form['instance']
 
     if selected_database in Constants.ADMINISTRATIVE_DATABASES:
-        flash("Administrative databases cannot be dropped", Constants.FLASH_WARN)
+        flash("Administrative databases cannot be dropped.", canon_constants.STATUS_WARNING)
 
     # Verify this db actually belongs to this account.
     database_found = False
@@ -785,15 +784,15 @@ def drop_database():
     if database_found:
         try:
             instance.instance_connection.drop_database(selected_database)
-            flash("Database %s dropped." % selected_database, Constants.FLASH_INFO)
+            flash("Database %s dropped." % selected_database, canon_constants.STATUS_OK)
         except Exception as ex:
             exception_message = "Failed to drop database %s for account %s, instance %s: %s" % (selected_database, g.login, instance.name, ex)
             exception_uuid = Utility.obfuscate_exception_message(exception_message)
-            flash_message = ("A problem occurred while dropping database %s. If the problem persists, please contact <a href='mailto:%s'>%s</a> "
-                             "and provide Error ID %s." % (selected_database, config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid))
-            flash(flash_message, Constants.FLASH_ERROR)
+            flash_message = ("A problem occurred while dropping database %s. If the problem persists, please contact"
+                             "support and provide Error ID %s." % (selected_database, exception_uuid))
+            flash(flash_message, canon_constants.STATUS_ERROR)
     else:
-        flash("Error dropping database %s: database not found." % selected_database, Constants.FLASH_ERROR)
+        flash("Error dropping database %s: database not found." % selected_database, canon_constants.STATUS_ERROR)
 
     return redirect(url_for('instance_details', selected_instance=selected_instance))
 
@@ -814,10 +813,10 @@ def copy_database(selected_instance):
 
             # The database exists, just add a user to it
             user_instance.copy_database(database, database, connect_string, username, password)
-            flash('Database copy has been scheduled.', Constants.FLASH_INFO)
+            flash('Database copy has been scheduled.', canon_constants.STATUS_OK)
         except Exception as ex:
             flash_message = "Error copying database: %s" % ex
-            flash(flash_message, Constants.FLASH_ERROR)
+            flash(flash_message, canon_constants.STATUS_ERROR)
 
     return redirect(url_for('instance_details',
                             selected_instance = selected_instance))
@@ -909,9 +908,9 @@ def create_collection(selected_instance, selected_database):
             user_database.add_collection(request.form['collection'])
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
-        flash_message = ("There was a problem creating this collection. If this problem persists, contact <a mailto:%s>%s</a> "
-                         "and provide Error ID %s." % (config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid))
-        flash(flash_message, Constants.FLASH_ERROR)
+        flash_message = ("There was a problem creating this collection. If this problem persists, contact"
+                         "support and provide Error ID %s." % (exception_uuid))
+        flash(flash_message, canon_constants.STATUS_ERROR)
         app.logger.error(ex)
 
     return redirect(url_for('database',
@@ -938,9 +937,9 @@ def shard_collection(selected_instance, selected_db, selected_collection):
         user_database.shard_collection(selected_collection, shard_keys=shard_keys, create_indexes=create_indexes)
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
-        flash_message = ("There was a problem applying this shard key. If this problem persists, contact <a mailto:%s>%s</a> and "
-                         "provide Error ID %s." % (config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid))
-        flash(flash_message, Constants.FLASH_ERROR)
+        flash_message = ("There was a problem applying this shard key. If this problem persists, contact"
+                         " support and provide Error ID %s." % (exception_uuid))
+        flash(flash_message, canon_constants.STATUS_ERROR)
 
     return redirect(url_for('collection',
                             selected_instance=selected_instance,
@@ -973,11 +972,10 @@ def create_index(selected_instance, selected_db, selected_collection):
                                 index_name=index_name,
                                 unique=unique)
     except Exception as ex:
-        # # TODO: Refactor: Unused reference. flash() should probably be using this.
-        # exception_uuid = Utility.obfuscate_exception_message(ex.message)
-        # flash_message = ("There was a problem creating this index. If this problem persists, contact <a mailto:%s>%s</a> and "
-        #                  "provide Error ID %s." % (config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid))
-        flash(ex.message, Constants.FLASH_ERROR)
+        exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        flash_message = ("There was a problem creating this index. If this problem persists, contact"
+                         "support and provide Error ID %s." % (exception_uuid))
+        flash(flash_message, canon_constants.STATUS_ERROR)
 
     return redirect(url_for('collection',
                             selected_instance=selected_instance,
@@ -1010,7 +1008,7 @@ def clear_alarm():
 
     if alarm.login == g.login:
         annunciator.mark_alarm_as_cleared(alarm.id)
-        flash('Alarm cleared.')
+        flash('Alarm cleared.', canon_constants.STATUS_OK)
 
     return redirect(url_for('notifications'))
 
@@ -1046,15 +1044,13 @@ def reset_password():
 
             elif account is not None:
                 # Account is deactivated.
-                flash('The specified account is currently deactivated. '
-                      'Contact support@objectrocket.com to reactivate.',
-                      Constants.FLASH_WARN)
+                flash('The specified account is currently deactivated. Contact support to reactivate.',
+                      canon_constants.STATUS_WARNING)
                 return redirect(url_for('sign_in'))
 
             else:
                 # Account does not exist.
-                flash('The specified account does not exist.',
-                      Constants.FLASH_WARN)
+                flash('The specified account does not exist.', canon_constants.STATUS_ERROR)
                 return redirect(url_for('sign_in'))
 
         # User's token is valid, changing password (Step 3).
@@ -1068,15 +1064,13 @@ def reset_password():
                 password = request.form[Constants.PASSWORD]
 
                 account_manager.update_password(login, password)
-                flash('Password successfully reset. Please login.',
-                      Constants.FLASH_INFO)
+                flash('Password successfully reset. Please login.', canon_constants.STATUS_OK)
                 return redirect(url_for('sign_in'))
 
             except itsdangerous.BadSignature:
                 app.logger.info('Bad password reset token presented: %s'
                                 % token)
-                flash("Your password reset token was invalid. Try again.",
-                      Constants.FLASH_ERROR)
+                flash("Your password reset token was invalid. Try again.", canon_constants.STATUS_ERROR)
                 return redirect(url_for('sign_in'))
 
     # The user has a token and wants to validate it (Step 2).
@@ -1092,13 +1086,11 @@ def reset_password():
             except itsdangerous.BadSignature:
                 app.logger.info('Bad password reset token presented: %s'
                                 % token)
-                flash('Your password reset token was invalid. Try again.',
-                      Constants.FLASH_ERROR)
+                flash('Your password reset token was invalid. Try again.', canon_constants.STATUS_ERROR)
                 return redirect(url_for('sign_in'))
 
         else:
-            flash('Your password reset token was invalid. Try again.',
-                  Constants.FLASH_ERROR)
+            flash('Your password reset token was invalid. Try again.', canon_constants.STATUS_ERROR)
             return redirect(url_for('sign_in'))
 
 
@@ -1114,12 +1106,12 @@ def sign_in():
 
     account_manager = AccountManager(config)
     if not account_manager.authenticated(login, password):
-        flash('Sign in failed.', Constants.FLASH_ERROR)
+        flash('Sign in failed.', canon_constants.STATUS_ERROR)
         return render_template('sign_in/sign_in.html')
 
     session['login'] = login
 
-    flash('Sign in successful.')
+    flash('Sign in successful.', canon_constants.STATUS_OK)
 
     account = account_manager.get_account(login)
     if not account.accepted_msa:
@@ -1245,7 +1237,7 @@ def sign_up_finish():
         billing_manager.set_credit_card(g.login, request.form['stripe_token'])
     except BillingException:
         app.logger.info("Credit card declined during signup for user {}".format(g.login))
-        flash('There was a problem adding your credit card. Please try again.', Constants.FLASH_ERROR)
+        flash('There was a problem adding your credit card. Please try again.', canon_constants.STATUS_ERROR)
         return render_template('sign_up/sign_up3.html',
                                name=name,
                                plan=plan,
@@ -1384,10 +1376,10 @@ def set_credit_card():
 
     try:
         billing_manager.set_credit_card(g.login, request.form['stripe_token'])
-        flash('Credit card information updated.', Constants.FLASH_INFO)
+        flash('Credit card information updated.', canon_constants.STATUS_OK)
 
     except stripe.CardError as ex:
-        flash(ex.message, Constants.FLASH_ERROR)
+        flash(ex.message, canon_constants.STATUS_ERROR)
 
     if 'returntarget' in request.form:
         return redirect(url_for(request.form['returntarget']))
@@ -1441,15 +1433,15 @@ def add_new_relic_key():
         new_relic_key = request.form['license_key']
         account_manager = AccountManager(config)
         account_manager.add_new_relic_key(g.login, new_relic_key, enable_on_all_instances=True)
-        flash('Your New Relic license key was successfully updated. If your information does not appear on the New Relic site within 30 minutes, '
-              'please contact support.', "ok")
+        flash('Your New Relic license key was successfully updated. If your information does not appear on the New'
+        ' Relic site within 30 minutes, please contact support.', canon_constants.STATUS_OK)
 
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
         flash_message = ("There was a problem with your New Relic license key. If this problem persists and you "
                          "believe your key is valid, please contact support and provide Error ID {}.".format(
             exception_uuid))
-        flash(flash_message, Constants.FLASH_ERROR)
+        flash(flash_message, canon_constants.STATUS_ERROR)
 
     return redirect(url_for('new_relic'))
 
@@ -1461,13 +1453,13 @@ def delete_new_relic_key():
     try:
         account_manager = AccountManager(config)
         account_manager.delete_new_relic_key(g.login)
-        flash('Your New Relic license key was successfully deleted.', "ok")
+        flash('Your New Relic license key was successfully deleted.', canon_constants.STATUS_OK)
 
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
         flash_message = ("There was a problem with deleting your license key. If this problem persists, please contact "
                          "support and provide Error ID {}.".format(exception_uuid))
-        flash(flash_message, Constants.FLASH_ERROR)
+        flash(flash_message, canon_constants.STATUS_ERROR)
 
     return redirect(url_for('new_relic'))
 
@@ -1512,10 +1504,10 @@ def add_ec2_settings():
     if not aws_manager.validate_credentials():
         error = True
         flash("Your AWS keys could not be validated. If this problem persists and you believe your keys are valid, "
-              "please contact support.", Constants.FLASH_ERROR)
+              "please contact support.", canon_constants.STATUS_ERROR)
     elif ec2_security_group and not aws_manager.validate_security_group(ec2_security_group):
         error = True
-        flash("Invalid EC2 security group", Constants.FLASH_ERROR)
+        flash("Invalid EC2 security group", canon_constants.STATUS_ERROR)
 
     if error is True:
         return redirect(url_for('amazon'))
@@ -1529,7 +1521,8 @@ def add_ec2_settings():
         instance.update_attribute('settings.create_acls_for_aws_ips', ['on'])
 
     flash("""Your AWS keys were successfully updated.
-    If your AWS-synchronized ACLs are not applied within 30 minutes, please contact support.""", "ok")
+    If your AWS-synchronized ACLs are not applied within 30 minutes, please contact support.""",
+          canon_constants.STATUS_OK)
 
     return redirect(url_for('amazon'))
 
@@ -1541,13 +1534,13 @@ def delete_ec2_settings():
     try:
         account_manager = AccountManager(config)
         account_manager.delete_aws_credentials(g.login)
-        flash('Your AWS keys were successfully deleted.', Constants.FLASH_INFO)
+        flash('Your AWS keys were successfully deleted.', canon_constants.STATUS_OK)
 
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
         flash_message = """There was a problem with deleting your AWS keys.
         If this problem persists, please contact support and provide Error ID {}.""".format(exception_uuid)
-        flash(flash_message, Constants.FLASH_ERROR)
+        flash(flash_message, canon_constants.STATUS_ERROR)
         Utility.log_traceback(config, exception_uuid)
 
     return redirect(url_for('amazon'))
@@ -1564,7 +1557,7 @@ def add_shard(selected_instance):
 
     instance.add_shard()
     Utility.log_to_db(config, "Shard added.", {'login': g.login, 'area': 'gui'})
-    flash('Shard added successfully.')
+    flash('Shard added successfully.', canon_constants.STATUS_OK)
     return redirect(url_for('instance_details', selected_instance=selected_instance))
 
 
@@ -1642,7 +1635,7 @@ def admin_associate_user():
     login = request.form['login']
     customer_id = request.form['customer_id']
     if not login or not customer_id:
-        flash('Provide a valid UserID and CustomerID.', Constants.FLASH_WARN)
+        flash('Provide a valid UserID and CustomerID.', canon_constants.STATUS_ERROR)
         return redirect(url_for('admin_billing'))
 
     billing_manager = BillingManager(config)
@@ -1652,7 +1645,7 @@ def admin_associate_user():
         return redirect(url_for('admin_billing'))
     else:
         flash('Could not associate account "%s" with billing account "%s".'
-              % (login, customer_id), Constants.FLASH_ERROR)
+              % (login, customer_id), canon_constants.STATUS_ERROR)
         return redirect(url_for('admin_billing'))
 
 
@@ -1661,7 +1654,7 @@ def admin_associate_user():
 @viper_isadmin
 def admin_sync_user():
     if not request.form.get('login', None):
-        flash('Provide a valid account login.', Constants.FLASH_WARN)
+        flash('Provide a valid account login.', canon_constants.STATUS_ERROR)
         return redirect(url_for('admin'))
 
     login = request.form['login']
@@ -1670,14 +1663,14 @@ def admin_sync_user():
     account = account_manager.get_account(login)
 
     if account is None:
-        flash('Could not find account for "%s"' % login, Constants.FLASH_WARN)
+        flash('Could not find account for "%s"' % login, canon_constants.STATUS_ERROR)
         return redirect(url_for('admin_billing'))
     else:
         if billing_manager.synchronize_billing_details(account.login):
-            flash('Accounts have been synchronized for "%s".' % login, 'ok')
+            flash('Accounts have been synchronized for "%s".' % login, canon_constants.STATUS_OK)
         else:
             flash('Synchronization has failed. '
-                  'More information has been logged to the database.', Constants.FLASH_ERROR)
+                  'More information has been logged to the database.', canon_constants.STATUS_ERROR)
         return redirect(url_for('admin_billing'))
 
 
@@ -1689,9 +1682,9 @@ def set_user_invoiced():
     try:
         billing_manager = BillingManager(config)
         billing_manager.mark_account_as_manually_invoiced(account_name)
-        flash('User {} marked as invoiced.'.format(account_name), 'ok')
+        flash('User {} marked as invoiced.'.format(account_name), canon_constants.STATUS_OK)
     except Exception:
-        flash('Error marking user {} as invoiced: '.format(account_name), Constants.FLASH_ERROR)
+        flash('Error marking user {} as invoiced: '.format(account_name), canon_constants.STATUS_ERROR)
     return redirect(url_for('admin_billing'))
 
 
@@ -1705,9 +1698,10 @@ def set_invoice_amount():
         currency = request.form['currency']
         billing_manager = BillingManager(config)
         billing_manager.set_invoiced_amount(account_id, amount, currency)
-        flash('Invoiced amount set as {} {} for account {}.'.format(amount, currency, account_id), 'ok')
+        flash('Invoiced amount set as {} {} for account {}.'.format(amount, currency, account_id),
+              canon_constants.STATUS_OK)
     except Exception as ex:
-        flash('Error setting invoice amount for user {}: {}'.format(account_id, ex), Constants.FLASH_ERROR)
+        flash('Error setting invoice amount for user {}: {}'.format(account_id, ex), canon_constants.STATUS_ERROR)
     return redirect(url_for('admin_billing'))
 
 
@@ -1719,9 +1713,10 @@ def set_user_customplan():
     try:
         billing_manager = BillingManager(config)
         billing_manager.mark_account_with_custom_plan(account_name)
-        flash('User {} marked with custom Stripe plan.'.format(account_name), 'ok')
+        flash('User {} marked with custom Stripe plan.'.format(account_name), canon_constants.STATUS_OK)
     except Exception as ex:
-        flash('Error marking user {} with custom Stripe plan: {}'.format(account_name, ex), Constants.FLASH_ERROR)
+        flash('Error marking user {} with custom Stripe plan: {}'.format(account_name, ex),
+              canon_constants.STATUS_ERROR)
     return redirect(url_for('admin_billing'))
 
 
@@ -1735,7 +1730,7 @@ def admin_switch_user():
         session['login'] = user_id
         return redirect(url_for('dashboard'))
     else:
-        flash('Provide a valid user to switch to.', Constants.FLASH_ERROR)
+        flash('Provide a valid user to switch to.', canon_constants.STATUS_ERROR)
         return redirect(url_for('admin_user_management'))
 
 
@@ -1750,9 +1745,9 @@ def admin_remove_user():
 
     account = account_manager.get_account(login)
     if account is None:
-        flash('User "%s" does not exist.' % login, Constants.FLASH_ERROR)
+        flash('User "%s" does not exist.' % login, canon_constants.STATUS_ERROR)
     elif not account.active:
-        flash('User "%s" is already deactivated.' % login, Constants.FLASH_WARN)
+        flash('User "%s" is already deactivated.' % login, canon_constants.STATUS_WARNING)
     else:
         instance_manager.recycle_instances(account.login)
 
@@ -1772,7 +1767,7 @@ def admin_add_message():
         message = request.form.get('message', None)
 
         if not message:
-            flash("Empty body, no message sent.", Constants.FLASH_ERROR)
+            flash("Empty body, no message sent.", canon_constants.STATUS_ERROR)
         try:
             notifier = Notifier(config)
             if login:
@@ -1781,7 +1776,7 @@ def admin_add_message():
                 notifier.send_global_message(message)
             flash("Message posted", 'ok')
         except Exception as ex:
-            flash("Message send failed: %s" % ex, Constants.FLASH_ERROR)
+            flash("Message send failed: %s" % ex, canon_constants.STATUS_ERROR)
         return redirect(url_for('admin_status_management'))
 
 
@@ -1792,7 +1787,7 @@ def admin_set_status():
     status_manager = StatusManager(config)
     for i in request.form:
         status_manager.set_status(i, int(request.form[i]))
-    flash('Status updated.', 'ok')
+    flash('Status updated.', canon_constants.STATUS_OK)
     return redirect(url_for('admin_status_management'))
 
 
@@ -1880,13 +1875,13 @@ def admin_create_instance():
 
     if instance_manager.instance_exists(g.login, name):
         flash_message = "Cannot create instance '{}': an instance with this name already exists.".format(name)
-        flash(flash_message, Constants.FLASH_ERROR)
+        flash(flash_message, canon_constants.STATUS_ERROR)
         return redirect(url_for('admin_instance_management'))
 
     if not instance_manager.free_instance_count(plan_size_in_gb, zone, version, service_type, instance_type):
         flash_message = "Cannot create instance '{}': no instances available for plan {}, zone {}, version {}.".format(
             name, plan_size_in_gb, zone, version)
-        flash(flash_message, Constants.FLASH_ERROR)
+        flash(flash_message, canon_constants.STATUS_ERROR)
 
         subject = "Instance not available in UI."
         body = "Login {} attempted to add {} instance type {} with plan: {} zone: {} name: {}, version: {}".format(
@@ -1901,7 +1896,7 @@ def admin_create_instance():
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
         flash_message = ("There was a problem creating an instance. If this problem persists please contact support "
                          "and provide Error ID {}.".format(exception_uuid))
-        flash(flash_message, Constants.FLASH_ERROR)
+        flash(flash_message, canon_constants.STATUS_ERROR)
         log_message = "Failed to create instance for login {}, plan {}, zone {}, name {}: {}".format(g.login,
                                                                                                      plan_size_in_gb,
                                                                                                      zone,
