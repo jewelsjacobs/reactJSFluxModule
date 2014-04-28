@@ -1,39 +1,5 @@
 {% extends 'web_app_base.html' %}
 
-<!--
-TODO:
-- Cleanup sidebar help
--->
-
-{% block nav_secondary %}{% endblock nav_secondary %}
-
-{% block sidebar %}
-    {% call sidebar_help(hidden=False) %}
-        <h3>Managing This Product</h3>
-        <h4>Top action helpful text</h4>
-        <p>Short blurb about best practices for a top action on this item. Try to keep this to 3 lines maximum.</p>
-        <p><a target="blank" href="#">More Details About Blurb &raquo;</a></p>
-
-        <hr>
-        <h4>Help Me With...</h4>
-        <ul>
-            <li><a target="blank" href="#">Best Practice Number One</a></li>
-            <li><a target="blank" href="#">Best Practice Number Two</a></li>
-            <li><a target="blank" href="#">Best Practice Number Three</a></li>
-        </ul>
-        <p><a target="blank" href="#">Learn More about This Product &raquo;</a></p>
-
-        <hr>
-        <h4>What's Next</h4>
-        <ul>
-            <li><a target="blank" href="#">Top Action Number One</a></li>
-            <li><a target="blank" href="#">Top Action Number Two</a></li>
-            <li><a target="blank" href="#">Top Action Number Three</a></li>
-        </ul>
-        <p><a target="blank" href="#">Visit Our Knowledge Center &raquo;</a></p>
-    {% endcall %}
-{% endblock sidebar %}
-
 {% block back_link_area %}
     {% call back_link() %}
         <a href="/instances">&lsaquo; Back to Instances</a>
