@@ -41,6 +41,8 @@
     <li class="rs-nav-item"><a href="{{ url_for('external') }}">External Integration</a></li>
 {% endblock nav_primary_content %}
 
+{% block nav_secondary %}{% endblock nav_secondary %}
+
 {% block script %}
     {{ super() }}
     {% include 'jquery_validate_js.html' %}
