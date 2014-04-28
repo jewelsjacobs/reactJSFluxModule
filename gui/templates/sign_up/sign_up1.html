@@ -1,13 +1,8 @@
 {% extends 'sign_up/sign_up_base.html' %}
 
-<!--
-TODO:
-- Add JS for form submission
-    - redirect on POST success
-    - highlight error on POST failure
--->
-
 {% block nav_utility_content_login %}{% endblock nav_utility_content_login %}
+{% block nav_primary_content %}{% endblock nav_primary_content %}
+{% block nav_secondary %}{% endblock nav_secondary %}
 
 {% block sidebar %}
     {% call sidebar_help(hidden=False) %}
@@ -169,11 +164,12 @@ TODO:
                 errorClass: 'rs-validation-block',
                 errorElement: 'span',
                 highlight: function (label) {
+                    $(label).closest('.rs-control-group').removeClass('success');
                     $(label).closest('.rs-control-group').addClass('error');
                 },
                 success: function (label) {
-                    $(label).closest('.rs-control-group').addClass('success');
                     $(label).closest('.rs-control-group').removeClass('error');
+                    $(label).closest('.rs-control-group').addClass('success');
                 }
             });
 

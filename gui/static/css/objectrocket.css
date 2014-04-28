@@ -135,7 +135,7 @@ img.invoice-logo {
 
 /* === paragraph styles === */
 p.tos {
-    font-size: 10px;
+    font-size: 0.9em;
     text-align: left;
     text-indent: 0;
 }

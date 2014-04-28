@@ -5,6 +5,8 @@
     {{ super() }}
 {% endblock body %}
 
+{% block nav_secondary %}{% endblock nav_secondary %}
+
 {% block sidebar %}
     {% call sidebar_help(hidden=False) %}
         <h3>Billing</h3>
@@ -27,7 +29,6 @@
 
                 <div class="rs-control-group">
                     <div class="rs-controls">
-
                         <a href="{{ url_for('sign_up2') }}" class="rs-btn rs-btn-secondary">Previous</a>
                         <button type="button" id="add_cc_button" class="rs-btn rs-btn-primary cc_button">Add Credit Card</button>
                     </div>

@@ -5,6 +5,8 @@
     {{ super() }}
 {% endblock body %}
 
+{% block nav_secondary %}{% endblock nav_secondary %}
+
 {% block sidebar %}
     {% call sidebar_help(hidden=False) %}
         <h3>All plans include</h3>
