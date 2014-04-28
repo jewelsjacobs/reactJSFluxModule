@@ -4,23 +4,22 @@
     Dashboard
 {% endblock title %}
 
-<<<<<<< Updated upstream
-=======
 {% block style %}
     {{ super() }}
     <link rel="stylesheet" type="text/css" href="/static/css/dygraph.css"/>
 {% endblock style %}
 
+{% block nav_secondary %}
+    {% if has_instances %}
+        {% call nav_secondary_content() %}
+            {% for _instance in instances %}
+                <li class="rs-nav-item{% if _instance.name == instance.name %} active{% endif %}"><a class="rs-nav-link" href="{{ url_for('dashboard', selected_instance=_instance.name) }}">{{ _instance.name }}</a></li>
+            {% endfor %}
+        {% endcall %}
+    {% else %}
+    {% endif %}
+{% endblock nav_secondary %}
 
-{% if has_instances %}
-    {% block nav_secondary_content %}
-        {% for _instance in instances %}
-            <li class="rs-nav-item{% if _instance.name == instance.name %} active{% endif %}"><a class="rs-nav-link" href="{{ url_for('dashboard', selected_instance=_instance.name) }}">{{ _instance.name }}</a></li>
-        {% endfor %}
-    {% endblock nav_secondary_content %}
-{% endif %}
-
->>>>>>> Stashed changes
 {% block content_area_body %}
     <!-- rs inner -->
     <div class="rs-detail-header">
