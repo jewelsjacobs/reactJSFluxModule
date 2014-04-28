@@ -102,9 +102,6 @@ TODO:
     {% endcall %}
 
     {% call detail_section(title='Users', collapsible=True) %}
-        <div class="rs-btn-group">
-            <button id="add-user-target" data-popover="add-user-popover" data-popover-target="add-user-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source">Add User</button>
-        </div>
         <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
             <table class="rs-list-table rs-embedded-list-table">
                 <thead>
@@ -124,6 +121,11 @@ TODO:
                 {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div class="rs-btn-group">
+            <button id="add-user-target" data-popover="add-user-popover" data-popover-target="add-user-target"
+                    data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source">
+                Add User</button>
         </div>
     {% endcall %}
 
