@@ -5,6 +5,7 @@
 {%- from 'canon/canon_content_macros.html' import detail_header_actions with context %}
 {%- from 'canon/canon_content_macros.html' import detail_section with context %}
 {%- from 'canon/canon_content_macros.html' import generic_view with context %}
+{%- from 'canon/canon_content_macros.html' import nav_secondary_content with context %}
 {%- from 'canon/canon_flash_messages.html' import flash_messages with context %}
 {%- from 'canon/canon_footer.html' import footer_content with context %}
 {%- from 'canon/canon_meta.html' import meta_content with context %}
@@ -86,19 +87,7 @@
             <!-- end nav_primary -->
 
             <!-- nav_secondary -->
-            {% block nav_secondary %}
-                <div class="rs-nav-secondary">
-                    <div class="rs-container">
-                        <ul class="rs-nav">
-
-                            <!-- nav_secondary content -->
-                            {% block nav_secondary_content %}{% endblock nav_secondary_content %}
-                            <!-- end nav_secondary content -->
-
-                        </ul>
-                    </div>
-                </div>
-            {% endblock nav_secondary %}
+            {% block nav_secondary %}{% endblock nav_secondary %}
             <!-- end nav_secondary -->
 
             <div class="rs-body">

@@ -1,12 +1,14 @@
 {% extends "web_app_base.html" %}
 
-{% block nav_secondary_content %}
-    {% include "external/external_secondary_nav.html" %}
+{% block nav_secondary %}
+    {% call nav_secondary_content() %}
+        {% include "external/external_secondary_nav.html" %}
+    {% endcall %}
 {% endblock %}
 
 {% block sidebar %}
-    <h3>New Relic Integration Help</h3>
     {% call sidebar_help(hidden=False) %}
+        <h3>New Relic Integration Help</h3>
         <span class="rs-help-block">After adding a key, ObjectRocket will begin sending data for each of your instances
             to New Relic. You can disable New Relic monitoring for a specific instance on that instance's settings page.
         </span>

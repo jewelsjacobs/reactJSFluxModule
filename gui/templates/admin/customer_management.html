@@ -1,9 +1,10 @@
 {% extends "web_app_base.html" %}
 
-{% block nav_secondary_content %}
-    {% include "admin/secondary_nav.html" %}
+{% block nav_secondary %}
+    {% call nav_secondary_content() %}
+        {% include 'admin/secondary_nav.html' %}
+    {% endcall %}
 {% endblock %}
-
 
 {% block content_area_body %}
     test
