@@ -396,7 +396,7 @@ TODO:
             <div class="rs-popover-body">
                 <form id="delete-database-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('drop_database') }}" method="POST">
                     <p><b>Permanently delete</b> database <b id="delete-database-popover-name"></b>?</p>
-                    <p>This will permanently delete all data within this database!</p>
+                    <p>This will permanently delete all data within this database.</p>
                     <input name="instance" type="hidden" value="{{ instance.name }}">
                     <input id="delete-database-db-input" name="db" type="hidden" value="">
                 </form>
@@ -415,7 +415,7 @@ TODO:
         <div class="rs-popover-content">
             <div class="rs-popover-body">
                 <form id="add-acl-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('add_allowed', instance=instance.name) }}" method="POST">
-                    <p>Access Control Lists (ACLs) allow you to limit who connects to your MongoDB instance. By default, no one is allowed to connect. If you know the set of IP addresses you wish to connect from, you can add them here. If you don't, or if you're connecting from a service such as Heroku that uses dynamic ranges of IP addresses, you can select "any" here; You'll still be able to limit access via the login/password pairs that you configure, and you can still encrypt your connections with SSL!</p>
+                    <p>Access Control Lists (ACLs) allow you to limit who connects to your MongoDB instance. By default, no one is allowed to connect. If you know the set of IP addresses you wish to connect from, you can add them here. If you don't, or if you're connecting from a service such as Heroku that uses dynamic ranges of IP addresses, you can select "any" here; You'll still be able to limit access via the login/password pairs that you configure, and you can still encrypt your connections with SSL.</p>
                     <div class="rs-control-group">
                         <label class="rs-control-label">IP Address</label>
                         <div class="rs-controls">

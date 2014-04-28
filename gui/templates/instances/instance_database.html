@@ -283,7 +283,7 @@ TODO:
             <div class="rs-popover-body">
                 <form id="delete-user-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('delete_instance_user', selected_instance=instance.name, selected_database=database.name) }}" method="POST">
                     <p><b>Permanently delete</b> user <b id="delete-user-popover-name"></b> from database?</p>
-                    <p>This will permanently delete the user from this database!</p>
+                    <p>This will permanently delete the user from this database.</p>
                     <input id="delete-user-input" name="username" type="hidden" value="">
                 </form>
             </div>
