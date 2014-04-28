@@ -76,6 +76,7 @@ TODO:
                             <option value="US-Chicago">ORD</option>
                             <option value="EU-London">LON</option>
                             <option value="AP-HongKong">HKG</option>
+                            <option value="AP-Sydney">SYD</option>
                         </select>
                     </div>
                 </div>
@@ -111,3 +112,89 @@ TODO:
         </div>
     </form>
 {% endblock content_area_body %}
+{% block script %}
+    {{ super() }}
+
+    <script>
+        $(document).ready(function () {
+
+            $.validator.addMethod("noSpaces", function (value, element) {
+                return value.indexOf(" ") < 0 && value != "";
+            }, "Spaces are not permitted in instance names");
+
+            $('#instances-create-form').validate({
+                rules: {
+                    name: {
+                        minlength: 2,
+                        alphanumeric: true,
+                        required: true
+                    }
+                },
+                errorClass: 'rs-validation-block',
+                errorElement: 'span',
+                highlight: function (label) {
+                    $(label).closest('.rs-control-group').addClass('error');
+                },
+                success: function (label) {
+                    $(label).closest('.rs-control-group').addClass('success');
+                    $(label).closest('.rs-control-group').removeClass('error');
+                }
+            });
+
+            $('#zone').change(function () {
+                var selectedZone = $(this).val();
+
+                var usPrices = [
+                    {val: 1, text: '1GB SMALL $19.00/mo'},
+                    {val: 5, text: '5GB MEDIUM $149.00/mo'},
+                    {val: 20, text: '20GB MEDIUM $399.00/mo'},
+                    {val: 50, text: '50GB MEDIUM $899.00/mo'},
+                    {val: 100, text: '100GB MEDIUM $1,599.00/mo'},
+                ];
+
+                var lonPrices = [
+                    {val: 1, text: '1GB SMALL $25.00/mo'},
+                    {val: 5, text: '5GB MEDIUM $190.00/mo'},
+                    {val: 20, text: '20GB MEDIUM $500.00/mo'},
+                    {val: 50, text: '50GB MEDIUM $1,125.00/mo'},
+                    {val: 100, text: '100GB MEDIUM $2,000.00/mo'},
+                ];
+
+                var hkgPrices = [
+                    {val: 1, text: '1GB SMALL $25.00/mo'},
+                    {val: 5, text: '5GB MEDIUM $195.00/mo'},
+                    {val: 20, text: '20GB MEDIUM $525.00/mo'},
+                    {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
+                    {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
+                ];
+
+                var sydPrices = [
+                    {val: 1, text: '1GB SMALL $25.00/mo'},
+                    {val: 5, text: '5GB MEDIUM $195.00/mo'},
+                    {val: 20, text: '20GB MEDIUM $525.00/mo'},
+                    {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
+                    {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
+                ];
+
+                var prices = usPrices;
+
+                if (selectedZone == 'EU-London') {
+                    var prices = lonPrices;
+                } else if (selectedZone == 'AP-HongKong') {
+                    var prices = hkgPrices;
+                } else if (selectedZone == 'AP-Sydney') {
+                    var prices = sydPrices;
+                }
+
+                $('#plan_select').empty();
+
+                $(prices).each(function () {
+                    $('#plan_select').append($("<option>").attr('value', this.val).text(this.text));
+                });
+
+                $('#plan_select').val(5);
+            });
+        });
+    </script>
+
+{% endblock script %}
