@@ -17,6 +17,7 @@ body.rs-responsive .rs-container {
 
 .invisible {
     visibility: hidden;
+    display: none;
 }
 
 .hidden {
@@ -72,10 +73,6 @@ img.invoice-logo {
 
 .or-focus-panel-login {
   min-width: 630px;
-}
-
-.or-focus-panel-login .rs-control-label, .or-focus-panel-login .rs-input {
-    display: block;
 }
 
 .or-login-welcome {
