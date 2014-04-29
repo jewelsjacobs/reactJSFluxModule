@@ -17,7 +17,8 @@
  <form id="set_cc_form" name="set_cc_form" method="POST" action="{{ url_for('set_credit_card') }}" windowTitle="Set Credit Card" windowLabel="Set Card">
 
                 <button type="button" id="set_cc_button" class="rs-btn rs-btn-primary cc_button">Set Credit Card</button>
-                <input type="hidden" name="stripe_token" id="stripe_token" returntarget="/billing">
+                <input type="hidden" name="stripe_token" id="stripe_token">
+                <input type="hidden" name="returntarget" value="{{ url_for('billing') }}">
             </form>
         {% endif %}
     </div>

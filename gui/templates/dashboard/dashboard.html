@@ -34,7 +34,8 @@
                     <div class="alert alert-info"><strong>To create an instance, you'll need to add your credit card information below.</strong></div>
                     <form id="enter_cc_form" name="add_cc_form" action="{{ url_for('set_credit_card') }}" method="POST" windowTitle="Add Credit Card" windowLabel="Add Card" class="rs-form-horizontal rs-form-small">
                         <button type="button" id="add_cc_button" class="rs-btn rs-btn-primary cc_button">Add Credit Card</button>
-                        <input type="hidden" name="stripe_token" id="stripe_token" returntarget="/">
+                        <input type="hidden" name="stripe_token" id="stripe_token">
+                        <input type="hidden" name="returntarget" value="{{ url_for('dashboard') }}">
                     </form>
                 </div>
             {% else %}
