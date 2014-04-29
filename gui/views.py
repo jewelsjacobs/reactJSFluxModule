@@ -624,7 +624,8 @@ def instance_details(selected_instance):
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
         shard_logs = user_instance.shard_logs
         balancer = user_instance.balancer
-        aggregate_stats, usage_totals = _calculate_instance_space_usage(user_instance)
+    
+    aggregate_stats, usage_totals = _calculate_instance_space_usage(user_instance)
 
     return render_template('instances/instance_details.html',
                            account_monitoring_checks=account_monitoring_checks,
