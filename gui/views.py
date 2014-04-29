@@ -437,8 +437,8 @@ def update_password():
     return redirect(url_for('account'))
 
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/<selected_instance>', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
+@app.route('/<selected_instance>', methods=['GET'])
 @viper_auth
 def dashboard(selected_instance=None):
     ## ignore requests for favicon.ico to the gui
