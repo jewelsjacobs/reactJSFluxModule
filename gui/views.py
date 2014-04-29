@@ -623,7 +623,6 @@ def instance_details(selected_instance):
     # TODO(Anthony): Create code path for RS instances.
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
         shard_logs = user_instance.shard_logs
-        sorted_shard_keys = sorted(shard_logs)
         balancer = user_instance.balancer
         aggregate_stats, usage_totals = _calculate_sharded_instance_usage(user_instance)
 
@@ -639,8 +638,7 @@ def instance_details(selected_instance):
                            login=g.login,
                            max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE,
                            usage_totals=usage_totals,
-                           shard_logs=shard_logs,
-                           sorted_shard_keys=sorted_shard_keys)
+                           shard_logs=shard_logs)
 
 
 # TODO(Anthony): Move this logic to core.
