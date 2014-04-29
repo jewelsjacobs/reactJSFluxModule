@@ -68,12 +68,15 @@
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Space Usage</div>
                 <div class="rs-detail-value">
-                    <span>{{ usage_totals['total_data_size']|filesizeformat }} of {{ instance.size }} GB</span>
+                    {% set usage = usage_totals['total_file_size'] + usage_totals['total_ns_size'] %}
+                    <span>{{ usage|filesizeformat }} of {{ instance.size }} GB</span>
                     <span data-title="
-<p><span class='rs-status or-status-ns'>Ns</span> The total size of the namespace files for all databases.</p>
-<p><span class='rs-status or-status-data'>Data</span> The total size in bytes of the data held in all database.</p>
-<p><span class='rs-status or-status-index'>Indexes</span> The total size in bytes of all indexes created on all databases.</p>
-<p><span class='rs-status or-status-storage'>Storage</span> The total amount of space in bytes allocated to collections in all database for document storage.</p>"
+<p><span class='rs-status or-status-ns'>Ns: {{ usage_totals['total_ns_size']|filesizeformat }}</span> The total size of the namespace files for all databases.</p>
+<p><span class='rs-status or-status-data'>Data: {{ usage_totals['total_data_size']|filesizeformat }}</span> The total size in bytes of the data held in all database.</p>
+<p><span class='rs-status or-status-index'>Indexes: {{ usage_totals['total_index_size']|filesizeformat }}</span> The total size in bytes of all indexes created on all databases.</p>
+<p><span class='rs-status or-status-storage'>Storage: {{ usage_totals['total_storage_size']|filesizeformat }}</span> The total amount of space in bytes allocated to collections in all database for document storage.</p>
+<p><span class='rs-status rs-status-ok'>Total File: {{ usage_totals['total_file_size']|filesizeformat }}</span> The total size in bytes of the data files that hold the databases, not including the namespace files.</p>
+<p><b>Notice:</b> The space usage represented here includes the size of administrative databases.</p>"
                           data-delay="0.1" class="rs-icon-help tip valign-baseline"></span>
                     <div class="rs-progress">
                         <div class="rs-progress-inner">
