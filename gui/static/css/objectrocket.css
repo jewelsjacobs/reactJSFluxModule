@@ -52,6 +52,13 @@ img.invoice-logo {
     text-align: left;
 }
 
+.or-dropdown-menu {
+    right: 0 !important;
+    max-height: 250px !important;
+    overflow: scroll !important;
+    max-width: 125px !important;
+}
+
 /* === bar & status overwrites === */
 .or-bar-ns {
     background: #0062ff; /* .blue */
