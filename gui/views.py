@@ -1100,6 +1100,7 @@ def notifications():
                            login=g.login,
                            messages=messages)
 
+
 @app.route('/clear_alarm', methods=['POST'])
 @viper_auth
 def clear_alarm():
@@ -1337,7 +1338,7 @@ def sign_up_finish():
 
     try:
         billing_manager.set_credit_card(g.login, request.form['stripe_token'])
-    except BillingException:
+    except stripe.CardError:
         app.logger.info("Credit card declined during signup for user {}".format(g.login))
         flash('There was a problem adding your credit card. Please try again.', canon_constants.STATUS_ERROR)
         return render_template('sign_up/sign_up3.html',
