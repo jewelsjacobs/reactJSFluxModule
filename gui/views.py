@@ -380,6 +380,11 @@ def api_serverstatus(selected_instance):
 # ----------------------------------------------------------------------------
 # Normal urls as part of the app.
 # ----------------------------------------------------------------------------
+@app.route('/', methods=['GET'])
+@viper_auth
+def root():
+    """Root url."""
+    return redirect(url_for('sign_in'))
 
 
 @app.route('/error', methods=['GET'])
@@ -437,40 +442,15 @@ def update_password():
     return redirect(url_for('account'))
 
 
-@app.route('/', methods=['GET'])
-@app.route('/<selected_instance>', methods=['GET'])
+@app.route('/instances/<selected_instance>/stats', methods=['GET'])
 @viper_auth
-def dashboard(selected_instance=None):
-    ## ignore requests for favicon.ico to the gui
-    # TODO: Reconfigure nginx to serve up /favicon.ico
-    if selected_instance and selected_instance.lower() == "favicon.ico":
-        abort(404)
-
-    message_manager = MessageManager(config)
+def instance_stats(selected_instance):
+    """Instance statistics page."""
     account_manager = AccountManager(config)
-    status_manager = StatusManager(config)
-
     account = account_manager.get_account(g.login)
-    instances = account.instances
-    messages = message_manager.get_messages(g.login, limit=5)
+    instance = account.get_instance_by_name(selected_instance)
 
-    if selected_instance is None:
-        try:
-            instance = instances[0]
-        except IndexError:
-            instance = None
-    else:
-        instance = account.get_instance_by_name(selected_instance)
-
-    return render_template('dashboard/dashboard.html',
-                           login=account.login,
-                           has_instances=instance is not None,
-                           instances=instances,
-                           account=account,
-                           status=status_manager.get_status(),
-                           instance=instance,
-                           messages=messages,
-                           stripe_pub_key=config.STRIPE_PUB_KEY)
+    return render_template('instances/instance_stats.html', instance=instance)
 
 
 @app.route('/instances', methods=['GET'])
