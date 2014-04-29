@@ -1,7 +1,7 @@
 {% extends 'web_app_base.html' %}
 
 {% block title %}
-    Dashboard
+    Instance Stats
 {% endblock title %}
 
 {% block style %}
@@ -10,18 +10,8 @@
     {% include 'stripe_css.html' %}
 {% endblock style %}
 
-{% block nav_secondary %}
-    {% if has_instances %}
-        {% call nav_secondary_content() %}
-            {% for _instance in instances %}
-                <li class="rs-nav-item{% if _instance.name == instance.name %} active{% endif %}"><a class="rs-nav-link" href="{{ url_for('dashboard', selected_instance=_instance.name) }}">{{ _instance.name }}</a></li>
-            {% endfor %}
-        {% endcall %}
-    {% else %}
-    {% endif %}
-{% endblock nav_secondary %}
-
 {% block content_area_body %}
+<<<<<<< HEAD
     <div class="rs-detail-header">
         <h2 class="rs-page-title">Dashboard</h2>
     </div>
@@ -129,19 +119,57 @@
                     <a href="{{ url_for('cluster', selected_instance=instance.name) }}" class="rs-btn rs-btn-primary">{% if instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE %}Manage Members{% else %}Manage Shards{% endif %}</a>
                 </div>
             </div>
+=======
+
+    {% call detail_section(title="Stats") %}
+        <table class="rs-list-table">
+            <thead>
+                <tr>
+                    <td>Queries/Sec</td>
+                    <td>Inserts/Sec</td>
+                    <td>Updates/Sec</td>
+                    <td>Deletes/Sec</td>
+                    <td>Commands/Sec</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="lead" id="query">0</span></td>
+                    <td><span class="lead" id="insert">0</span></td>
+                    <td><span class="lead" id="update">0</span></td>
+                    <td><span class="lead" id="delete">0</span></td>
+                    <td><span class="lead" id="command">0</span></td>
+                </tr>
+            </tbody>
+        </table>
+    {% endcall %}
+
+    {% call detail_section(title="Histograms") %}
+        <div class="histogram-well">
+            <h6>Opcounters/Sec</h6>
+            <div class="pull-right" id="graphdiv-legend1"></div>
+            <br/>
+
+            <div class="well-graph" id="graphdiv1"></div>
+            <br/>
+
+            <h6>Network/Sec</h6>
+            <div class="pull-right" id="graphdiv-legend2"></div>
+            <br/>
+
+            <div class="well-graph" id="graphdiv2"></div>
+            <br/>
+
+            <h6>Disk Space Usage</h6>
+            <div class="pull-right" id="graphdiv-legend3"></div>
+            <br/>
+
+            <div class="well-graph" id="graphdiv3"></div>
+            <br/>
+>>>>>>> Refactored /dashboard & preparing to move it
         </div>
-        <!-- end detail section -->
+    {% endcall %}
 
-        {% call detail_section(title="Tips") %}
-            <div class="tips-well">
-                <p class="muted">
-                    <i class="icon-flag"> </i> Did you know you can use the command line utilities
-                    <a href="https://github.com/objectrocket/rocketstat">rocketstat</a> and <a href="https://github.com/objectrocket/rockettop">rockettop</a> to show performance via the API similar to mongostat and mongotop?
-                </p>
-            </div>
-        {% endcall %}
-
-    {% endif %}
 {% endblock content_area_body %}
 
 {% block script %}
