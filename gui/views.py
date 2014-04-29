@@ -1761,7 +1761,7 @@ def delete_acl(instance, acl_id=None):
 @viper_auth
 @viper_isadmin
 def admin():
-    return redirect(url_for('admin_alarms'))
+    return redirect(url_for('admin_user_management'))
 
 
 @app.route('/admin/billing')
@@ -1947,17 +1947,6 @@ def admin_set_status():
         status_manager.set_status(i, int(request.form[i]))
     flash('Status updated.', canon_constants.STATUS_OK)
     return redirect(url_for('admin_status_management'))
-
-
-@app.route('/admin/alarms', methods=['GET'])
-@viper_auth
-@viper_isadmin
-def admin_alarms():
-    annunciator = Annunciator(config)
-    alarms = annunciator.get_all_alarms()
-    return render_template('admin/alarms.html',
-                           admin=True,
-                           alarms=alarms)
 
 
 @app.route('/admin/inventory', methods=['GET'])

@@ -643,14 +643,6 @@ def test_admin_switch_user(app_client):
         assert response.status_code == 200
 
 
-def test_admin_alarms(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/admin/alarms', follow_redirects=True)
-        print(response.data)
-        assert response.status_code == 200
-
-
 @xfail(reason="Test not implemented. Need to create a fixture for associated Stripe ID")
 def test_admin_associate_user(app_client):
     # login = request.form['login']
@@ -842,10 +834,10 @@ def test_delete_instance(app_client):
         assert response.status_code == 200
 
 
-def test_admin_remove_user(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/user_management/remove_user', data=dict(login=login),
-                               follow_redirects=True)
-        print(response.data)
-        assert response.status_code == 200
+# def test_admin_remove_user(app_client):
+#     with app_client as client:
+#         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+#         response = client.post('/admin/user_management/remove_user', data=dict(login=login),
+#                                follow_redirects=True)
+#         print(response.data)
+#         assert response.status_code == 200
