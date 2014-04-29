@@ -1,8 +1,6 @@
-<!-- Begin shard info -->
+<!-- begin shard info -->
 <div class="rs-btn-group">
-    <form action="{{ url_for('add_shard', selected_instance=instance.name) }}" method="POST">
-        <button type="submit" class="rs-btn rs-btn-primary">Add Shard</button>
-    </form>
+    <button id="add-shard-popover-target" data-popover="add-shard-popover" data-popover-target="add-shard-popover-target" data-popover-position="bottom-right"  class="rs-btn rs-btn-primary rs-popover-source">Add Shard</button>
 </div>
 
 <div class="rs-embedded-list-table-wrapper rs-embedded-large">
@@ -44,4 +42,4 @@
         </tbody>
     </table>
 </div>
-<!-- End shard info -->
+<!-- end shard info -->
