@@ -2,7 +2,13 @@
 
 {% block title %}
     Cluster Details
-{% endblock %}                        
+{% endblock %}
+
+{% block back_link_area %}
+    {% call back_link() %}
+        <a href="{{ url_for('instance_details', selected_instance=instance.name) }}">&lsaquo; Back to Instance Details</a>
+    {% endcall %}
+{% endblock back_link_area %}
 
 {% block content_area_body %}
     {% call detail_header(page_title='Cluster Details', title=instance.name) %}{% endcall %}
