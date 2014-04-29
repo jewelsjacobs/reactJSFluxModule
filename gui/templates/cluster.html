@@ -1,0 +1,57 @@
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    Cluster Details
+{% endblock %}                        
+
+{% block content_area_body %}
+    {% call detail_header(page_title='Cluster Details', title=instance.name) %}{% endcall %}
+    {% for shard in instance.shards %}
+        {% call detail_section(title=shard.name, collapsible=True) %}
+            {% set primary = shard.replica_set.primary %}
+            <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
+                <table class="rs-list-table rs-embedded-list-table">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Health</th>
+                            <th>Zone</th>
+                            <th>Delay</th>
+                            <th>Last Heartbeat</th>
+                            <th>Compaction State</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in primary.status.members %}
+                            {% set member_health = 'HEALTHY' if member.health == 1 else 'FAULT' %}
+                            {% set zone = get_host_zone(member.name) %}
+                            {% if member.stateStr == 'PRIMARY' %}
+                                {% set delay = '(Primary)' %}
+                                {% set heartbeat = '(Primary)' %}
+                            {% elif member.stateStr == 'ARBITER' %}
+                                {% set delay = '(Arbiter)' %}
+                            {% else %}
+                                {% set delay = primary.oplog_time.as_datetime() - member.optime.as_datetime() %}
+                            {% endif %}
+                            {% if member.stateStr != 'PRIMARY' %}
+                                {% set heartbeat = member.lastHeartbeat %}
+                            {% endif %}
+                            {% set compaction_state, timestamp = instance.get_compaction_shard_member_state_by_name(shard.shard_string, member.name) %}
+                            {% if compaction_state and timestamp %}
+                                {% set compaction_state = '{} | {}'.format(compaction_state, timestamp) %}
+                            {% endif %}
+                            <tr>
+                                <td>{{ member.stateStr }}</td>
+                                <td>{{ member_health }}</td>
+                                <td>{{ zone }}</td>
+                                <td>{{ delay }}</td>
+                                <td>{{ heartbeat }}</td>
+                                <td>{{ compaction_state }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endcall %}
+    {% endfor %}
+{% endblock %}
