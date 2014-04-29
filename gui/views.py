@@ -2126,3 +2126,10 @@ def update_settings(selected_instance):
 
     flash('Settings successfully updated.')
     return redirect(url_for('instance_settings', selected_instance=selected_instance))
+
+
+@app.route('/system/status', methods=['GET'])
+@viper_auth
+def system_status():
+    status_manager = StatusManager(config)
+    return render_template('system_status/system_status.html', status=status_manager.get_status())
