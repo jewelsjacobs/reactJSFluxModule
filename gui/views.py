@@ -1529,6 +1529,7 @@ def billing():
 @viper_auth
 def set_credit_card():
     billing_manager = BillingManager(config)
+    valid_redirect_routes = [url_for('billing'), url_for('dashboard')]
 
     try:
         billing_manager.set_credit_card(g.login, request.form['stripe_token'])
@@ -1537,8 +1538,9 @@ def set_credit_card():
     except stripe.CardError as ex:
         flash(ex.message, canon_constants.STATUS_ERROR)
 
-    if 'returntarget' in request.form:
-        return redirect(url_for(request.form['returntarget']))
+    return_target = request.form.get('returntarget', url_for('billing'))
+    if return_target in valid_redirect_routes:
+        return redirect(return_target)
     else:
         return redirect(url_for('billing'))
 
