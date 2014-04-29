@@ -1459,8 +1459,9 @@ def billing():
             invoices[invoice_datum['id']] = invoice
 
     active_card = billing_manager.get_account_active_card(g.login)
-    active_card['exp'] = '{0.exp_month} / {0.exp_year}'.format(active_card)
-    active_card['last4'] = u'{0}{0}{0}{0} {0}{0}{0}{0} {0}{0}{0}{0} {1.last4}'.format(u'\u2022', active_card)
+    if active_card is not None:
+        active_card['exp'] = '{0.exp_month} / {0.exp_year}'.format(active_card)
+        active_card['last4'] = u'{0}{0}{0}{0} {0}{0}{0}{0} {0}{0}{0}{0} {1.last4}'.format(u'\u2022', active_card)
 
     return render_template('billing/billing.html',
                            active_card=active_card,
