@@ -112,6 +112,12 @@ TODO:
                 {% endfor %}
             </tbody>
         </table>
+        <div id="instances-table-overlay" class="rs-table-overlay{% if instances %} hidden{% endif %}">
+            <div class="rs-table-overlay-content">
+                <div class="rs-table-overlay-title">You don't have any instances yet.</div>
+                <div class="rs-table-overlay-subtitle">Create on now by clicking on the Add Instance button.</div>
+            </div>
+        </div>
     </div>
 {% endblock content_area_body %}
 

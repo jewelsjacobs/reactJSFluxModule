@@ -130,6 +130,10 @@ img.invoice-logo {
     padding: 0.5em 0;
 }
 
+.valign-baseline {
+    vertical-align: baseline;
+}
+
 /* === paragraph styles === */
 p.tos {
     font-size: 0.9em;
