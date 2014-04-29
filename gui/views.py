@@ -1081,11 +1081,11 @@ def shard_collection(selected_instance, selected_db, selected_collection):
     user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
     user_database = user_instance.get_database(selected_db)
 
-    all_shard_keys = request.form['all-shard-keys']
+    all_shard_keys = request.form['all_shard_keys']
     shard_keys = json.loads(all_shard_keys, object_pairs_hook=collections.OrderedDict)
     app.logger.debug("shard keys are " + repr(shard_keys))
 
-    create_indexes = request.form.get('create-indexes', False)
+    create_indexes = request.form.get('create_indexes', False)
 
     try:
         user_database.shard_collection(selected_collection, shard_keys=shard_keys, create_indexes=create_indexes)
