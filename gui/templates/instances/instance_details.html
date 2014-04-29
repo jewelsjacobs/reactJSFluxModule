@@ -18,10 +18,8 @@
                 <ul class="rs-dropdown-menu" style="right:0;">
                     <li><span class="rs-dropdown-category">Manage</span></li>
                     <li><a data-popover="rename-instance-popover" data-popover-target="rename-instance-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Rename Instance&hellip;</a></li>
-                    <li><a data-popover="compact-instance-popover" data-popover-target="compact-instance-target"
-                           data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">
-                        Compact Instance&hellip;
-                    </a></li>
+                    <li><a data-popover="compact-instance-popover" data-popover-target="compact-instance-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Compact Instance&hellip;</a></li>
+                    <li><a data-popover="add-instance-user-popover" data-popover-target="compact-instance-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add Instance User&hellip;</a></li>
                     <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}">Manage Settings&hellip;</a></li>
                     <li><span class="rs-dropdown-category">Views</span></li>
                     <li><a class="rs-btn rs-btn-link or-expand-all">Expand All&hellip;</a></li>
@@ -302,6 +300,35 @@
         </div>
     </div>
     <!-- end compact instance popover -->
+
+    <!-- add instance user popover -->
+    <div id="add-instance-user-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="add-instance-user-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('add_instance_user', selected_instance=instance.name) }}" method="POST">
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Username</label>
+                        <div class="rs-controls">
+                            <input name="username" type="text" placeholder="Username" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Password</label>
+                        <div class="rs-controls">
+                            <input name="password" type="password" placeholder="Password" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="add-instance-user-popover-form-button" form="add-instance-user-popover-form" class="rs-btn rs-btn-primary">Add User</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end add instance user popover -->
 
     <!-- add database popover -->
     <div id="add-database-popover" class="rs-popover invisible">
@@ -588,6 +615,31 @@
                     noSpaces: true,
                     required: true
                 }
+            },
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function(label) {
+                $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
+
+        // Validation for adding instance users.
+        $('#add-instance-user-popover-form').validate({
+            rules: {
+                username: {
+                    minlength: 2,
+                    noSpaces: true,
+                    required: true
+                },
+                password: {
+                    minlength: 2,
+                    required: true
+                },
             },
             errorClass: 'rs-validation-block',
             errorElement: 'span',
