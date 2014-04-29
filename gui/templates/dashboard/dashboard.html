@@ -7,6 +7,7 @@
 {% block style %}
     {{ super() }}
     <link rel="stylesheet" type="text/css" href="/static/css/dygraph.css"/>
+    {% include 'stripe_css.html' %}
 {% endblock style %}
 
 {% block nav_secondary %}
@@ -144,7 +145,6 @@
 
 {% block script %}
     {{ super() }}
-
     <script type="text/javascript" src="/static/js/dygraph-combined.js"></script>
     <script type="text/javascript">
 
@@ -270,4 +270,5 @@
 
     });
     </script>
+    {% include 'stripe_js.html' %}
 {% endblock script %}
