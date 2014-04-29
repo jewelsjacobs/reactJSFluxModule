@@ -102,7 +102,7 @@ TODO:
                         </td>
                         <td id="instance-{{ instancecount }}-count" class="rs-table-link"><a href={{ url_for('instances') }}/{{ instance.name }}>{{ instance.name }}</a></td>
                         <td class="rs-table-link">MongoDB</td>
-                        <td class="rs-table-link">{{ instance.type }}</td>
+                        <td class="rs-table-link">{{ instance.type.replace('mongodb', 'MongoDB').replace('sharded', 'Sharded').replace('replica_set', 'Replica Set').replace('_', ' ') }}</td>
                         <td class="rs-table-link">{{ instance.version }}</td>
                         <td class="rs-table-link">{{ instance.zone }}</td>
                         <td class="rs-table-link">{{ instance.plan }}</td>

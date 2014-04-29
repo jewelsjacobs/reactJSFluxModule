@@ -47,7 +47,7 @@
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Type</div>
-                <div class="rs-detail-value">{{instance.type}}</div>
+                <div class="rs-detail-value">{{instance.type.replace('mongodb', 'MongoDB').replace('sharded', 'Sharded').replace('replica_set', 'Replica Set').replace('_', ' ')}}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Version</div>
