@@ -339,8 +339,8 @@
                     <div class="rs-control-group">
                         <label class="rs-control-label">New Name</label>
                         <div class="rs-controls">
-                            <input name="new-name" type="text" placeholder="{{ instance.name }}" class="rs-input rs-input-medium">
-                            <input name="current-name" type="hidden" value="{{ instance.name }}">
+                            <input name="new_name" type="text" placeholder="{{ instance.name }}" class="rs-input rs-input-medium">
+                            <input name="current_name" type="hidden" value="{{ instance.name }}">
                         </div>
                     </div>
                 </form>
@@ -699,7 +699,7 @@
         // Validation for renaming instances.
         $('#rename-instance-popover-form').validate({
             rules: {
-                'new-name': {
+                'new_name': {
                     minlength: 2,
                     noSpaces: true,
                     required: true
