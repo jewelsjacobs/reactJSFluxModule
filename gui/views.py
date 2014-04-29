@@ -624,7 +624,7 @@ def instance_details(selected_instance):
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
         shard_logs = user_instance.shard_logs
         balancer = user_instance.balancer
-        aggregate_stats, usage_totals = _calculate_sharded_instance_usage(user_instance)
+        aggregate_stats, usage_totals = _calculate_instance_space_usage(user_instance)
 
     return render_template('instances/instance_details.html',
                            account_monitoring_checks=account_monitoring_checks,
@@ -642,7 +642,7 @@ def instance_details(selected_instance):
 
 
 # TODO(Anthony): Move this logic to core.
-def _calculate_sharded_instance_usage(instance):
+def _calculate_instance_space_usage(instance):
     """Calculate instance usage totals and percentages."""
     aggregate_stats = {}
     usage_totals = {}
@@ -662,16 +662,26 @@ def _calculate_sharded_instance_usage(instance):
     # The total amount of space in bytes allocated to collections in all database for document storage.
     total_storage_size = 0
 
-    for shard in instance.shards:
-        shard_stats = shard.replica_set.primary.aggregate_database_statistics
-        aggregate_stats[shard.name] = shard_stats
+    if instance.type == Constants.MONGODB_SHARDED_INSTANCE:
 
-        # Aggregate size stats across all shards.
-        total_data_size += shard_stats[Constants.DATA_SIZE_IN_BYTES]
-        total_index_size += shard_stats[Constants.INDEX_SIZE_IN_BYTES]
-        total_ns_size += shard_stats[Constants.NAMESPACE_SIZE_IN_BYTES]
-        total_file_size += shard_stats[Constants.FILE_SIZE_IN_BYTES]
-        total_storage_size += shard_stats[Constants.STORAGE_SIZE_IN_BYTES]
+        for shard in instance.shards:
+            shard_stats = shard.replica_set.primary.aggregate_database_statistics
+            aggregate_stats[shard.name] = shard_stats
+
+            # Aggregate size stats across all shards.
+            total_data_size += shard_stats[Constants.DATA_SIZE_IN_BYTES]
+            total_index_size += shard_stats[Constants.INDEX_SIZE_IN_BYTES]
+            total_ns_size += shard_stats[Constants.NAMESPACE_SIZE_IN_BYTES]
+            total_file_size += shard_stats[Constants.FILE_SIZE_IN_BYTES]
+            total_storage_size += shard_stats[Constants.STORAGE_SIZE_IN_BYTES]
+
+    else:
+        primary_stats = instance.replia_set.primary.aggregate_database_statistics
+        total_data_size = primary_stats[Constants.DATA_SIZE_IN_BYTES]
+        total_index_size = primary_stats[Constants.INDEX_SIZE_IN_BYTES]
+        total_ns_size = primary_stats[Constants.NAMESPACE_SIZE_IN_BYTES]
+        total_file_size = primary_stats[Constants.FILE_SIZE_IN_BYTES]
+        total_storage_size = primary_stats[Constants.STORAGE_SIZE_IN_BYTES]
 
     # Serialize size totals.
     usage_totals['total_data_size'] = total_data_size
@@ -681,7 +691,7 @@ def _calculate_sharded_instance_usage(instance):
     usage_totals['total_storage_size'] = total_storage_size
 
     # Get size in bytes.
-    size_in_bytes = instance.size * 1024 * 1024 * 1024
+    size_in_bytes = instance.maximum_capacity
 
     # Round percentage totals.
     data_percentage = (float(total_data_size) / float(size_in_bytes)) * 100

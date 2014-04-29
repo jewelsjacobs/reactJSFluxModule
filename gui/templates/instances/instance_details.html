@@ -61,10 +61,12 @@
                 <div class="rs-detail-key">Plan</div>
                 <div class="rs-detail-value">{{instance.plan}}</div>
             </li>
+            {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Shards</div>
                 <div class="rs-detail-value">{{ instance.shards|count }}</div>
             </li>
+            {% endif %}
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Space Usage</div>
                 <div class="rs-detail-value">
