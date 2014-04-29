@@ -2101,6 +2101,10 @@ def instance_settings(selected_instance):
     if user_instance is None:
         abort(404)
 
+    account_monitor = monitor.AccountMonitor(config)
+    account_monitoring_checks = account_monitor.get_enabled_checks(asset_type=monitor.INSTANCE_ASSET_TYPE,
+                                                                   user_controllable_only=True)
+
     for key in ['start', 'end']:
         if key in user_instance.stepdown_window:
             try:
@@ -2108,7 +2112,7 @@ def instance_settings(selected_instance):
             except AttributeError:
                 user_instance.stepdown_window[key] = ''
 
-    return render_template('settings/settings.html', instance=user_instance)
+    return render_template('settings/settings.html', account_monitoring_checks=account_monitoring_checks, instance=user_instance)
 
 
 @app.route('/update_settings/<selected_instance>', methods=['POST'])
