@@ -71,6 +71,7 @@
                     {% set usage = usage_totals['total_file_size'] + usage_totals['total_ns_size'] %}
                     <span>{{ usage|filesizeformat }} of {{ instance.size }} GB</span>
                     <span data-title="
+<h4>Legend:</h4>
 <p><span class='rs-status or-status-ns'>Ns: {{ usage_totals['total_ns_size']|filesizeformat }}</span> The total size of the namespace files for all databases.</p>
 <p><span class='rs-status or-status-data'>Data: {{ usage_totals['total_data_size']|filesizeformat }}</span> The total size in bytes of the data held in all database.</p>
 <p><span class='rs-status or-status-index'>Indexes: {{ usage_totals['total_index_size']|filesizeformat }}</span> The total size in bytes of all indexes created on all databases.</p>
