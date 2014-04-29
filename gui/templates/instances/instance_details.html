@@ -18,7 +18,9 @@
                 <ul class="rs-dropdown-menu" style="right:0;">
                     <li><span class="rs-dropdown-category">Manage</span></li>
                     <li><a data-popover="rename-instance-popover" data-popover-target="rename-instance-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Rename Instance&hellip;</a></li>
+                    {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
                     <li><a data-popover="compact-instance-popover" data-popover-target="compact-instance-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Compact Instance&hellip;</a></li>
+                    {% endif %}
                     <li><a data-popover="add-instance-user-popover" data-popover-target="compact-instance-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add Instance User&hellip;</a></li>
                     <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}">Manage Settings&hellip;</a></li>
                     <li><span class="rs-dropdown-category">Views</span></li>
