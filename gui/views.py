@@ -2029,6 +2029,7 @@ def compact_instance(instance_name):
     flash('Compaction requested for instance %s.' % instance.name, 'ok')
     return redirect(url_for('instance_details', selected_instance=instance_name))
 
+
 @app.route('/instances/<selected_instance>/repair', methods=['POST'])
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
@@ -2044,3 +2045,64 @@ def repair_database(selected_instance):
         instance.start_repairing_database(selected_database)
         flash('Database %s has been scheduled for repair.' % selected_database, 'ok')
     return redirect(url_for('instance_details', selected_instance=selected_instance))
+
+
+@app.route('/instances/<selected_instance>/settings', methods=['GET'])
+@viper_auth
+def instance_settings(selected_instance):
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    if user_instance is None:
+        abort(404)
+
+    for key in ['start', 'end']:
+        if key in user_instance.stepdown_window:
+            try:
+                user_instance.stepdown_window[key] = user_instance.stepdown_window[key].strftime('%m/%d/%Y %H:%M')
+            except AttributeError:
+                user_instance.stepdown_window[key] = ''
+
+    return render_template('settings/settings.html', instance=user_instance)
+
+
+@app.route('/update_settings/<selected_instance>', methods=['POST'])
+@viper_auth
+def update_settings(selected_instance):
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    stepdown_window = {
+        'enabled': request.form.get('stepdown_window_enabled', 'off') == 'on',
+        'scheduled': request.form.get('stepdown_scheduled', 'off') == 'on',
+        'window_start': request.form.get('stepdown_window_start', '').strip(),
+        'window_end': request.form.get('stepdown_window_end', '').strip(),
+        'weekly': request.form.get('stepdown_window_weekly', 'off') == 'on',
+    }
+
+    for key in ['window_start', 'window_end']:
+        if stepdown_window[key] == '':
+            continue
+        try:
+            stepdown_window[key] = datetime.datetime.strptime(stepdown_window[key], '%m/%d/%Y %H:%M')
+        except ValueError:
+            flash('Invalid stepdown window specified. Dates must be in the month/day/year hour:minute format.', Constants.FLASH_ERROR)
+            return redirect(url_for('instance_settings', selected_instance=selected_instance))
+
+    if (isinstance(stepdown_window['window_start'], datetime.datetime) and
+            isinstance(stepdown_window['window_end'], datetime.datetime) and
+            stepdown_window['window_start'] >= stepdown_window['window_end']):
+        flash('Invalid stepdown window specified. Start date must be earlier than the end date.', Constants.FLASH_ERROR)
+        return redirect(url_for('instance_settings', selected_instance=selected_instance))
+
+    settings_data = dict(request.form)
+
+    for key in ('stepdown_window_enabled', 'stepdown_window_start', 'stepdown_window_end', 'stepdown_scheduled'):
+        settings_data.pop(key)
+
+    instance.update_settings(settings_data)
+    instance.set_stepdown_window(**stepdown_window)
+    instance.update_attribute('stepdown_window.ran_in_window', False)
+
+    flash('Settings successfully updated.')
+    return redirect(url_for('instance_settings', selected_instance=selected_instance))
