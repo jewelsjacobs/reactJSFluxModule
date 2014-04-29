@@ -627,11 +627,26 @@ def instance_details(selected_instance):
 
     aggregate_stats, usage_totals = _calculate_instance_space_usage(user_instance)
 
+    # Get instance operation states
+    database_compaction_state = user_instance.compression.get(user_instance.COMPACTION_STATE, None)
+
+    database_copy_state = None
+    copy_database_document = user_instance.document.get('copy_database', None)
+    if copy_database_document:
+        database_copy_state = copy_database_document.get('state', None)
+
+    database_repair_state = False
+    if user_instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE:
+        database_repair_state = user_instance.repair_state
+
     return render_template('instances/instance_details.html',
                            account_monitoring_checks=account_monitoring_checks,
                            aggregate_stats=aggregate_stats,
                            balancer=balancer,
                            databases=databases,
+                           database_compaction_state=database_compaction_state,
+                           database_copy_state=database_copy_state,
+                           database_repair_state=database_repair_state,
                            enable_copy_database=enable_copy_database,
                            get_host_zone=Utility.get_host_zone,
                            instance=user_instance,

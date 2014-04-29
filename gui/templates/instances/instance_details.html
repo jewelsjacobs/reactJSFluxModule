@@ -126,6 +126,75 @@
         </ul>
     {% endcall %}
 
+    {% call detail_section(title='Instance Operations Status', collapsible=True) %}
+        {% if database_compaction_state == instance.COMPACTION_STATE_REQUESTED %}
+            {% set compaction_class='rs-status-processing' %}
+            {% set compaction_text='Processing' %}
+        {% elif database_compaction_state == instance.COMPACTION_STATE_ABORTED %}
+            {% set compaction_class='rs-status-error' %}
+            {% set compaction_text='Aborted' %}
+        {% elif database_compaction_state == instance.COMPACTION_STATE_COMPRESSED %}
+            {% set compaction_class='rs-status-ok' %}
+            {% set compaction_text='Completed' %}
+        {% else %}
+            {% set compaction_class='rs-status-disabled' %}
+            {% set compaction_text='Inactive' %}
+        {% endif %}
+
+        {% if database_copy_state == 'scheduled' or database_copy_state == 'started' %}
+            {% set copy_class='rs-status-processing' %}
+            {% set copy_text='Processing' %}
+        {% elif database_copy_state == 'failed' %}
+            {% set copy_class='rs-status-error' %}
+            {% set copy_text='Failed' %}
+        {% else %}
+            {% set copy_class='rs-status-disabled' %}
+            {% set copy_text='Inactive' %}
+        {% endif %}
+
+        {% if not is_sharded_instance %}
+            {% if database_repair_state == instance.REPAIR_STATE_PENDING
+            or database_copy_state == instance.REPAIR_STATE_PAUSED
+            or database_copy_state == instance.REPAIR_STATE_STARTED %}
+                {% set repair_class='rs-status-processing' %}
+                {% set repair_text='Processing' %}
+            {% elif database_repair_state == instance.REPAIR_STATE_FAILED %}
+                {% set repair_class='rs-status-error' %}
+                {% set repair_text='Failed' %}
+            {% elif database_repair_state == instance.REPAIR_STATE_FINISHED %}
+                {% set repair_class='rs-status-ok' %}
+                {% set repair_text='Completed' %}
+            {% else %}
+                {% set repair_class='rs-status-disabled' %}
+                {% set repair_text='Inactive' %}
+            {% endif %}
+        {% endif %}
+
+        <ul class="rs-detail-list">
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Database Compaction</div>
+                <div class="rs-detail-value">
+                    <span class="rs-status {{ compaction_class }}">{{ compaction_text }}</span>
+                </div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Database Copy</div>
+                <div class="rs-detail-value">
+                    <span class="rs-status {{ copy_class }}">{{ copy_text }}</span>
+                </div>
+            </li>
+            {% if not is_sharded_instance %}
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Database Repair</div>
+                    <div class="rs-detail-value">
+                        <span class="rs-status {{ repair_class }}">{{ repair_text }}</span>
+                    </div>
+                </li>
+            {% endif %}
+        </ul>
+    {% endcall %}
+
+
     {% call detail_section(title='Databases', collapsible=True) %}
         <!-- FIXME(Anthony): This is jank. This logic should be pulled into the controller. -->
         {% set add_database_enabled = is_sharded_instance or (not is_sharded_instance and databases|count < max_databases_per_replica_set_instances) %}
