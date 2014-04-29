@@ -286,6 +286,14 @@ def inject_constants():
     return {'Constants': Constants}
 
 
+@app.context_processor
+def inject_login():
+    login = getattr(g, 'login', None)
+    if login is not None:
+        return {'login': login}
+    return {}
+
+
 # TODO: Refactor: Should be moved out of controllers.
 # -----------------------------------------------------------------------
 # Configure App Filters
