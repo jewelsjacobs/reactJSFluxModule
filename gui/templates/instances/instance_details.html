@@ -549,6 +549,23 @@
         </div>
     </div>
     <!-- end delete acl popover -->
+
+    <!-- add shard popover -->
+    <div id="add-shard-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="add-shard-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('add_shard', selected_instance=instance.name) }}" method="POST">
+                    <p>Add a shard to instance <b>{{ instance.name }}</b>?</p>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="add-shard-popover-form-button" form="add-shard-popover-form" class="rs-btn rs-btn-primary">Add Shard</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end shard popover -->
 {% endblock popovers %}
 
 {% block script %}
@@ -629,7 +646,6 @@
                 data: {},
                 success: function(jsonData){
                     var backupData = jsonData['data'];
-                    console.log(backupData);
 
                     // If backups are found, then remove the table overlay.
                     if (backupData.length > 0) {
