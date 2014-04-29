@@ -644,6 +644,12 @@ def _calculate_sharded_instance_usage(instance):
     # The total size in bytes of the data held in all database.
     total_data_size = 0
 
+    # The total size in bytes of all indexes created on all databases.
+    total_index_size = 0
+
+    # The total size of the namespace files for all databases.
+    total_ns_size = 0
+
     # The total size in bytes of the data files that hold the databases.
     total_file_size = 0
 
@@ -654,15 +660,17 @@ def _calculate_sharded_instance_usage(instance):
         shard_stats = shard.replica_set.primary.aggregate_database_statistics
         aggregate_stats[shard.name] = shard_stats
 
-        # Aggregate data, file, and storage stats across all shards.
+        # Aggregate size stats across all shards.
         total_data_size += shard_stats[Constants.DATA_SIZE_IN_BYTES]
-        total_data_size += shard_stats[Constants.INDEX_SIZE_IN_BYTES]
-        total_data_size += shard_stats[Constants.NAMESPACE_SIZE_IN_BYTES]
+        total_index_size += shard_stats[Constants.INDEX_SIZE_IN_BYTES]
+        total_ns_size += shard_stats[Constants.NAMESPACE_SIZE_IN_BYTES]
         total_file_size += shard_stats[Constants.FILE_SIZE_IN_BYTES]
         total_storage_size += shard_stats[Constants.STORAGE_SIZE_IN_BYTES]
 
     # Serialize size totals.
     usage_totals['total_data_size'] = total_data_size
+    usage_totals['total_index_size'] = total_index_size
+    usage_totals['total_ns_size'] = total_ns_size
     usage_totals['total_file_size'] = total_file_size
     usage_totals['total_storage_size'] = total_storage_size
 
@@ -670,13 +678,17 @@ def _calculate_sharded_instance_usage(instance):
     size_in_bytes = instance.size * 1024 * 1024 * 1024
 
     # Round percentage totals.
-    data_percentage = round((float(total_data_size) / float(size_in_bytes)) * 100, 2)
-    storage_percentage = round((float(total_storage_size) / float(size_in_bytes)) * 100, 2)
-    remaining_percentage = round(100 - data_percentage - storage_percentage, 2)
+    data_percentage = (float(total_data_size) / float(size_in_bytes)) * 100
+    index_percentage = (float(total_index_size) / float(size_in_bytes)) * 100
+    ns_percentage = (float(total_ns_size) / float(size_in_bytes)) * 100
+    storage_percentage = (float(total_storage_size) / float(size_in_bytes)) * 100
+    remaining_percentage = 100 - data_percentage - index_percentage - ns_percentage - storage_percentage
 
     # Serialize percentage totals.
     usage_totals['percentages'] = {
         'data': data_percentage,
+        'index': index_percentage,
+        'ns': ns_percentage,
         'storage': storage_percentage,
         'remaining': remaining_percentage,
     }
