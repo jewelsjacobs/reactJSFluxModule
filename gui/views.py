@@ -677,7 +677,7 @@ def _calculate_instance_space_usage(instance):
             total_storage_size += shard_stats[Constants.STORAGE_SIZE_IN_BYTES]
 
     else:
-        primary_stats = instance.replia_set.primary.aggregate_database_statistics
+        primary_stats = instance.replica_set.primary.aggregate_database_statistics
         total_data_size = primary_stats[Constants.DATA_SIZE_IN_BYTES]
         total_index_size = primary_stats[Constants.INDEX_SIZE_IN_BYTES]
         total_ns_size = primary_stats[Constants.NAMESPACE_SIZE_IN_BYTES]
