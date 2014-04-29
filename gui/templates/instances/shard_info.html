@@ -24,7 +24,7 @@
                 {% set shard_statistics = aggregate_stats[shard.name] %}
                 {% set primary_oplog_time = primary.oplog_time %}
                 <tr>
-                    <td class="rs-table-text">{{ shard.name }}</td>
+                    <td class="rs-table-text"><a href="{{ url_for('cluster', selected_instance=instance.name) }}">{{ shard.name }}</a></td>
                     <td class="rs-table-text">{{ shard.plan }}</td>
                     <td class="rs-table-text">{{ shard_statistics[Constants.DATA_SIZE_IN_BYTES]|filesizeformat }}</td>
                     <td class="rs-table-text">{{ shard_statistics[Constants.INDEX_SIZE_IN_BYTES]|filesizeformat }}</td>
