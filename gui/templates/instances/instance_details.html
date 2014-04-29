@@ -72,30 +72,30 @@
                 <div class="rs-detail-value">
                     <span>{{ usage_totals['total_data_size']|filesizeformat }} of {{ instance.size }} GB</span>
                     <span data-title="
-<p><span class='rs-status rs-status-ok'>Ns</span> The total size of the namespace files for all databases.</p>
-<p><span class='rs-status rs-status-ok'>Data</span> The total size in bytes of the data held in all database.</p>
-<p><span class='rs-status rs-status-ok'>Indexes</span> The total size in bytes of all indexes created on all databases.</p>
-<p><span class='rs-status rs-status-warning'>Storage</span> The total amount of space in bytes allocated to collections in all database for document storage.</p>"
+<p><span class='rs-status or-status-ns'>Ns</span> The total size of the namespace files for all databases.</p>
+<p><span class='rs-status or-status-data'>Data</span> The total size in bytes of the data held in all database.</p>
+<p><span class='rs-status or-status-index'>Indexes</span> The total size in bytes of all indexes created on all databases.</p>
+<p><span class='rs-status or-status-storage'>Storage</span> The total amount of space in bytes allocated to collections in all database for document storage.</p>"
                           data-delay="0.1" class="rs-icon-help tip valign-baseline"></span>
                     <div class="rs-progress">
                         <div class="rs-progress-inner">
                             <div id="usage-bar-ns" class="rs-segment tip" style="width: {{ usage_totals['percentages']['ns'] }}%;">
-                                <div class="rs-bar rs-bar-ok"></div>
+                                <div class="rs-bar or-bar-ns"></div>
                                 <!-- Avoid caption overcrowding. -->
                                 {% if usage_totals['percentages']['ns'] > 2 %}<div class="rs-caption">Ns</div>{% endif %}
                             </div>
                             <div id="usage-bar-data" class="rs-segment" style="width: {{ usage_totals['percentages']['data'] }}%;">
-                                <div class="rs-bar rs-bar-ok"></div>
+                                <div class="rs-bar or-bar-data"></div>
                                 <!-- Avoid caption overcrowding. -->
                                 {% if usage_totals['percentages']['data'] > 4 %}<div class="rs-caption">Data</div>{% endif %}
                             </div>
                             <div id="usage-bar-indexes" class="rs-segment" style="width: {{ usage_totals['percentages']['index'] }}%;">
-                                <div class="rs-bar rs-bar-ok"></div>
+                                <div class="rs-bar or-bar-index"></div>
                                 <!-- Avoid caption overcrowding. -->
                                 {% if usage_totals['percentages']['index'] > 5 %}<div class="rs-caption">Indexes</div>{% endif %}
                             </div>
                             <div id="usage-bar-storage" class="rs-segment" style="width: {{ usage_totals['percentages']['storage'] }}%;">
-                                <div class="rs-bar rs-bar-processing"></div>
+                                <div class="rs-bar or-bar-storage"></div>
                                 <div class="rs-caption">Allocated</div>
                             </div>
                             <div id="usage-bar-remainder" class="rs-segment" style="width: {{ usage_totals['percentages']['remaining'] }}%;">

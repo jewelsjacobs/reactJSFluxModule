@@ -23,7 +23,7 @@ body.rs-responsive .rs-container {
 .hidden {
     display: none;
 }
-.or-overlay { /* This diverges from the canon norm, but it is needed for the JS. */
+.or-overlay {
     position: fixed;
     top: 0px;
     left: 0px;
@@ -50,6 +50,39 @@ img.invoice-logo {
 
 .rs-dropdown-menu .rs-btn.rs-btn-link {
     text-align: left;
+}
+
+/* === bar & status overwrites === */
+.or-bar-ns {
+    background: #0062ff; /* .blue */
+}
+
+.or-bar-data {
+    background: #62ff00; /* .green */
+}
+
+.or-bar-index {
+    background: #9d00ff; /* .violet */
+}
+
+.or-bar-storage {
+    background: #ff9d00; /* .orange */
+}
+
+.rs-status.or-status-ns {
+    background: #0062ff; /* .blue */
+}
+
+.rs-status.or-status-data {
+    background: #62ff00; /* .green */
+}
+
+.rs-status.or-status-index {
+    background: #9d00ff; /* .violet */
+}
+
+.rs-status.or-status-storage {
+    background: #ff9d00; /* .orange */
 }
 
 /* === focus panel code === */
@@ -144,6 +177,22 @@ p.tos {
 /* === colors === */
 .strong-blue {
     color: #0088cc;
+}
+
+.green {
+    color: #62ff00;
+}
+
+.orange {
+    color: #ff9d00;
+}
+
+.violet {
+    color: #9d00ff;
+}
+
+.blue {
+    color: #0062ff;
 }
 
 /* === Link pointers === */
