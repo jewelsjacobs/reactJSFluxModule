@@ -737,8 +737,8 @@ def _calculate_instance_space_usage(instance):
 @app.route('/rename_instance', methods=['POST'])
 @viper_auth
 def rename_instance():
-    current_name = request.form['current-name']
-    new_name = request.form['new-name']
+    current_name = request.form['current_name']
+    new_name = request.form['new_name']
     instance_manager = InstanceManager(config)
     app.logger.debug("renaming %s to %s:" % (current_name, new_name))
 
