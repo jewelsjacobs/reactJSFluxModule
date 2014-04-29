@@ -1115,7 +1115,7 @@ def create_index(selected_instance, selected_db, selected_collection):
     user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
     user_database = user_instance.get_database(selected_db)
 
-    all_index_keys = request.form['all-index-keys']
+    all_index_keys = request.form['all_index_keys']
     index_keys = json.loads(all_index_keys, object_pairs_hook=collections.OrderedDict)
 
     try:
