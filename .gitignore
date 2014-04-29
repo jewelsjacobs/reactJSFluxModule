@@ -16,3 +16,4 @@ docs/_build/
 # Sublime specific
 *.sublime-*
 
+.DS_Store
