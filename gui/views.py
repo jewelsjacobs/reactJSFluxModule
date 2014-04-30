@@ -1485,7 +1485,7 @@ def billing():
 @viper_auth
 def set_credit_card():
     billing_manager = BillingManager(config)
-    valid_redirect_routes = [url_for('billing'), url_for('dashboard')]
+    valid_redirect_routes = [url_for('billing'), url_for('instance_stats')]
 
     try:
         billing_manager.set_credit_card(g.login, request.form['stripe_token'])
