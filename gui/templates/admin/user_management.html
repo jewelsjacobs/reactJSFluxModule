@@ -31,19 +31,69 @@
          Stripe subscription, all instances are assigned to the recycle pool.", collapsible=True) %}
         {% call create_view(url_for('admin_remove_user'), id="rmuser_form", method="POST") %}
             <div class="rs-control-group">
-                <label class="rs-control-label" for="switchuser">User ID</label>
+                <label class="rs-control-label" for="login">User ID</label>
 
                 <div class="rs-controls">
-                    <input type="text" name="login" class="rs-input-xlarge" id="rmuser">
+                    <input type="text" name="login" class="rs-input-xlarge" id="login">
 
                     <p class="rs-help-block">Value from users.login.</p>
                 </div>
             </div>
             <div class="rs-control-group">
+                <label class="rs-control-label" for="login_confirm">Confirm User ID</label>
+
                 <div class="rs-controls">
-                    <button type="submit" id="associate_button" class="rs-btn rs-btn-primary">Submit</button>
+                    <input type="text" name="login_confirm" class="rs-input-xlarge" id="login_confirm">
+                </div>
+            </div>
+
+            <div class="rs-control-group">
+                <div class="rs-controls">
+                    <button type="submit" id="remove_button" class="rs-btn rs-btn-primary">Submit</button>
                 </div>
             </div>
         {% endcall %}
     {% endcall %}
 {% endblock %}
+
+{% block script %}
+    {{ super() }}
+    <script>
+        $(document).ready(function () {
+            $('#rmuser_form').validate({
+                rules: {
+                    login: {
+                        minlength: 1,
+                        required: true
+                    },
+                    login_confirm: {
+                        required: true,
+                        equalTo: "#login"
+                    }
+                },
+                errorClass: 'rs-validation-block',
+                errorElement: 'span',
+                highlight: function (label) {
+                    $(label).closest('.rs-control-group').removeClass('success');
+                    $(label).closest('.rs-control-group').addClass('error');
+                },
+                success: function (label) {
+                    $(label).closest('.rs-control-group').removeClass('error');
+                    $(label).closest('.rs-control-group').addClass('success');
+                }
+            });
+
+            $('#rmuser_form').bind("change keyup", function () {
+                if ($(this).validate().checkForm()) {
+                    $("#remove_button").attr('disabled', false);
+                } else {
+                    $('#remove_button').attr('disabled', true);
+                }
+            });
+        });
+        $("#tos").click(function () {
+            event.preventDefault();
+            $(".rs-sidebar").show();
+        });
+    </script>
+{% endblock script %}
