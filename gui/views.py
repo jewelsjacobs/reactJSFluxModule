@@ -689,10 +689,17 @@ def _calculate_instance_space_usage(instance):
     size_in_bytes = instance.maximum_capacity
 
     # Round percentage totals.
-    data_percentage = (float(total_data_size) / float(size_in_bytes)) * 100
-    index_percentage = (float(total_index_size) / float(size_in_bytes)) * 100
-    ns_percentage = (float(total_ns_size) / float(size_in_bytes)) * 100
-    storage_percentage = (float(total_storage_size) / float(size_in_bytes)) * 100
+    if float(size_in_bytes) == 0:
+        data_percentage = 0
+        index_percentage = 0
+        ns_percentage = 0
+        storage_percentage = 0
+    else:
+        data_percentage = (float(total_data_size) / float(size_in_bytes)) * 100
+        index_percentage = (float(total_index_size) / float(size_in_bytes)) * 100
+        ns_percentage = (float(total_ns_size) / float(size_in_bytes)) * 100
+        storage_percentage = (float(total_storage_size) / float(size_in_bytes)) * 100
+
     remaining_percentage = 100 - data_percentage - index_percentage - ns_percentage - storage_percentage
 
     # Serialize percentage totals.
@@ -713,7 +720,10 @@ def _calculate_instance_space_usage(instance):
     for shard_name in aggregate_stats:
         shard_stats = aggregate_stats[shard_name]
         shard_file_size_in_bytes = shard_stats[Constants.FILE_SIZE_IN_BYTES]
-        shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = round((float(shard_file_size_in_bytes) / float(total_file_size)) * 100, 2)
+        if total_file_size == 0:
+            shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = 0
+        else:
+            shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = round((float(shard_file_size_in_bytes) / float(total_file_size)) * 100, 2)
 
     return aggregate_stats, usage_totals
 
