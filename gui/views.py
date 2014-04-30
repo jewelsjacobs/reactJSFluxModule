@@ -2113,3 +2113,32 @@ def update_settings(selected_instance):
 def system_status():
     status_manager = StatusManager(config)
     return render_template('system_status/system_status.html', status=status_manager.get_status())
+
+
+@app.route('/silence_alarm', methods=['GET'])
+def silence_alarm():
+    token = request.args.get('token')
+
+    if token:
+        try:
+            annunciator = Annunciator(config)
+            serializer = itsdangerous.URLSafeTimedSerializer(config.ALARM_SIGNING_KEY)
+            alarm_id = serializer.loads(token, max_age=config.ALARM_SILENCE_TOKEN_TTL_IN_SECONDS)
+            annunciator.mark_alarm_as_silenced(alarm_id)
+
+            flash("Your alarm has been silenced.")
+            return redirect(url_for('sign_in'))
+
+        except itsdangerous.BadSignature:
+            app.logger.info("Bad alarm silencing token presented: %s" % token)
+            flash("Your alarm silencing token was invalid. Please try again.", canon_constants.STATUS_ERROR)
+            return redirect(url_for('sign_in'))
+
+        except Exception as ex:
+            app.logger.info("Error silencing alarm: %s" % ex)
+            flash("There was a problem silencing this alarm. Please try again.", canon_constants.STATUS_ERROR)
+            return redirect(url_for('sign_in'))
+
+    else:
+        flash("Your alarm silencing token was invalid.", canon_constants.STATUS_ERROR)
+        return redirect(url_for('sign_in'))
