@@ -469,12 +469,12 @@ def test_shard_collection(app_client):
         assert response.status_code == 200
 
 
-def test_add_allowed(app_client):
+def test_add_acl(app_client):
     cidr_mask = 'any'
     description = 'test'
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/add_allowed/{}'.format(instance_name),
+        response = client.post('/add_acl/{}'.format(instance_name),
                                    data=dict(
                                        cidr_mask=cidr_mask,
                                        description=description,
