@@ -600,7 +600,6 @@ def instance_details(selected_instance):
     aggregate_stats = {}
     usage_totals = {}
 
-    # TODO(Anthony): Create code path for RS instances.
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
         shard_logs = user_instance.shard_logs
         balancer = user_instance.balancer

@@ -10,6 +10,12 @@
     {% include 'stripe_css.html' %}
 {% endblock style %}
 
+{% block back_link_area %}
+    {% call back_link() %}
+        <a href="{{ url_for('instances') }}">&lsaquo; Back to Instances</a>
+    {% endcall %}
+{% endblock back_link_area %}
+
 {% block content_area_body %}
 
     <!-- detail header -->

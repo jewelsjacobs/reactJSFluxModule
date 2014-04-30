@@ -71,7 +71,7 @@
                 <div class="rs-detail-key">Space Usage</div>
                 <div class="rs-detail-value">
                     {% set usage = usage_totals['total_file_size'] + usage_totals['total_ns_size'] %}
-                    <span>{{ usage|filesizeformat }} of {{ instance.size }} GB</span>
+                    <span>{{ usage|filesizeformat }} of {{ instance.size if instance.type == Constants.MONGODB_SHARDED_INSTANCE else 5 }} GB</span>
                     <span data-title="
 <h4>Legend:</h4>
 <p><span class='rs-status or-status-ns'>Ns: {{ usage_totals['total_ns_size']|filesizeformat }}</span> The total size of the namespace files for all databases.</p>
