@@ -58,11 +58,15 @@ img.invoice-logo {
 }
 
 .or-bar-data {
-    background: #62ff00; /* .green */
+    background: #45b300; /* .green */
 }
 
 .or-bar-index {
     background: #9d00ff; /* .violet */
+}
+
+.or-bar-overage {
+    background: #ff0000; /* .red */
 }
 
 .or-bar-storage {
@@ -74,7 +78,7 @@ img.invoice-logo {
 }
 
 .rs-status.or-status-data {
-    background: #62ff00; /* .green */
+    background: #45b300; /* .green */
 }
 
 .rs-status.or-status-index {
@@ -179,8 +183,16 @@ p.tos {
     color: #0088cc;
 }
 
+.red {
+    color: #ff0000;
+}
+
 .green {
-    color: #62ff00;
+    color: #45b300;
+}
+
+.blue {
+    color: #0062ff;
 }
 
 .orange {
@@ -189,10 +201,6 @@ p.tos {
 
 .violet {
     color: #9d00ff;
-}
-
-.blue {
-    color: #0062ff;
 }
 
 /* === Link pointers === */
