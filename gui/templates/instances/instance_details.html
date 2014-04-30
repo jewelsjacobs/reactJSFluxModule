@@ -83,30 +83,37 @@
                           data-delay="0.1" class="rs-icon-help tip valign-baseline"></span>
                     <div class="rs-progress">
                         <div class="rs-progress-inner">
-                            <div id="usage-bar-ns" class="rs-segment tip" style="width: {{ usage_totals['percentages']['ns'] }}%;">
-                                <div class="rs-bar or-bar-ns"></div>
-                                <!-- Avoid caption overcrowding. -->
-                                {% if usage_totals['percentages']['ns'] > 2 %}<div class="rs-caption">Ns</div>{% endif %}
-                            </div>
-                            <div id="usage-bar-data" class="rs-segment" style="width: {{ usage_totals['percentages']['data'] }}%;">
-                                <div class="rs-bar or-bar-data"></div>
-                                <!-- Avoid caption overcrowding. -->
-                                {% if usage_totals['percentages']['data'] > 4 %}<div class="rs-caption">Data</div>{% endif %}
-                            </div>
-                            <div id="usage-bar-indexes" class="rs-segment" style="width: {{ usage_totals['percentages']['index'] }}%;">
-                                <div class="rs-bar or-bar-index"></div>
-                                <!-- Avoid caption overcrowding. -->
-                                {% if usage_totals['percentages']['index'] > 5 %}<div class="rs-caption">Indexes</div>{% endif %}
-                            </div>
-                            <div id="usage-bar-storage" class="rs-segment" style="width: {{ usage_totals['percentages']['storage'] }}%;">
-                                <div class="rs-bar or-bar-storage"></div>
-                                <div class="rs-caption">Allocated</div>
-                            </div>
-                            <div id="usage-bar-remainder" class="rs-segment" style="width: {{ usage_totals['percentages']['remaining'] }}%;">
-                                <div class="rs-bar"></div>
-                                <!-- Avoid caption overcrowding. -->
-                                {% if usage_totals['percentages']['remaining'] > 5 %}<div class="rs-caption">Free</div>{% endif %}
-                            </div>
+                            {% if 'overage' in usage_totals %}
+                                <div id="usage-bar-overage" class="rs-segment" style="width: 100%;">
+                                    <div class="rs-bar or-bar-overage"></div>
+                                    <div class="rs-caption">{{ usage_totals['overage']|filesizeformat }} Above Threshold</div>
+                                </div>
+                            {% else %}
+                                <div id="usage-bar-ns" class="rs-segment" style="width: {{ usage_totals['percentages']['ns'] }}%;">
+                                    <div class="rs-bar or-bar-ns"></div>
+                                    <!-- Avoid caption overcrowding. -->
+                                    {% if usage_totals['percentages']['ns'] > 2 %}<div class="rs-caption">Ns</div>{% endif %}
+                                </div>
+                                <div id="usage-bar-data" class="rs-segment" style="width: {{ usage_totals['percentages']['data'] }}%;">
+                                    <div class="rs-bar or-bar-data"></div>
+                                    <!-- Avoid caption overcrowding. -->
+                                    {% if usage_totals['percentages']['data'] > 4 %}<div class="rs-caption">Data</div>{% endif %}
+                                </div>
+                                <div id="usage-bar-indexes" class="rs-segment" style="width: {{ usage_totals['percentages']['index'] }}%;">
+                                    <div class="rs-bar or-bar-index"></div>
+                                    <!-- Avoid caption overcrowding. -->
+                                    {% if usage_totals['percentages']['index'] > 5 %}<div class="rs-caption">Indexes</div>{% endif %}
+                                </div>
+                                <div id="usage-bar-storage" class="rs-segment" style="width: {{ usage_totals['percentages']['storage'] }}%;">
+                                    <div class="rs-bar or-bar-storage"></div>
+                                    <div class="rs-caption">Allocated</div>
+                                </div>
+                                <div id="usage-bar-remainder" class="rs-segment" style="width: {{ usage_totals['percentages']['remaining'] }}%;">
+                                    <div class="rs-bar"></div>
+                                    <!-- Avoid caption overcrowding. -->
+                                    {% if usage_totals['percentages']['remaining'] > 5 %}<div class="rs-caption">Free</div>{% endif %}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

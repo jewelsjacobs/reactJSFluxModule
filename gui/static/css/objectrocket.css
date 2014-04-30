@@ -65,6 +65,10 @@ img.invoice-logo {
     background: #9d00ff; /* .violet */
 }
 
+.or-bar-overage {
+    background: #ff0000; /* .red */
+}
+
 .or-bar-storage {
     background: #ff9d00; /* .orange */
 }
@@ -179,8 +183,16 @@ p.tos {
     color: #0088cc;
 }
 
+.red {
+    color: #ff0000;
+}
+
 .green {
     color: #62ff00;
+}
+
+.blue {
+    color: #0062ff;
 }
 
 .orange {
@@ -189,10 +201,6 @@ p.tos {
 
 .violet {
     color: #9d00ff;
-}
-
-.blue {
-    color: #0062ff;
 }
 
 /* === Link pointers === */

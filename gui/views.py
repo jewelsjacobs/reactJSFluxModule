@@ -725,6 +725,11 @@ def _calculate_instance_space_usage(instance):
         'remaining': remaining_percentage,
     }
 
+    # Account for container extensions.
+    if total_file_size + total_ns_size > size_in_bytes:
+        overage = (total_file_size + total_ns_size) - size_in_bytes
+        usage_totals['overage'] = overage
+
     # Calculate shard balance percentage per shard.
     for shard_name in aggregate_stats:
         shard_stats = aggregate_stats[shard_name]
