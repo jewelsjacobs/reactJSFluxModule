@@ -7,7 +7,13 @@
 
 {% block sidebar %}
     {% call sidebar_help(hidden=False) %}
-        <h3>All plans include</h3>
+        <h3>Creating Instances</h3>
+        <h4>What Are Instances?</h4>
+        <p>Instances are the core of ObjectRocket services. Create an instance that fits your software needs.</p>
+        <p><a target="blank" href="http://docs.objectrocket.com/overview_and_concepts.html#instances">More Details About Instances&raquo;</a></p>
+
+        <hr/>
+        <h4>All plans include</h4>
         <ul>
             <li>MongoDB {{ default_mongo_version }}
                 <a href="http://docs.mongodb.org/manual/release-notes/2.4/" target="1">Release Notes</a>
@@ -16,18 +22,28 @@
             <li>Solid State disk (SSD)</li>
             <li>24x7 email Support</li>
         </ul>
+
+        <hr/>
+        <h4>Zone</h4>
+        <p>This is the location of the datacenter which your instance will exist in.</p>
+
+        <hr/>
+        <h4>Plan</h4>
+        <p>The plan is the base size of your instance. Each new shard added to your instance will increase your instance size by increments of the plan size you select.</p>
+
+        <p><a target="blank" href="http://docs.objectrocket.com/">Visit Our Knowledge Center &raquo;</a></p>
     {% endcall %}
 {% endblock sidebar %}
 
 {% block content_area_body %}
     {% call create_view(url_for('sign_up3'), id="sign-up-form", method="POST") %}
         {% call detail_header(page_title="Sign Up", subtitle="Step 2 of 3") %}{% endcall %}
-        {% call detail_section(title="Instance Information") %}
+        {% call detail_section(title="Instance Details") %}
             <div class="rs-control-group">
                 <label class="rs-control-label" for="name">Instance Name</label>
 
                 <div class="rs-controls">
-                    <input id="name" name="name" type="text" class="rs-input-xlarge">
+                    <input id="name" name="name" type="text" class="rs-input-large">
                 </div>
             </div>
 

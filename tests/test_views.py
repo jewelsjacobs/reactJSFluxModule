@@ -147,14 +147,10 @@ def test_error(app_client):
         assert response.status_code == 200
 
 
-def test_dashboard(app_client):
+def test_root(app_client):
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
         response = client.get('/')
-        print(response.data)
-        assert response.status_code == 200
-
-        response = client.get('/{}'.format(instance_name))
         print(response.data)
         assert response.status_code == 200
 

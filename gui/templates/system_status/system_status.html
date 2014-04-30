@@ -6,32 +6,44 @@
 
 
 {% block content_area_body %}
-{% call detail_header(page_title="System Status") %}{% endcall %}
-        {% call detail_section(title="System Health", collapsible=True) %}
-            <table class="rs-list-table">
-                <thead>
-                    <tr>
-                        <th colspan="2" class="rs-table-status"><p data-title="
+    <!-- detail header -->
+    <div class="rs-detail-header">
+        {% call detail_header_actions() %}
+            <li><span class="rs-dropdown-category">Views</span></li>
+            <li><a class="rs-btn rs-btn-link or-expand-all">Expand All&hellip;</a></li>
+            <li><a class="rs-btn rs-btn-link or-collapse-all">Collapse All&hellip;</a></li>
+        {% endcall %}
+        <!-- page title -->
+        <div class="rs-page-title">System Status</div>
+        <!-- end page title -->
+    </div>
+    <!-- end detail header -->
+
+    {% call detail_section(title="System Health", collapsible=True) %}
+        <table class="rs-list-table">
+            <thead>
+                <tr>
+                    <th colspan="2" class="rs-table-status"><p data-title="
 This column shows the status of the various elements of the ObjectRocket system. Each element shows a simple color to indicate its status.
 <p><span class='rs-status rs-status-ok'>&#x200a;</span> The component is functioning normally.</p>
 <p><span class='rs-status rs-status-warning'>&#x200a;</span> The component may have a fault, but service is not effected.</p>
 <p><span class='rs-status rs-status-error'>&#x200a;</span> The component has experienced a fault.</p>
 Additional details on maintenance, component failure, or service interuptions can be seen in the <a href={{ url_for('notifications') }}>notifications</a> area."
 data-delay="0.1" class="rs-icon-help tip valign-baseline"></p></th>
-                        <th>System Name</th>
-                        <th>System Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for state in status %}
-                    <tr>
-                        <td class="rs-table-status rs-table-status-ok"></td>
-                        <td class="width-halfem"></td>
-                        <td class="rs-table-text">{{ state['_id'] }}</td>
-                        <td class="rs-table-text">{{ state['description'] }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endcall %}
+                    <th>System Name</th>
+                    <th>System Description</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for state in status %}
+                <tr>
+                    <td class="rs-table-status rs-table-status-ok"></td>
+                    <td class="width-halfem"></td>
+                    <td class="rs-table-text">{{ state['_id'] }}</td>
+                    <td class="rs-table-text">{{ state['description'] }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
 {% endblock %}

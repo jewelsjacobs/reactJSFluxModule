@@ -98,7 +98,7 @@ def viper_auth(func):
             g.login = session['login']
             return func(*args, **kwargs)
         else:
-            return render_template('sign_in/sign_in.html')
+            return redirect(url_for('sign_in'))
     return internal
 
 
@@ -380,6 +380,11 @@ def api_serverstatus(selected_instance):
 # ----------------------------------------------------------------------------
 # Normal urls as part of the app.
 # ----------------------------------------------------------------------------
+@app.route('/', methods=['GET'])
+@viper_auth
+def root():
+    """Root url."""
+    return redirect(url_for('sign_in'))
 
 
 @app.route('/error', methods=['GET'])
@@ -437,40 +442,15 @@ def update_password():
     return redirect(url_for('account'))
 
 
-@app.route('/', methods=['GET'])
-@app.route('/<selected_instance>', methods=['GET'])
+@app.route('/instances/<selected_instance>/stats', methods=['GET'])
 @viper_auth
-def dashboard(selected_instance=None):
-    ## ignore requests for favicon.ico to the gui
-    # TODO: Reconfigure nginx to serve up /favicon.ico
-    if selected_instance and selected_instance.lower() == "favicon.ico":
-        abort(404)
-
-    message_manager = MessageManager(config)
+def instance_stats(selected_instance):
+    """Instance statistics page."""
     account_manager = AccountManager(config)
-    status_manager = StatusManager(config)
-
     account = account_manager.get_account(g.login)
-    instances = account.instances
-    messages = message_manager.get_messages(g.login, limit=5)
+    instance = account.get_instance_by_name(selected_instance)
 
-    if selected_instance is None:
-        try:
-            instance = instances[0]
-        except IndexError:
-            instance = None
-    else:
-        instance = account.get_instance_by_name(selected_instance)
-
-    return render_template('dashboard/dashboard.html',
-                           login=account.login,
-                           has_instances=instance is not None,
-                           instances=instances,
-                           account=account,
-                           status=status_manager.get_status(),
-                           instance=instance,
-                           messages=messages,
-                           stripe_pub_key=config.STRIPE_PUB_KEY)
+    return render_template('instances/instance_stats.html', instance=instance)
 
 
 @app.route('/instances', methods=['GET'])
@@ -1248,7 +1228,7 @@ def sign_in():
     if not account.accepted_msa:
         return redirect(url_for('msa'))
 
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('instances'))
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -1398,7 +1378,7 @@ def msa_agree():
     # Record agreement, then redirect to home.
     account_manager = AccountManager(config)
     account_manager.accept_msa(g.login)
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('instances'))
 
 
 @app.route('/msa_disagree')
@@ -1858,7 +1838,7 @@ def admin_switch_user():
     account_manager = AccountManager(config)
     if account_manager.get_account(user_id):
         session['login'] = user_id
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('instances'))
     else:
         flash('Provide a valid user to switch to.', canon_constants.STATUS_ERROR)
         return redirect(url_for('admin_user_management'))

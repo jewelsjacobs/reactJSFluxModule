@@ -1,0 +1,210 @@
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    Instance Statistics
+{% endblock title %}
+
+{% block style %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="/static/css/dygraph.css"/>
+    {% include 'stripe_css.html' %}
+{% endblock style %}
+
+{% block content_area_body %}
+
+    <!-- detail header -->
+    <div class="rs-detail-header">
+        {% call detail_header_actions() %}
+            <li><span class="rs-dropdown-category">Views</span></li>
+            <li><a class="rs-btn rs-btn-link or-expand-all">Expand All&hellip;</a></li>
+            <li><a class="rs-btn rs-btn-link or-collapse-all">Collapse All&hellip;</a></li>
+        {% endcall %}
+        <!-- detail header subtitle -->
+        <div class="rs-detail-header-subtitle">Instance Statistics</div>
+        <!-- end detail header subtitle -->
+
+        <!-- detail header title -->
+        <div class="rs-detail-header-title">{{ instance.name }}</div>
+        <!-- end detail header title -->
+    </div>
+    <!-- end detail header -->
+
+    {% call detail_section(title="Stats", collapsible=True) %}
+        <table class="rs-list-table">
+            <thead>
+                <tr>
+                    <td>Queries/Sec</td>
+                    <td>Inserts/Sec</td>
+                    <td>Updates/Sec</td>
+                    <td>Deletes/Sec</td>
+                    <td>Commands/Sec</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="lead" id="query">0</span></td>
+                    <td><span class="lead" id="insert">0</span></td>
+                    <td><span class="lead" id="update">0</span></td>
+                    <td><span class="lead" id="delete">0</span></td>
+                    <td><span class="lead" id="command">0</span></td>
+                </tr>
+            </tbody>
+        </table>
+    {% endcall %}
+
+    {% call detail_section(title="Histograms", collapsible=True) %}
+        <div class="histogram-well">
+            <h6>Opcounters/Sec</h6>
+            <div class="pull-right" id="graphdiv-legend1"></div>
+            <br/>
+
+            <div class="well-graph" id="graphdiv1"></div>
+            <br/>
+
+            <h6>Network/Sec</h6>
+            <div class="pull-right" id="graphdiv-legend2"></div>
+            <br/>
+
+            <div class="well-graph" id="graphdiv2"></div>
+            <br/>
+
+            <h6>Disk Space Usage</h6>
+            <div class="pull-right" id="graphdiv-legend3"></div>
+            <br/>
+
+            <div class="well-graph" id="graphdiv3"></div>
+            <br/>
+        </div>
+    {% endcall %}
+
+{% endblock content_area_body %}
+
+{% block script %}
+    {{ super() }}
+    <script type="text/javascript" src="/static/js/dygraph-combined.js"></script>
+    <script type="text/javascript">
+
+    // Timeseries graphs.
+    var opcountersURL = "{{ url_for('api_timeseries', name='opcounters', selected_instance=instance.name) }}";
+    var networkURL = "{{ url_for('api_timeseries', name='network', selected_instance=instance.name) }}";
+    var diskURL = "{{ url_for('api_timeseries', name='disk', selected_instance=instance.name) }}";
+
+    function getTimeseriesData(url, name) {
+        $.get(url, {}, function(data) {
+            name.updateOptions( { 'file': data } );
+        });
+    }
+
+    var g1 = new Dygraph( document.getElementById("graphdiv1"), opcountersURL, {
+        legend: "always",
+        fillGraph: true,
+        gridLineColor: "#cccccc",
+        height: 100,
+        labelsDiv: "graphdiv-legend1",
+        labelsSeparateLines: false,
+        axisLabelFontSize: 10,
+        axisLabelColor: "#333333",
+        axisLineColor: "#333333",
+        maxNumberWidth: 12,
+        labels: [ "Date", "Getmore", "Insert", "Update", "Command", "Query", "Delete" ]
+    });
+
+    var g2 = new Dygraph(document.getElementById("graphdiv2"), networkURL, {
+        legend: "always",
+        fillGraph: true,
+        gridLineColor: "#cccccc",
+        height: 100,
+        labelsDiv: "graphdiv-legend2",
+        labelsSeparateLines: false,
+        axisLabelFontSize: 10,
+        axisLabelColor: "#333333",
+        axisLineColor: "#333333",
+        maxNumberWidth: 12,
+        labelsKMG2: true,
+        labels: [ "Date", "BytesOut", "BytesIn" ]
+    });
+
+    var g3 = new Dygraph(document.getElementById("graphdiv3"), diskURL, {
+        legend: "always",
+        fillGraph: true,
+        gridLineColor: "#cccccc",
+        height: 100,
+        labelsDiv: "graphdiv-legend3",
+        labelsSeparateLines: false,
+        axisLabelFontSize: 10,
+        axisLabelColor: "#333333",
+        axisLineColor: "#333333",
+        maxNumberWidth: 12,
+        labelsKMG2: true,
+        stackedGraph: false,
+        labels: [ "Date", "Data Size", "File Size", "Storage Size", "Index Size" ]
+    });
+
+    // Set an elements value.
+    function setElement(id, value) {
+        if (id != "" && id != null && id != " ") {
+            document.getElementById(id).innerHTML = value;
+        }
+    }
+
+    // Set an elements class.
+    function setElementClass(id, value) {
+        if (id != "" && id != null && id != " ") {
+            document.getElementById(id).className = value;
+        }
+    }
+
+    // Get an elements value.
+    function getElement(id) {
+        return document.getElementById(id).innerHTML;
+    }
+
+    function serverStatus(d) {
+        stats = ['query','insert','update','delete','command'];
+        for ( var i = 0; i < stats.length; i++ ) {
+            setElement(stats[i],d['data']['opcounters'][stats[i]]);
+        }
+    }
+
+    function fetchServerStatus(){
+        $.getJSON("{{ url_for('api_serverstatus', selected_instance=instance.name) }}", {}, function(json) {
+            serverStatus(json);
+        });
+    }
+
+    function refresh_status_box() {
+        $.getJSON('/api_status', function(data) {
+            var statuses = ['status-success', 'status-important', 'status-warning'];
+
+            data.data.forEach(function(element) {
+                var selector = $('#' + element._id),
+                status   = statuses[element.status];
+
+                if(!selector.hasClass(status)) {
+                    selector.removeClass();
+                    selector.addClass('status');
+                    selector.addClass(status);
+                }
+            });
+        });
+    }
+
+
+    $(document).ready(function() {
+        refresh_status_box();
+        setInterval(refresh_status_box, 9000);
+
+        fetchServerStatus();
+        setInterval('fetchServerStatus()', 9000);
+
+        // Timeseries.
+        setInterval('getTimeseriesData(opcountersURL,g1)', 4000);
+        setInterval('getTimeseriesData(networkURL,g2)', 4000);
+        setInterval('getTimeseriesData(diskURL,g3)', 4000);
+
+        var loaded = true;
+
+    });
+    </script>
+    {% include 'stripe_js.html' %}
+{% endblock script %}

@@ -96,7 +96,8 @@ TODO:
                                     <li><span class="rs-dropdown-category" id="first">Actions</span></li>
                                     <li><a data-popover="rename-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Rename</a></li>
                                     <li><a data-popover="delete-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Delete</a></li>
-                                    <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}">Settings</a>
+                                    <li><a href="{{ url_for('instance_stats', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Statistics</a>
+                                    <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Settings</a>
                                 </ul>
                             </div>
                         </td>
@@ -116,7 +117,7 @@ TODO:
         <div id="instances-table-overlay" class="rs-table-overlay{% if instances %} hidden{% endif %}">
             <div class="rs-table-overlay-content">
                 <div class="rs-table-overlay-title">You don't have any instances yet.</div>
-                <div class="rs-table-overlay-subtitle">Create on now by clicking on the Add Instance button.</div>
+                <div class="rs-table-overlay-subtitle">Create one now by clicking on the Add Instance button.</div>
             </div>
         </div>
     </div>
