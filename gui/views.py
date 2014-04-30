@@ -1719,9 +1719,9 @@ def add_shard(selected_instance):
     return redirect(url_for('instance_details', selected_instance=selected_instance))
 
 
-@app.route('/add_allowed/<instance>', methods=['GET', 'POST'])
+@app.route('/add_acl/<instance>', methods=['POST'])
 @viper_auth
-def add_allowed(instance):
+def add_acl(instance):
     instance_manager = InstanceManager(config)
     user_instance = instance_manager.get_instance_by_name(g.login, instance)
 
@@ -1735,9 +1735,7 @@ def add_allowed(instance):
     else:
         user_instance.add_acl(cidr_mask, description)
 
-    return redirect(url_for('instance_details',
-                            selected_instance=instance,
-                            selected_tab='acls'))
+    return redirect(url_for('instance_details', selected_instance=instance))
 
 
 @app.route('/delete_acl/<instance>', methods=['POST'])
