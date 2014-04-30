@@ -1700,7 +1700,7 @@ def add_acl(instance):
 def delete_acl(instance, acl_id=None):
     """Delete instance ACL."""
     if acl_id is None:
-        acl_id = request.form['acl-id']
+        acl_id = request.form['acl_id']
 
     instance_manager = InstanceManager(config)
     user_instance = instance_manager.get_instance_by_name(g.login, instance)

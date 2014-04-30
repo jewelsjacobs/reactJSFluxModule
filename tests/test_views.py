@@ -1,6 +1,8 @@
 import json
 import pytest
 
+from conftest import get_instance
+
 xfail = pytest.mark.xfail
 
 
@@ -480,10 +482,21 @@ def test_add_acl(app_client):
         assert response.status_code == 200
 
 
-# @app.route('/delete_acl/<instance>/<acl_id>')
-@xfail(reason="Test not implemented.")
 def delete_acl(app_client):
-    pass
+    cidr_mask = '66.66.66.66'
+    cidr_description = 'test_acl'
+    instance = get_instance(login, instance_name)
+    acl_id = instance.add_acl(cidr_mask, cidr_description)
+
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/delete_acl/{}'.format(instance_name),
+                                   data=dict(
+                                       acl_id=acl_id,
+                                ),
+                                follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 
 def test_update_account_contact(app_client):
