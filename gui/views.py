@@ -1915,7 +1915,9 @@ def admin_set_status():
 @viper_isadmin
 def admin_inventory():
     instance_manager = InstanceManager(config)
-    node_map = Utility.get_node_map(config)
+    # node_map = Utility.get_node_map(config)
+    # TODO: Temp hack, get_node_map attempts to connect to all instances causing a timeout.
+    node_map = {}
     checkouts=instance_manager.get_checkouts_by_type()
     return render_template('admin/inventory.html',
                            checkouts=checkouts,
