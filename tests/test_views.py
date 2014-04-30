@@ -101,14 +101,6 @@ def test_msa(app_client):
         assert response.status_code == 200
 
 
-def test_or_msa(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/or_msa')
-        print(response.data)
-        assert response.status_code == 200
-
-
 def test_msa_disagree(app_client):
     with app_client as client:
         response = client.get('/msa_disagree')
@@ -154,7 +146,7 @@ def test_root(app_client):
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
         response = client.get('/')
         print(response.data)
-        assert response.status_code == 200
+        assert response.status_code == 302
 
 
 def test_create_instance_user(app_client):
@@ -325,14 +317,6 @@ def test_create_index(app_client):
                                        unique=unique,
                                 ),
                                 follow_redirects=True)
-        print(response.data)
-        assert response.status_code == 200
-
-
-def test_messages(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/messages')
         print(response.data)
         assert response.status_code == 200
 
@@ -593,54 +577,6 @@ def test_billing(app_client):
 @xfail(reason="Test not implemented.")
 def test_show_invoice(app_client):
     pass
-
-
-def test_docs(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/docs')
-        print(response.data)
-        assert response.status_code == 200
-
-
-def test_changelog(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/changelog')
-        print(response.data)
-        assert response.status_code == 200
-
-
-def test_faq(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/faq')
-        print(response.data)
-        assert response.status_code == 200
-
-
-def test_api(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/api')
-        print(response.data)
-        assert response.status_code == 200
-
-
-def test_gui(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/gui')
-        print(response.data)
-        assert response.status_code == 200
-
-
-def test_support(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/support')
-        print(response.data)
-        assert response.status_code == 200
 
 
 def test_admin_switch_user(app_client):
