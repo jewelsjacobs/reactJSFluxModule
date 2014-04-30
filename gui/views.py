@@ -911,10 +911,7 @@ def delete_instance_user(selected_instance, selected_database, username=None):
 
     user_instance.delete_user(selected_database, username)
 
-    return redirect(url_for('database',
-                            selected_instance=selected_instance,
-                            selected_database=selected_database,
-                            selected_tab='collections'))
+    return redirect(url_for('database', selected_instance=selected_instance, selected_database=selected_database))
 
 
 @app.route('/drop_database', methods=['POST'])
@@ -983,18 +980,10 @@ def database(selected_instance, selected_database):
     instance_manager = InstanceManager(config)
     user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
     user_database = user_instance.get_database(selected_database)
-    user_instances = [i for i in instance_manager.get_account_instances(g.login)
-                      if i.name != selected_instance and i.type == Constants.MONGODB_SHARDED_INSTANCE]
-
-    if 'selected_tab' in request.args:
-        selected_tab = request.args['selected_tab']
-    else:
-        selected_tab = 'collections'
 
     is_sharded_instance = user_instance.type == Constants.MONGODB_SHARDED_INSTANCE
     default_autohash_on_id = is_sharded_instance and user_instance.plan < config.DEFAULT_AUTO_HASH_ON_ID_CUTOFF_IN_GB
 
-    # import ipdb;ipdb.set_trace()
     return render_template('instances/instance_database.html',
                            collections=user_database.collections,
                            database=user_database,
@@ -1002,21 +991,13 @@ def database(selected_instance, selected_database):
                            instance=user_instance,
                            is_sharded_instance=is_sharded_instance,
                            login=g.login,
-                           selected_tab=selected_tab,
-                           users=user_database.users,
-                           # TODO: Refactor: user_instances unused in template.
-                           user_instances=user_instances)
+                           users=user_database.users)
 
 
 @app.route('/instances/<selected_instance>/<selected_database>/<selected_collection>', methods=['GET', 'POST'])
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
 def collection(selected_instance, selected_database, selected_collection):
-    if 'selected_tab' in request.args:
-        selected_tab = request.args['selected_tab']
-    else:
-        selected_tab = 'schema'
-
     instance_manager = InstanceManager(config)
     user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
     user_database = user_instance.get_database(selected_database)
@@ -1041,7 +1022,6 @@ def collection(selected_instance, selected_database, selected_collection):
                            instance=user_instance,
                            login=g.login,
                            sample_document=sample_document,
-                           selected_tab=selected_tab,
                            shard_keys=shard_keys)
 
 
@@ -1067,10 +1047,7 @@ def create_collection(selected_instance, selected_database):
         flash(flash_message, canon_constants.STATUS_ERROR)
         app.logger.error(ex)
 
-    return redirect(url_for('database',
-                            selected_instance=selected_instance,
-                            selected_database=selected_database,
-                            selected_tab='collections'))
+    return redirect(url_for('database', selected_instance=selected_instance, selected_database=selected_database))
 
 
 @app.route('/shard_collection/<selected_instance>/<selected_db>/<selected_collection>', methods=['POST'])
@@ -1095,11 +1072,8 @@ def shard_collection(selected_instance, selected_db, selected_collection):
                          " support and provide Error ID %s." % (exception_uuid))
         flash(flash_message, canon_constants.STATUS_ERROR)
 
-    return redirect(url_for('collection',
-                            selected_instance=selected_instance,
-                            selected_database=selected_db,
-                            selected_collection=selected_collection,
-                            selected_tab='shardkey'))
+    return redirect(url_for('collection', selected_instance=selected_instance, selected_database=selected_db,
+                            selected_collection=selected_collection))
 
 
 @app.route('/create_index/<selected_instance>/<selected_db>/<selected_collection>', methods=['GET', 'POST'])
@@ -1131,11 +1105,8 @@ def create_index(selected_instance, selected_db, selected_collection):
                          "support and provide Error ID %s." % (exception_uuid))
         flash(flash_message, canon_constants.STATUS_ERROR)
 
-    return redirect(url_for('collection',
-                            selected_instance=selected_instance,
-                            selected_database=selected_db,
-                            selected_collection=selected_collection,
-                            selected_tab='indexes'))
+    return redirect(url_for('collection', selected_instance=selected_instance, selected_database=selected_db,
+                            selected_collection=selected_collection))
 
 
 @app.route('/notifications')
@@ -1750,9 +1721,7 @@ def delete_acl(instance, acl_id=None):
     user_instance = instance_manager.get_instance_by_name(g.login, instance)
     user_instance.delete_acl(acl_id)
 
-    return redirect(url_for('instance_details',
-                            selected_instance=instance,
-                            selected_tab='acls'))
+    return redirect(url_for('instance_details', selected_instance=instance))
 
 
 @app.route('/admin')
