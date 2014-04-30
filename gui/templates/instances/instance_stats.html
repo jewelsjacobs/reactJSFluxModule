@@ -11,115 +11,6 @@
 {% endblock style %}
 
 {% block content_area_body %}
-<<<<<<< HEAD
-    <div class="rs-detail-header">
-        <h2 class="rs-page-title">Dashboard</h2>
-    </div>
-
-    {% if not has_instances %}
-
-        {% call detail_section() %}
-            {% if not account.stripe_account or account.invoiced %}
-                <div class="rs-btn-group">
-                    <div class="alert alert-info"><strong>To create an instance, you'll need to add your credit card information below.</strong></div>
-                    <form id="enter_cc_form" name="add_cc_form" action="{{ url_for('set_credit_card') }}" method="POST" windowTitle="Add Credit Card" windowLabel="Add Card" class="rs-form-horizontal rs-form-small">
-                        <button type="button" id="add_cc_button" class="rs-btn rs-btn-primary cc_button">Add Credit Card</button>
-                        <input type="hidden" name="stripe_token" id="stripe_token">
-                        <input type="hidden" name="returntarget" value="{{ url_for('dashboard') }}">
-                    </form>
-                </div>
-            {% else %}
-                <div class="rs-btn-group">
-                    <div class="alert alert-info">You don't have any instances defined.</div>
-                    <a href="{{ url_for('instances_create') }}" class="rs-btn rs-btn-primary">Add Instance</a>
-                </div>
-            {% endif %}
-        {% endcall %}
-
-    {% else %}
-
-        {% call detail_section(title="Stats") %}
-            <table class="rs-list-table">
-                <thead>
-                    <tr>
-                        <td>Queries/Sec</td>
-                        <td>Inserts/Sec</td>
-                        <td>Updates/Sec</td>
-                        <td>Deletes/Sec</td>
-                        <td>Commands/Sec</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span class="lead" id="query">0</span></td>
-                        <td><span class="lead" id="insert">0</span></td>
-                        <td><span class="lead" id="update">0</span></td>
-                        <td><span class="lead" id="delete">0</span></td>
-                        <td><span class="lead" id="command">0</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        {% endcall %}
-
-        {% call detail_section(title="Histograms") %}
-            <div class="histogram-well">
-                <h6>Opcounters/Sec</h6>
-                <div class="pull-right" id="graphdiv-legend1"></div>
-                <br/>
-
-                <div class="well-graph" id="graphdiv1"></div>
-                <br/>
-
-                <h6>Network/Sec</h6>
-                <div class="pull-right" id="graphdiv-legend2"></div>
-                <br/>
-
-                <div class="well-graph" id="graphdiv2"></div>
-                <br/>
-
-                <h6>Disk Space Usage</h6>
-                <div class="pull-right" id="graphdiv-legend3"></div>
-                <br/>
-
-                <div class="well-graph" id="graphdiv3"></div>
-                <br/>
-            </div>
-        {% endcall %}
-
-        <!-- detail section -->
-        <div class="rs-detail-section">
-            <div class="rs-detail-section-header">
-                <!-- detail section title -->
-                <div class="rs-detail-section-title">
-                    Plan
-                    <span data-title="ObjectRocket is a sharded system, when you add space, you do so by adding a shard.  Shards are added in the plan size.  Shards can be added manually at any time, or automatically via the RocketScale&trade; service." data-delay="0.1" class="rs-icon-help tip valign-baseline"></span>
-                </div>
-                <!-- end detail section title -->
-            </div>
-            <div class="rs-detail-section-body">
-                <table class="rs-list-table">
-                    <thead>
-                    <tr>
-                        <th>Plan</th>
-                        <th>Zone</th>
-                        <th>Shards</th>
-                        <th>Total Size</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ instance.plan }}GB</td>
-                            <td>{{ instance.zone }}</td>
-                            <td>{{ instance.shard_count }}</td>
-                            <td>{{ instance.size }}GB</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="rs-btn-group">
-                    <a href="{{ url_for('cluster', selected_instance=instance.name) }}" class="rs-btn rs-btn-primary">{% if instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE %}Manage Members{% else %}Manage Shards{% endif %}</a>
-                </div>
-            </div>
-=======
 
     <!-- detail header -->
     <div class="rs-detail-header">
@@ -183,7 +74,6 @@
 
             <div class="well-graph" id="graphdiv3"></div>
             <br/>
->>>>>>> Refactored /dashboard & preparing to move it
         </div>
     {% endcall %}
 
