@@ -98,7 +98,7 @@ def viper_auth(func):
             g.login = session['login']
             return func(*args, **kwargs)
         else:
-            return render_template('sign_in/sign_in.html')
+            return redirect(url_for('sign_in'))
     return internal
 
 
@@ -1252,7 +1252,7 @@ def sign_in():
     if not account.accepted_msa:
         return redirect(url_for('msa'))
 
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('instances'))
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -1402,7 +1402,7 @@ def msa_agree():
     # Record agreement, then redirect to home.
     account_manager = AccountManager(config)
     account_manager.accept_msa(g.login)
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('instances'))
 
 
 @app.route('/msa_disagree')
@@ -1864,7 +1864,7 @@ def admin_switch_user():
     account_manager = AccountManager(config)
     if account_manager.get_account(user_id):
         session['login'] = user_id
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('instances'))
     else:
         flash('Provide a valid user to switch to.', canon_constants.STATUS_ERROR)
         return redirect(url_for('admin_user_management'))

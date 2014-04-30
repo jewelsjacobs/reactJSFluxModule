@@ -1,40 +1,36 @@
 {% extends 'web_app_base.html' %}
 
-<!--
-TODO:
-- Link tags inside of sidebar_help
-- Add JS for form data
-- Cleanup sidebar_help
--->
-
 {% block title %}
     Create Instance
 {% endblock title %}
 
 {% block sidebar %}
     {% call sidebar_help(hidden=False) %}
-        <h3>Setting Up This Item</h3>
-        <h4>Next steps help text</h4>
-        <p>Short blurb about best practices next steps with this item. Try to keep this to 3 lines maximum.</p>
-        <p><a target="blank" href="#">More Details About Blurb &raquo;</a></p>
+        <h3>Creating Instances</h3>
+        <h4>What Are Instances?</h4>
+        <p>Instances are the core of ObjectRocket services. Create an instance that fits your software needs.</p>
+        <p><a target="blank" href="http://docs.objectrocket.com/overview_and_concepts.html#instances">More Details About Instances&raquo;</a></p>
 
-        <hr>
-        <h4>Help Me With...</h4>
+        <hr/>
+        <h4>All plans include</h4>
         <ul>
-            <li><a target="blank" href="#">Best Practice Number One</a></li>
-            <li><a target="blank" href="#">Best Practice Number Two</a></li>
-            <li><a target="blank" href="#">Best Practice Number Three</a></li>
+            <li>MongoDB {{ default_mongo_version }}
+                <a href="http://docs.mongodb.org/manual/release-notes/2.4/" target="1">Release Notes</a>
+            </li>
+            <li>3 member Replica Set</li>
+            <li>Solid State disk (SSD)</li>
+            <li>24x7 email Support</li>
         </ul>
-        <p><a target="blank" href="#">Learn More about This Product &raquo;</a></p>
 
-        <hr>
-        <h4>What's Next</h4>
-        <ul>
-            <li><a target="blank" href="#">Top Action Number One</a></li>
-            <li><a target="blank" href="#">Top Action Number Two</a></li>
-            <li><a target="blank" href="#">Top Action Number Three</a></li>
-        </ul>
-        <p><a target="blank" href="#">Visit Our Knowledge Center &raquo;</a></p>
+        <hr/>
+        <h4>Zone</h4>
+        <p>This is the location of the datacenter which your instance will exist in.</p>
+
+        <hr/>
+        <h4>Plan</h4>
+        <p>The plan is the base size of your instance. Each new shard added to your instance will increase your instance size by increments of the plan size you select.</p>
+
+        <p><a target="blank" href="http://docs.objectrocket.com/">Visit Our Knowledge Center &raquo;</a></p>
     {% endcall %}
 {% endblock sidebar %}
 
@@ -59,11 +55,9 @@ TODO:
                 <!-- end default input values -->
 
                 <div class="rs-control-group">
-                    <label class="rs-control-label">Engine</label>
+                    <label class="rs-control-label">Instance Name</label>
                     <div class="rs-controls">
-                        <select name="serverclass">
-                            <option value="mongodb">MongoDB 2.4.6</option>
-                        </select>
+                        <input id="name" name="name" class="rs-input-large" type="text">
                     </div>
                 </div>
 
@@ -93,20 +87,12 @@ TODO:
                         </select>
                     </div>
                 </div>
-
-                <div class="rs-control-group">
-                    <label class="rs-control-label">Instance Name</label>
-                    <div class="rs-controls">
-                        <input id="name" name="name" class="rs-input-large" type="text">
-                    </div>
-                </div>
             </div>
         </div>
 
         <div class="rs-detail-section">
             <div class="rs-detail-section-header rs-btn-group">
                 <button class="rs-btn rs-btn-primary save">Create Instance</button>
-                <!-- <span class="action_pending"></span> -->
                 <a href="{{ url_for('instances') }}" class="rs-btn rs-btn-link cancel">Cancel</a>
             </div>
         </div>
@@ -133,11 +119,12 @@ TODO:
                 errorClass: 'rs-validation-block',
                 errorElement: 'span',
                 highlight: function (label) {
+                    $(label).closest('.rs-control-group').removeClass('success');
                     $(label).closest('.rs-control-group').addClass('error');
                 },
                 success: function (label) {
-                    $(label).closest('.rs-control-group').addClass('success');
                     $(label).closest('.rs-control-group').removeClass('error');
+                    $(label).closest('.rs-control-group').addClass('success');
                 }
             });
 
