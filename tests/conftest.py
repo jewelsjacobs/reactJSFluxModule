@@ -7,7 +7,8 @@ import sys
 
 import pytest
 
-from viper import config
+from viper import config as viper_config
+from viper.annunciator import Annunciator
 from viper.instance import InstanceManager
 
 
@@ -32,6 +33,13 @@ def app_client(testdb):
 
 
 def get_instance(login, instance):
-    instance_manager = InstanceManager(config)
+    instance_manager = InstanceManager(viper_config)
     instance = instance_manager.get_instance_by_name(login, instance)
     return instance
+
+
+@pytest.fixture
+def annunciator():
+    annunciator = Annunciator(viper_config)
+    return annunciator
+

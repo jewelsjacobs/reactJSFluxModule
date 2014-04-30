@@ -795,12 +795,16 @@ def test_admin_create_instance(app_client):
         assert response.status_code == 200
 
 
-# @app.route('/<instance_name>/alarm/clear', methods=['POST'])
-@xfail(reason="Test not implemented.")
-def test_alarm_clear(app_client):
-    # alarm_id = request.form['alarm_id']
-    pass
-
+def test_alarm_clear(app_client, annunciator):
+    alarm = annunciator.create_alarm('ACCOUNT_SIGNUP', instance_name, 'info', login, notify_once=True)
+    alarm_id = alarm.id
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('clear_alarm',
+                               data=dict(alarm_id=alarm_id),
+                               follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 # @app.route('/<instance_name>/alarm/clear/all', methods=['POST'])
 @xfail(reason="Test not implemented.")
@@ -843,10 +847,10 @@ def test_delete_instance(app_client):
         assert response.status_code == 200
 
 
-def test_admin_remove_user(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/user_management/remove_user', data=dict(login=login),
-                               follow_redirects=True)
-        print(response.data)
-        assert response.status_code == 200
+# def test_admin_remove_user(app_client):
+#     with app_client as client:
+#         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+#         response = client.post('/admin/user_management/remove_user', data=dict(login=login),
+#                                follow_redirects=True)
+#         print(response.data)
+#         assert response.status_code == 200
