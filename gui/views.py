@@ -936,7 +936,7 @@ def copy_database(selected_instance):
                             selected_instance = selected_instance))
 
 
-@app.route('/instances/<selected_instance>/<selected_database>', methods=['GET', 'POST'])
+@app.route('/instances/<selected_instance>/databases/<selected_database>', methods=['GET', 'POST'])
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
 def database(selected_instance, selected_database):
@@ -957,7 +957,7 @@ def database(selected_instance, selected_database):
                            users=user_database.users)
 
 
-@app.route('/instances/<selected_instance>/<selected_database>/<selected_collection>', methods=['GET', 'POST'])
+@app.route('/instances/<selected_instance>/databases/<selected_database>/collections/<selected_collection>', methods=['GET', 'POST'])
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
 def collection(selected_instance, selected_database, selected_collection):
