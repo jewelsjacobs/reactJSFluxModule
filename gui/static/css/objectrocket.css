@@ -59,10 +59,6 @@ img.invoice-logo {
     max-width: 125px !important;
 }
 
-.or-flash-message {
-    overflow: scroll;
-}
-
 /* === bar & status overwrites === */
 .or-bar-ns {
     background: #0062ff; /* .blue */
@@ -180,6 +176,10 @@ img.invoice-logo {
 
 .valign-baseline {
     vertical-align: baseline;
+}
+
+.white-space-normal {
+    white-space: normal;
 }
 
 /* === paragraph styles === */
