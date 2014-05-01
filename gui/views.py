@@ -1231,8 +1231,6 @@ def sign_in():
 
     session['login'] = login
 
-    flash('Sign in successful.', canon_constants.STATUS_OK)
-
     account = account_manager.get_account(login)
     if not account.accepted_msa:
         return redirect(url_for('msa'))
