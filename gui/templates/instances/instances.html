@@ -63,12 +63,6 @@ TODO:
                             <span class="rs-table-sort-indicator"></span>
                         </a>
                     </th>
-                    <th>
-                        <a href="#list-table" class="rs-table-sort">
-                            <span class="rs-table-sort-text">Size(GB)</span>
-                            <span class="rs-table-sort-indicator"></span>
-                        </a>
-                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -108,7 +102,6 @@ TODO:
                         <td class="rs-table-link">{{ instance.zone }}</td>
                         <td class="rs-table-link">{{ instance.plan }}</td>
                         <td class="rs-table-link">{{ instance.shards|count }}</td>
-                        <td class="rs-table-link">{{ instance.size }}</td>
                     </tr>
                     {% set instancecount = instancecount + 1 %}
                 {% endfor %}
