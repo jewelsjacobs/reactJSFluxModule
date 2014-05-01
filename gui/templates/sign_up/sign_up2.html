@@ -109,15 +109,12 @@
     <script>
         $(document).ready(function () {
 
-            $.validator.addMethod("noSpaces", function (value, element) {
-                return value.indexOf(" ") < 0 && value != "";
-            }, "Spaces are not permitted in instance names");
-
             $('#sign-up-form').validate({
                 rules: {
                     name: {
-                        minlength: 2,
                         alphanumeric: true,
+                        minlength: 2,
+                        nowhitespace: true,
                         required: true
                     }
                 },
