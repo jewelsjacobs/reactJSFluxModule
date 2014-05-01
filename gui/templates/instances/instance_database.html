@@ -132,7 +132,7 @@
                             <span data-title="Collections are groupings of MongoDB documents, and are equivalent to an RDBMS table." data-delay="0.1" class="rs-icon-help tip"></span>
                         </td>
                         <td class="rs-table-text"><a href="/instances/{{ instance.name }}/{{ database.name }}/{{ collection.name }}">{{ collection.name }}</td>
-                        <td class="rs-table-text">{{ collection.count if collection.count else 0 }}</td>
+                        <td class="rs-table-text">{{ collection.document_count if collection.document_count else 0 }}</td>
                         <td class="rs-table-text">{{ (collection.size if collection.size else 0)|filesizeformat }}</td>
                         <td class="rs-table-text">{{ (collection.average_object_size_in_bytes if collection.average_object_size_in_bytes else 0)|filesizeformat }}</td>
                         <td class="rs-table-text">{{ (collection.total_index_size_in_bytes if collection.total_index_size_in_bytes else 0)|filesizeformat }}</td>
