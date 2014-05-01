@@ -14,14 +14,16 @@ from viper.instance import InstanceManager
 
 def pytest_addoption(parser):
     parser.addoption("--testdb", action="store_true", default=False,
-        help="Use test database")
+                     help="Use test database")
+
 
 @pytest.fixture
 def testdb(request):
     return request.config.getoption("--testdb")
 
+
 @pytest.fixture
-def app_client(testdb):
+def app_client(testdb, request):
     "App test client. Add app config overrides here."
     if testdb:
         from viper.tools import qatools
@@ -29,6 +31,14 @@ def app_client(testdb):
         db.purge_dbs()
     if 'app' not in sys.modules:
         from gui import app
+
+    ctx = app.test_request_context()
+    ctx.push()
+
+    def pop_request():
+        ctx.pop()
+
+    request.addfinalizer(pop_request)
     return app.test_client()
 
 
