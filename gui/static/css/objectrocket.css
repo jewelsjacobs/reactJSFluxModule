@@ -59,6 +59,16 @@ img.invoice-logo {
     max-width: 125px !important;
 }
 
+/* === usage graph flexbox === */
+.or-flexbox-row {
+    display: -webkit-flex;
+    -webkit-flex-direction: row;
+    -webkit-flex-wrap: nowrap;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
 /* === bar & status overwrites === */
 .or-bar-ns {
     background: #0062ff; /* .blue */
