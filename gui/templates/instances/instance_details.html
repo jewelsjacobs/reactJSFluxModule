@@ -243,7 +243,7 @@
                 {% for database in databases %}
                     <tr>
                         <td><button id="delete-database-target-{{ dbcount }}" data-count="{{ dbcount }}" data-popover="delete-database-popover" data-popover-target="delete-database-target-{{ dbcount }}" data-popover-position="right" class="rs-delete rs-popover-source"></button></td>
-                        <td class="rs-table-text" id="database-{{ dbcount }}"><a href='/instances/{{ instance.name }}/{{ database.name }}'>{{ database.name }}</a></td>
+                        <td class="rs-table-text" id="database-{{ dbcount }}"><a href="{{ url_for('database', selected_instance=instance.name, selected_database=database.name) }}">{{ database.name }}</a></td>
                         <td class="rs-table-text">{{ database.object_count }}</td>
                         <td class="rs-table-text">{{ database.data_size_in_bytes|filesizeformat }}</td>
                         <td class="rs-table-text">{{ database.index_count }}</td>
