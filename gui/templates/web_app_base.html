@@ -40,6 +40,10 @@
 
 {% block nav_secondary %}{% endblock nav_secondary %}
 
+{% block flash_messages %}
+    {{ flash_messages(classes='or-flash-message') }}
+{% endblock %}
+
 {% block script %}
     {{ super() }}
     {% include 'jquery_validate_js.html' %}

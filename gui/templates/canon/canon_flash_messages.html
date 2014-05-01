@@ -1,9 +1,9 @@
 {%- from 'canon/canon_component_macros.html' import status_indicator with context %}
-{% macro flash_messages() %}
+{% macro flash_messages(classes='') %}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                {{ status_indicator(message, category) }}
+                {{ status_indicator(message, category, classes) }}
             {% endfor %}
         {% endif %}
     {% endwith %}
