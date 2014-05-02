@@ -571,6 +571,14 @@ def test_show_invoice(app_client):
     pass
 
 
+def test_system_status(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('system_status'))
+        print(response.data)
+        assert response.status_code == 200
+
+
 def test_admin_instance_management(app_client):
     with app_client as client:
         client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
@@ -645,7 +653,6 @@ def test_admin_set_status(app_client):
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
-
 
 
 def test_admin_inventory(app_client):
