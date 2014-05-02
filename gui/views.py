@@ -786,39 +786,8 @@ def add_instance_user(selected_instance):
         except Exception as ex:
             exception_uuid = Utility.obfuscate_exception_message(ex.message)
             flash_message = ("There was a problem updating user information for instance %s. If "
-                             "this problem persists, contact support and provide Error ID %s.")
-
-            flash_message = flash_message % (instance.name, exception_uuid)
-
-            error_info = {
-                'path': request.path,
-                'user': getattr(g, 'login', None),
-                'context': 'gui'
-            }
-            Utility.log_traceback(config, exception_uuid, error_info)
-            flash(flash_message, canon_constants.STATUS_ERROR)
-
-    return redirect(url_for('instances'))
-
-
-@app.route('/add_instance_user/<selected_instance>', methods=['GET', 'POST'])
-@viper_auth
-def add_instance_user(selected_instance):
-    """Adds a user to each database in this instance"""
-    instance_manager = InstanceManager(config)
-    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
-
-    user = request.form['username']
-    password = request.form['password']
-
-    for database in instance.databases:
-        try:
-            instance.add_user(database.name, user, password)
-        except Exception as ex:
-            exception_uuid = Utility.obfuscate_exception_message(ex.message)
-            flash_message = ("There was a problem updating user information for instance %s. If "
                              "this problem persists, contact "
-                             "<a mailto:%s>%s</a> and provide Error ID %s." )
+                             "<a mailto:%s>%s</a> and provide Error ID %s.")
 
             flash_message = flash_message % (instance.name, config.SUPPORT_EMAIL, config.SUPPORT_EMAIL, exception_uuid)
 
