@@ -2,6 +2,7 @@ import json
 import pytest
 
 from conftest import get_instance
+from flask import url_for
 
 xfail = pytest.mark.xfail
 
@@ -204,42 +205,47 @@ def test_instance_details(app_client):
         assert response.status_code == 200
 
 
-
 def test_database(app_client):
+    """Tests accessing a database."""
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/instances/{}/{}'.format(instance_name, database_name), follow_redirects=True)
+        sign_in_url = url_for('sign_in')
+        database_url = url_for('database', selected_instance=instance_name, selected_database=database_name)
+        client.post(sign_in_url, data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(database_url, follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post('/instances/{}/{}'.format(instance_name, database_name), follow_redirects=True)
+        response = client.post(database_url, follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_create_collection(app_client):
+    """Tests collection creation."""
     # TODO: Needs test with shard keys
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/create_collection/{}/{}'.format(instance_name, database_name),
-                               data=dict(
-                                   collection=collection_name,
-                                ),
-                                follow_redirects=True)
+        sign_in_url = url_for('sign_in')
+        create_collection_url = url_for('create_collection', selected_instance=instance_name, selected_database=database_name)
+        client.post(sign_in_url, data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(create_collection_url, data=dict(collection=collection_name), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_collection(app_client):
+    """Tests accessing a collection."""
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/instances/{}/{}/{}'.format(instance_name, database_name, collection_name),
-                              follow_redirects=True)
+        sign_in_url = url_for('sign_in')
+        collection_url = url_for('collection',
+                                 selected_instance=instance_name,
+                                 selected_database=database_name,
+                                 selected_collection=collection_name)
+        client.post(sign_in_url, data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(collection_url, follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post('/instances/{}/{}/{}'.format(instance_name, database_name, collection_name),
-                               follow_redirects=True)
+        response = client.post(collection_url, follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 

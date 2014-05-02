@@ -239,11 +239,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% set dbcount = 0 %}
                 {% for database in databases %}
                     <tr>
-                        <td><button id="delete-database-target-{{ dbcount }}" data-count="{{ dbcount }}" data-popover="delete-database-popover" data-popover-target="delete-database-target-{{ dbcount }}" data-popover-position="right" class="rs-delete rs-popover-source"></button></td>
-                        <td class="rs-table-text" id="database-{{ dbcount }}"><a href="{{ url_for('database', selected_instance=instance.name, selected_database=database.name) }}">{{ database.name }}</a></td>
+                        <td><button id="delete-database-target-{{ loop.index }}" data-count="{{ loop.index }}" data-popover="delete-database-popover" data-popover-target="delete-database-target-{{ loop.index }}" data-popover-position="right" class="rs-delete rs-popover-source"></button></td>
+                        <td class="rs-table-text" id="database-{{ loop.index }}"><a href="{{ url_for('database', selected_instance=instance.name, selected_database=database.name) }}">{{ database.name }}</a></td>
                         <td class="rs-table-text">{{ database.object_count }}</td>
                         <td class="rs-table-text">{{ database.data_size_in_bytes|filesizeformat }}</td>
                         <td class="rs-table-text">{{ database.index_count }}</td>
@@ -252,7 +251,6 @@
                         <td class="rs-table-text">{{ database.average_object_size_in_bytes|filesizeformat }}</td>
                         <td class="rs-table-text">{{ database.file_size_in_bytes|filesizeformat}}</td>
                     </tr>
-                    {% set dbcount = dbcount + 1 %}
                 {% endfor %}
                 </tbody>
             </table>
