@@ -97,18 +97,21 @@ def test_login(app_client):
 
 def test_msa(app_client):
     with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
         response = client.get('/msa')
         assert response.status_code == 200
 
 
 def test_msa_disagree(app_client):
     with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
         response = client.get('/msa_disagree')
         assert response.status_code == 200
 
 
 def msa_agree(app_client):
     with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
         response = client.get('/msa_agree')
         assert response.status_code == 200
 
@@ -784,10 +787,10 @@ def test_delete_instance(app_client):
         assert response.status_code == 200
 
 
-# def test_admin_remove_user(app_client):
-#     with app_client as client:
-#         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-#         response = client.post('/admin/user_management/remove_user', data=dict(login=login),
-#                                follow_redirects=True)
-#         print(response.data)
-#         assert response.status_code == 200
+def test_admin_remove_user(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/user_management/remove_user', data=dict(login=login),
+                               follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
