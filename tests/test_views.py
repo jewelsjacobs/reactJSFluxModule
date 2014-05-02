@@ -571,6 +571,38 @@ def test_show_invoice(app_client):
     pass
 
 
+def test_admin_instance_management(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('admin_instance_management'))
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_admin_user_management(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('admin_user_management'))
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_admin_status_management(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('admin_status_management'))
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_admin_billing(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('admin_billing'))
+        print(response.data)
+        assert response.status_code == 200
+
+
 def test_admin_switch_user(app_client):
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
@@ -683,14 +715,6 @@ def test_admin(app_client):
         response = client.get('/admin')
         print(response.data)
         assert response.status_code == 302
-
-
-def test_alarms(app_client):
-    with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/instances/{}/alarms'.format(instance_name))
-        print(response.data)
-        assert response.status_code == 200
 
 
 def test_compact_instance(app_client):
