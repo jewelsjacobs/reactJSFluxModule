@@ -442,7 +442,7 @@ def update_password():
     return redirect(url_for('account'))
 
 
-@app.route('/instances/<selected_instance>/stats', methods=['GET'])
+@app.route('/instances/<selected_instance>/stats')
 @viper_auth
 def instance_stats(selected_instance):
     """Instance statistics page."""
