@@ -24,12 +24,9 @@ zipcode = '78750'
 company = 'test'
 name = 'test'
 
-# TODO: Import from config
-STRIPE_API_KEY = "Dsi61JdIV3p0yOP2oPCVb55h1GlOzUYe"
-STRIPE_PUB_KEY = "pk_itj1Y8XIDV7U60NxGd1QCDv7Awjd9"
 
-
-def test_sign_up(app_client):
+def test_sign_up(app_client, stripe_token):
+    from viper import config as viper_config
     plan = '5'
     service_type = 'mongodb'
     version = '2.4.6'
@@ -50,7 +47,7 @@ def test_sign_up(app_client):
         assert response.status_code == 200
         response = client.post('/sign_up3',
                                    data=dict(
-                                       stripe_pub_key=STRIPE_PUB_KEY,
+                                       stripe_pub_key=viper_config.STRIPE_PUB_KEY,
                                        name=name,
                                        plan=plan,
                                        zone=zone,
@@ -61,21 +58,9 @@ def test_sign_up(app_client):
         print(response.data)
         assert response.status_code == 200
 
-        # TODO: Move to fixture
-        import stripe
-        stripe.api_key = STRIPE_API_KEY
-
-        stripe_response = stripe.Token.create(card={
-            "number": '4242424242424242',
-            "exp_month": 12,
-            "exp_year": 2017,
-            "cvc": '123'
-        },
-        )
-
         response = client.post('/sign_up_finish',
                                    data=dict(
-                                       stripe_token=stripe_response['id'],
+                                       stripe_token=stripe_token['id'],
                                        name=name,
                                        plan=plan,
                                        zone=zone,
@@ -784,10 +769,10 @@ def test_delete_instance(app_client):
         assert response.status_code == 200
 
 
-# def test_admin_remove_user(app_client):
-#     with app_client as client:
-#         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-#         response = client.post('/admin/user_management/remove_user', data=dict(login=login),
-#                                follow_redirects=True)
-#         print(response.data)
-#         assert response.status_code == 200
+def test_admin_remove_user(app_client):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/admin/user_management/remove_user', data=dict(login=login),
+                               follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200

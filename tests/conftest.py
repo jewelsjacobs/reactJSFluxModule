@@ -43,3 +43,13 @@ def annunciator():
     annunciator = Annunciator(viper_config)
     return annunciator
 
+
+@pytest.fixture
+def stripe_token():
+    import stripe
+    stripe.api_key = viper_config.STRIPE_API_KEY
+    stripe_response = stripe.Token.create(card=dict(number='4242424242424242',
+                                                    exp_month=12,
+                                                    exp_year=2019,
+                                                    cvc=123))
+    return stripe_response
