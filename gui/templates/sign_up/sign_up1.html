@@ -11,7 +11,7 @@
 
 {% block back_link_area %}
     {% call back_link() %}
-        <a href="/sign_in">&lsaquo; Back to Login</a>
+        <a href="{{ url_for('sign_in') }}">&lsaquo; Back to Login</a>
     {% endcall %}
 {% endblock back_link_area %}
 

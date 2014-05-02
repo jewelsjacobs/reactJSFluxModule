@@ -36,7 +36,7 @@
 
 {% block back_link_area %}
     {% call back_link() %}
-        <a href="/instances">&lsaquo; Back to Instances</a>
+        <a href="{{ url_for('instances') }}">&lsaquo; Back to Instances</a>
     {% endcall %}
 {% endblock back_link_area %}
 
