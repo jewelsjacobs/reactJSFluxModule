@@ -388,6 +388,12 @@
         <div class="rs-popover-content">
             <div class="rs-popover-body">
                 <form id="add-instance-user-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('add_instance_user', selected_instance=instance.name) }}" method="POST">
+                    <h4>Add Instance User</h4>
+                    <p>
+                        This will add a new user to all currently existing databases belonging to this instance.
+                        <br/>
+                        <a target="blank" href="http://docs.objectrocket.com/features.html#add-instance-user">More Details About Adding Instance Users</a><span class="rs-icon-external"></span>
+                    </p>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Username</label>
                         <div class="rs-controls">
@@ -404,7 +410,7 @@
                 </form>
             </div>
             <div class="rs-popover-footer rs-btn-group">
-                <button id="add-instance-user-popover-form-button" form="add-instance-user-popover-form" class="rs-btn rs-btn-primary">Add User</button>
+                <button id="add-instance-user-popover-form-button" form="add-instance-user-popover-form" class="rs-btn rs-btn-primary">Add Instance User</button>
                 <div class="rs-btn rs-btn-link">Cancel</div>
             </div>
         </div>
