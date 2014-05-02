@@ -178,6 +178,10 @@ img.invoice-logo {
     vertical-align: baseline;
 }
 
+.white-space-normal {
+    white-space: normal;
+}
+
 /* === paragraph styles === */
 p.tos {
     font-size: 0.9em;
