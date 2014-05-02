@@ -583,126 +583,127 @@
 {% block script %}
     {{ super() }}
     <script type="text/javascript">
+
+    // Instance API key.
+    var apiKey = {{ instance.api_key|tojson|safe }};
+
+    // Render ACL data into the ACLs table.
+    function displayACLs($aclsTableBody) {
+        var apiURL = "/api/acls/" + apiKey;
+
+        $.ajax({
+            url: apiURL,
+            dataType: 'json',
+            type: 'POST',
+            data: {},
+            success: function(jsonData) {
+                var aclData = jsonData['data'];
+
+                // If ACLs are found, then remove the table overlay.
+                if (aclData.length > 0) {
+                    $('#acls-table-overlay').addClass('hidden');
+                }
+
+                // Map each ACL onto this function.
+                aclData.map(function(aclObject) {
+                    var cidrMask = aclObject['cidr_mask'];
+                    var description = aclObject['description'] ? aclObject['description'] : "";
+                    var id = aclObject['_id']['$oid'];
+                    var instance = aclObject['instance'];
+
+                    // Construct the delete button.
+                    var $deleteButton = $('<button>');
+                    $deleteButton.attr('id', 'delete-acl-target-' + id);
+                    $deleteButton.attr('data-popover', 'delete-acl-popover');
+                    $deleteButton.attr('data-popover-target', 'delete-acl-target-' + id);
+                    $deleteButton.attr('data-popover-position', 'right');
+                    $deleteButton.addClass('rs-delete rs-popover-source');
+
+                    // Construct the table row.
+                    var $aclEntry = $('<tr>');
+                    $aclEntry.append($('<td>').append($deleteButton));
+                    $aclEntry.append($('<td>').text(cidrMask));
+                    $aclEntry.append($('<td>').text('Allow'));
+                    $aclEntry.append($('<td>').text(description));
+
+                    // Append the table row to the acls table body.
+                    $aclsTableBody.append($aclEntry);
+
+                    // Bind popover listeners on new elements.
+                    $deleteButton.click(function() {
+                        if(!$deleteButton.prop('disabled')) {
+                            // Inject pertinent content into popover.
+                            $('#delete-acl-popover-cidr').text(cidrMask);
+                            $('#delete-acl-input').val(id);
+
+                            // Position and show popover.
+                            positionPopover($deleteButton);
+                            showPopover($deleteButton);
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    // Render backup data into the backups table.
+    function displayBackups($backupsTable) {
+        var apiURL = "/api/backups/" + apiKey;
+
+        $.ajax({
+            url: apiURL,
+            dataType: 'json',
+            type: 'POST',
+            data: {},
+            success: function(jsonData){
+                var backupData = jsonData['data'];
+
+                // If backups are found, then remove the table overlay.
+                if (backupData.length > 0) {
+                    $('#backups-table-overlay').addClass('hidden');
+                }
+
+                // Map each backup onto this function.
+                backupData.map(function(backupObject) {
+                    var status_message = backupObject['error_msg'];
+                    var filename = backupObject['filename'];
+                    var formattedTimestamp = backupObject['timestamp_formatted'];
+                    var id = backupObject['_id']['$oid'];
+                    var port = backupObject['port'];
+                    var timestamp = backupObject['timestamp'];
+
+                    var $tooltip = $('<span>');
+                    $tooltip.attr('data-title', 'If you need a backup restored, please <a href="mailto:support@objectrocket.com">contact us</a>.');
+                    $tooltip.attr('data-delay', 0.1);
+                    $tooltip.addClass('rs-icon-help');
+
+                    var $backupRow = $('<tr>');
+                    $backupRow.append($('<td>').append($tooltip));
+                    $backupRow.append($('<td>').text(formattedTimestamp));
+                    $backupRow.append($('<td>').text(status_message));
+                    $backupsTable.append($backupRow);
+
+                    // Bind tooltip listener.
+                    $tooltip.hover(function(event) {
+                        removeTooltips();
+                        clearTimeout(removeTipTimer);
+                        clearTimeout(attachTipTimer);
+                        var tooltip = new Object();
+                        tooltip.contents = $(this).attr('data-title');
+                        tooltip.delay = $(this).attr('data-delay');
+                        tooltip.left = event.clientX;
+                        tooltip.top = $(document).scrollTop()+event.clientY;
+                        attachTooltip(tooltip);
+                    }, function(e) {
+                        clearTimeout(attachTipTimer);
+                        removeTipTimer = setTimeout(function(){removeTooltips();}, hideTipTimeout);
+                    });
+                });
+            }
+        });
+    }
+
     $(document).ready(function() {
-
-        // Instance API key.
-        var apiKey = {{ instance.api_key|tojson|safe }};
-
-        // Render ACL data into the ACLs table.
-        function displayACLs($aclsTableBody) {
-            var apiURL = "/api/acls/" + apiKey;
-
-            $.ajax({
-                url: apiURL,
-                dataType: 'json',
-                type: 'POST',
-                data: {},
-                success: function(jsonData) {
-                    var aclData = jsonData['data'];
-
-                    // If ACLs are found, then remove the table overlay.
-                    if (aclData.length > 0) {
-                        $('#acls-table-overlay').addClass('hidden');
-                    }
-
-                    // Map each ACL onto this function.
-                    aclData.map(function(aclObject) {
-                        var cidrMask = aclObject['cidr_mask'];
-                        var description = aclObject['description'] ? aclObject['description'] : "";
-                        var id = aclObject['_id']['$oid'];
-                        var instance = aclObject['instance'];
-
-                        // Construct the delete button.
-                        var $deleteButton = $('<button>');
-                        $deleteButton.attr('id', 'delete-acl-target-' + id);
-                        $deleteButton.attr('data-popover', 'delete-acl-popover');
-                        $deleteButton.attr('data-popover-target', 'delete-acl-target-' + id);
-                        $deleteButton.attr('data-popover-position', 'right');
-                        $deleteButton.addClass('rs-delete rs-popover-source');
-
-                        // Construct the table row.
-                        var $aclEntry = $('<tr>');
-                        $aclEntry.append($('<td>').append($deleteButton));
-                        $aclEntry.append($('<td>').text(cidrMask));
-                        $aclEntry.append($('<td>').text('Allow'));
-                        $aclEntry.append($('<td>').text(description));
-
-                        // Append the table row to the acls table body.
-                        $aclsTableBody.append($aclEntry);
-
-                        // Bind popover listeners on new elements.
-                        $deleteButton.click(function() {
-                            if(!$deleteButton.prop('disabled')) {
-                                // Inject pertinent content into popover.
-                                $('#delete-acl-popover-cidr').text(cidrMask);
-                                $('#delete-acl-input').val(id);
-
-                                // Position and show popover.
-                                positionPopover($deleteButton);
-                                showPopover($deleteButton);
-                            }
-                        });
-                    });
-                }
-            });
-        }
-
-        // Render backup data into the backups table.
-        function displayBackups($backupsTable) {
-            var apiURL = "/api/backups/" + apiKey;
-
-            $.ajax({
-                url: apiURL,
-                dataType: 'json',
-                type: 'POST',
-                data: {},
-                success: function(jsonData){
-                    var backupData = jsonData['data'];
-
-                    // If backups are found, then remove the table overlay.
-                    if (backupData.length > 0) {
-                        $('#backups-table-overlay').addClass('hidden');
-                    }
-
-                    // Map each backup onto this function.
-                    backupData.map(function(backupObject) {
-                        var status_message = backupObject['error_msg'];
-                        var filename = backupObject['filename'];
-                        var formattedTimestamp = backupObject['timestamp_formatted'];
-                        var id = backupObject['_id']['$oid'];
-                        var port = backupObject['port'];
-                        var timestamp = backupObject['timestamp'];
-
-                        var $tooltip = $('<span>');
-                        $tooltip.attr('data-title', 'If you need a backup restored, please <a href="mailto:support@objectrocket.com">contact us</a>.');
-                        $tooltip.attr('data-delay', 0.1);
-                        $tooltip.addClass('rs-icon-help');
-
-                        var $backupRow = $('<tr>');
-                        $backupRow.append($('<td>').append($tooltip));
-                        $backupRow.append($('<td>').text(formattedTimestamp));
-                        $backupRow.append($('<td>').text(status_message));
-                        $backupsTable.append($backupRow);
-
-                        // Bind tooltip listener.
-                        $tooltip.hover(function(event) {
-                            removeTooltips();
-                            clearTimeout(removeTipTimer);
-                            clearTimeout(attachTipTimer);
-                            var tooltip = new Object();
-                            tooltip.contents = $(this).attr('data-title');
-                            tooltip.delay = $(this).attr('data-delay');
-                            tooltip.left = event.clientX;
-                            tooltip.top = $(document).scrollTop()+event.clientY;
-                            attachTooltip(tooltip);
-                        }, function(e) {
-                            clearTimeout(attachTipTimer);
-                            removeTipTimer = setTimeout(function(){removeTooltips();}, hideTipTimeout);
-                        });
-                    });
-                }
-            });
-        }
 
         // Asynchronous calls.
         displayACLs($('#acls-table-body'));
@@ -763,20 +764,35 @@
             }
         });
 
+        // Ensure that the desired database name is not an OR administrative name.
+        var adminDbs = {{ Constants.ADMINISTRATIVE_DATABASES|tojson|safe }}
+        $.validator.addMethod('noadmindbs', function(value, element) {
+            return this.optional(element) || !(adminDbs.indexOf(value) > -1);
+        }, "Please use a different database name.");
+
+        // Ensure that the desired database username is not an OR administrative username.
+        $.validator.addMethod('noadminnames', function(value, element) {
+            return this.optional(element) || !(["dba", "objectrocket"].indexOf(value) > -1);
+        }, "Please use a different username.");
+
         // Validation for adding databases.
         $('#add-database-popover-form').validate({
             rules: {
                 database: {
                     minlength: 2,
-                    required: true
+                    noadmindbs: true,
+                    nowhitespace: true,
+                    required: true,
                 },
                 username: {
                     minlength: 2,
-                    required: true
+                    noadminnames: true,
+                    nowhitespace: true,
+                    required: true,
                 },
                 password: {
                     minlength: 2,
-                    required: true
+                    required: true,
                 }
             },
             errorClass: 'rs-validation-block',

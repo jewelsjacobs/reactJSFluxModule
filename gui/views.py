@@ -1196,7 +1196,7 @@ def sign_in():
     account_manager = AccountManager(config)
     if not account_manager.authenticated(login, password):
         flash('Sign in failed.', canon_constants.STATUS_ERROR)
-        return render_template('sign_in/sign_in.html')
+        return render_template('sign_in/sign_in.html'), 401
 
     session['login'] = login
 
