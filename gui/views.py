@@ -2079,7 +2079,7 @@ def update_settings(selected_instance):
     return redirect(url_for('instance_settings', selected_instance=selected_instance))
 
 
-@app.route('/system/status', methods=['GET'])
+@app.route('/system/status')
 @viper_auth
 def system_status():
     status_manager = StatusManager(config)
