@@ -95,7 +95,7 @@ def test_msa_disagree(app_client):
         assert response.status_code == 200
 
 
-def msa_agree(app_client):
+def test_msa_agree(app_client):
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
         response = client.get('/msa_agree')
@@ -460,7 +460,7 @@ def test_add_acl(app_client):
         assert response.status_code == 200
 
 
-def delete_acl(app_client):
+def test_delete_acl(app_client):
     cidr_mask = '66.66.66.66'
     cidr_description = 'test_acl'
     instance = get_instance(login, instance_name)
@@ -725,7 +725,7 @@ def test_admin_create_instance(app_client):
         assert response.status_code == 200
 
 
-def test_alarm_clear(app_client, annunciator):
+def test_clear_alarm(app_client, annunciator):
     alarm = annunciator.create_alarm('ACCOUNT_SIGNUP', instance_name, 'info', login, notify_once=True)
     alarm_id = alarm.id
     with app_client as client:
