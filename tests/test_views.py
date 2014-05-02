@@ -98,7 +98,7 @@ def test_msa_disagree(app_client):
 def test_msa_agree(app_client):
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/msa_agree')
+        response = client.get('/msa_agree', follow_redirects=True)
         assert response.status_code == 200
 
 
@@ -520,14 +520,12 @@ def test_update_password(app_client):
         assert response.status_code == 200
 
 
-
-# @app.route('/set_credit_card', methods=['POST'])
-@xfail(reason="Test not implemented.")
-def test_set_credit_card(app_client):
-    # billing_manager.set_credit_card(g.login, request.form['stripe_token'])
-    # if 'returntarget' in request.form:
-    #     return redirect(url_for(request.form['returntarget']))
-    pass
+def test_set_credit_card(app_client, stripe_token):
+    with app_client as client:
+        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post('/set_credit_card', data=dict(stripe_token=stripe_token['id']), follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
 
 
 def test_logout(app_client):
