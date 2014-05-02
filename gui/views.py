@@ -711,7 +711,7 @@ def _calculate_instance_space_usage(instance):
         'remaining': remaining_percentage,
     }
 
-    # Account for container extensions.
+    # Account for LV extensions.
     if total_file_size + total_ns_size > size_in_bytes:
         overage = (total_file_size + total_ns_size) - size_in_bytes
         usage_totals['overage'] = overage
