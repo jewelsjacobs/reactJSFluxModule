@@ -210,7 +210,7 @@ def test_database(app_client):
     with app_client as client:
         sign_in_url = url_for('sign_in')
         database_url = url_for('database', selected_instance=instance_name, selected_database=database_name)
-        client.post(sign_in_url, follow_redirects=True)
+        client.post(sign_in_url, data=dict(login=login, password=password), follow_redirects=True)
         response = client.get(database_url, follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
