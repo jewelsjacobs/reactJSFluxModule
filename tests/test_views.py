@@ -83,6 +83,13 @@ def test_login(app_client):
     assert response.status_code == 200
 
 
+def test_logout(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('logout'), follow_redirects=True)
+        assert response.status_code == 200
+
+
 def test_msa(app_client):
     with app_client as client:
         client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
@@ -557,20 +564,6 @@ def test_set_credit_card(app_client, stripe_token):
         response = client.post('/set_credit_card', data=dict(stripe_token=stripe_token['id']), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
-
-
-def test_logout(app_client):
-    with app_client as client:
-        client.post('/logout', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/logout', follow_redirects=True)
-        print(response.data)
-        assert response.status_code == 200
-
-        client.post('/logout', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/update_account_contact', follow_redirects=True)
-        print(response.data)
-        assert response.status_code == 200
-
 
 
 # @app.route('/reset_password', methods=['GET', 'POST'])

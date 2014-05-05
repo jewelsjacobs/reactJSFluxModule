@@ -1207,9 +1207,9 @@ def sign_in():
     return redirect(url_for('instances'))
 
 
-@app.route('/logout', methods=['GET', 'POST'])
+@app.route('/logout', methods=['POST'])
 def logout():
-    app.logger.debug("Running logout")
+    """ Log out user."""
     session.pop('login', None)
     return redirect(url_for('sign_in'))
 
