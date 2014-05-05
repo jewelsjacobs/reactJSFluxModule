@@ -770,7 +770,7 @@ def cluster(selected_instance):
     return render_template('cluster.html', instance=instance, get_host_zone=Utility.get_host_zone)
 
 
-@app.route('/add_instance_user/<selected_instance>', methods=['GET', 'POST'])
+@app.route('/add_instance_user/<selected_instance>', methods=['POST'])
 @viper_auth
 def add_instance_user(selected_instance):
     """Adds a user to each database in this instance"""

@@ -18,6 +18,8 @@ database_user_01 = 'test_user_01'
 database_password_01 = 'test_password_01'
 database_user_02 = 'test_user_02'
 database_password_02 = 'test_password_02'
+instance_user_01 = 'instance_user_01'
+instance_password_01 = 'instance_password_01'
 collection_name = 'test_collection'
 email = 'ortest@objectrocket.com'
 phone = '5125555555'
@@ -187,6 +189,19 @@ def test_delete_instance_user(app_client):
 
         response = client.post('/delete_instance_user/{}/{}/{}'.format(instance_name, database_name, database_user_02),
                                follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_add_instance_user(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('add_instance_user', selected_instance=instance_name),
+                                   data=dict(
+                                       username=instance_user_01,
+                                       password=instance_password_01,
+                                ),
+                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
