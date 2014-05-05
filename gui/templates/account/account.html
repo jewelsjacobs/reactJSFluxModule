@@ -32,14 +32,14 @@
                     </button>
                     <ul class="rs-dropdown-menu" style="right:0;">
                         <li><span class="rs-dropdown-category">Manage</span></li>
-                        <li><a data-popover="contact-information-popover" data-popover-target="contact-information-target" data-popover-position="right" class="rs-btn rs-btn-link rs-popover-source">Update Info</a></li>
                         <li><a data-popover="update-password-popover" data-popover-target="update-password-target" data-popover-position="right" class="rs-btn rs-btn-link rs-popover-source">Update Password</a></li>
+                        <li><a data-popover="contact-information-popover" data-popover-target="contact-information-target" data-popover-position="right" class="rs-btn rs-btn-link rs-popover-source">Update Info</a></li>
                     </ul>
                 </div>
             </div>
             <!-- This rs-page-title could be in the above mentioned rs-detail-header, but it is here for a more compact look. -->
             <h2 class="rs-page-title">Account Settings</h2>
-            <div class="rs-detail-section-title">Login Details</div>
+            <div id="update-password-target" class="rs-detail-section-title">Login Details</div>
         </div>
 
         <div class="rs-detail-section-body">
@@ -48,7 +48,6 @@
                     <div class="rs-detail-key">Password</div>
                     <div class="rs-detail-value">
                         <span class="password-content">••••••••••••</span>
-                        <button id="update-password-target" data-popover="update-password-popover" data-popover-target="update-password-target" data-popover-position="right" class="rs-edit rs-popover-source"></button>
                     </div>
                 </li>
             </ul>
@@ -57,9 +56,7 @@
 
     <div class="rs-detail-section">
         <div class="rs-detail-section-header">
-            <div class="rs-detail-section-title">Contact Information
-                <button id="contact-information-target" data-popover="contact-information-popover" data-popover-target="contact-information-target" data-popover-position="right" class="rs-edit rs-popover-source"></button>
-            </div>
+            <div id="contact-information-target" class="rs-detail-section-title">Contact Information</div>
         </div>
 
         <div class="rs-detail-section-body">
@@ -146,13 +143,13 @@
                     <div class="rs-control-group">
                         <label class="rs-control-label">New Password</label>
                         <div class="rs-controls">
-                            <input id="password" name="password" type="text" class="rs-input rs-input-medium">
+                            <input id="password" name="password" type="password" class="rs-input rs-input-medium">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Confirm New Password</label>
                         <div class="rs-controls">
-                            <input name="confirm-password" type="text" class="rs-input rs-input-medium">
+                            <input name="confirm-password" type="password" class="rs-input rs-input-medium">
                         </div>
                     </div>
                 </form>
