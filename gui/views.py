@@ -530,7 +530,7 @@ def create_instance():
     return redirect(url_for('instances'))
 
 
-@app.route('/instances/create', methods=['GET'])
+@app.route('/instances/create')
 @viper_auth
 def instances_create():
     """"Create user instances."""
