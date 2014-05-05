@@ -30,56 +30,57 @@ name = 'test'
 
 def test_sign_up(app_client, stripe_token):
     from viper import config as viper_config
+
     plan = '5'
     service_type = 'mongodb'
     version = '2.4.6'
     zone = 'US-West'
     with app_client as client:
-        response = client.post('/sign_up1',
-                                   data=dict(
-                                       login=login,
-                                       password=password,
-                                       email=email,
-                                       name=name,
-                                       company=company,
-                                       phone=phone,
-                                       zipcode=zipcode,
-                                ),
-                                follow_redirects=True)
+        response = client.post(url_for('sign_up1'),
+                               data=dict(
+                                   login=login,
+                                   password=password,
+                                   email=email,
+                                   name=name,
+                                   company=company,
+                                   phone=phone,
+                                   zipcode=zipcode,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
-        response = client.post('/sign_up3',
-                                   data=dict(
-                                       stripe_pub_key=viper_config.STRIPE_PUB_KEY,
-                                       name=name,
-                                       plan=plan,
-                                       zone=zone,
-                                       service_type=service_type,
-                                       version=version,
-                                       ),
-                                   follow_redirects=True)
+        response = client.post(url_for('sign_up3'),
+                               data=dict(
+                                   stripe_pub_key=viper_config.STRIPE_PUB_KEY,
+                                   name=name,
+                                   plan=plan,
+                                   zone=zone,
+                                   service_type=service_type,
+                                   version=version,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post('/sign_up_finish',
-                                   data=dict(
-                                       stripe_token=stripe_token['id'],
-                                       name=name,
-                                       plan=plan,
-                                       zone=zone,
-                                       service_type=service_type,
-                                       version=version,
-                                       ),
-                                   follow_redirects=True)
+        response = client.post(url_for('sign_up_finish'),
+                               data=dict(
+                                   stripe_token=stripe_token['id'],
+                                   name=name,
+                                   plan=plan,
+                                   zone=zone,
+                                   service_type=service_type,
+                                   version=version,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_login(app_client):
-    response = app_client.get('/sign_in')
+    response = app_client.get(url_for('sign_in'))
     assert response.status_code == 200
     assert "Sign In" in response.data
-    response = app_client.post('/sign_in', data=dict(login=login, password=login), follow_redirects=True)
+    response = app_client.post(url_for('sign_in'), data=dict(login=login, password=login), follow_redirects=True)
     assert response.status_code == 200
 
 
@@ -92,22 +93,22 @@ def test_logout(app_client):
 
 def test_msa(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/msa')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('msa'))
         assert response.status_code == 200
 
 
 def test_msa_disagree(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/msa_disagree')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('msa_disagree'))
         assert response.status_code == 200
 
 
 def test_msa_agree(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/msa_agree', follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('msa_agree'), follow_redirects=True)
         assert response.status_code == 200
 
 
@@ -125,16 +126,16 @@ def test_create_instance(app_client):
     version = '2.4.6'
     zone = 'US-West'
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/create_instance',
-                                   data=dict(
-                                       name=instance_name,
-                                       plan=plan,
-                                       service_type=service_type,
-                                       version=version,
-                                       zone=zone,
-                                ),
-                                follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('create_instance'),
+                               data=dict(
+                                   name=instance_name,
+                                   plan=plan,
+                                   service_type=service_type,
+                                   version=version,
+                                   zone=zone,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -149,52 +150,60 @@ def test_instance_stats(app_client):
 
 def test_error(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/error')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('error'))
         print(response.data)
         assert response.status_code == 200
 
 
 def test_root(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('root'))
         print(response.data)
         assert response.status_code == 302
 
 
 def test_create_instance_user(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/create_instance_user/{}'.format(instance_name),
-                                   data=dict(
-                                       username=database_user_01,
-                                       password=database_password_01,
-                                       database_name=database_name,
-                                ),
-                                follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('create_instance_user', selected_instance=instance_name),
+                               data=dict(
+                                   username=database_user_01,
+                                   password=database_password_01,
+                                   database_name=database_name,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post('/create_instance_user/{}/{}'.format(instance_name, database_name),
-                                   data=dict(
-                                       username=database_user_02,
-                                       password=database_password_02,
-                                ),
-                                follow_redirects=True)
+        response = client.post(url_for('create_instance_user',
+                                       selected_instance=instance_name,
+                                       selected_database=database_name),
+                               data=dict(
+                                   username=database_user_02,
+                                   password=database_password_02,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_delete_instance_user(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/delete_instance_user/{}/{}/{}'.format(instance_name, database_name, database_user_01),
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('delete_instance_user',
+                                      selected_instance=instance_name,
+                                      selected_database=database_name,
+                                      username=database_user_01),
                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post('/delete_instance_user/{}/{}/{}'.format(instance_name, database_name, database_user_02),
+        response = client.post(url_for('delete_instance_user',
+                                       selected_instance=instance_name,
+                                       selected_database=database_name),
+                               data=dict(username=database_user_01),
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
@@ -204,11 +213,11 @@ def test_add_instance_user(app_client):
     with app_client as client:
         client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
         response = client.post(url_for('add_instance_user', selected_instance=instance_name),
-                                   data=dict(
-                                       username=instance_user_01,
-                                       password=instance_password_01,
-                                ),
-                                follow_redirects=True)
+                               data=dict(
+                                   username=instance_user_01,
+                                   password=instance_password_01,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -225,20 +234,20 @@ def test_copy_database(app_client):
 
 def test_instances(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/instances')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('instances'))
         print(response.data)
         assert response.status_code == 200
 
 
 def test_instance_details(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/instances/{}'.format(instance_name), follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('instance_details', selected_instance=instance_name))
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post('/instances/{}'.format(instance_name), follow_redirects=True)
+        response = client.post(url_for('instance_details', selected_instance=instance_name))
         print(response.data)
         assert response.status_code == 200
 
@@ -263,7 +272,8 @@ def test_create_collection(app_client):
     # TODO: Needs test with shard keys
     with app_client as client:
         sign_in_url = url_for('sign_in')
-        create_collection_url = url_for('create_collection', selected_instance=instance_name, selected_database=database_name)
+        create_collection_url = url_for('create_collection', selected_instance=instance_name,
+                                        selected_database=database_name)
         client.post(sign_in_url, data=dict(login=login, password=password), follow_redirects=True)
         response = client.post(create_collection_url, data=dict(collection=collection_name), follow_redirects=True)
         print(response.data)
@@ -290,43 +300,43 @@ def test_collection(app_client):
 
 def test_cluster(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/instances/{}/cluster'.format(instance_name), follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('cluster', selected_instance=instance_name), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post('/instances/{}/cluster'.format(instance_name), follow_redirects=True)
+        response = client.post(url_for('cluster', selected_instance=instance_name), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_add_shard(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/add_shard/{}'.format(instance_name), follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('add_shard', selected_instance=instance_name), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_rename_instance(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/rename_instance',
-                                   data=dict(
-                                       current_name=instance_name,
-                                       new_name=instance_name_rename,
-                                ),
-                                follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('rename_instance'),
+                               data=dict(
+                                   current_name=instance_name,
+                                   new_name=instance_name_rename,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
         # TODO: Can remove extra rename post when tests are decoupled
-        response = client.post('/rename_instance',
-                                   data=dict(
-                                       current_name=instance_name_rename,
-                                       new_name=instance_name,
-                                ),
-                                follow_redirects=True)
+        response = client.post(url_for('rename_instance'),
+                               data=dict(
+                                   current_name=instance_name_rename,
+                                   new_name=instance_name,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -339,40 +349,43 @@ def test_create_index(app_client):
     unique = 'true'
 
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/create_index/{}/{}/{}'.format(instance_name, database_name, collection_name),
-                                   data=dict(
-                                       all_index_keys = all_index_keys,
-                                       background = background,
-                                       name=name,
-                                       sort_order=sort_order,
-                                       unique=unique,
-                                ),
-                                follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('create_index',
+                                       selected_instance=instance_name,
+                                       selected_db=database_name,
+                                       selected_collection=collection_name),
+                               data=dict(
+                                   all_index_keys=all_index_keys,
+                                   background=background,
+                                   name=name,
+                                   sort_order=sort_order,
+                                   unique=unique,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_account(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/account')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('account'))
         print(response.data)
         assert response.status_code == 200
 
 
 def test_external(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/external')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('external'))
         print(response.data)
         assert response.status_code == 302
 
 
 def test_new_relic(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/external/new_relic')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('new_relic'))
         print(response.data)
         assert response.status_code == 200
 
@@ -380,8 +393,8 @@ def test_new_relic(app_client):
 def test_add_new_relic_key(app_client):
     new_relic_key = 'A' * 40
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/external/add_new_relic_key', data=dict(new_relic_key=new_relic_key),
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('add_new_relic_key'), data=dict(new_relic_key=new_relic_key),
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
@@ -389,30 +402,29 @@ def test_add_new_relic_key(app_client):
 
 def test_delete_new_relic_key(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/external/delete_new_relic_key', follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('delete_new_relic_key'), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_amazon(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/external/amazon')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('amazon'))
         print(response.data)
         assert response.status_code == 200
 
 
 def test_add_ec2_settings(app_client, monkeypatch):
-
-    monkeypatch.setattr("viper.aws.AWSManager.validate_credentials", lambda(x): True)
+    monkeypatch.setattr("viper.aws.AWSManager.validate_credentials", lambda (x): True)
 
     ec2_access_key = 'test_key'
     ec2_secret_key = 'test_key'
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/external/add_ec2_settings', data=dict(ec2_access_key=ec2_access_key,
-                                                                        ec2_secret_key=ec2_secret_key),
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('add_ec2_settings'), data=dict(ec2_access_key=ec2_access_key,
+                                                                      ec2_secret_key=ec2_secret_key),
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
@@ -420,8 +432,8 @@ def test_add_ec2_settings(app_client, monkeypatch):
 
 def test_delete_ec2_settings(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/external/delete_ec2_settings', follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('delete_ec2_settings'), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -444,8 +456,8 @@ def test_update_settings(app_client):
     weekly_compaction_enabled = 'on'
 
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/update_settings/{}'.format(instance_name),
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('update_settings', selected_instance=instance_name),
                                data=dict(
                                    auto_shard_key=auto_shard_key,
                                    autoadd_shard_threshold=autoadd_shard_threshold,
@@ -462,23 +474,26 @@ def test_update_settings(app_client):
                                    stepdown_window_start=stepdown_window_start,
                                    stepdown_window_weekly=stepdown_window_weekly,
                                    weekly_compaction_enabled=weekly_compaction_enabled,
-                                ),
-                                follow_redirects=True)
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_shard_collection(app_client):
     all_shard_keys = json.dumps({'test': 'hashed'})
-    create_indexes =  'true'
+    create_indexes = 'true'
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/shard_collection/{}/{}/{}'.format(instance_name, database_name, collection_name),
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('shard_collection',
+                                       selected_instance=instance_name,
+                                       selected_db=database_name,
+                                       selected_collection=collection_name),
                                data=dict(
                                    all_shard_keys=all_shard_keys,
                                    create_indexes=create_indexes,
-                                ),
-                                follow_redirects=True)
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -487,13 +502,13 @@ def test_add_acl(app_client):
     cidr_mask = 'any'
     description = 'test'
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/add_acl/{}'.format(instance_name),
-                                   data=dict(
-                                       cidr_mask=cidr_mask,
-                                       description=description,
-                                ),
-                                follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('add_acl', instance=instance_name),
+                               data=dict(
+                                   cidr_mask=cidr_mask,
+                                   description=description,
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -505,12 +520,10 @@ def test_delete_acl(app_client):
     acl_id = instance.add_acl(cidr_mask, cidr_description)
 
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/delete_acl/{}'.format(instance_name),
-                                   data=dict(
-                                       acl_id=acl_id,
-                                ),
-                                follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('delete_acl', instance=instance_name),
+                               data=dict(acl_id=acl_id),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -522,46 +535,43 @@ def test_update_account_contact(app_client):
     phone_update = '555-555-5555'
     zipcode_update = '78749'
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/update_account_contact',
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('update_account_contact'),
                                data=dict(
                                    company=company_update,
                                    email=email_update,
                                    name=name_update,
                                    phone=phone_update,
                                    zipcode=zipcode_update,
-                                ),
-                                follow_redirects=True)
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_update_password(app_client):
-    # request.form[Constants.PASSWORD]
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/update_password',
-                                   data=dict(
-                                       password=password_reset,
-                                ),
-                                follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('update_password'),
+                               data=dict(password=password_reset),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
         # TODO: Can remove second post when tests are decoupled
-        response = client.post('/update_password',
-                                   data=dict(
-                                       password=password,
-                                ),
-                                follow_redirects=True)
+        response = client.post(url_for('update_password'),
+                               data=dict(password=password),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_set_credit_card(app_client, stripe_token):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/set_credit_card', data=dict(stripe_token=stripe_token['id']), follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('set_credit_card'),
+                               data=dict(stripe_token=stripe_token['id']),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -575,6 +585,7 @@ def test_reset_password(app_client):
     # password = request.form[Constants.PASSWORD]
     pass
 
+
 # @app.route('/silence_alarm')
 @xfail(reason="Test not implemented.")
 def test_silence_alarm(app_client):
@@ -583,8 +594,8 @@ def test_silence_alarm(app_client):
 
 def test_billing(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/billing')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('billing'))
         print(response.data)
         assert response.status_code == 200
 
@@ -645,8 +656,9 @@ def test_admin_billing(app_client):
 
 def test_admin_switch_user(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/user_management/switch_user', data=dict(switchuser=login),
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('admin_switch_user'),
+                               data=dict(switchuser=login),
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
@@ -661,16 +673,16 @@ def test_admin_associate_user(app_client):
 
 def test_admin_sync_user(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/billing/sync_user', data=dict(login=login), follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('admin_sync_user'), data=dict(login=login), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_admin_add_message(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/status_management/add_message',
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('admin_add_message'),
                                data=dict(login=login, message='Test message'),
                                follow_redirects=True)
         print(response.data)
@@ -679,9 +691,9 @@ def test_admin_add_message(app_client):
 
 def test_admin_set_status(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/status_management/set_status',
-                               data=dict(api=0, east=1, driver=2, network=0,  system=1, west=2),
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('admin_set_status'),
+                               data=dict(api=0, east=1, driver=2, network=0, system=1, west=2),
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
@@ -689,40 +701,40 @@ def test_admin_set_status(app_client):
 
 def test_admin_inventory(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/admin/inventory')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('admin_inventory'))
         print(response.data)
         assert response.status_code == 200
 
 
 def test_admin_revenue(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password))
-        response = client.get('/admin/revenue')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password))
+        response = client.get(url_for('admin_revenue'))
         print(response.data)
         assert response.status_code == 200
 
 
 def test_admin_customer_reports(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password))
-        response = client.get('/admin/customer_reports')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password))
+        response = client.get(url_for('admin_customer_reports'))
         print(response.data)
         assert response.status_code == 200
 
 
 def test_admin_export_customer_report(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password))
-        response = client.get('/admin/customer_reports/export')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password))
+        response = client.get(url_for('admin_customer_reports'))
         print(response.data)
         assert response.status_code == 200
 
 
 def test_set_user_invoiced(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/billing/set_user_invoiced', data=dict(invoiced_user=login), follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('set_user_invoiced'), data=dict(invoiced_user=login), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -731,18 +743,20 @@ def test_set_invoice_amount(app_client):
     amount = 100
     currency = 'USD'
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/billing/set_invoiced_amount', data=dict(account_id=login,
-                                                                             amount=amount,
-                                                                             currency=currency), follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('set_invoice_amount'),
+                               data=dict(account_id=login,
+                                         amount=amount,
+                                         currency=currency),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_set_user_customplan(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/billing/set_user_customplan', data=dict(customplan_user=login),
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('set_user_customplan'), data=dict(customplan_user=login),
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
@@ -750,16 +764,16 @@ def test_set_user_customplan(app_client):
 
 def test_admin(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get('/admin')
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('admin'))
         print(response.data)
         assert response.status_code == 302
 
 
 def test_compact_instance(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/{}/compact'.format(instance_name), follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('compact_instance', instance_name=instance_name), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -771,8 +785,8 @@ def test_admin_create_instance(app_client):
     version = '2.4.6'
     zone = 'US-West'
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/instance_management/create_instance'.format(instance_name),
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('admin_create_instance'),
                                data=dict(
                                    account_name=login,
                                    name=instance_name,
@@ -781,7 +795,7 @@ def test_admin_create_instance(app_client):
                                    version=version,
                                    zone=zone,
                                ),
-                                follow_redirects=True)
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -790,10 +804,8 @@ def test_clear_alarm(app_client, annunciator):
     alarm = annunciator.create_alarm('ACCOUNT_SIGNUP', instance_name, 'info', login, notify_once=True)
     alarm_id = alarm.id
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('clear_alarm',
-                               data=dict(alarm_id=alarm_id),
-                               follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('clear_alarm'), data=dict(alarm_id=alarm_id), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
@@ -808,41 +820,38 @@ def test_alarm_clear_all(app_client):
 @xfail(reason="Test env needs support for replica set instances.")
 def test_repair_database(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/instances/{}/repair'.format(instance_name),
-                               data={
-                                   'database-name': database_name,
-                                   },
-                                follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('repair_database', selected_instance=instance_name),
+                               data={'database-name': database_name},
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_drop_database(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/drop_database',
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('drop_database'),
                                data=dict(
                                    db=database_name,
                                    instance=instance_name,
-                                ),
-                                follow_redirects=True)
+                               ),
+                               follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_delete_instance(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/{}/delete'.format(instance_name), follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('delete_instance', instance_name=instance_name), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
 
 
 def test_admin_remove_user(app_client):
     with app_client as client:
-        client.post('/sign_in', data=dict(login=login, password=password), follow_redirects=True)
-        response = client.post('/admin/user_management/remove_user', data=dict(login=login),
-                               follow_redirects=True)
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('admin_remove_user'), data=dict(login=login), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
