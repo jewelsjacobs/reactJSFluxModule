@@ -595,6 +595,14 @@ def test_system_status(app_client):
         assert response.status_code == 200
 
 
+def test_notifications(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('notifications'))
+        print(response.data)
+        assert response.status_code == 200
+
+
 def test_admin_instance_management(app_client):
     with app_client as client:
         client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
