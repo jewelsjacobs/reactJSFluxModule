@@ -180,12 +180,17 @@
             return !containsInvalidShardKeyCharacters(value);
         }, 'Cannot contain /\ "*<>:|?{}');
 
+        $.validator.addMethod("system", function(value, element) {
+            return !/system\.\S*/.test(value);
+        }, 'Collections cannot use the "system" namespace');
+
         // Validation for collection-create-form.
         $('#collection-create-form').validate({
             rules: {
                 collection: {
                     minlength: 1,
-                    required: true
+                    required: true,
+                    system: true
                 }
             },
             errorClass: 'rs-validation-block',
