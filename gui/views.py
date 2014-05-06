@@ -998,6 +998,7 @@ def add_collection(selected_instance, selected_database):
 
     return render_template('instances/collection_create.html',
                            instance=user_instance,
+                           is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
                            database=user_database,
                            login=g.login,
                            Utility=Utility,
@@ -1022,7 +1023,7 @@ def create_collection(selected_instance, selected_database):
             user_database.add_collection(request.form['collection'])
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
-        flash_message = ("There was a problem creating this collection. If this problem persists, contact"
+        flash_message = ("There was a problem creating this collection. If this problem persists, contact "
                          "support and provide Error ID %s." % (exception_uuid))
         flash(flash_message, canon_constants.STATUS_ERROR)
         app.logger.error(ex)
