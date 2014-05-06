@@ -29,11 +29,7 @@
                     <td>{{ alarm.last_updated }}</td>
                     <td>{{ alarm.last_notified }}</td>
                     {%- if not admin %}
-                        <td><form action="{{ url_for('clear_alarm') }}" method="POST">
-                                <button type="submit" class="rs-delete"></button>
-                                <input type="hidden" name="alarm_id" value="{{ alarm.id }}">
-                            </form>
-                        </td>
+                        <td><button id="clear-alarm-target-{{ loop.index }}" data-count="{{ loop.index }}" data-id="{{ alarm.id }}" data-instance="{{ alarm.asset_id }}" data-popover="clear-alarm-popover" data-popover-target="clear-alarm-target-{{ loop.index }}" data-popover-position="left" class="rs-delete rs-popover-source"></button></td>
                     {% endif %}
                 </tr>
             {% endfor %}
