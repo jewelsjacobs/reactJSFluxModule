@@ -24,7 +24,7 @@
                     {% endif %}
                     <td>{{ alarm.asset_id }}</td>
                     <td>{{ alarm.event_code }}</td>
-                    <td>{{ alarm.count }}</td>
+                    <td>{{ alarm.count|int }}</td>
                     <td>{{ alarm.creation_date }}</td>
                     <td>{{ alarm.last_updated }}</td>
                     <td>{{ alarm.last_notified }}</td>
