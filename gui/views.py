@@ -988,6 +988,25 @@ def collection(selected_instance, selected_database, selected_collection):
                            shard_keys=shard_keys)
 
 
+@app.route('/instances/<selected_instance>/databases/<selected_database>/create_collection', methods=['GET'])
+@viper_auth
+def add_collection(selected_instance, selected_database):
+    """Add new collection."""
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    user_database = user_instance.get_database(selected_database)
+
+    return render_template('instances/collection_create.html',
+                           account=account,
+                           api_keys=account.instance_api_keys,
+                           instance=user_instance,
+                           database=user_database,
+                           login=g.login,
+                           Utility=Utility,
+                           default_mongo_version=config.DEFAULT_MONGO_VERSION,
+                           stripe_pub_key=config.STRIPE_PUB_KEY)
+
+
 @app.route('/create_collection/<selected_instance>/<selected_database>', methods=['POST'])
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
