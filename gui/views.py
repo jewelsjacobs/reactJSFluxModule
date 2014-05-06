@@ -997,8 +997,6 @@ def add_collection(selected_instance, selected_database):
     user_database = user_instance.get_database(selected_database)
 
     return render_template('instances/collection_create.html',
-                           account=account,
-                           api_keys=account.instance_api_keys,
                            instance=user_instance,
                            database=user_database,
                            login=g.login,

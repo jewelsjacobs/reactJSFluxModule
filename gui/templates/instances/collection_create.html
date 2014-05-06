@@ -1,0 +1,69 @@
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    Create Collection
+{% endblock title %}
+
+{% block sidebar %}
+    {% call sidebar_help(hidden=False) %}
+        <h3>Creating Collections</h3>
+    {% endcall %}
+{% endblock sidebar %}
+
+{% block back_link_area %}
+    {% call back_link() %}
+        <a href="{{ url_for('database', selected_instance=instance.name, selected_database=database.name) }}">&lsaquo; Back to Database Details</a>
+    {% endcall %}
+{% endblock back_link_area %}
+
+{% block content_area_body %}
+    <form id="collection-create-form" class="rs-form-create" action="{{ url_for('create_collection', selected_instance=instance.name, selected_database=database.name) }}" method="POST">
+        <div class="rs-detail-section">
+            <div class="rs-detail-section-header">
+                <h2 class="rs-page-title">Create Collection</h2>
+                <div class="rs-detail-section-title">Collection Details</div>
+            </div>
+
+            <div class="rs-detail-section-body">
+                <!-- default input values -->
+                <input id="service_type" name="service_type" type="hidden" value="mongodb"/>
+                <input id="version" name="version" type="hidden" value="{{default_mongo_version}}"/>
+                <!-- end default input values -->
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="name">Collection Name</label>
+                    <div class="rs-controls">
+                        <input id="name" name="name" class="rs-input-large" type="text">
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="autohash-checkbox">Automatically hash on _id</label>
+                    <div class="rs-controls">
+                        <input id="autohash-checkbox" name="autohash-checkbox" type="checkbox" checked="true" value="ascending">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="rs-detail-section">
+            <div class="rs-detail-section-header rs-btn-group">
+                <button class="rs-btn rs-btn-primary save">Create Collection</button>
+                <a href="{{ url_for('database', selected_instance=instance.name, selected_database=database.name) }}" class="rs-btn rs-btn-link cancel">Cancel</a>
+            </div>
+        </div>
+    </form>
+{% endblock content_area_body %}
+{% block script %}
+    {{ super() }}
+
+    <script>
+        $(document).ready(function () {
+
+            
+
+        });
+    </script>
+
+{% endblock script %}
