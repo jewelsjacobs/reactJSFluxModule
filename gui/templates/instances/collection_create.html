@@ -180,8 +180,8 @@
             return !containsInvalidShardKeyCharacters(value);
         }, 'Cannot contain /\ "*<>:|?{}');
 
-        // Validation for add-collection-popover-form.
-        $('#add-collection-popover-form').validate({
+        // Validation for collection-create-form.
+        $('#collection-create-form').validate({
             rules: {
                 collection: {
                     minlength: 1,
