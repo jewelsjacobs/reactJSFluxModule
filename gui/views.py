@@ -1102,6 +1102,29 @@ def clear_alarm():
     return redirect(url_for('notifications'))
 
 
+@app.route('/clear_all_alarms/<selected_instance>', methods=['POST'])
+@viper_auth
+def clear_all_alarms(selected_instance):
+    """Clear all alarms for a given instance."""
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    annunciator = Annunciator(config)
+    alarms = annunciator.get_alarms_for_login(g.login)
+    alarms = [alarm for alarm in alarms if not (alarm.state == Alarm.CLEARED or alarm.support_only) and alarm.asset_id == instance.name]
+
+    for alarm in alarms:
+        response = api_call('/alarm/clear/{}'.format(alarm['id']), instance.api_key)
+        data = json.loads(response)
+
+        if data.get('rc', 1) != 0:
+            msg = 'Unable to clear all alarms. If this problem persists, contact <a href="mailto:{0}">{0}</a>'.format(config.SUPPORT_EMAIL)
+            flash(msg, Constants.FLASH_ERROR)
+            break
+
+    return redirect(url_for('notifications'))
+
+
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
     session.pop('login', None)
