@@ -28,13 +28,7 @@ company = 'test'
 name = 'test'
 
 
-def test_sign_up(app_client, stripe_token):
-    from viper import config as viper_config
-
-    plan = '5'
-    service_type = 'mongodb'
-    version = '2.4.6'
-    zone = 'US-West'
+def test_sign_up_1(app_client):
     with app_client as client:
         response = client.post(url_for('sign_up1'),
                                data=dict(
@@ -49,6 +43,37 @@ def test_sign_up(app_client, stripe_token):
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
+
+
+def test_billing_enabled(app_client, monkeypatch):
+    import viper
+    from viper.account import Account
+    class PsuedoAccount(Account):
+        def __init__(self, *args, **kwargs):
+            super(PsuedoAccount, self).__init__(*args, **kwargs)
+            self.accepted_msa = True
+
+    monkeypatch.setattr(viper.account, "Account", PsuedoAccount)
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('root'))
+        print(response.data)
+        assert response.status_code == 302
+
+        response = client.get(url_for('instances'))
+        print(response.data)
+        assert response.status_code == 302
+
+
+def test_sign_up_3(app_client):
+    from viper import config as viper_config
+
+    plan = '5'
+    service_type = 'mongodb'
+    version = '2.4.6'
+    zone = 'US-West'
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
         response = client.post(url_for('sign_up3'),
                                data=dict(
                                    stripe_pub_key=viper_config.STRIPE_PUB_KEY,
@@ -62,6 +87,14 @@ def test_sign_up(app_client, stripe_token):
         print(response.data)
         assert response.status_code == 200
 
+
+def test_sign_up_finish(app_client, stripe_token):
+    plan = '5'
+    service_type = 'mongodb'
+    version = '2.4.6'
+    zone = 'US-West'
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
         response = client.post(url_for('sign_up_finish'),
                                data=dict(
                                    stripe_token=stripe_token['id'],

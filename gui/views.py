@@ -86,6 +86,20 @@ if not app.debug:
 # -----------------------------------------------------------------------
 # Viper Decorators
 # -----------------------------------------------------------------------
+def billing_enabled(func):
+    """Decorator to test that the account has billing enabled.
+    """
+    @wraps(func)
+    def internal(*args, **kwargs):
+        account_manager = AccountManager(config)
+        account = account_manager.get_account(g.login)
+        if account.invoiced or account.stripe_account:
+            return func(*args, **kwargs)
+        flash('Please enter your billing information.', canon_constants.STATUS_WARNING)
+        return redirect(url_for('billing'))
+    return internal
+
+
 def viper_auth(func):
     """Decorator to test for auth.
 
@@ -100,7 +114,6 @@ def viper_auth(func):
         else:
             return redirect(url_for('sign_in'))
     return internal
-
 
 def viper_isadmin(func):
     """Decorator to test that the current user session is an admin."""
@@ -382,6 +395,7 @@ def api_serverstatus(selected_instance):
 # ----------------------------------------------------------------------------
 @app.route('/', methods=['GET'])
 @viper_auth
+@billing_enabled
 def root():
     """Root url."""
     return redirect(url_for('sign_in'))
@@ -455,6 +469,7 @@ def instance_stats(selected_instance):
 
 @app.route('/instances', methods=['GET'])
 @viper_auth
+@billing_enabled
 def instances():
     """"Display account instances."""
     account_manager = AccountManager(config)
@@ -473,6 +488,7 @@ def instances():
 
 @app.route('/create_instance', methods=['POST'])
 @viper_auth
+@billing_enabled
 def create_instance():
     name = request.form['name']
     plan_size_in_gb = int(request.form['plan'])
