@@ -341,7 +341,7 @@
         <div class="rs-popover-arrow"></div>
         <div class="rs-popover-content">
             <div class="rs-popover-body">
-                <form id="rename-instance-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('rename_instance') }}" method="POST">
+                <form id="rename_instance_popover_form" class="rs-form-horizontal rs-form-small" action="{{ url_for('rename_instance') }}" method="POST">
                     <div class="rs-control-group">
                         <label class="rs-control-label">New Name</label>
                         <div class="rs-controls">
@@ -352,7 +352,7 @@
                 </form>
             </div>
             <div class="rs-popover-footer rs-btn-group">
-                <button id="rename-instance-popover-form-button" form="rename-instance-popover-form" class="rs-btn rs-btn-primary save">Rename</button>
+                <button id="rename_instance_popover_form_button" form="rename_instance_popover_form" class="rs-btn rs-btn-primary save">Rename</button>
                 <div class="rs-btn rs-btn-link">Cancel</div>
             </div>
         </div>
@@ -710,7 +710,7 @@
         displayBackups($('#backups-table-body'));
 
         // Validation for renaming instances.
-        $('#rename-instance-popover-form').validate({
+        $('#rename_instance_popover_form').validate({
             rules: {
                 new_name: {
                     alphanumeric: true,
@@ -731,11 +731,11 @@
             }
         });
 
-        $('#rename-instance-popover-form').bind("change keyup", function () {
+        $('#rename_instance_popover_form').bind("change keyup", function () {
             if ($(this).validate().checkForm()) {
-                $("#rename-instance-popover-form-button").attr('disabled', false);
+                $("#rename_instance_popover_form_button").attr('disabled', false);
             } else {
-                $('#rename-instance-popover-form-button').attr('disabled', true);
+                $('#rename_instance_popover_form_button').attr('disabled', true);
             }
         });
 
