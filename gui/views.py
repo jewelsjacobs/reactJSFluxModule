@@ -96,7 +96,7 @@ def billing_enabled(func):
         if account.invoiced or account.stripe_account:
             return func(*args, **kwargs)
         flash('Please enter your billing information.', canon_constants.STATUS_WARNING)
-        return redirect(url_for('billing'))
+        abort(402)
     return internal
 
 
@@ -292,6 +292,12 @@ def internal_server_error(error):
     session['error_id'] = error_id
     app.save_session(session, response)
     return response
+
+
+@app.errorhandler(402)
+def payment_required(error):
+    html = billing()
+    return html, 402
 
 
 @app.context_processor
