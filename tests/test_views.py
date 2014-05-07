@@ -164,7 +164,6 @@ def test_create_instance(app_client):
         print(response.data)
         assert response.status_code == 200
 
-    with app_client as client:
         response = client.get(url_for('create_instance'))
         print(response.data)
         assert response.status_code == 200
