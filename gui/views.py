@@ -486,10 +486,14 @@ def instances():
                            stripe_pub_key=config.STRIPE_PUB_KEY)
 
 
-@app.route('/create_instance', methods=['POST'])
+@app.route('/instances/create', methods=['GET', 'POST'])
 @viper_auth
 @billing_enabled
 def create_instance():
+    """Create an instance."""
+    if request.method == 'GET':
+        return render_template('instances/create_instance.html', default_mongo_version=config.DEFAULT_MONGO_VERSION)
+
     name = request.form['name']
     plan_size_in_gb = int(request.form['plan'])
     service_type = request.form['service_type']
@@ -542,26 +546,7 @@ def create_instance():
         flash_message = "Please contact support if you need more than %d instances"
         flash(flash_message % config.MAX_INSTANCES_PER_USER, canon_constants.STATUS_WARNING)
 
-    # return redirect(url_for('instance_details', selected_instance=name))
     return redirect(url_for('instances'))
-
-
-@app.route('/instances/create')
-@viper_auth
-def instances_create():
-    """"Create user instances."""
-    account_manager = AccountManager(config)
-    account = account_manager.get_account(g.login)
-    instances = account.instances
-
-    return render_template('instances/instances_create.html',
-                           account=account,
-                           api_keys=account.instance_api_keys,
-                           instances=instances,
-                           login=g.login,
-                           Utility=Utility,
-                           default_mongo_version=config.DEFAULT_MONGO_VERSION,
-                           stripe_pub_key=config.STRIPE_PUB_KEY)
 
 
 @app.route('/<instance_name>/delete', methods=['POST'])

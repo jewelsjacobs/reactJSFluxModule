@@ -145,12 +145,12 @@ def test_msa_agree(app_client):
         assert response.status_code == 200
 
 
-def test_instances_create(app_client):
-    with app_client as client:
-        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
-        response = client.get(url_for('instances_create'))
-        print(response.data)
-        assert response.status_code == 200
+# def test_instances_create(app_client):
+#     with app_client as client:
+#         client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+#         response = client.get(url_for('instances_create'))
+#         print(response.data)
+#         assert response.status_code == 200
 
 
 def test_create_instance(app_client):
@@ -169,6 +169,11 @@ def test_create_instance(app_client):
                                    zone=zone,
                                ),
                                follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
+    with app_client as client:
+        response = client.get(url_for('create_instance'))
         print(response.data)
         assert response.status_code == 200
 
