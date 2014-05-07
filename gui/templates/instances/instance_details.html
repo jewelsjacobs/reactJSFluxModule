@@ -99,7 +99,7 @@
                                     <!-- Avoid caption overcrowding. -->
                                     {% if usage_totals['percentages']['index'] > 5 %}<div class="rs-caption">Indexes</div>{% endif %}
                                 </div>
-                                <div id="usage-bar-storage" class="rs-segment" style="width: {{ usage_totals['percentages']['storage'] }}%;">
+                                <div id="usage-bar-storage" class="rs-segment" style="width: {{ usage_totals['percentages']['storage'] - usage_totals['percentages']['data'] - usage_totals['percentages']['index'] }}%;">
                                     <div class="rs-bar or-bar-storage"></div>
                                     <div class="rs-caption">Storage</div>
                                 </div>
