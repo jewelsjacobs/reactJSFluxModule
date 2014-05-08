@@ -201,7 +201,7 @@
                     real_input.val(checked ? 'on' : 'off');
                 });
                 $('.rs-detail-section-body').last().append('<button type="submit" class="rs-btn rs-btn-primary">Update Settings</button>');
-                ['input[name=balancer_window_start]', 'input[name=balancer_window_stop'].forEach(function (element) {
+                ['input[name=balancer_window_start]', 'input[name=balancer_window_stop]'].forEach(function (element) {
                     $(element).datetimepicker({datepicker: false, format: 'H:i'});
                 });
                 ['input[name=stepdown_window_start]', 'input[name=stepdown_window_end]'].forEach(function (element) {
