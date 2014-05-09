@@ -942,12 +942,14 @@ def copy_database(selected_instance):
 def databases(selected_instance):
     instance_manager = InstanceManager(config)
     instance = instance_manager.get_instance_by_name(g.login, selected_instance)
-    databases = instance.databases
+    if instance is None:
+        abort(404)
 
+    databases = instance.databases
     html = render_template('instances/_databases.html',
                            databases=databases,
                            instance=instance)
-    return html, 200
+    return html
 
 
 @app.route('/instances/<selected_instance>/databases/<selected_database>', methods=['GET', 'POST'])

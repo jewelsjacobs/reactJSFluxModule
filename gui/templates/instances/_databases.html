@@ -1,13 +1,39 @@
-{% for database in databases %}
-    <tr>
-        <td><button id="delete-database-target-{{ loop.index }}" data-count="{{ loop.index }}" data-popover="delete-database-popover" data-popover-target="delete-database-target-{{ loop.index }}" data-popover-position="right" class="rs-delete rs-popover-source"></button></td>
-        <td class="rs-table-text" id="database-{{ loop.index }}"><a href="{{ url_for('database', selected_instance=instance.name, selected_database=database.name) }}">{{ database.name }}</a></td>
-        <td class="rs-table-text">{{ database.object_count }}</td>
-        <td class="rs-table-text">{{ database.data_size_in_bytes|filesizeformat(binary=True) }}</td>
-        <td class="rs-table-text">{{ database.index_count }}</td>
-        <td class="rs-table-text">{{ database.index_size_in_bytes|filesizeformat(binary=True) }}</td>
-        <td class="rs-table-text">{{ database.storage_size_in_bytes|filesizeformat(binary=True) }}</td>
-        <td class="rs-table-text">{{ database.average_object_size_in_bytes|filesizeformat(binary=True) }}</td>
-        <td class="rs-table-text">{{ database.file_size_in_bytes|filesizeformat(binary=True)}}</td>
-    </tr>
-{% endfor %}
+{% if databases %}
+    <table class="rs-list-table rs-embedded-list-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Objects</th>
+                <th>Data Size</th>
+                <th>Index Count</th>
+                <th>Index Size</th>
+                <th>Storage Size</th>
+                <th>Average Object Size</th>
+                <th>File Size</th>
+            </tr>
+        </thead>
+        {% for database in databases %}
+            <tr>
+                <td><button id="delete-database-target-{{ loop.index }}" data-count="{{ loop.index }}" data-popover="delete-database-popover" data-popover-target="delete-database-target-{{ loop.index }}" data-popover-position="right" class="rs-delete rs-popover-source"></button></td>
+                <td class="rs-table-text" id="database-{{ loop.index }}"><a href="{{ url_for('database', selected_instance=instance.name, selected_database=database.name) }}">{{ database.name }}</a></td>
+                <td class="rs-table-text">{{ database.object_count }}</td>
+                <td class="rs-table-text">{{ database.data_size_in_bytes|filesizeformat(binary=True) }}</td>
+                <td class="rs-table-text">{{ database.index_count }}</td>
+                <td class="rs-table-text">{{ database.index_size_in_bytes|filesizeformat(binary=True) }}</td>
+                <td class="rs-table-text">{{ database.storage_size_in_bytes|filesizeformat(binary=True) }}</td>
+                <td class="rs-table-text">{{ database.average_object_size_in_bytes|filesizeformat(binary=True) }}</td>
+                <td class="rs-table-text">{{ database.file_size_in_bytes|filesizeformat(binary=True)}}</td>
+            </tr>
+        {% endfor %}
+        <tbody id="databases_tbody">
+        </tbody>
+    </table>
+{% else %}
+    <div class="rs-table-overlay">
+        <div class="rs-table-overlay-content">
+            <div class="rs-table-overlay-title">You don't have any databases yet.</div>
+            <div class="rs-table-overlay-subtitle">Create one now by clicking on the Add Database button.</div>
+        </div>
+    </div>
+{% endif %}
