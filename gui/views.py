@@ -558,7 +558,52 @@ def delete_instance(instance_name):
     return redirect(url_for('instances'))
 
 
-@app.route('/instances/<selected_instance>', methods=['GET', 'POST'])
+@app.route('/instances/<selected_instance>/shards')
+@viper_auth
+def shards(selected_instance):
+    """Instance shards or replica set."""
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    if instance is None:
+        abort(404)
+
+    if instance.type == Constants.MONGODB_SHARDED_INSTANCE:
+
+        aggregate_stats = {}
+        total_file_size = 0
+
+        for shard in instance.shards:
+            shard_stats = shard.replica_set.primary.aggregate_database_statistics
+            aggregate_stats[shard.name] = shard_stats
+            total_file_size += shard_stats[Constants.FILE_SIZE_IN_BYTES]
+
+        # Calculate shard balance percentage per shard.
+        for shard_name in aggregate_stats:
+            shard_stats = aggregate_stats[shard_name]
+            shard_file_size_in_bytes = shard_stats[Constants.FILE_SIZE_IN_BYTES]
+            if total_file_size == 0:
+                shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = 0
+            else:
+                shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = round((float(shard_file_size_in_bytes) / float(total_file_size)) * 100, 2)
+
+        html = render_template('instances/_shard_info.html',
+                               aggregate_stats=aggregate_stats,
+                               instance=instance)
+    else:
+        if instance.replica_set.primary:
+            primary = instance.replica_set.primary
+            has_primary = True
+        else:
+            primary = instance.replica_set.members[0]
+            has_primary = False
+        html = render_template('instances/_replica_set_info.html',
+                               has_primary=has_primary,
+                               primary=primary)
+
+    return html
+
+
+@app.route('/instances/<selected_instance>')
 @viper_auth
 def instance_details(selected_instance):
     """Instance details page."""

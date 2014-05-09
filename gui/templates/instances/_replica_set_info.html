@@ -1,12 +1,4 @@
-{% if instance.replica_set.primary %}
-    {% set primary = instance.replica_set.primary %}
-    {% set has_primary = true %}
-{% else %}
-    {% set primary = instance.replica_set.members[0] %}
-    {% set has_primary = false %}
-{% endif %}
-
-<!-- Begin replset info -->
+<!-- begin replset info -->
 <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
     <table class="rs-list-table rs-embedded-list-table">
     <thead>
@@ -46,4 +38,4 @@
     </tbody>
     </table>
 </div>
-<!-- End replset info -->
+<!-- end replset info -->

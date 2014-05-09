@@ -240,13 +240,23 @@
 
     {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
         {% set shard_section_title = 'Shards' %}
-        {% set shard_section_include = 'instances/shard_info.html' %}
     {% else %}
         {% set shard_section_title = 'Replica Set' %}
-        {% set shard_section_include = 'instances/replica_set_info.html' %}
     {% endif %}
-    {% call detail_section(title=shard_section_title, collapsible=True) %}
-        {% include shard_section_include %}
+    {% call detail_section(title=shard_section_title, collapsible=True, id='shards_container') %}
+        <div id="shards_overlay" class="rs-embedded-list-table-wrapper rs-embedded-medium">
+            <div id="shards_overlay_loading" class="rs-table-overlay rs-table-overlay-loading">
+                <div id="databases-table-overlay-content" class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-message">Loading &hellip;</div>
+                </div>
+            </div>
+            <div id="shards_overlay_failure" class="rs-table-overlay hidden">
+                <div id="databases-table-overlay-content" class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-title">Failed to load shards.</div>
+                    <div class="rs-table-overlay-subtitle">If this issue persists, contact support.</div>
+                </div>
+            </div>
+        </div>
     {% endcall %}
 
     {% call detail_section(title='Security', collapsible=True) %}
@@ -563,6 +573,28 @@
     var apiKey = {{instance.api_key|tojson|safe}};
     var instanceName = '{{instance.name}}';
 
+    // Fetch and render the shards for this instance.
+    function fetchShards($shardsContainer) {
+        var url = "{{url_for('shards', selected_instance=instance.name)}}";
+        $.ajax({
+            url: url,
+            dataType: 'html',
+            type: 'GET',
+            success: function(html) {
+                $shardsContainer.find('.rs-detail-section-body').html(html);
+                $addShardButton = $('#add-shard-popover-target');
+                $addShardButton.click(function() {
+                    positionPopover($addShardButton);
+                    showPopover($addShardButton);
+                });
+            },
+            error: function() {
+                $('#shards_overlay_loading').addClass('hidden');
+                $('#shards_overlay_failure').removeClass('hidden');
+            }
+        });
+    }
+
     // Fetch and render the databases for this instance.
     function fetchDatabases($databasesContainer) {
         var url = "{{url_for('databases', selected_instance=instance.name)}}";
@@ -716,6 +748,7 @@
     $(document).ready(function() {
 
         // Asynchronous calls.
+        fetchShards($('#shards_container'));
         fetchDatabases($('#databases_container'));
         displayACLs($('#acls-table-body'));
         displayBackups($('#backups-table-body'));
