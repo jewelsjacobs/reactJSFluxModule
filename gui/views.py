@@ -617,7 +617,6 @@ def instance_details(selected_instance):
     account_monitoring_checks = account_monitor.get_enabled_checks(asset_type=monitor.INSTANCE_ASSET_TYPE,
                                                                    user_controllable_only=True)
     balancer = None
-    shard_logs = None
     stepdown_window = user_instance.stepdown_window
 
     for key in ['start', 'end']:
@@ -629,17 +628,12 @@ def instance_details(selected_instance):
 
     stepdown_window.pop('election_started', None)
 
-    if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
-        shard_logs = user_instance.shard_logs
-        balancer = user_instance.balancer
-
     try:
         enable_copy_database = user_instance.instance_connection.server_info()['versionArray'] >= [2, 4, 0, 0]
     except Exception:
         enable_copy_database = False
 
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
-        shard_logs = user_instance.shard_logs
         balancer = user_instance.balancer
 
     # Get instance operation states
@@ -664,8 +658,7 @@ def instance_details(selected_instance):
                            get_host_zone=Utility.get_host_zone,
                            instance=user_instance,
                            is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
-                           max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE,
-                           shard_logs=shard_logs)
+                           max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE)
 
 
 @app.route('/instances/<selected_instance>/space_usage')
