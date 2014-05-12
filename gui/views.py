@@ -368,7 +368,7 @@ def api_status_instance(selected_instance):
     return api_url(user_instance.api_key, "status", selected_instance)
 
 
-@app.route('/api_timeseries/<name>/<selected_instance>', methods=['GET'])
+@app.route('/api_timeseries/<name>/<selected_instance>')
 @viper_auth
 def api_timeseries(name, selected_instance):
     instance_manager = InstanceManager(config)
@@ -378,7 +378,7 @@ def api_timeseries(name, selected_instance):
     return instance.get_timeseries_data(name)
 
 
-@app.route('/api_serverStatus/<selected_instance>', methods=['GET'])
+@app.route('/api_serverStatus/<selected_instance>')
 @viper_auth
 def api_serverstatus(selected_instance):
     instance_manager = InstanceManager(config)
@@ -393,7 +393,7 @@ def api_serverstatus(selected_instance):
 # ----------------------------------------------------------------------------
 # Normal urls as part of the app.
 # ----------------------------------------------------------------------------
-@app.route('/', methods=['GET'])
+@app.route('/')
 @viper_auth
 @billing_enabled
 def root():
@@ -401,7 +401,7 @@ def root():
     return redirect(url_for('sign_in'))
 
 
-@app.route('/error', methods=['GET'])
+@app.route('/error')
 def error():
     login = session.get('login', '')
     error_id = session.pop('error_id', '')
@@ -467,7 +467,7 @@ def instance_stats(selected_instance):
     return render_template('instances/instance_stats.html', instance=instance)
 
 
-@app.route('/instances', methods=['GET'])
+@app.route('/instances')
 @viper_auth
 @billing_enabled
 def instances():
@@ -1930,7 +1930,7 @@ def admin_set_status():
     return redirect(url_for('admin_status_management'))
 
 
-@app.route('/admin/inventory', methods=['GET'])
+@app.route('/admin/inventory')
 @viper_auth
 @viper_isadmin
 def admin_inventory():
@@ -1953,7 +1953,7 @@ def admin_revenue():
                            revenue=billing_manager.get_billed_revenue())
 
 
-@app.route('/admin/customer_reports', methods=['GET'])
+@app.route('/admin/customer_reports')
 @viper_auth
 @viper_isadmin
 def admin_customer_reports():
@@ -1964,7 +1964,7 @@ def admin_customer_reports():
                            account_manager=account_manager)
 
 
-@app.route('/admin/customer_reports/export', methods=['GET'])
+@app.route('/admin/customer_reports/export')
 @viper_auth
 @viper_isadmin
 def admin_export_customer_report():
@@ -1972,7 +1972,7 @@ def admin_export_customer_report():
                     mimetype='text/csv')
 
 
-@app.route('/admin/instance_management', methods=['GET'])
+@app.route('/admin/instance_management')
 @viper_auth
 @viper_isadmin
 def admin_instance_management():
@@ -2075,7 +2075,7 @@ def repair_database(selected_instance):
     return redirect(url_for('instance_details', selected_instance=selected_instance))
 
 
-@app.route('/instances/<selected_instance>/settings', methods=['GET'])
+@app.route('/instances/<selected_instance>/settings')
 @viper_auth
 def instance_settings(selected_instance):
     instance_manager = InstanceManager(config)
@@ -2147,7 +2147,7 @@ def system_status():
     return render_template('system_status/system_status.html', status=status_manager.get_status())
 
 
-@app.route('/silence_alarm', methods=['GET'])
+@app.route('/silence_alarm')
 def silence_alarm():
     token = request.args.get('token')
 
