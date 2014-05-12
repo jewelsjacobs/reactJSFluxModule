@@ -34,7 +34,7 @@
         <div class="rs-detail-header-title">{{ instance.name }}</div>
     </div>
 
-    {% call detail_section(title='Instance Details') %}
+    {% call detail_section(title='Instance Details', id='details_section') %}
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Server</div>
@@ -135,7 +135,7 @@
         </ul>
     {% endcall %}
 
-    {% call detail_section(title='Instance Operations Status', collapsible=True) %}
+    {% call detail_section(title='Instance Operations Status', collapsible=True, id='operations_section') %}
         {% if database_compaction_state == instance.COMPACTION_STATE_REQUESTED %}
             {% set compaction_class='rs-status-processing' %}
             {% set compaction_text='Processing' %}
@@ -204,7 +204,7 @@
     {% endcall %}
 
 
-    {% call detail_section(title='Databases', collapsible=True) %}
+    {% call detail_section(title='Databases', collapsible=True, id='databases_section') %}
         {% set add_database_enabled = is_sharded_instance or (not is_sharded_instance and databases|count < max_databases_per_replica_set_instances) %}
         {% if not (add_database_enabled and enable_copy_database) %}
             {% set copy_database_enabled = false %}
@@ -241,7 +241,7 @@
     {% else %}
         {% set shard_section_title = 'Replica Set' %}
     {% endif %}
-    {% call detail_section(title=shard_section_title, collapsible=True, expanded=False, id='shards_container') %}
+    {% call detail_section(title=shard_section_title, collapsible=True, expanded=False, id='shards_section') %}
         <div id="shards_overlay" class="rs-embedded-list-table-wrapper rs-embedded-medium">
             <div id="shards_overlay_loading" class="rs-table-overlay rs-table-overlay-loading">
                 <div id="databases-table-overlay-content" class="rs-table-overlay-content">
@@ -257,7 +257,7 @@
         </div>
     {% endcall %}
 
-    {% call detail_section(title='Security', collapsible=True, expanded=False) %}
+    {% call detail_section(title='Security', collapsible=True, expanded=False, id='acls_section') %}
         <div class="rs-btn-group">
             <button id="add-acl-target" data-popover="add-acl-popover" data-popover-target="add-acl-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source">Add ACL</button>
         </div>
@@ -285,7 +285,7 @@
         </div>
     {% endcall %}
 
-    {% call detail_section(title='Backups', collapsible=True, expanded=False) %}
+    {% call detail_section(title='Backups', collapsible=True, expanded=False, id='backups_section') %}
         <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
             <table class="rs-list-table rs-embedded-list-table">
                 <thead>
@@ -308,7 +308,7 @@
         </div>
     {% endcall %}
 
-    {% call detail_section(title='Additional Item Details', collapsible=True, expanded=False) %}
+    {% call detail_section(title='Additional Item Details', collapsible=True, expanded=False, id='misc_section') %}
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Created</div>
@@ -572,14 +572,15 @@
     var instanceName = '{{instance.name}}';
 
     // Fetch and render the shards for this instance.
-    function fetchShards($shardsContainer) {
+    function fetchShards() {
         var url = "{{url_for('shards', selected_instance=instance.name)}}";
         $.ajax({
             url: url,
             dataType: 'html',
             type: 'GET',
             success: function(html) {
-                $shardsContainer.find('.rs-detail-section-body').html(html);
+                $shardsSection = $('#shards_section');
+                $shardsSection.find('.rs-detail-section-body').html(html);
                 $addShardButton = $('#add-shard-popover-target');
                 $addShardButton.click(function() {
                     positionPopover($addShardButton);
@@ -612,7 +613,7 @@
     }
 
     // Render ACL data into the ACLs table.
-    function displayACLs($aclsTableBody) {
+    function displayACLs() {
         var apiURL = "/api/acls/" + apiKey;
 
         $.ajax({
@@ -622,6 +623,7 @@
             data: {},
             success: function(jsonData) {
                 var aclData = jsonData['data'];
+                $aclsTableBody = $('#acls-table-body');
 
                 // If ACLs are found, then remove the table overlay.
                 if (aclData.length > 0) {
@@ -671,7 +673,7 @@
     }
 
     // Render backup data into the backups table.
-    function displayBackups($backupsTable) {
+    function displayBackups() {
         var apiURL = "/api/backups/" + apiKey;
 
         $.ajax({
@@ -681,6 +683,7 @@
             data: {},
             success: function(jsonData){
                 var backupData = jsonData['data'];
+                $backupsTable = $('#backups-table-body');
 
                 // If backups are found, then remove the table overlay.
                 if (backupData.length > 0) {
@@ -743,13 +746,22 @@
         });
     }
 
+    function asyncCallOnExpand($section, asyncCall) {
+        $section.click(function() {
+            if (!$section.attr('data-called')) {
+                asyncCall();
+                $section.attr('data-called', true);
+            }
+        });
+    }
+
     $(document).ready(function() {
 
         // Asynchronous calls.
-        fetchShards($('#shards_container'));
         fetchDatabases($('#databases_container'));
-        displayACLs($('#acls-table-body'));
-        displayBackups($('#backups-table-body'));
+        asyncCallOnExpand($('#shards_section'), fetchShards);
+        asyncCallOnExpand($('#acls_section'), displayACLs);
+        asyncCallOnExpand($('#backups_section'), displayBackups);
 
         // Validation for renaming instances.
         $('#rename_instance_popover_form').validate({
