@@ -988,7 +988,7 @@ def collection(selected_instance, selected_database, selected_collection):
                            shard_keys=shard_keys)
 
 
-@app.route('/instances/<selected_instance>/databases/<selected_database>/create_collection', methods=['GET'])
+@app.route('/instances/<selected_instance>/databases/<selected_database>/create_collection')
 @viper_auth
 def add_collection(selected_instance, selected_database):
     """Add new collection."""
