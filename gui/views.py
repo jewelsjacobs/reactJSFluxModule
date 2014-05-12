@@ -584,11 +584,6 @@ def instance_details(selected_instance):
 
     stepdown_window.pop('election_started', None)
 
-    try:
-        databases = user_instance.databases
-    except AutoReconnect:
-        databases = None
-
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
         shard_logs = user_instance.shard_logs
         balancer = user_instance.balancer
@@ -623,7 +618,6 @@ def instance_details(selected_instance):
                            account_monitoring_checks=account_monitoring_checks,
                            aggregate_stats=aggregate_stats,
                            balancer=balancer,
-                           databases=databases,
                            database_compaction_state=database_compaction_state,
                            database_copy_state=database_copy_state,
                            database_repair_state=database_repair_state,
@@ -935,6 +929,21 @@ def copy_database(selected_instance):
 
     return redirect(url_for('instance_details',
                             selected_instance = selected_instance))
+
+
+@app.route('/instances/<selected_instance>/databases')
+@viper_auth
+def databases(selected_instance):
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    if instance is None:
+        abort(404)
+
+    databases = instance.databases
+    html = render_template('instances/_databases.html',
+                           databases=databases,
+                           instance=instance)
+    return html
 
 
 @app.route('/instances/<selected_instance>/databases/<selected_database>', methods=['GET', 'POST'])

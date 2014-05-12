@@ -223,41 +223,16 @@
             <button id="copy-remote-database-target" data-popover="copy-remote-database-popover" data-popover-target="copy-remote-database-target" data-popover-position="bottom-right" class="rs-btn rs-btn-secondary rs-popover-source{% if not copy_database_enabled %} disabled{% endif %}">Copy Remote Database</button>
         </div>
 
-        <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
-            <table class="rs-list-table rs-embedded-list-table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Name</th>
-                        <th>Objects</th>
-                        <th>Data Size</th>
-                        <th>Index Count</th>
-                        <th>Index Size</th>
-                        <th>Storage Size</th>
-                        <th>Average Object Size</th>
-                        <th>File Size</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for database in databases %}
-                    <tr>
-                        <td><button id="delete-database-target-{{ loop.index }}" data-count="{{ loop.index }}" data-popover="delete-database-popover" data-popover-target="delete-database-target-{{ loop.index }}" data-popover-position="right" class="rs-delete rs-popover-source"></button></td>
-                        <td class="rs-table-text" id="database-{{ loop.index }}"><a href="{{ url_for('database', selected_instance=instance.name, selected_database=database.name) }}">{{ database.name }}</a></td>
-                        <td class="rs-table-text">{{ database.object_count }}</td>
-                        <td class="rs-table-text">{{ database.data_size_in_bytes|filesizeformat }}</td>
-                        <td class="rs-table-text">{{ database.index_count }}</td>
-                        <td class="rs-table-text">{{ database.index_size_in_bytes|filesizeformat }}</td>
-                        <td class="rs-table-text">{{ database.storage_size_in_bytes|filesizeformat }}</td>
-                        <td class="rs-table-text">{{ database.average_object_size_in_bytes|filesizeformat }}</td>
-                        <td class="rs-table-text">{{ database.file_size_in_bytes|filesizeformat}}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <div id="databases-table-overlay" class="rs-table-overlay{% if databases %} hidden{% endif %}">
-                <div class="rs-table-overlay-content">
-                    <div class="rs-table-overlay-title">You don't have any databases yet.</div>
-                    <div class="rs-table-overlay-subtitle">Create on now by clicking on the Add Database button.</div>
+        <div id="databases_container" class="rs-embedded-list-table-wrapper rs-embedded-medium">
+            <div id="databases_overlay_loading" class="rs-table-overlay rs-table-overlay-loading">
+                <div id="databases-table-overlay-content" class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-message">Loading &hellip;</div>
+                </div>
+            </div>
+            <div id="databases_overlay_failure" class="rs-table-overlay hidden">
+                <div id="databases-table-overlay-content" class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-title">Failed to load databases.</div>
+                    <div class="rs-table-overlay-subtitle">If this issue persists, contact support.</div>
                 </div>
             </div>
         </div>
@@ -584,8 +559,27 @@
     {{ super() }}
     <script type="text/javascript">
 
-    // Instance API key.
-    var apiKey = {{ instance.api_key|tojson|safe }};
+    // Instance API key and name.
+    var apiKey = {{instance.api_key|tojson|safe}};
+    var instanceName = '{{instance.name}}';
+
+    // Fetch and render the databases for this instance.
+    function fetchDatabases($databasesContainer) {
+        var url = "{{url_for('databases', selected_instance=instance.name)}}";
+        $.ajax({
+            url: url,
+            dataType: 'html',
+            type: 'GET',
+            success: function(html) {
+                $databasesContainer.html(html);
+                bindDeleteDatabaseListeners();
+            },
+            error: function() {
+                $('#databases_overlay_loading').addClass('hidden');
+                $('#databases_overlay_failure').removeClass('hidden');
+            }
+        });
+    }
 
     // Render ACL data into the ACLs table.
     function displayACLs($aclsTableBody) {
@@ -703,9 +697,26 @@
         });
     }
 
+    function bindDeleteDatabaseListeners() {
+        // Listener for delete database buttons.
+        $('button[data-popover="delete-database-popover"]').click(function() {
+            var $this = $(this);
+            // Get the database's name.
+            var count = $this.attr('data-count');
+            var name = $('#database-' + count).text();
+
+            // Inject the database's name into popover.
+            $('#delete-database-popover-name').text(name);
+            $('#delete-database-db-input').val(name);
+            positionPopover($this);
+            showPopover($this);
+        });
+    }
+
     $(document).ready(function() {
 
         // Asynchronous calls.
+        fetchDatabases($('#databases_container'));
         displayACLs($('#acls-table-body'));
         displayBackups($('#backups-table-body'));
 
@@ -833,19 +844,6 @@
                 $(label).closest('.rs-control-group').removeClass('error');
                 $(label).closest('.rs-control-group').addClass('success');
             }
-        });
-
-        // Listener for delete database buttons.
-        $('button[data-popover="delete-database-popover"]').each(function() {
-            $(this).click(function() {
-                // Get the database's name.
-                var count = $(this).attr('data-count');
-                var name = $('#database-' + count).text();
-
-                // Inject the database's name into popover.
-                $('#delete-database-popover-name').text(name);
-                $('#delete-database-db-input').val(name);
-            });
         });
 
     });
