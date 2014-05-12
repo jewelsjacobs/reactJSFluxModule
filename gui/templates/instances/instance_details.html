@@ -699,19 +699,17 @@
 
     function bindDeleteDatabaseListeners() {
         // Listener for delete database buttons.
-        $('button[data-popover="delete-database-popover"]').each(function() {
-            $(this).click(function() {
-                var $this = $(this);
-                // Get the database's name.
-                var count = $this.attr('data-count');
-                var name = $('#database-' + count).text();
+        $('button[data-popover="delete-database-popover"]').click(function() {
+            var $this = $(this);
+            // Get the database's name.
+            var count = $this.attr('data-count');
+            var name = $('#database-' + count).text();
 
-                // Inject the database's name into popover.
-                $('#delete-database-popover-name').text(name);
-                $('#delete-database-db-input').val(name);
-                positionPopover($this);
-                showPopover($this);
-            });
+            // Inject the database's name into popover.
+            $('#delete-database-popover-name').text(name);
+            $('#delete-database-db-input').val(name);
+            positionPopover($this);
+            showPopover($this);
         });
     }
 
