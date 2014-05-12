@@ -558,7 +558,52 @@ def delete_instance(instance_name):
     return redirect(url_for('instances'))
 
 
-@app.route('/instances/<selected_instance>', methods=['GET', 'POST'])
+@app.route('/instances/<selected_instance>/shards')
+@viper_auth
+def shards(selected_instance):
+    """Instance shards or replica set."""
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    if instance is None:
+        abort(404)
+
+    if instance.type == Constants.MONGODB_SHARDED_INSTANCE:
+
+        aggregate_stats = {}
+        total_file_size = 0
+
+        for shard in instance.shards:
+            shard_stats = shard.replica_set.primary.aggregate_database_statistics
+            aggregate_stats[shard.name] = shard_stats
+            total_file_size += shard_stats[Constants.FILE_SIZE_IN_BYTES]
+
+        # Calculate shard balance percentage per shard.
+        for shard_name in aggregate_stats:
+            shard_stats = aggregate_stats[shard_name]
+            shard_file_size_in_bytes = shard_stats[Constants.FILE_SIZE_IN_BYTES]
+            if total_file_size == 0:
+                shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = 0
+            else:
+                shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = round((float(shard_file_size_in_bytes) / float(total_file_size)) * 100, 2)
+
+        html = render_template('instances/_shard_info.html',
+                               aggregate_stats=aggregate_stats,
+                               instance=instance)
+    else:
+        if instance.replica_set.primary:
+            primary = instance.replica_set.primary
+            has_primary = True
+        else:
+            primary = instance.replica_set.members[0]
+            has_primary = False
+        html = render_template('instances/_replica_set_info.html',
+                               has_primary=has_primary,
+                               primary=primary)
+
+    return html
+
+
+@app.route('/instances/<selected_instance>')
 @viper_auth
 def instance_details(selected_instance):
     """Instance details page."""
@@ -593,14 +638,11 @@ def instance_details(selected_instance):
     except Exception:
         enable_copy_database = False
 
-    aggregate_stats = {}
-    usage_totals = {}
-
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
         shard_logs = user_instance.shard_logs
         balancer = user_instance.balancer
 
-    aggregate_stats, usage_totals = _calculate_instance_space_usage(user_instance)
+    usage_totals = _calculate_instance_space_usage(user_instance)
 
     # Get instance operation states
     database_compaction_state = user_instance.compression.get(user_instance.COMPACTION_STATE, None)
@@ -616,7 +658,6 @@ def instance_details(selected_instance):
 
     return render_template('instances/instance_details.html',
                            account_monitoring_checks=account_monitoring_checks,
-                           aggregate_stats=aggregate_stats,
                            balancer=balancer,
                            database_compaction_state=database_compaction_state,
                            database_copy_state=database_copy_state,
@@ -625,7 +666,6 @@ def instance_details(selected_instance):
                            get_host_zone=Utility.get_host_zone,
                            instance=user_instance,
                            is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
-                           login=g.login,
                            max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE,
                            usage_totals=usage_totals,
                            shard_logs=shard_logs)
@@ -634,7 +674,6 @@ def instance_details(selected_instance):
 # TODO(Anthony): Move this logic to core.
 def _calculate_instance_space_usage(instance):
     """Calculate instance usage totals and percentages."""
-    aggregate_stats = {}
     usage_totals = {}
 
     # The total size in bytes of the data held in all database.
@@ -654,11 +693,9 @@ def _calculate_instance_space_usage(instance):
 
     if instance.type == Constants.MONGODB_SHARDED_INSTANCE:
 
+        # Aggregate size stats across all shards.
         for shard in instance.shards:
             shard_stats = shard.replica_set.primary.aggregate_database_statistics
-            aggregate_stats[shard.name] = shard_stats
-
-            # Aggregate size stats across all shards.
             total_data_size += shard_stats[Constants.DATA_SIZE_IN_BYTES]
             total_index_size += shard_stats[Constants.INDEX_SIZE_IN_BYTES]
             total_ns_size += shard_stats[Constants.NAMESPACE_SIZE_IN_BYTES]
@@ -711,16 +748,7 @@ def _calculate_instance_space_usage(instance):
         overage = (total_file_size + total_ns_size) - size_in_bytes
         usage_totals['overage'] = overage
 
-    # Calculate shard balance percentage per shard.
-    for shard_name in aggregate_stats:
-        shard_stats = aggregate_stats[shard_name]
-        shard_file_size_in_bytes = shard_stats[Constants.FILE_SIZE_IN_BYTES]
-        if total_file_size == 0:
-            shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = 0
-        else:
-            shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = round((float(shard_file_size_in_bytes) / float(total_file_size)) * 100, 2)
-
-    return aggregate_stats, usage_totals
+    return usage_totals
 
 
 @app.route('/rename_instance', methods=['POST'])
