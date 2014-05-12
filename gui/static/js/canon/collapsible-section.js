@@ -1,16 +1,22 @@
 var collapseAll = function() {
     $(".rs-collapsible-section .rs-detail-section-header").each(function() {
         var parent = $(this).parent();
-        parent.removeClass("expanded");
-        parent.addClass("collapsed");
+        if (!parent.hasClass('collapsed')) {
+            parent.click();
+            parent.removeClass('expanded');
+            parent.addClass('collapsed');
+        }
     });
 }
 
 var expandAll = function() {
     $(".rs-collapsible-section .rs-detail-section-header").each(function() {
         var parent = $(this).parent();
-        parent.removeClass("collapsed");
-        parent.addClass("expanded");
+        if (!parent.hasClass('expanded')) {
+            parent.click();
+            parent.removeClass('collapsed');
+            parent.addClass('expanded');
+        }
     });
 }
 

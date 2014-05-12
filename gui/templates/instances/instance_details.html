@@ -64,51 +64,14 @@
             {% endif %}
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Space Usage</div>
-                <div class="rs-detail-value">
-                    {% set usage = usage_totals['total_file_size'] + usage_totals['total_ns_size'] %}
-                    <span>{{ usage|filesizeformat }} of {{ instance.size if instance.type == Constants.MONGODB_SHARDED_INSTANCE else 5 }} GB</span>
-                    <span data-title="
-<h4>Legend:</h4>
-<p><span class='rs-status or-status-ns'>Ns: {{ usage_totals['total_ns_size']|filesizeformat }}</span> The total size of the namespace files for all databases.</p>
-<p><span class='rs-status or-status-data'>Data: {{ usage_totals['total_data_size']|filesizeformat }}</span> The total size in bytes of the data held in all database.</p>
-<p><span class='rs-status or-status-index'>Indexes: {{ usage_totals['total_index_size']|filesizeformat }}</span> The total size in bytes of all indexes created on all databases.</p>
-<p><span class='rs-status or-status-storage'>Storage: {{ usage_totals['total_storage_size']|filesizeformat }}</span> The total amount of space in bytes allocated to collections in all database for document storage.</p>
-<p><span class='rs-status rs-status-ok'>Total File: {{ usage_totals['total_file_size']|filesizeformat }}</span> The total size in bytes of the data files that hold the databases, not including the namespace files.</p>
-<p><b>Notice:</b> The space usage represented here includes the size of administrative databases.</p>"
-                          data-delay="0.1" class="rs-icon-help tip valign-baseline"></span>
+                <div id="space_usage_data" class="rs-detail-value">
+                    <span>&nbsp;</span>
                     <div class="rs-progress">
-                        <div class="rs-progress-inner or-flexbox-row">
-                            {% if 'overage' in usage_totals %}
-                                <div id="usage-bar-overage" class="rs-segment" style="width: 100%;">
-                                    <div class="rs-bar or-bar-overage"></div>
-                                    <div class="rs-caption">{{ usage_totals['overage']|filesizeformat }} Above Threshold</div>
-                                </div>
-                            {% else %}
-                                <div id="usage-bar-ns" class="rs-segment" style="width: {{ usage_totals['percentages']['ns'] }}%;">
-                                    <div class="rs-bar or-bar-ns"></div>
-                                    <!-- Avoid caption overcrowding. -->
-                                    {% if usage_totals['percentages']['ns'] > 2 %}<div class="rs-caption">Ns</div>{% endif %}
-                                </div>
-                                <div id="usage-bar-data" class="rs-segment" style="width: {{ usage_totals['percentages']['data'] }}%;">
-                                    <div class="rs-bar or-bar-data"></div>
-                                    <!-- Avoid caption overcrowding. -->
-                                    {% if usage_totals['percentages']['data'] > 4 %}<div class="rs-caption">Data</div>{% endif %}
-                                </div>
-                                <div id="usage-bar-indexes" class="rs-segment" style="width: {{ usage_totals['percentages']['index'] }}%;">
-                                    <div class="rs-bar or-bar-index"></div>
-                                    <!-- Avoid caption overcrowding. -->
-                                    {% if usage_totals['percentages']['index'] > 5 %}<div class="rs-caption">Indexes</div>{% endif %}
-                                </div>
-                                <div id="usage-bar-storage" class="rs-segment" style="width: {{ usage_totals['percentages']['storage'] - usage_totals['percentages']['data'] - usage_totals['percentages']['index'] }}%;">
-                                    <div class="rs-bar or-bar-storage"></div>
-                                    <div class="rs-caption">Storage</div>
-                                </div>
-                                <div id="usage-bar-remainder" class="rs-segment" style="width: {{ usage_totals['percentages']['remaining'] }}%;">
-                                    <div class="rs-bar"></div>
-                                    <!-- Avoid caption overcrowding. -->
-                                    {% if usage_totals['percentages']['remaining'] > 5 %}<div class="rs-caption">Free</div>{% endif %}
-                                </div>
-                            {% endif %}
+                        <div class="rs-progress-inner">
+                            <div class="rs-segment" style="width:100%;">
+                                <div class="rs-bar rs-bar-ok rs-bar-striped"></div>
+                                <div class="rs-caption">Loading&hellip;</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -571,6 +534,37 @@
     var apiKey = {{instance.api_key|tojson|safe}};
     var instanceName = '{{instance.name}}';
 
+    // Fetch and render instance space usage data.
+    function fetchSpaceUsage() {
+        var url = "{{url_for('instance_space_usage', selected_instance=instance.name)}}";
+        $.ajax({
+            url: url,
+            dataType: 'html',
+            type: 'GET',
+            success: function(html) {
+                $('#space_usage_data')
+                    .removeClass('hidden')
+                    .html(html);
+
+                // Bind the tooltip listener to the space usage legend.
+                $('#space_usage_data .tip').hover(function(event) {
+                    removeTooltips();
+                    clearTimeout(removeTipTimer);
+                    clearTimeout(attachTipTimer);
+                    var tooltip = new Object();
+                    tooltip.contents = $(this).attr('data-title');
+                    tooltip.delay = $(this).attr('data-delay');
+                    tooltip.left = event.clientX;
+                    tooltip.top = $(document).scrollTop()+event.clientY;
+                    attachTooltip(tooltip);
+                }, function(e) {
+                    clearTimeout(attachTipTimer);
+                    removeTipTimer = setTimeout(function(){removeTooltips();}, hideTipTimeout);
+                });
+            },
+        });
+    }
+
     // Fetch and render the shards for this instance.
     function fetchShards() {
         var url = "{{url_for('shards', selected_instance=instance.name)}}";
@@ -595,13 +589,14 @@
     }
 
     // Fetch and render the databases for this instance.
-    function fetchDatabases($databasesContainer) {
+    function fetchDatabases() {
         var url = "{{url_for('databases', selected_instance=instance.name)}}";
         $.ajax({
             url: url,
             dataType: 'html',
             type: 'GET',
             success: function(html) {
+                $databasesContainer = $('#databases_container');
                 $databasesContainer.html(html);
                 bindDeleteDatabaseListeners();
             },
@@ -758,7 +753,8 @@
     $(document).ready(function() {
 
         // Asynchronous calls.
-        fetchDatabases($('#databases_container'));
+        fetchSpaceUsage();
+        fetchDatabases();
         asyncCallOnExpand($('#shards_section'), fetchShards);
         asyncCallOnExpand($('#acls_section'), displayACLs);
         asyncCallOnExpand($('#backups_section'), displayBackups);
