@@ -34,7 +34,7 @@
         <div class="rs-detail-header-title">{{ instance.name }}</div>
     </div>
 
-    {% call detail_section(title='Instance Details', collapsible=True) %}
+    {% call detail_section(title='Instance Details') %}
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Server</div>
@@ -205,7 +205,6 @@
 
 
     {% call detail_section(title='Databases', collapsible=True) %}
-        <!-- FIXME(Anthony): This is jank. This logic should be pulled into the controller. -->
         {% set add_database_enabled = is_sharded_instance or (not is_sharded_instance and databases|count < max_databases_per_replica_set_instances) %}
         {% if not (add_database_enabled and enable_copy_database) %}
             {% set copy_database_enabled = false %}
@@ -218,7 +217,6 @@
         {% endif %}
 
         <div class="rs-btn-group">
-            <!-- TODO(Anthony): Scripting on these lines should be moved to controller. -->
             <button id="add-database-target" data-popover="add-database-popover" data-popover-target="add-database-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source{% if not add_database_enabled %} disabled{% endif %}">Add Database</button>
             <button id="copy-remote-database-target" data-popover="copy-remote-database-popover" data-popover-target="copy-remote-database-target" data-popover-position="bottom-right" class="rs-btn rs-btn-secondary rs-popover-source{% if not copy_database_enabled %} disabled{% endif %}">Copy Remote Database</button>
         </div>
@@ -243,7 +241,7 @@
     {% else %}
         {% set shard_section_title = 'Replica Set' %}
     {% endif %}
-    {% call detail_section(title=shard_section_title, collapsible=True, id='shards_container') %}
+    {% call detail_section(title=shard_section_title, collapsible=True, expanded=False, id='shards_container') %}
         <div id="shards_overlay" class="rs-embedded-list-table-wrapper rs-embedded-medium">
             <div id="shards_overlay_loading" class="rs-table-overlay rs-table-overlay-loading">
                 <div id="databases-table-overlay-content" class="rs-table-overlay-content">
@@ -259,7 +257,7 @@
         </div>
     {% endcall %}
 
-    {% call detail_section(title='Security', collapsible=True) %}
+    {% call detail_section(title='Security', collapsible=True, expanded=False) %}
         <div class="rs-btn-group">
             <button id="add-acl-target" data-popover="add-acl-popover" data-popover-target="add-acl-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source">Add ACL</button>
         </div>
@@ -287,7 +285,7 @@
         </div>
     {% endcall %}
 
-    {% call detail_section(title='Backups', collapsible=True) %}
+    {% call detail_section(title='Backups', collapsible=True, expanded=False) %}
         <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
             <table class="rs-list-table rs-embedded-list-table">
                 <thead>
@@ -310,7 +308,7 @@
         </div>
     {% endcall %}
 
-    {% call detail_section(title='Additional Item Details', collapsible=True) %}
+    {% call detail_section(title='Additional Item Details', collapsible=True, expanded=False) %}
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Created</div>
