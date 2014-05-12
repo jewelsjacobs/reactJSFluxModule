@@ -70,7 +70,7 @@
 
         <div class="rs-detail-section">
             <div class="rs-detail-section-header rs-btn-group">
-                <button class="rs-btn rs-btn-primary save">Create Collection</button>
+                <button id="collection-create-button" class="rs-btn rs-btn-primary save">Create Collection</button>
                 <a href="{{ url_for('database', selected_instance=instance.name, selected_database=database.name) }}" class="rs-btn rs-btn-link cancel">Cancel</a>
             </div>
         </div>
@@ -134,6 +134,34 @@
             $('#shard-key-div').data('keys', {});
             $('#shard-key-pre').text('');
             $('#shardkeys').val('');
+        });
+        
+        // Listener for the submit button
+        $('#collection-create-button').click(function(event) {
+            event.preventDefault();
+            form = $('#collection-create-form');
+
+            if (isShardedInstance) {
+                var shardKeys = $('#shard-key-div').data('keys');
+
+                if ($.isEmptyObject(shardKeys)) {
+                    if ($('#autohash-checkbox').is(':checked')) {
+                        var shardKeys = {'_id': 'hashed'};
+                    } else {
+                        var validator = $form.validate();
+                        validator.showErrors({"shardkeys": "A shard key is required."});
+                        return false;
+                    }
+                }
+                var encodedShardKeys = JSON.stringify(shardKeys);
+                if ($('#shard-keys').length > 0) {
+                    $(form).append("<input id='shard-keys' type='hidden' name='all_shard_keys' value='" + encodedShardKeys + "'>");
+                } else {
+                    $('#shard-keys').attr('value', encodedShardKeys);
+                }
+                
+            }
+            $(form).submit();
         });
 
         // Update the list of shard keys as they are added.
