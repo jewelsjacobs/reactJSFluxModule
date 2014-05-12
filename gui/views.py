@@ -642,8 +642,6 @@ def instance_details(selected_instance):
         shard_logs = user_instance.shard_logs
         balancer = user_instance.balancer
 
-    usage_totals = _calculate_instance_space_usage(user_instance)
-
     # Get instance operation states
     database_compaction_state = user_instance.compression.get(user_instance.COMPACTION_STATE, None)
 
@@ -667,13 +665,19 @@ def instance_details(selected_instance):
                            instance=user_instance,
                            is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
                            max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE,
-                           usage_totals=usage_totals,
                            shard_logs=shard_logs)
 
 
-# TODO(Anthony): Move this logic to core.
-def _calculate_instance_space_usage(instance):
+@app.route('/instances/<selected_instance>/space_usage')
+@viper_auth
+def instance_space_usage(selected_instance):
     """Calculate instance usage totals and percentages."""
+    instance_manager = InstanceManager(config)
+    instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    if instance is None:
+        abort(404)
+
     usage_totals = {}
 
     # The total size in bytes of the data held in all database.
@@ -748,7 +752,9 @@ def _calculate_instance_space_usage(instance):
         overage = (total_file_size + total_ns_size) - size_in_bytes
         usage_totals['overage'] = overage
 
-    return usage_totals
+    return render_template('instances/_space_usage.html',
+                           instance=instance,
+                           usage_totals=usage_totals)
 
 
 @app.route('/rename_instance', methods=['POST'])
