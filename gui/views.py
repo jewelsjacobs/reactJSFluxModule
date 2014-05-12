@@ -1000,10 +1000,7 @@ def add_collection(selected_instance, selected_database):
                            instance=user_instance,
                            is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
                            database=user_database,
-                           login=g.login,
-                           Utility=Utility,
-                           default_mongo_version=config.DEFAULT_MONGO_VERSION,
-                           stripe_pub_key=config.STRIPE_PUB_KEY)
+                           default_mongo_version=config.DEFAULT_MONGO_VERSION)
 
 
 @app.route('/create_collection/<selected_instance>/<selected_database>', methods=['POST'])
