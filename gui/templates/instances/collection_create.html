@@ -31,6 +31,7 @@
                     </div>
                 </div>
 
+                {% if is_sharded_instance %}
                 <div class="rs-control-group">
                     <label class="rs-control-label" for="autohash-checkbox">Automatically hash on _id</label>
                     <div class="rs-controls">
@@ -63,8 +64,10 @@
                                 <p class="rs-help-block">A background index will be created for these keys.</p>
                             </div>
                         </div>
+                        <input id="shard-key-value" type="hidden" name="all_shard_keys" value="">
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
 
@@ -154,12 +157,7 @@
                     }
                 }
                 var encodedShardKeys = JSON.stringify(shardKeys);
-                if ($('#shard-keys').length > 0) {
-                    $(form).append("<input id='shard-keys' type='hidden' name='all_shard_keys' value='" + encodedShardKeys + "'>");
-                } else {
-                    $('#shard-keys').attr('value', encodedShardKeys);
-                }
-                
+                $('#shard-key-value').attr('value', encodedShardKeys);
             }
             $(form).submit();
         });
