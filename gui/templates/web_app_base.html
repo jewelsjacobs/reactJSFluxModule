@@ -11,7 +11,12 @@
 {% block nav_utility_content %}
     <ul class="rs-nav rs-pull-right">
         <li class="rs-dropdown rs-utility-dropdown">
-            <a class="rs-dropdown-toggle" href="mailto:support@objectrocket.com">Contact Support</a>
+            <a class="rs-dropdown-toggle" href="#">Support <i class="rs-caret"></i></a>
+            <ul class="rs-dropdown-menu hidden">
+                <li class="rs-dropdown-item"><a class="rs-dropdown-link" href="mailto:support@objectrocket.com">Contact Support</a></li>
+                <li class="rs-divider"></li>
+                <li class="rs-dropdown-item"><a class="rs-dropdown-link" href="http://docs.objectrocket.com/" target="_blank">Documentation</a></li>
+            </ul>
         </li>
         {% block nav_utility_content_login %}
         <li class="rs-dropdown rs-utility-dropdown">
