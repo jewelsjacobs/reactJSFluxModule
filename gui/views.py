@@ -1427,7 +1427,7 @@ def msa_disagree():
 @viper_auth
 def billing():
     billing_manager = BillingManager(config)
-    invoices = {}
+    invoices = collections.OrderedDict()
     manually_invoiced = False
     subscription = {}
     date_format = "%B %d, %Y"
