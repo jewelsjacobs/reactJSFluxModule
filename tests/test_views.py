@@ -58,11 +58,11 @@ def test_billing_enabled(app_client, monkeypatch):
         client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
         response = client.get(url_for('root'))
         print(response.data)
-        assert response.status_code == 302
+        assert response.status_code == 402
 
         response = client.get(url_for('instances'))
         print(response.data)
-        assert response.status_code == 302
+        assert response.status_code == 402
 
 
 def test_sign_up_3(app_client):
