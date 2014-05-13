@@ -37,7 +37,7 @@
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Size</div>
-                <div class="rs-detail-value">{{ collection.size|filesizeformat }}</div>
+                <div class="rs-detail-value">{{ collection.size|filesizeformat(binary=True) }}</div>
             </li>
         </ul>
     {% endcall %}

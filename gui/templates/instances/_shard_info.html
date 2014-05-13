@@ -24,10 +24,10 @@
                 <tr>
                     <td class="rs-table-text"><a href="{{ url_for('cluster', selected_instance=instance.name) }}">{{ shard.name }}</a></td>
                     <td class="rs-table-text">{{ shard.plan }}</td>
-                    <td class="rs-table-text">{{ shard_statistics[Constants.DATA_SIZE_IN_BYTES]|filesizeformat }}</td>
-                    <td class="rs-table-text">{{ shard_statistics[Constants.INDEX_SIZE_IN_BYTES]|filesizeformat }}</td>
-                    <td class="rs-table-text">{{ shard_statistics[Constants.STORAGE_SIZE_IN_BYTES]|filesizeformat }}</td>
-                    <td class="rs-table-text">{{ shard_statistics[Constants.FILE_SIZE_IN_BYTES]|filesizeformat }}</td>
+                    <td class="rs-table-text">{{ shard_statistics[Constants.DATA_SIZE_IN_BYTES]|filesizeformat(binary=True) }}</td>
+                    <td class="rs-table-text">{{ shard_statistics[Constants.INDEX_SIZE_IN_BYTES]|filesizeformat(binary=True) }}</td>
+                    <td class="rs-table-text">{{ shard_statistics[Constants.STORAGE_SIZE_IN_BYTES]|filesizeformat(binary=True) }}</td>
+                    <td class="rs-table-text">{{ shard_statistics[Constants.FILE_SIZE_IN_BYTES]|filesizeformat(binary=True) }}</td>
                     <td class="rs-table-text">
                         <div class="rs-progress">
                             <div class="rs-progress-inner">

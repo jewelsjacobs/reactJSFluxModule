@@ -46,7 +46,7 @@
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Data Size</div>
-                <div class="rs-detail-value">{{ database.data_size_in_bytes|filesizeformat }}</div>
+                <div class="rs-detail-value">{{ database.data_size_in_bytes|filesizeformat(binary=True) }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Objects</div>
@@ -54,7 +54,7 @@
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Average Object Size</div>
-                <div class="rs-detail-value">{{ (database.average_object_size_in_bytes if database.average_object_size_in_bytes else 0)|filesizeformat }}</div>
+                <div class="rs-detail-value">{{ (database.average_object_size_in_bytes if database.average_object_size_in_bytes else 0)|filesizeformat(binary=True) }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Indexes</div>
@@ -133,9 +133,9 @@
                         </td>
                         <td class="rs-table-text"><a href="{{ url_for('collection', selected_instance=instance.name, selected_database=database.name, selected_collection=collection.name) }}">{{ collection.name }}</td>
                         <td class="rs-table-text">{{ collection.document_count if collection.document_count else 0 }}</td>
-                        <td class="rs-table-text">{{ (collection.size if collection.size else 0)|filesizeformat }}</td>
-                        <td class="rs-table-text">{{ (collection.average_object_size_in_bytes if collection.average_object_size_in_bytes else 0)|filesizeformat }}</td>
-                        <td class="rs-table-text">{{ (collection.total_index_size_in_bytes if collection.total_index_size_in_bytes else 0)|filesizeformat }}</td>
+                        <td class="rs-table-text">{{ (collection.size if collection.size else 0)|filesizeformat(binary=True) }}</td>
+                        <td class="rs-table-text">{{ (collection.average_object_size_in_bytes if collection.average_object_size_in_bytes else 0)|filesizeformat(binary=True) }}</td>
+                        <td class="rs-table-text">{{ (collection.total_index_size_in_bytes if collection.total_index_size_in_bytes else 0)|filesizeformat(binary=True) }}</td>
                         <td class="rs-table-text">{{ collection.sharded }}</td>
                     </tr>
                 {% endfor %}

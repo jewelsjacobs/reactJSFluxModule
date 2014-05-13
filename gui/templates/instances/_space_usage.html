@@ -1,12 +1,12 @@
 {% set usage = usage_totals['total_file_size'] + usage_totals['total_ns_size'] %}
-<span>{{ usage|filesizeformat }} of {{ instance.size if instance.type == Constants.MONGODB_SHARDED_INSTANCE else 5 }} GB</span>
+<span>{{ usage|filesizeformat(binary=True) }} of {{ instance.maximum_capacity|filesizeformat(binary=True) if instance.type == Constants.MONGODB_SHARDED_INSTANCE else '5 GB' }}</span>
 <span data-title="
 <h4>Legend:</h4>
-<p><span class='rs-status or-status-ns'>Ns: {{ usage_totals['total_ns_size']|filesizeformat }}</span> The total size of the namespace files for all databases.</p>
-<p><span class='rs-status or-status-data'>Data: {{ usage_totals['total_data_size']|filesizeformat }}</span> The total size in bytes of the data held in all database.</p>
-<p><span class='rs-status or-status-index'>Indexes: {{ usage_totals['total_index_size']|filesizeformat }}</span> The total size in bytes of all indexes created on all databases.</p>
-<p><span class='rs-status or-status-storage'>Storage: {{ usage_totals['total_storage_size']|filesizeformat }}</span> The total amount of space in bytes allocated to collections in all database for document storage.</p>
-<p><span class='rs-status rs-status-ok'>Total File: {{ usage_totals['total_file_size']|filesizeformat }}</span> The total size in bytes of the data files that hold the databases, not including the namespace files.</p>
+<p><span class='rs-status or-status-ns'>Ns: {{ usage_totals['total_ns_size']|filesizeformat(binary=True) }}</span> The total size of the namespace files for all databases.</p>
+<p><span class='rs-status or-status-data'>Data: {{ usage_totals['total_data_size']|filesizeformat(binary=True) }}</span> The total size in bytes of the data held in all database.</p>
+<p><span class='rs-status or-status-index'>Indexes: {{ usage_totals['total_index_size']|filesizeformat(binary=True) }}</span> The total size in bytes of all indexes created on all databases.</p>
+<p><span class='rs-status or-status-storage'>Storage: {{ usage_totals['total_storage_size']|filesizeformat(binary=True) }}</span> The total amount of space in bytes allocated to collections in all database for document storage.</p>
+<p><span class='rs-status rs-status-ok'>Total File: {{ usage_totals['total_file_size']|filesizeformat(binary=True) }}</span> The total size in bytes of the data files that hold the databases, not including the namespace files.</p>
 <p><b>Notice:</b> The space usage represented here includes the size of administrative databases.</p>"
       data-delay="0.1" class="rs-icon-help tip valign-baseline"></span>
 <div class="rs-progress">
@@ -14,7 +14,7 @@
         {% if 'overage' in usage_totals %}
             <div id="usage-bar-overage" class="rs-segment" style="width: 100%;">
                 <div class="rs-bar or-bar-overage"></div>
-                <div class="rs-caption">{{ usage_totals['overage']|filesizeformat }} Above Threshold</div>
+                <div class="rs-caption">{{ usage_totals['overage']|filesizeformat(binary=True) }} Above Threshold</div>
             </div>
         {% else %}
             <div id="usage-bar-ns" class="rs-segment" style="width: {{ usage_totals['percentages']['ns'] }}%;">
