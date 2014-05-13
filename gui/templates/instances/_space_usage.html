@@ -36,7 +36,7 @@
                 <div class="rs-bar or-bar-storage"></div>
                 <div class="rs-caption">Storage</div>
             </div>
-            <div id="usage-bar-remainder" class="rs-segment" style="width: {{ usage_totals['percentages']['remaining'] }}%;">
+            <div id="usage-bar-remainder" class="rs-segment" style="width: {{ usage_totals['percentages']['remaining'] + usage_totals['percentages']['data'] + usage_totals['percentages']['index'] }}%;">
                 <div class="rs-bar"></div>
                 <!-- Avoid caption overcrowding. -->
                 {% if usage_totals['percentages']['remaining'] > 5 %}<div class="rs-caption">Free</div>{% endif %}
