@@ -826,8 +826,8 @@ def add_instance_user(selected_instance):
 
 # TODO(Anthony): This route should be broken into two routes. One for DB creation,
 # and one for user creation.
-@app.route('/create_instance_user/<selected_instance>', methods=['GET', 'POST'])
-@app.route('/create_instance_user/<selected_instance>/<selected_database>', methods=['GET', 'POST'])
+@app.route('/create_instance_user/<selected_instance>', methods=['POST'])
+@app.route('/create_instance_user/<selected_instance>/<selected_database>', methods=['POST'])
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
 def create_instance_user(selected_instance, selected_database=None):
