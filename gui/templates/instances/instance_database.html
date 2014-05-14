@@ -18,7 +18,7 @@
                 <ul class="rs-dropdown-menu" style="right:0;">
                     <li><span class="rs-dropdown-category">Manage</span></li>
                     <li><a data-popover="add-user-popover" data-popover-target="add-user-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add User</a></li>
-                    <li><a data-popover="add-collection-popover" data-popover-target="add-collection-target" data-popover-position="bottom-right" class="rs-popover-source">Add Collection</a></li>
+                    <li><a href="{{ url_for('add_collection', selected_instance=instance.name, selected_database=database.name) }}">Add Collection</a></li>
                     {% if not is_sharded_instance %}
                         <li><a data-popover="repair-database-popover" data-popover-target="repair-database-target"
                                data-popover-position="bottom-right" class="rs-popover-source">
@@ -109,7 +109,7 @@
 
     {% call detail_section(title='Collections', collapsible=True) %}
         <div class="rs-btn-group">
-            <button id="add-collection-target" data-popover="add-collection-popover" data-popover-target="add-collection-target" data-popover-position="right" class="rs-btn rs-btn-primary rs-popover-source">Add Collection</button>
+            <a href="{{ url_for('add_collection', selected_instance=instance.name, selected_database=database.name) }}" class="rs-btn rs-btn-primary">Add Collection</a>
         </div>
 
         <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
@@ -183,67 +183,6 @@
     </div>
     <!-- end add user popover -->
 
-    <!-- add collection popover -->
-    <div id="add-collection-popover" class="rs-popover invisible">
-        <div class="rs-popover-arrow"></div>
-        <div class="rs-popover-content">
-            <div class="rs-popover-body">
-                <form id="add-collection-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('create_collection', selected_instance=instance.name, selected_database=database.name) }}" method="POST">
-                    <div class="rs-control-group">
-                        <label id="name-label" class="rs-control-label">Collection Name</label>
-                        <div class="rs-controls">
-                            <input id="collection" name="collection" type="text" placeholder="Any alphanumeric string." class="rs-input rs-input-medium">
-                        </div>
-                    </div>
-
-                    <div id="shard-keys-group">
-                        <div class="rs-control-group">
-                            <hr/>
-                            <label class="rs-control-label">Automatically hash on _id</label>
-                            <div class="rs-controls">
-                                <input id="autohash-checkbox" name="autohash-checkbox" type="checkbox"{% if default_autohash_on_id %} checked="true"{% endif %} value="ascending">
-                            </div>
-                        </div>
-
-                        <div id="shard-keys-input" class="hidden">
-                            <div class="rs-control-group">
-                                <hr/>
-                                <label id="keys-label" class="rs-control-label">Enter Shard Key</label>
-                                <div id="shard_key_input_div" class="rs-controls">
-                                    <input id="shardkeys" name="shardkeys" type="text" class="rs-input rs-input-medium">
-                                    <span class="rs-help-block">Key(s) on which to shard this collection.</span>
-
-                                    <span id="hashed-key-checkbox-span">
-                                        <input id="hashed-key-checkbox" type="checkbox" name="hashed-key-checkbox" value="ascending">&nbsp;Hashed
-                                    </span>
-                                    <div>
-                                        <button id="add-key-button" form="" class="rs-btn rs-btn-primary rs-control-label">Add Key</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="shard-keys" class="rs-control-group">
-                                <label id="shard_key_label" class="rs-control-label">Selected Shard Keys</label>
-                                <div class="rs-controls">
-                                    <div id="shard-key-div" class="align-center">
-                                        <pre id="shard-key-pre" class="min-height-1em"></pre>
-                                        <p class="rs-help-block">A background index will be created for these keys.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </form>
-            </div>
-            <div class="rs-popover-footer rs-btn-group">
-                <button id="add-collection-popover-form-button" form="add-collection-popover-form" class="rs-btn rs-btn-primary save">Add Collection</button>
-                <div class="rs-btn rs-btn-link">Cancel</div>
-            </div>
-        </div>
-    </div>
-    <!-- end add collection popover -->
-
     <!-- delete user popover -->
     <div id="delete-user-popover" class="rs-popover invisible">
         <div class="rs-popover-arrow"></div>
@@ -288,149 +227,8 @@
 
 {% block script %}
     {{ super() }}
-    <script type="text/javascript" src="/static/js/shard_key.js"></script>
     <script type="text/javascript">
-    var toggleShardKeyInputDisplay = function() {
-        if ($('#autohash-checkbox').is(':unchecked')) {
-            $('#shard-keys-input').removeClass('hidden');
-        } else {
-            $('#shard-keys-input').addClass('hidden');
-        }
-    }
-
-    // FIXME(Anthony): This is quite bad. We shouldn't interpolate jinja variables into the JS.
     $(document).ready(function() {
-        var instanceVersion = {{ instance.version|tojson|safe }};
-        var isShardedInstance = {{ is_sharded_instance|tojson|safe }};
-
-        hashedKeyEnabled = false;
-
-        var versionDigits = instanceVersion.split('.');
-        var majorVersion = versionDigits[0];
-        var minorVersion = versionDigits[1];
-
-        // Determine if key hashing should be enabled.
-        if (majorVersion >= 2) {
-            if (minorVersion >= 4) {
-                hashedKeyEnabled = true;
-            } else {
-                hashedKeyEnabled = false;
-            }
-        } else {
-            hashedKeyEnabled = false;
-        }
-
-        // Show shard key group if dealing with a sharded instance and hashedKeyEnabled.
-        if (isShardedInstance) {
-            if (hashedKeyEnabled) {
-                $('#shard-keys-group').removeClass('hidden');
-            } else {
-                $('#shard-keys-group').addClass('hidden');
-            }
-        } else {
-            $('#shard-keys-group').addClass('hidden');
-        }
-
-        // Show shard key input if autohash-checkbox is not checked.
-        toggleShardKeyInputDisplay();
-        $('#autohash-checkbox').change(function() {
-            toggleShardKeyInputDisplay();
-        });
-
-        // Clear data when hashed-key-checkbox is clicked.
-        $('#hashed-key-checkbox').click(function() {
-            $('#shard-key-div').data('keys', {});
-            $('#shard-key-pre').text('');
-            $('#shardkeys').val('');
-        });
-
-        // Update the list of shard keys as they are added.
-        $('#add-key-button').click(function() {
-            var shardKey = $('#shardkeys').val();
-
-            if (shardKey) {
-                if (shardKey === '') {
-                    return false;
-                }
-
-                if (containsInvalidShardKeyCharacters(shardKey)) {
-                    var validator = $('#add-collection-popover-form').validate();
-                    validator.showErrors({"shardkeys": 'Cannot contain /\ ",*<>:|?{}'});
-                    return false;
-                }
-
-                var shardKeys = $('#shard-key-div').data('keys');
-
-                if (!shardKeys) {
-                    shardKeys = {};
-                }
-
-                if (!shardKeys.shardKey) {
-                    var shardKeyLabel = '<label>' + $('#shardkeys').val() + '</label>'
-                    var shardKeyQualifier = 1;
-
-                    if ($('#hashed-key-checkbox').is(':checked')) {
-                        shardKeyQualifier = 'hashed';
-                        shardKeys = {};
-                    }
-
-                    shardKeys[shardKey] = shardKeyQualifier;
-                    $('#shard-key-div').data('keys', shardKeys);
-
-                    $('#shard-key-pre').text(JSON.stringify(shardKeys));
-                    $('#shardkeys').val('');
-                }
-            }
-        });
-
-        // Listener for the add collection button.
-        $('#add-collection-popover-form-button').click(function(event) {
-            event.preventDefault();
-            $form = $('#add-collection-popover-form');
-
-            if (isShardedInstance) {
-                var shardKeys = $('#shard-key-div').data('keys');
-
-                if ($.isEmptyObject(shardKeys)) {
-                    if ($('#autohash-checkbox').is(':checked')) {
-                        var shardKeys = {'_id': 'hashed'};
-                    } else {
-                      var validator = $form.validate();
-                      validator.showErrors({"shardkeys": "A shard key is required."});
-                      return false;
-                    }
-                }
-                var encodedShardKeys = JSON.stringify(shardKeys);
-                $("#add-collection-popover-form").append("<input type='hidden' name='all_shard_keys' value='" + encodedShardKeys + "'>");
-            }
-            $form.submit();
-        });
-
-        // Add validator method.
-        $.validator.addMethod("noSpecialCharacters", function(value, element) {
-            return !containsInvalidShardKeyCharacters(value);
-        }, 'Cannot contain /\ "*<>:|?{}');
-
-        // Validation for add-collection-popover-form.
-        $('#add-collection-popover-form').validate({
-            rules: {
-                collection: {
-                    minlength: 1,
-                    required: true
-                }
-            },
-            errorClass: 'rs-validation-block',
-            errorElement: 'span',
-            highlight: function (label) {
-                $(label).closest('.rs-control-group').removeClass('success');
-                $(label).closest('.rs-control-group').addClass('error');
-            },
-            success: function(label) {
-                $(label).closest('.rs-control-group').removeClass('error');
-                $(label).closest('.rs-control-group').addClass('success');
-            }
-        });
-
 
         // Listener for delete user buttons.
         $('button[data-popover="delete-user-popover"]').each(function() {

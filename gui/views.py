@@ -1031,6 +1031,21 @@ def collection(selected_instance, selected_database, selected_collection):
                            shard_keys=shard_keys)
 
 
+@app.route('/instances/<selected_instance>/databases/<selected_database>/create_collection')
+@viper_auth
+def add_collection(selected_instance, selected_database):
+    """Add new collection."""
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    user_database = user_instance.get_database(selected_database)
+
+    return render_template('instances/collection_create.html',
+                           instance=user_instance,
+                           is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
+                           database=user_database,
+                           default_mongo_version=config.DEFAULT_MONGO_VERSION)
+
+
 @app.route('/create_collection/<selected_instance>/<selected_database>', methods=['POST'])
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
@@ -1048,7 +1063,7 @@ def create_collection(selected_instance, selected_database):
             user_database.add_collection(request.form['collection'])
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
-        flash_message = ("There was a problem creating this collection. If this problem persists, contact"
+        flash_message = ("There was a problem creating this collection. If this problem persists, contact "
                          "support and provide Error ID %s." % (exception_uuid))
         flash(flash_message, canon_constants.STATUS_ERROR)
         app.logger.error(ex)
