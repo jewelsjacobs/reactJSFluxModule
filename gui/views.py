@@ -784,7 +784,7 @@ def rename_instance():
     return redirect(url_for('instance_details', selected_instance=new_name))
 
 
-@app.route('/instances/<selected_instance>/cluster', methods=['GET', 'POST'])
+@app.route('/instances/<selected_instance>/cluster')
 @viper_auth
 def cluster(selected_instance):
     instance_manager = InstanceManager(config)
