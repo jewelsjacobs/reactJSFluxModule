@@ -17,10 +17,8 @@ import stripe
 # 3rd part from imports.
 from flask import abort, Response
 from flask import flash, request, render_template, session, redirect, url_for, g
-from flask import make_response
 from flaskext.kvsession import KVSessionExtension
 from functools import wraps
-from pymongo.errors import AutoReconnect
 from viper import config
 from werkzeug.datastructures import ImmutableMultiDict
 
@@ -38,9 +36,8 @@ from viper.mongo_instance import MongoDBInstanceException
 from viper.mongo_sessions import MongoDBStore
 from viper.notifier import Notifier
 from viper.replica import ReplicaException
-from viper.shard import ShardManager, ShardException
 from viper.status import StatusManager
-from viper.utility import Utility, FlaskUtility
+from viper.utility import Utility
 
 # Make app available in this scope.
 from gui import app
@@ -54,7 +51,7 @@ app.signing_key = "ba71f41a91e947f680d879c08982d302"
 store = MongoDBStore(config)
 KVSessionExtension(store, app)
 
-# TODO: sniff userLanguage from navigator.language js and set locale from this
+# TODO: Move this somewhere else and never call it more than once
 locale.setlocale(locale.LC_ALL, '')
 
 # TODO: Refactor: Should move out of controllers into runserver or app (app resides in gui/__init__.py ... I'd move the app decl out of here)
