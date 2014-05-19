@@ -19,6 +19,7 @@ from flask import abort, Response
 from flask import flash, request, render_template, session, redirect, url_for, g
 from flaskext.kvsession import KVSessionExtension
 from functools import wraps
+from jinja2.filters import do_filesizeformat as filesizeformat
 from viper import config
 from werkzeug.datastructures import ImmutableMultiDict
 
@@ -958,7 +959,7 @@ def copy_database(selected_instance):
             flash(flash_message, canon_constants.STATUS_ERROR)
 
     return redirect(url_for('instance_details',
-                            selected_instance = selected_instance))
+                            selected_instance=selected_instance))
 
 
 @app.route('/instances/<selected_instance>/databases')
@@ -988,9 +989,10 @@ def database(selected_instance, selected_database):
     default_autohash_on_id = is_sharded_instance and user_instance.plan < config.DEFAULT_AUTO_HASH_ON_ID_CUTOFF_IN_GB
 
     return render_template('instances/instance_database.html',
-                           collections=user_database.collections,
+                           collections=user_database.get_collection_list(),
                            database=user_database,
                            default_autohash_on_id=default_autohash_on_id,
+                           has_more_collections=len(user_database.collection_list),
                            instance=user_instance,
                            is_sharded_instance=is_sharded_instance,
                            login=g.login,
@@ -1026,6 +1028,36 @@ def collection(selected_instance, selected_database, selected_collection):
                            login=g.login,
                            sample_document=sample_document,
                            shard_keys=shard_keys)
+
+
+@app.route('/instances/<selected_instance>/databases/<selected_database>/get_collections')
+@viper_auth
+def get_collection_page(selected_instance, selected_database):
+    """Gets a JSON object containing a single page of collections."""
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    if not user_instance:
+        abort(404)
+
+    limit = int(request.args.get('limit', 25))
+    page_number = int(request.args.get('page_number', 0))
+
+    user_database = user_instance.get_database(selected_database)
+    user_collections = list(user_database.get_collection_list(limit=limit, page_number=page_number))
+
+    for i, collection in enumerate(user_collections):
+        collection_dict = {
+            'name': collection.name,
+            'document_count': collection.document_count or 0,
+            'size': filesizeformat(collection.size or 0, binary=True),
+            'average_object_size_in_bytes': filesizeformat(collection.average_object_size_in_bytes or 0, binary=True),
+            'total_index_size_in_bytes': filesizeformat(collection.total_index_size_in_bytes or 0, binary=True),
+            'sharded': 'True' if collection.sharded else 'False'
+        }
+        user_collections[i] = collection_dict
+
+    return json.dumps({'collections': user_collections}), 200, {'content-type': 'application/json'}
 
 
 @app.route('/instances/<selected_instance>/databases/<selected_database>/create_collection')

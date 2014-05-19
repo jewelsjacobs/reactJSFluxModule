@@ -116,7 +116,7 @@
             <table class="rs-list-table rs-embedded-list-table">
                 <thead>
                     <tr>
-                        <th></th>
+<!--                         <th></th> -->
                         <th>Name</th>
                         <th>Documents</th>
                         <th>Total Size</th>
@@ -126,19 +126,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for collection in collections.values() %}
-                    <tr>
-                        <td class="rs-table-text">
+                {% for collection in collections %}
+                    <tr id="collection-{{ collection.name }}">
+<!--                         <td class="rs-table-text">
                             <span data-title="Collections are groupings of MongoDB documents, and are equivalent to an RDBMS table." data-delay="0.1" class="rs-icon-help tip"></span>
-                        </td>
+                        </td> -->
                         <td class="rs-table-text"><a href="{{ url_for('collection', selected_instance=instance.name, selected_database=database.name, selected_collection=collection.name) }}">{{ collection.name }}</td>
-                        <td class="rs-table-text">{{ collection.document_count if collection.document_count else 0 }}</td>
-                        <td class="rs-table-text">{{ (collection.size if collection.size else 0)|filesizeformat(binary=True) }}</td>
-                        <td class="rs-table-text">{{ (collection.average_object_size_in_bytes if collection.average_object_size_in_bytes else 0)|filesizeformat(binary=True) }}</td>
-                        <td class="rs-table-text">{{ (collection.total_index_size_in_bytes if collection.total_index_size_in_bytes else 0)|filesizeformat(binary=True) }}</td>
+                        <td class="rs-table-text">{{ collection.document_count or 0 }}</td>
+                        <td class="rs-table-text">{{ (collection.size or 0)|filesizeformat(binary=True) }}</td>
+                        <td class="rs-table-text">{{ (collection.average_object_size_in_bytes or 0)|filesizeformat(binary=True) }}</td>
+                        <td class="rs-table-text">{{ (collection.total_index_size_in_bytes or 0)|filesizeformat(binary=True) }}</td>
                         <td class="rs-table-text">{{ collection.sharded }}</td>
                     </tr>
                 {% endfor %}
+                {% if has_more_collections %}
+                    <tr id="collection_list_end"><td><a id="load_more_collections">Load More</a></td></tr>
+                {% endif %}
                 </tbody>
             </table>
             {% if not collections %}
@@ -229,6 +232,14 @@
     {{ super() }}
     <script type="text/javascript">
     $(document).ready(function() {
+        var limit = 50,
+            page_number = 1,
+            load_collections_row = $('#collection_list_end'),
+            collections_call = "{{ url_for('get_collection_page', selected_instance=instance.name, selected_database=database.name) }}",
+            reverse_collection_details = function(collection_name) {
+                return '/instances/{{ instance.name }}/databases/{{ database.name }}/collections/' + collection_name;
+            },
+            auto_include_fields = ['document_count', 'size', 'average_object_size_in_bytes', 'total_index_size_in_bytes', 'sharded'];
 
         // Listener for delete user buttons.
         $('button[data-popover="delete-user-popover"]').each(function() {
@@ -243,7 +254,36 @@
             });
         });
 
+        $('#load_more_collections').click(function() {
+            load_collections_row.hide();
+            $.getJSON(collections_call, {limit: limit, page_number: page_number}).done(function(data) {
+                data.collections.forEach(function(element) {
+                    if(!!$('#collection-' + element.name).length) {
+                        return;
+                    }
+                    var row = $('<tr id="collection-' + element.name + '">');
+                    var first = $('<td class="rs-table-text">');
+                    first.append('<a href="' + reverse_collection_details(element.name) + '">' + element.name + '</a>');
+                    row.append(first);
+
+                    auto_include_fields.forEach(function(field) {
+                        row.append('<td class="rs-table-text">' + element[field] + '</td>');
+                    });
+                    load_collections_row.before(row);
+                });
+                page_number += 1;
+                load_collections_row.show();
+            });
+        });
+
     });
     </script>
 {% endblock script %}
 
+
+                        <td class="rs-table-text"><a href="{{ url_for('collection', selected_instance=instance.name, selected_database=database.name, selected_collection=collection.name) }}">{{ collection.name }}</td>
+                        <td class="rs-table-text">{{ collection.document_count or 0 }}</td>
+                        <td class="rs-table-text">{{ (collection.size or 0)|filesizeformat(binary=True) }}</td>
+                        <td class="rs-table-text">{{ (collection.average_object_size_in_bytes or 0)|filesizeformat(binary=True) }}</td>
+                        <td class="rs-table-text">{{ (collection.total_index_size_in_bytes or 0)|filesizeformat(binary=True) }}</td>
+                        <td class="rs-table-text">{{ collection.sharded }}</td>
