@@ -279,11 +279,3 @@
     });
     </script>
 {% endblock script %}
-
-
-                        <td class="rs-table-text"><a href="{{ url_for('collection', selected_instance=instance.name, selected_database=database.name, selected_collection=collection.name) }}">{{ collection.name }}</td>
-                        <td class="rs-table-text">{{ collection.document_count or 0 }}</td>
-                        <td class="rs-table-text">{{ (collection.size or 0)|filesizeformat(binary=True) }}</td>
-                        <td class="rs-table-text">{{ (collection.average_object_size_in_bytes or 0)|filesizeformat(binary=True) }}</td>
-                        <td class="rs-table-text">{{ (collection.total_index_size_in_bytes or 0)|filesizeformat(binary=True) }}</td>
-                        <td class="rs-table-text">{{ collection.sharded }}</td>
