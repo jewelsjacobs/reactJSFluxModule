@@ -1766,6 +1766,8 @@ def add_acl(instance):
     if str(cidr_mask).lower().strip() == "any":
         user_instance.add_acl('0.0.0.0/1', "Allow Any")
         user_instance.add_acl('128.0.0.0/1', "Allow Any")
+    elif '/' not in str(cidr_mask):
+        user_instance.add_acl(str(cidr_mask) + '/32', description)
     else:
         user_instance.add_acl(cidr_mask, description)
 
