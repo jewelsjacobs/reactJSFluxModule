@@ -239,7 +239,8 @@
             reverse_collection_details = function(collection_name) {
                 return '/instances/{{ instance.name }}/databases/{{ database.name }}/collections/' + collection_name;
             },
-            auto_include_fields = ['document_count', 'size', 'average_object_size_in_bytes', 'total_index_size_in_bytes', 'sharded'];
+            auto_include_fields = ['document_count', 'size', 'average_object_size_in_bytes', 'total_index_size_in_bytes', 'sharded'],
+            loading = false;
 
         // Listener for delete user buttons.
         $('button[data-popover="delete-user-popover"]').each(function() {
@@ -255,7 +256,12 @@
         });
 
         $('#load_more_collections').click(function() {
-            load_collections_row.hide();
+            var self = this;
+            if(loading) {
+                return;
+            }
+            loading = true;
+            $(self).text('Loading...').css({opacity: 0.75});
             $.getJSON(collections_call, {limit: limit, page_number: page_number}).done(function(data) {
                 data.collections.forEach(function(element) {
                     if(!!$('#collection-' + element.name).length) {
@@ -272,7 +278,8 @@
                     load_collections_row.before(row);
                 });
                 page_number += 1;
-                load_collections_row.show();
+                $(self).text('Load More').css({opacity: 1});
+                loading = false;
             });
         });
 
