@@ -23,6 +23,7 @@ from functools import wraps
 from pymongo.errors import AutoReconnect
 from viper import config
 from werkzeug.datastructures import ImmutableMultiDict
+from urlparse import urlparse
 
 # ObjectRocket from imports.
 from canon import constants as canon_constants
@@ -775,7 +776,12 @@ def rename_instance():
 
     instance_manager.rename_instance(g.login, current_name, new_name)
     flash('Instance successfully renamed.', canon_constants.STATUS_OK)
-    return redirect(url_for('instance_details', selected_instance=new_name))
+    
+    ref = urlparse(request.referrer)
+    if ref.path == '/instances':
+      return redirect(url_for('instances'))
+    else:
+      return redirect(url_for('instance_details', selected_instance=new_name))
 
 
 @app.route('/instances/<selected_instance>/cluster', methods=['GET', 'POST'])
