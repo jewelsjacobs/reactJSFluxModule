@@ -261,7 +261,7 @@
                 return;
             }
             loading = true;
-            $(self).text('Loading...').css({opacity: 0.75});
+            $(self).text('Loading...');
             $.getJSON(collections_call, {limit: limit, page_number: page_number}).done(function(data) {
                 data.collections.forEach(function(element) {
                     if(!!$('#collection-' + element.name).length) {
@@ -278,7 +278,7 @@
                     load_collections_row.before(row);
                 });
                 page_number += 1;
-                $(self).text('Load More').css({opacity: 1});
+                $(self).text('Load More');
                 loading = false;
             });
         });
