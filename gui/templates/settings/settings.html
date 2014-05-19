@@ -52,7 +52,7 @@
                         <select name="profiling_level">
                             {% set profiling_level = instance.settings.get('profiling_level', ['0'])[0] %}
                             {% for name in ["Off", "Slow", "All"] %}
-                            <option value="{{ loop.index }}"{% if '{}'.format(loop.index) == profiling_level %} selected{% endif %}>{{ name }}</option>
+                            <option value="{{ loop.index0 }}"{% if '{}'.format(loop.index0) == profiling_level %} selected{% endif %}>{{ name }}</option>
                             {% endfor %}
                         </select>
                         <span class="rs-help-block">Profiler level, slow is defined as anything > 20ms. This setting may take a few minutes to take effect.</span>
