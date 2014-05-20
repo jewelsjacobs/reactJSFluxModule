@@ -601,6 +601,7 @@ def shards(selected_instance):
             primary = instance.replica_set.members[0]
             has_primary = False
         html = render_template('instances/_replica_set_info.html',
+                               get_host_zone=Utility.get_host_zone,
                                has_primary=has_primary,
                                primary=primary)
 
