@@ -272,7 +272,7 @@ def mongo_instance_exception_handler(error):
 @app.errorhandler(ReplicaException)
 def replica_instance_exception_handler(error):
     msg = "Instance Error: {0}".format(error)
-    flash("There has been an error with your replica instance. Please contact support@objectrocket.com")
+    flash("There has been an error with your replica instance. Please contact support.", canon_constants.STATUS_ERROR)
     app.logger.error(msg)
     return redirect(url_for('default'))
 
