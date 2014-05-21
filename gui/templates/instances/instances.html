@@ -16,49 +16,49 @@ TODO:
             <a href="{{ url_for('create_instance') }}" class="rs-btn rs-btn-primary">Add Instance</a>
         </div>
 
-        <table class="rs-list-table">
+        <table class="rs-list-table" id="instances-table">
             <thead>
                 <tr>
                     <th class="rs-table-status"></th>
                     <th class="rs-table-cog"></th>
                     <th>
-                        <a href="#list-table" class="rs-table-sort">
+                        <a href="javascript:void(0);" class="rs-table-sort">
                             <span class="rs-table-sort-text">Name</span>
                             <span class="rs-table-sort-indicator"></span>
                         </a>
                     </th>
                     <th>
-                        <a href="#list-table" class="rs-table-sort">
+                        <a href="javascript:void(0);" class="rs-table-sort">
                             <span class="rs-table-sort-text">Engine</span>
                             <span class="rs-table-sort-indicator"></span>
                         </a>
                     </th>
                     <th>
-                        <a href="#list-table" class="rs-table-sort">
+                        <a href="javascript:void(0);" class="rs-table-sort">
                             <span class="rs-table-sort-text">Type</span>
                             <span class="rs-table-sort-indicator"></span>
                         </a>
                     </th>
                     <th>
-                        <a href="#list-table" class="rs-table-sort">
+                        <a href="javascript:void(0);" class="rs-table-sort">
                             <span class="rs-table-sort-text">Version</span>
                             <span class="rs-table-sort-indicator"></span>
                         </a>
                     </th>
                     <th>
-                        <a href="#list-table" class="rs-table-sort">
+                        <a href="javascript:void(0);" class="rs-table-sort">
                             <span class="rs-table-sort-text">Zone</span>
                             <span class="rs-table-sort-indicator"></span>
                         </a>
                     </th>
                     <th>
-                        <a href="#list-table" class="rs-table-sort">
+                        <a href="javascript:void(0);" class="rs-table-sort">
                             <span class="rs-table-sort-text">Plan</span>
                             <span class="rs-table-sort-indicator"></span>
                         </a>
                     </th>
                     <th>
-                        <a href="#list-table" class="rs-table-sort">
+                        <a href="javascript:void(0);" class="rs-table-sort">
                             <span class="rs-table-sort-text">Shards</span>
                             <span class="rs-table-sort-indicator"></span>
                         </a>
@@ -188,6 +188,26 @@ TODO:
                 $('#delete-instance-popover-form').attr('action', '/' + name + '/delete');
                 $('#delete-instance-popover-name').text(name);
                 $('#instance-input').val(name);
+            });
+        });
+        
+        $('#instances-table').DataTable({
+            paging: false,
+            searching: false,
+            info: false,
+            processing: false
+        });
+        $('#instances-table').on('order.dt', function(e, settings) {
+            $.each(settings.aoColumns, function(i, c) {
+                $(c.nTh).children('.rs-table-sort').removeClass('rs-table-sort-asc rs-table-sort-desc')
+                switch($(c.nTh).attr('class')) {
+                    case 'sorting_asc':
+                        $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-asc');
+                        break;
+                    case 'sorting_desc':
+                        $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-desc');
+                        break;
+                }
             });
         });
 
