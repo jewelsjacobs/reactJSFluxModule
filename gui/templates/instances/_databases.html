@@ -3,16 +3,17 @@
         <thead>
             <tr>
                 <th></th>
-                <th>Name</th>
-                <th>Objects</th>
-                <th>Data Size</th>
-                <th>Index Count</th>
-                <th>Index Size</th>
-                <th>Storage Size</th>
-                <th>Average Object Size</th>
-                <th>File Size</th>
+                <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Name</span><span class="rs-table-sort-indicator"></span></a></th>
+                <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Objects</span><span class="rs-table-sort-indicator"></span></a></th>
+                <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Data Size</span><span class="rs-table-sort-indicator"></span></a></th>
+                <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Index Count</span><span class="rs-table-sort-indicator"></span></a></th>
+                <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Index Size</span><span class="rs-table-sort-indicator"></span></a></th>
+                <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Storage Size</span><span class="rs-table-sort-indicator"></span></a></th>
+                <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Average Object Size</span><span class="rs-table-sort-indicator"></span></a></th>
+                <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">File Size</span><span class="rs-table-sort-indicator"></span></a></th>
             </tr>
         </thead>
+        <tbody id="databases_tbody">
         {% for database in databases %}
             <tr>
                 <td><button id="delete-database-target-{{ loop.index }}" data-count="{{ loop.index }}" data-popover="delete-database-popover" data-popover-target="delete-database-target-{{ loop.index }}" data-popover-position="right" class="rs-delete rs-popover-source"></button></td>
@@ -26,7 +27,6 @@
                 <td class="rs-table-text">{{ database.file_size_in_bytes|filesizeformat(binary=True)}}</td>
             </tr>
         {% endfor %}
-        <tbody id="databases_tbody">
         </tbody>
     </table>
 {% else %}
