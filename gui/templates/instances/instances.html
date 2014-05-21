@@ -87,15 +87,19 @@ TODO:
                             <div class="rs-dropdown">
                                 <div id="instance-{{ instancecount }}" class="rs-cog rs-dropdown-toggle"></div>
                                 <ul class="rs-dropdown-menu">
-                                    <li><span class="rs-dropdown-category" id="first">Actions</span></li>
-                                    <li><a data-popover="rename-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Rename</a></li>
-                                    <li><a data-popover="delete-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Delete</a></li>
-                                    <li><a href="{{ url_for('instance_stats', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Statistics</a>
-                                    <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Settings</a>
+                                    <li><span class="rs-dropdown-category">Manage</span></li>
+                                    <li><a data-popover="rename-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Rename Instance</a></li>
+                                    <li><a data-popover="delete-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Delete Instance</a></li>
+                                    {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+                                    <li><a data-popover="compact-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Compact Instance</a></li>
+                                    {% endif %}
+                                    <li><a data-popover="add-instance-user-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add Instance User</a></li>
+                                    <li><a href="{{ url_for('instance_stats', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Instance Statistics</a></li>
+                                    <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Manage Settings</a></li>
                                 </ul>
                             </div>
                         </td>
-                        <td id="instance-{{ instancecount }}-count" class="rs-table-link"><a href={{ url_for('instances') }}/{{ instance.name }}>{{ instance.name }}</a></td>
+                        <td id="instance-{{ instancecount }}-count" class="rs-table-link"><a href="{{ url_for('instances') }}/{{ instance.name }}">{{ instance.name }}</a></td>
                         <td class="rs-table-link">MongoDB</td>
                         <td class="rs-table-link">{{ instance.type.replace('mongodb', 'MongoDB').replace('sharded', 'Sharded').replace('replica_set', 'Replica Set').replace('_', ' ') }}</td>
                         <td class="rs-table-link">{{ instance.version }}</td>
@@ -140,7 +144,7 @@ TODO:
     </div>
     <!-- end rename instance popover -->
 
-    <!-- rename instance popover -->
+    <!-- delete instance popover -->
     <div id="delete-instance-popover" class="rs-popover invisible">
         <div class="rs-popover-arrow"></div>
         <div class="rs-popover-content">
@@ -157,7 +161,62 @@ TODO:
             </div>
         </div>
     </div>
-    <!-- end rename instance popover -->
+    <!-- end delete instance popover -->
+
+    <!-- compact instance popover -->
+    <div id="compact-instance-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="compact-instance-popover-form" class="rs-form-horizontal rs-form-small" action="" method="POST">
+                    <div class="rs-control-group">
+                        Request <strong>compaction</strong> for instance <span id="compact-instance-name"></span>?
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="compact-instance-popover-form-button" form="compact-instance-popover-form"
+                        class="rs-btn rs-btn-primary save">Compact</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end compact instance popover -->
+
+    <!-- add instance user popover -->
+    <div id="add-instance-user-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="add-instance-user-popover-form" class="rs-form-horizontal rs-form-small" action="" method="POST">
+                    <h4>Add Instance User</h4>
+                    <p>
+                        This will add a new user to all currently existing databases belonging to this instance.
+                        <br/>
+                        <a target="blank" href="http://docs.objectrocket.com/features.html#add-instance-user">More Details About Adding Instance Users</a><span class="rs-icon-external"></span>
+                    </p>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Username</label>
+                        <div class="rs-controls">
+                            <input name="username" type="text" placeholder="Username" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Password</label>
+                        <div class="rs-controls">
+                            <input name="password" type="password" placeholder="Password" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="add-instance-user-popover-form-button" form="add-instance-user-popover-form" class="rs-btn rs-btn-primary">Add Instance User</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end add instance user popover -->
 {% endblock popovers %}
 
 {% block script %}
@@ -191,6 +250,32 @@ TODO:
             });
         });
 
+        // Listener for requesting an instance compaction.
+        $('a[data-popover="compact-instance-popover"]').each(function() {
+            $(this).click(function() {
+                // Get the instance name.
+                var count = $(this).attr('data-count');
+                var name = $('#instance-' + count + '-count').text();
+
+                // Inject the instance name into popover.
+                $('#compact-instance-popover-form').attr('action', '/' + name + '/compact');
+                $('#compact-instance-popover-name').text(name);
+                $('#compact-instance-name').text(name);
+            });
+        });
+
+        // Listener for adding new users to instances.
+        $('a[data-popover="add-instance-user-popover"]').each(function() {
+            $(this).click(function() {
+                // Get the instance name.
+                var count = $(this).attr('data-count');
+                var name = $('#instance-' + count + '-count').text();
+
+                // Inject the instance name into popover.
+                $('#add-instance-user-popover-form').attr('action', '/add_instance_user/' + name);
+                $('#add-instance-user-popover-name').text(name);
+            });
+        });
     });
     </script>
 {% endblock script %}
