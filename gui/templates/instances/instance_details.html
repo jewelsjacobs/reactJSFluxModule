@@ -18,6 +18,7 @@
                 <ul class="rs-dropdown-menu" style="right:0;">
                     <li><span class="rs-dropdown-category">Manage</span></li>
                     <li><a data-popover="rename-instance-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Rename Instance</a></li>
+                    <li><a data-popover="delete-instance-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Delete Instance</a></li>
                     {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
                     <li><a data-popover="compact-instance-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Compact Instance</a></li>
                     {% endif %}
@@ -304,6 +305,24 @@
         </div>
     </div>
     <!-- end rename instance popover -->
+
+    <!-- delete instance popover -->
+    <div id="delete-instance-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="delete-instance-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('delete_instance', instance_name=instance.name) }}" method="POST">
+                    <p><b>Permanently delete</b> instance <b id="delete-instance-popover-name"></b>?</p>
+                    <p>This will permanently delete the instance and all data within its databases.</p>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="delete-instance-popover-form-button" form="delete-instance-popover-form" class="rs-btn rs-btn-primary save">Delete Instance</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end delete instance popover -->
 
     <!-- compact instance popover -->
     <div id="compact-instance-popover" class="rs-popover invisible">
