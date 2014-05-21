@@ -1763,6 +1763,11 @@ def add_shard(selected_instance):
 @app.route('/add_acl/<instance>', methods=['POST'])
 @viper_auth
 def add_acl(instance):
+    """Add instance ACL.
+       Validates the supplied cidr_mask using netaddr.IPNetwork()
+       Only valid IPv4 CIDR masks are allowed (or the special keyword "any")
+       single IPs (1.2.3.4) are automatically converted to their /32 equiv (1.2.3.4/32)
+    """
     instance_manager = InstanceManager(config)
     user_instance = instance_manager.get_instance_by_name(g.login, instance)
 
@@ -1775,16 +1780,13 @@ def add_acl(instance):
         user_instance.add_acl('128.0.0.0/1', "Allow Any")
     else:
         # Validate cidr_mask by casting it using netaddr.IPNetwork
-        #   This raises AddrFormatError if the CIDR mask is invalid
-        #   As a side effect, single IPs (1.2.3.4) are automatically
-        #   converted to their /32 equiv (1.2.3.4/32)
-        #   Version = 4 restricts validation to IPv4 (OR does not support IPv6)
+        # Casting also adds /32 to single IP CIDR masks
         try:
             cidr_net = IPNetwork(cidr_mask, version=4)
         except AddrFormatError:
             # Invalid CIDR mask provided
-            flash_message = """ACLs must be a valid IPv4 CIDR IP address,
-            or any to allow any source IP.  For assistance, please contact support."""
+            flash_message = ("ACLs must be a valid IPv4 CIDR IP address, "
+            "or any to allow any source IP.  For assistance, please contact support.")
             flash(flash_message, canon_constants.STATUS_ERROR)
         else:
             # CIDR mask validated successfully
