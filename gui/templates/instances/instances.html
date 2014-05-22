@@ -66,7 +66,6 @@ TODO:
                 </tr>
             </thead>
             <tbody>
-                {% set instancecount = 0 %}
                 {% for instance in instances %}
                     <tr>
                         {% if instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE and instance.repair_state %}
@@ -99,7 +98,7 @@ TODO:
                                 </ul>
                             </div>
                         </td>
-                        <td id="instance-{{ instancecount }}-count" class="rs-table-link"><a href="{{ url_for('instances') }}/{{ instance.name }}">{{ instance.name }}</a></td>
+                        <td id="instance-{{ loop.index0 }}-count" class="rs-table-link"><a href="{{ url_for('instance_details', selected_instance=instance.name) }}">{{ instance.name }}</a></td>
                         <td class="rs-table-link">MongoDB</td>
                         <td class="rs-table-link">{{ instance.type.replace('mongodb', 'MongoDB').replace('sharded', 'Sharded').replace('replica_set', 'Replica Set').replace('_', ' ') }}</td>
                         <td class="rs-table-link">{{ instance.version }}</td>
@@ -107,7 +106,6 @@ TODO:
                         <td class="rs-table-link">{{ instance.plan }}</td>
                         <td class="rs-table-link">{{ instance.shards|count }}</td>
                     </tr>
-                    {% set instancecount = instancecount + 1 %}
                 {% endfor %}
             </tbody>
         </table>
