@@ -20,12 +20,13 @@ from flask import flash, request, render_template, session, redirect, url_for, g
 from flaskext.kvsession import KVSessionExtension
 from functools import wraps
 from jinja2.filters import do_filesizeformat as filesizeformat
-from viper import config
+from netaddr import IPNetwork, AddrFormatError
 from werkzeug.datastructures import ImmutableMultiDict
 from urlparse import urlparse
 
 # ObjectRocket from imports.
 from canon import constants as canon_constants
+from viper import config
 from viper import monitor
 from viper.account import AccountManager
 from viper.annunciator import Annunciator, Alarm
@@ -781,7 +782,7 @@ def rename_instance():
 
     instance_manager.rename_instance(g.login, current_name, new_name)
     flash('Instance successfully renamed.', canon_constants.STATUS_OK)
-    
+
     ref = urlparse(request.referrer)
     if ref.path == '/instances':
       return redirect(url_for('instances'))
@@ -1763,6 +1764,12 @@ def add_shard(selected_instance):
 @app.route('/add_acl/<instance>', methods=['POST'])
 @viper_auth
 def add_acl(instance):
+    """Add instance ACL.
+
+    Validates the supplied cidr_mask using netaddr.IPNetwork()
+    Only valid IPv4 CIDR masks are allowed (or the special keyword "any")
+    single IPs (1.2.3.4) are automatically converted to their /32 equiv (1.2.3.4/32)
+    """
     instance_manager = InstanceManager(config)
     user_instance = instance_manager.get_instance_by_name(g.login, instance)
 
@@ -1773,10 +1780,19 @@ def add_acl(instance):
     if str(cidr_mask).lower().strip() == "any":
         user_instance.add_acl('0.0.0.0/1', "Allow Any")
         user_instance.add_acl('128.0.0.0/1', "Allow Any")
-    elif '/' not in str(cidr_mask):
-        user_instance.add_acl(str(cidr_mask) + '/32', description)
     else:
-        user_instance.add_acl(cidr_mask, description)
+        # Validate cidr_mask by casting it using netaddr.IPNetwork
+        # Casting also adds /32 to single IP CIDR masks
+        try:
+            cidr_net = IPNetwork(cidr_mask, version=4)
+        except AddrFormatError:
+            # Invalid CIDR mask provided
+            flash_message = ("ACLs must be a valid IPv4 CIDR IP address, "
+                             "or any to allow any source IP.  For assistance, please contact support.")
+            flash(flash_message, canon_constants.STATUS_ERROR)
+        else:
+            # CIDR mask validated successfully
+            user_instance.add_acl(str(cidr_net), description)
 
     return redirect(url_for('instance_details', selected_instance=instance))
 
