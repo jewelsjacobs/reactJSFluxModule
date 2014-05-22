@@ -594,6 +594,25 @@
                 $databasesContainer = $('#databases_container');
                 $databasesContainer.html(html);
                 bindDeleteDatabaseListeners();
+                $('#databases_container .rs-list-table').DataTable({
+                    paging: false,
+                    searching: false,
+                    info: false,
+                    processing: false
+                });
+                $('#databases_container .rs-list-table').on('order.dt', function(e, settings) {
+                    $.each(settings.aoColumns, function(i, c) {
+                        $(c.nTh).children('.rs-table-sort').removeClass('rs-table-sort-asc rs-table-sort-desc')
+                        switch($(c.nTh).attr('class')) {
+                            case 'sorting_asc':
+                                $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-asc');
+                                break;
+                            case 'sorting_desc':
+                                $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-desc');
+                                break;
+                        }
+                    });
+                });
             },
             error: function() {
                 $('#databases_overlay_loading').addClass('hidden');

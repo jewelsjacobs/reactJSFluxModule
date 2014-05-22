@@ -113,16 +113,16 @@
         </div>
 
         <div class="rs-embedded-list-table-wrapper rs-embedded-medium" id="detail-example-embedded-list-table">
-            <table class="rs-list-table rs-embedded-list-table">
+            <table class="rs-list-table rs-embedded-list-table {% if has_more_collections < 30 %}sortable{% endif %}" id="collections-table">
                 <thead>
                     <tr>
 <!--                         <th></th> -->
-                        <th>Name</th>
-                        <th>Documents</th>
-                        <th>Data Size</th>
-                        <th>Avg Object Size</th>
-                        <th>Index Size</th>
-                        <th>Sharded</th>
+                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Name</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Documents</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Data Size</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Avg Object Size</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Index Size</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Sharded</span><span class="rs-table-sort-indicator"></span></a></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -140,9 +140,13 @@
                     </tr>
                 {% endfor %}
                 {% if has_more_collections %}
-                    <tr id="collection_list_end"><td><a id="load_more_collections">Load More</a></td></tr>
-                {% endif %}
                 </tbody>
+                <tfoot>
+                    <tr id="collection_list_end"><td><a id="load_more_collections">Load More</a></td></tr>
+                </tfoot>
+                {% else %}
+                </tbody>
+                {% endif %}
             </table>
             {% if not collections %}
             <div id="collections-table-overlay" class="rs-table-overlay">
@@ -254,6 +258,26 @@
                 $('#delete-user-input').val(name);
             });
         });
+        
+        $('#collections-table.sortable').DataTable({
+            paging: false,
+            searching: false,
+            info: false,
+            processing: false
+        });
+        $('#collections-table.sortable').on('order.dt', function(e, settings) {
+            $.each(settings.aoColumns, function(i, c) {
+                $(c.nTh).children('.rs-table-sort').removeClass('rs-table-sort-asc rs-table-sort-desc')
+                switch($(c.nTh).attr('class')) {
+                    case 'sorting_asc':
+                        $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-asc');
+                        break;
+                    case 'sorting_desc':
+                        $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-desc');
+                        break;
+                }
+            });
+        });
 
         $('#load_more_collections').click(function() {
             var self = this;
@@ -275,7 +299,7 @@
                     auto_include_fields.forEach(function(field) {
                         row.append('<td class="rs-table-text">' + element[field] + '</td>');
                     });
-                    load_collections_row.before(row);
+                    $('#collections-table tbody tr').last().after(row);
                 });
                 page_number += 1;
                 $(self).text('Load More');
