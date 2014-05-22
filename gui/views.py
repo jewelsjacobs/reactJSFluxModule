@@ -410,7 +410,7 @@ def root():
 def error():
     login = session.get('login', '')
     error_id = session.pop('error_id', '')
-    return render_template('500.html', login=login, error_id=error_id, support_email=config.SUPPORT_EMAIL)
+    return render_template('500.html', login=login, error_id=error_id, support_email=config.SUPPORT_EMAIL), 500
 
 
 @app.route('/account')
