@@ -76,19 +76,14 @@
                     </div>
                 </div>
             </li>
-            {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Connect String</div>
-                <div class="rs-detail-value">{{ instance.host }}:{{ '%.f' | format(instance.port) }}</div>
+                <div class="rs-detail-value">{{ instance.connect_string }}</div>
             </li>
+            {% if instance.ssl_connect_string %}
             <li class="rs-detail-item">
                 <div class="rs-detail-key">SSL Connect String</div>
-                <div class="rs-detail-value">{{ instance.host }}:{{ "%.f" | format(instance.port + 10000) }}</div>
-            </li>
-            {% elif instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE %}
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Connect String</div>
-                <div class="rs-detail-value">{{ instance.replica_set.primary.name }}</div>
+                <div class="rs-detail-value">{{ instance.ssl_connect_string }}</div>
             </li>
             {% endif %}
             <li class="rs-detail-item">
