@@ -20,7 +20,7 @@ from flask import flash, request, render_template, session, redirect, url_for, g
 from flaskext.kvsession import KVSessionExtension
 from functools import wraps
 from jinja2.filters import do_filesizeformat as filesizeformat
-from netaddr import IPNetwork, AddrFormatError 
+from netaddr import IPNetwork, AddrFormatError
 from werkzeug.datastructures import ImmutableMultiDict
 from urlparse import urlparse
 
@@ -781,7 +781,7 @@ def rename_instance():
 
     instance_manager.rename_instance(g.login, current_name, new_name)
     flash('Instance successfully renamed.', canon_constants.STATUS_OK)
-    
+
     ref = urlparse(request.referrer)
     if ref.path == '/instances':
       return redirect(url_for('instances'))
@@ -1764,9 +1764,10 @@ def add_shard(selected_instance):
 @viper_auth
 def add_acl(instance):
     """Add instance ACL.
-       Validates the supplied cidr_mask using netaddr.IPNetwork()
-       Only valid IPv4 CIDR masks are allowed (or the special keyword "any")
-       single IPs (1.2.3.4) are automatically converted to their /32 equiv (1.2.3.4/32)
+
+    Validates the supplied cidr_mask using netaddr.IPNetwork()
+    Only valid IPv4 CIDR masks are allowed (or the special keyword "any")
+    single IPs (1.2.3.4) are automatically converted to their /32 equiv (1.2.3.4/32)
     """
     instance_manager = InstanceManager(config)
     user_instance = instance_manager.get_instance_by_name(g.login, instance)
@@ -1786,7 +1787,7 @@ def add_acl(instance):
         except AddrFormatError:
             # Invalid CIDR mask provided
             flash_message = ("ACLs must be a valid IPv4 CIDR IP address, "
-            "or any to allow any source IP.  For assistance, please contact support.")
+                             "or any to allow any source IP.  For assistance, please contact support.")
             flash(flash_message, canon_constants.STATUS_ERROR)
         else:
             # CIDR mask validated successfully
