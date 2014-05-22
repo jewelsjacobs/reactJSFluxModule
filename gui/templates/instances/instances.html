@@ -88,13 +88,13 @@ TODO:
                                 <div id="instance-{{ instancecount }}" class="rs-cog rs-dropdown-toggle"></div>
                                 <ul class="rs-dropdown-menu">
                                     <li><span class="rs-dropdown-category">Manage</span></li>
-                                    <li><a data-popover="rename-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Rename Instance</a></li>
-                                    <li><a data-popover="delete-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Delete Instance</a></li>
+                                    <li><a data-popover="rename-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Rename</a></li>
+                                    <li><a data-popover="delete-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Delete</a></li>
                                     {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
-                                    <li><a data-popover="compact-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Compact Instance</a></li>
+                                    <li><a data-popover="compact-instance-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Compact</a></li>
                                     {% endif %}
-                                    <li><a data-popover="add-instance-user-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add Instance User</a></li>
-                                    <li><a href="{{ url_for('instance_stats', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Instance Statistics</a></li>
+                                    <li><a data-popover="add-instance-user-popover" data-count="{{ instancecount }}" data-popover-target="instance-{{ instancecount }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add User</a></li>
+                                    <li><a href="{{ url_for('instance_stats', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Statistics</a></li>
                                     <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Manage Settings</a></li>
                                 </ul>
                             </div>
