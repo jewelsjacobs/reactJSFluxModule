@@ -14,8 +14,8 @@ class Config(object):
 
     def init_app(self, app):
         """Config specific application initialization."""
-        # Register viper.config.
         # TODO(Anthony): We shouldn't be using this as config for GUI.
+        # Register viper.config.
         app.config.from_object(viper_config)
 
         abort.mapping[402] = PaymentRequired
@@ -24,7 +24,6 @@ class Config(object):
         app.secret_key = "Super Secret Key"
         app.signing_key = "ba71f41a91e947f680d879c08982d302"
 
-        # TODO: Move this somewhere else and never call it more than once
         locale.setlocale(locale.LC_ALL, '')
 
         # Session system.
