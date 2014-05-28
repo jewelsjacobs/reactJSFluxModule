@@ -236,7 +236,7 @@
     {{ super() }}
     <script type="text/javascript">
     $(document).ready(function() {
-        var limit = 50,
+        var limit = 25,
             page_number = 1,
             load_collections_row = $('#collection_list_end'),
             collections_call = "{{ url_for('get_collection_page', selected_instance=instance.name, selected_database=database.name) }}",
