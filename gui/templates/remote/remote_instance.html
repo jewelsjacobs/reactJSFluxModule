@@ -1,0 +1,75 @@
+{% extends "web_app_base.html" %}
+
+{% block content_area_body %}
+    {% call detail_header(page_title="Add Remote Instance") %}{% endcall %}
+    {% call detail_section(title="Remote Instance Details", subtitle="Add remote MongoDB instances.") %}
+        {% call create_view(url_for('add_remote_instance'), id="remote_instance_form", method="POST") %}
+            <div class="rs-detail-section-body">
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="instance_name">Instance Name</label>
+
+                    <div class="rs-controls">
+                        <input type="text" name="instance_name" class="rs-input-xlarge" id="instance_name">
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="host">Host</label>
+
+                    <div class="rs-controls">
+                        <input type="text" name="host" class="rs-input-xlarge" id="host">
+                        <span class="rs-help-block">Fully qualified hostname or IP address.</span>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="port">Port</label>
+
+                    <div class="rs-controls">
+                        <input class="rs-input-xlarge" type="text" name="port" id="port" value="27017">
+                        <span class="rs-help-block">Listening port of remote Instance</span>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="admin_username">Administrative Username</label>
+
+                    <div class="rs-controls">
+                        <input class="rs-input-xlarge" type="text" name="admin_username" id="admin_username">
+                        <span class="rs-help-block">
+                            Username with administrative privileges.
+                            Requires userAdmin privileges on the admin database.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="admin_password">Administrative Password</label>
+
+                    <div class="rs-controls">
+                        <input class="rs-input-xlarge" type="text" name="admin_password" id="admin_password">
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="ssl">SSL Enabled</label>
+
+                    <div class="rs-controls">
+                        <label class="rs-checkbox">
+                            <input type="checkbox" name="ssl" id="ssl" value="{{ True }}" checked>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <div class="rs-controls">
+                        <button type="submit" id="add_remote_instance_button" class="rs-btn rs-btn-primary">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endcall %}
+    {% endcall %}
+{% endblock %}

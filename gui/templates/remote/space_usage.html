@@ -1,0 +1,49 @@
+<li class="rs-detail-item">
+    <div class="rs-detail-key">Space Usage</div>
+    <div class="rs-detail-value">
+        {% set space_usage = remote_instance.space_usage() %}
+        {% set space_usage_percentages = remote_instance.space_usage_percentages() %}
+        <span>{{ space_usage.totalSize|filesizeformat }}</span>
+                    <span data-title="<h4>Legend:</h4>
+                    <p>
+                    <span class='rs-status or-status-data'>dataSize: {{ space_usage.dataSize|filesizeformat }}</span>
+                    The total size in bytes of the data held in all database.
+                    </p>
+                    <p>
+                    <span class='rs-status or-status-index'>indexSize: {{ space_usage.indexSize|filesizeformat }}</span>
+                    The total size in bytes of all indexes created on all databases.
+                    </p>
+                    <p>
+                    <span class='rs-status or-status-storage'>storageSize: {{ space_usage.storageSize|filesizeformat }}
+                    </span>
+                    The total amount of space in bytes allocated to collections in all database for document storage.
+                    </p>
+                    <p>
+                    <span class='rs-status rs-status-ok'>fileSize: {{ space_usage.fileSize|filesizeformat }}</span>
+                    The total size in bytes of the data files that hold the databases, not including the namespace files.
+                    </p>
+                    <p>
+                    <b>Notice:</b> The space usage represented here includes the size of administrative databases.
+                    </p>" data-delay="0.1" class="rs-icon-help tip valign-baseline"></span>
+
+        <div class="rs-progress">
+            <div class="rs-progress-inner or-flexbox-row">
+                <div id="usage-bar-data" class="rs-segment" style="width: {{ space_usage_percentages.dataSize }}%;">
+                    <div class="rs-bar or-bar-data">Data</div>
+                </div>
+                <div id="usage-bar-indexes" class="rs-segment" style="width: {{ space_usage_percentages.indexSize }}%;">
+                    <div class="rs-bar or-bar-index">Index</div>
+                </div>
+                <div id="usage-bar-storage" class="rs-segment"
+                     style="width: {{ space_usage_percentages.storageSize }}%;">
+                    <div class="rs-bar or-bar-storage"></div>
+                    <div class="rs-caption">Storage</div>
+                </div>
+                <div id="usage-bar-storage" class="rs-segment" style="width: {{ space_usage_percentages.fileSize }}%;">
+                    <div class="rs-bar or-bar-file"></div>
+                    <div class="rs-caption">File</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</li>

@@ -35,6 +35,7 @@ from viper.instance import InstanceManager
 from viper.messages import MessageManager
 from viper.mongo_instance import MongoDBInstanceException
 from viper.notifier import Notifier
+from viper.remote_instance_manager import RemoteInstanceManager
 from viper.replica import ReplicaException
 from viper.status import StatusManager
 from viper.utility import Utility
@@ -448,15 +449,17 @@ def instances():
     account_manager = AccountManager(config)
     account = account_manager.get_account(g.login)
     instances = account.instances
+    remote_instances = account.remote_instances
 
     return render_template('instances/instances.html',
                            account=account,
                            api_keys=account.instance_api_keys,
+                           default_mongo_version=config.DEFAULT_MONGO_VERSION,
                            instances=instances,
                            login=g.login,
-                           Utility=Utility,
-                           default_mongo_version=config.DEFAULT_MONGO_VERSION,
-                           stripe_pub_key=config.STRIPE_PUB_KEY)
+                           remote_instances=remote_instances,
+                           stripe_pub_key=config.STRIPE_PUB_KEY,
+                           Utility=Utility)
 
 
 @app.route('/instances/create', methods=['GET', 'POST'])
@@ -1667,8 +1670,6 @@ def add_ec2_settings():
     ec2_secret_key = request.form.get('ec2_secret_key')
     aws_manager = AWSManager(config, ec2_region, ec2_access_key, ec2_secret_key)
 
-    print(aws_manager.validate_credentials())
-
     error = False
     if not aws_manager.validate_credentials():
         error = True
@@ -2022,12 +2023,10 @@ def admin_instance_management():
     return render_template('admin/instance_management.html')
 
 
-from pprint import pprint
 @app.route('/admin/instance_management/create_instance', methods=['POST'])
 @viper_auth
 @viper_isadmin
 def admin_create_instance():
-    pprint(request.form)
     account_name    = request.form['account_name']
     name            = request.form['name']
     plan_size_in_gb = int(request.form['plan'])
@@ -2217,3 +2216,269 @@ def silence_alarm():
     else:
         flash("Your alarm silencing token was invalid.", canon_constants.STATUS_ERROR)
         return redirect(url_for('sign_in'))
+
+
+@app.route('/remote/instance')
+@viper_auth
+def remote_instance():
+    return render_template('remote/remote_instance.html')
+
+
+@app.route('/remote/instance/add', methods=['POST'])
+@viper_auth
+def add_remote_instance():
+    from viper.remote_instance import ClientWrapper, SslConnectionFailure
+    from pymongo.errors import ConnectionFailure, OperationFailure
+
+    instance_name = request.form['instance_name']
+    host = request.form['host']
+    port = int(request.form['port'])
+    admin_username = request.form.get('admin_username')
+    admin_password = request.form.get('admin_password')
+
+    ssl = False
+    if 'ssl' in request.form:
+        ssl = True
+
+    try:
+        client = ClientWrapper(host, port, ssl=ssl)
+    except SslConnectionFailure:
+        flash("Unable to establish SSL connection to remote instance.", canon_constants.STATUS_ERROR)
+        return redirect(url_for('remote_instance'))
+    except ConnectionFailure:
+        flash("Unable to establish connection to remote instance.", canon_constants.STATUS_ERROR)
+        return redirect(url_for('remote_instance'))
+
+    auth_info = {}
+    if admin_username and admin_password:
+        try:
+            admin_db = client.admin_db
+            admin_db.authenticate(admin_username, admin_password)
+        except OperationFailure:
+            flash("Unable to authenticate with remote instance.", canon_constants.STATUS_ERROR)
+            return redirect(url_for('remote_instance'))
+        try:
+            # TODO: Refactor
+            import random
+            import string
+            plain_text_password = ''.join([random.choice(string.ascii_letters) for i in range(64)])
+            encrypted_password = Utility.encrypt(config, plain_text_password)
+            auth_info = {'admin': {'name': 'objectrocket', 'password': plain_text_password}}
+            client.add_admin_user(**auth_info['admin'])
+            auth_info['admin']['password'] = encrypted_password
+        except OperationFailure:
+            flash("Unable to add objectrocket user to remote instance.", canon_constants.STATUS_ERROR)
+            return redirect(url_for('remote_instance'))
+
+    connection_info = client.connection_info
+    feature_info = client.feature_info
+    server_info = client.server_info()
+
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+
+    account.add_remote_instance(instance_name, connection_info, auth_info, feature_info, server_info)
+
+    flash("Remote instance successfully added.", canon_constants.STATUS_OK)
+    return redirect(url_for('instances'))
+
+
+@app.route('/remote/instance/remove', methods=['POST'])
+@viper_auth
+def remove_remote_instance():
+    remote_instance_name = request.form['remote_instance_name']
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+    account.remove_remote_instance(remote_instance_name)
+    flash("Remote instance successfully removed.", canon_constants.STATUS_OK)
+    return redirect(url_for('instances'))
+
+
+@app.route('/remote/instance/<selected_instance>')
+@viper_auth
+def remote_instance_details(selected_instance):
+    """Remote instance details page."""
+    remote_instance_manager = RemoteInstanceManager(config)
+    remote_instance = remote_instance_manager.get_remote_instance({Constants.LOGIN: g.login,
+                                                                   Constants.NAME: selected_instance})
+
+    if not remote_instance:
+        abort(404)
+
+    return render_template('remote/remote_instance_details.html',
+                           remote_instance=remote_instance)
+
+
+@app.route('/remote/instance/rename', methods=['POST'])
+@viper_auth
+def rename_remote_instance():
+    current_remote_name = request.form['current_remote_name']
+    new_remote_name = request.form['new_remote_name']
+    remote_instance_manager = RemoteInstanceManager(config)
+
+    if not current_remote_name:
+        message = "Cannot rename an empty remote instance name"
+        flash(message, canon_constants.STATUS_ERROR)
+        return redirect(url_for('instances'))
+
+    if not new_remote_name:
+        message = "Cannot rename remote instance {}: A non-empty new instance name is required.".format(new_remote_name)
+        flash(message, canon_constants.STATUS_ERROR)
+        return redirect(url_for('instances'))
+
+    if remote_instance_manager.remote_instance_exists(g.login, new_remote_name):
+        message = ("Cannot rename remote instance {} to {}:",
+                   "An remote instance named {} already exists.".format(current_remote_name, new_remote_name,
+                                                                        new_remote_name))
+        flash(message, canon_constants.STATUS_ERROR)
+        return redirect(url_for('instances'))
+
+    remote_instance_manager.rename_remote_instance(g.login, current_remote_name, new_remote_name)
+    flash('Instance successfully renamed.', canon_constants.STATUS_OK)
+    return redirect(url_for('instances'))
+
+
+@app.route('/remote/database/<selected_instance>/<selected_database>')
+@viper_auth
+def remote_database_details(selected_instance, selected_database):
+    remote_instance_manager = RemoteInstanceManager(config)
+    remote_instance = remote_instance_manager.get_remote_instance({'login': g.login, 'name': selected_instance})
+    database = remote_instance.client.get_database(selected_database)
+    return render_template('remote/remote_database_details.html', remote_instance=remote_instance, database=database)
+
+
+@app.route('/remote/database/user/add', methods=['POST'])
+@viper_auth
+def add_remote_database_user():
+    database_name = request.form['database_name']
+    instance_name = request.form['instance_name']
+    username = request.form['username']
+    password = request.form['password']
+    remote_instance_manager = RemoteInstanceManager(config)
+    remote_instance = remote_instance_manager.get_remote_instance({'login': g.login, 'name': instance_name})
+    database = remote_instance.client.get_database(database_name)
+    database.add_user(username, password=password)
+    flash('User added successfully.', canon_constants.STATUS_OK)
+    return redirect(url_for('remote_instance_details', selected_instance=instance_name))
+
+
+@app.route('/remote/database/user/remove', methods=['POST'])
+@viper_auth
+def remove_remote_database_user():
+    database_name = request.form['database_name']
+    instance_name = request.form['instance_name']
+    username = request.form['username']
+    remote_instance_manager = RemoteInstanceManager(config)
+    remote_instance = remote_instance_manager.get_remote_instance({'login': g.login, 'name': instance_name})
+    database = remote_instance.client.get_database(database_name)
+    database.remove_user(username)
+    flash('User removed successfully.', canon_constants.STATUS_OK)
+    return redirect(url_for('remote_database_details', selected_instance=instance_name,
+                            selected_database=database_name))
+
+
+@app.route('/remote/database/drop', methods=['POST'])
+@viper_auth
+def drop_remote_database():
+    database_name = request.form['database_name']
+    instance_name = request.form['instance_name']
+    remote_instance_manager = RemoteInstanceManager(config)
+    remote_instance = remote_instance_manager.get_remote_instance({'login': g.login, 'name': instance_name})
+    remote_instance.client.drop_database(database_name)
+    flash('Database dropped successfully.', canon_constants.STATUS_OK)
+    return redirect(url_for('remote_instance_details', selected_instance=instance_name))
+
+
+@app.route('/remote/collection/<selected_instance>/<selected_database>/<selected_collection>')
+@viper_auth
+def remote_collection_details(selected_instance, selected_database, selected_collection):
+    remote_instance_manager = RemoteInstanceManager(config)
+    remote_instance = remote_instance_manager.get_remote_instance({'login': g.login, 'name': selected_instance})
+    database = remote_instance.client.get_database(selected_database)
+    collection = database.get_collection(selected_collection)
+    return render_template('remote/remote_collection_details.html', collection=collection, database=database,
+                           remote_instance=remote_instance)
+
+
+@app.route('/remote/collection/create', methods=['POST'])
+@viper_auth
+def create_remote_collection():
+    # TODO: Add options for the following
+    # size: desired initial size for the collection (in bytes). For capped collections this size is the max size of the collection.
+    # capped: if True, this is a capped collection
+    # max: maximum number of objects if capped (optional)
+
+    database_name = request.form['database_name']
+    instance_name = request.form['instance_name']
+    collection_name = request.form['collection_name']
+    all_shard_keys = request.form.get('all_shard_keys')
+
+    remote_instance_manager = RemoteInstanceManager(config)
+    remote_instance = remote_instance_manager.get_remote_instance({'login': g.login, 'name': instance_name})
+    database = remote_instance.client.get_database(database_name)
+
+    if all_shard_keys:
+        collection = database.get_collection(collection_name)
+        collection.create_index(all_shard_keys)
+    else:
+        database.create_collection(collection_name)
+    flash('Collection created successfully.', canon_constants.STATUS_OK)
+    return redirect(url_for('remote_database_details', selected_instance=instance_name,
+                            selected_database=database_name))
+
+
+@app.route('/remote/collection/drop', methods=['POST'])
+@viper_auth
+def drop_remote_collection():
+    pass
+
+
+@app.route('/remote/collection/rename', methods=['POST'])
+@viper_auth
+def rename_remote_collection():
+    pass
+
+
+@app.route('/remote/index/create', methods=['POST'])
+@viper_auth
+def create_remote_index():
+    #TODO: move to util, include in create_remote_collection
+    def decode_json_list(data):
+        items = []
+        for item in data:
+            if isinstance(item, tuple):
+                try:
+                    item = (item[0], int(item[1]))
+                except ValueError:
+                    pass
+            items.append(item)
+        return items
+
+    database_name = request.form['database_name']
+    instance_name = request.form['instance_name']
+    collection_name = request.form['collection_name']
+    all_index_keys = request.form['all_index_keys']
+    background = request.form.get('background', True)
+    drop_dups = request.form.get('dropdups')
+    index_name = request.form.get('name')
+    unique = request.form.get('unique')
+
+    _kwargs = dict(background=background, dropdups=drop_dups, index_name=index_name, unique=unique)
+    kwargs = {k: v for k, v in _kwargs.items() if v}
+    index_keys = json.loads(all_index_keys, object_pairs_hook=decode_json_list)
+
+    remote_instance_manager = RemoteInstanceManager(config)
+    remote_instance = remote_instance_manager.get_remote_instance({'login': g.login, 'name': instance_name})
+    database = remote_instance.client.get_database(database_name)
+    collection = database.get_collection(collection_name)
+    collection.create_index(index_keys, **kwargs)
+
+    flash('Index created successfully.', canon_constants.STATUS_OK)
+    return redirect(url_for('remote_collection_details', selected_instance=instance_name,
+                            selected_database=database_name, selected_collection=collection_name))
+
+
+@app.route('/remote/index/drop', methods=['POST'])
+@viper_auth
+def drop_remote_index():
+    pass

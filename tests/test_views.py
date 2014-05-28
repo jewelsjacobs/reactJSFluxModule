@@ -1,8 +1,14 @@
 import json
+import os
+
 import pytest
 
-from conftest import get_instance
+from urlparse import urlparse
+
 from flask import url_for
+
+from conftest import get_instance
+
 
 from gui import app
 
@@ -899,3 +905,215 @@ def test_invalid_view_maintenance_mode_on(app_client):
         response = client.get('/asdf')
         assert response.status_code == 200
     app.config['MAINTENANCE'] = old_config
+
+
+################################################################################
+# TODO: Add authenticated sharded instance
+# TODO: Add ssl sharded instance
+# TODO: Add authenticated replicated instance
+# TODO: Add ssl replicated instance
+# TODO: Move remote tests to seperate file
+# TODO: Add fixtures
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_remote_instance(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('remote_instance'))
+        print(response.data)
+        assert response.status_code == 200
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_add_remote_instance(app_client):
+    with app_client as client:
+        sharded_instance_name = 'test_sharded_instance'
+        sharded_host = 'configsrv.local'
+        sharded_port = 27019
+
+        replicated_instance_name = 'test_replicated_instance'
+        replicated_host = 'rs01.local'
+        replicated_port = 27017
+
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        print('Adding remote sharded instance')
+        response = client.post(url_for('add_remote_instance'), data=dict(instance_name=sharded_instance_name,
+                                                                         host=sharded_host,
+                                                                         port=sharded_port))
+        assert response.status_code == 302
+        assert url_for('instances') in response.location
+
+        print('Adding remote replicated instance')
+        response = client.post(url_for('add_remote_instance'), data=dict(instance_name=replicated_instance_name,
+                                                                         host=replicated_host,
+                                                                         port=replicated_port))
+        assert response.status_code == 302
+        assert url_for('instances') == urlparse(response.location).path
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_remote_instance_details(app_client):
+    sharded_instance_name = 'test_sharded_instance'
+    replicated_instance_name = 'test_replicated_instance'
+    nonexistent_instance_name = 'foo'
+
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        print('Get remote sharded instance')
+        response = client.get(url_for('remote_instance_details', selected_instance=sharded_instance_name))
+        assert response.status_code == 200
+        print('Get remote replicated instance')
+        response = client.get(url_for('remote_instance_details', selected_instance=replicated_instance_name))
+        assert response.status_code == 200
+        print('Get non-existent instance')
+        response = client.get(url_for('remote_instance_details', selected_instance=nonexistent_instance_name))
+        assert response.status_code == 404
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_remote_database_details(app_client):
+    database_name = 'test_database'
+    sharded_instance_name = 'test_sharded_instance'
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('remote_database_details', selected_instance=sharded_instance_name,
+                                      selected_database=database_name))
+        assert response.status_code == 200
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_add_remote_database_user(app_client):
+    database_name = 'test_database'
+    sharded_instance_name = 'test_sharded_instance'
+    db_username_01 = 'test_user_01'
+    db_password_01 = 'test_password_01'
+    db_username_02 = 'test_user_02'
+    db_password_02 = 'test_password_02'
+
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        print('Add user and database to remote sharded instance')
+        response = client.post(url_for('add_remote_database_user'), data=dict(database_name=database_name,
+                                                                             instance_name=sharded_instance_name,
+                                                                             username=db_username_01,
+                                                                             password=db_password_01))
+        assert response.status_code == 302
+        assert url_for('remote_instance_details', selected_instance=sharded_instance_name) in response.location
+
+        print('Add user to existing database on remote sharded instance')
+        response = client.post(url_for('add_remote_database_user'), data=dict(database_name=database_name,
+                                                                             instance_name=sharded_instance_name,
+                                                                             username=db_username_02,
+                                                                             password=db_password_02))
+        assert response.status_code == 302
+        assert url_for('remote_instance_details',
+                       selected_instance=sharded_instance_name) == urlparse(response.location).path
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_remove_remote_database_user(app_client):
+    database_name = 'test_database'
+    db_username_01 = 'test_user_01'
+    sharded_instance_name = 'test_sharded_instance'
+
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        print('Remove user from database on remote sharded instance')
+        response = client.post(url_for('remove_remote_database_user'), data=dict(database_name=database_name,
+                                                                                 instance_name=sharded_instance_name,
+                                                                                 username=db_username_01))
+        assert response.status_code == 302
+        assert url_for('remote_database_details', selected_instance=sharded_instance_name,
+                       selected_database=database_name) == urlparse(response.location).path
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_create_remote_collection(app_client):
+    collection_name = 'test_collection'
+    database_name = 'test_database'
+    sharded_instance_name = 'test_sharded_instance'
+
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        print('Create unsharded collection on remote instance')
+        response = client.post(url_for('create_remote_collection'), data=dict(database_name=database_name,
+                                                                                 instance_name=sharded_instance_name,
+                                                                                 collection_name=collection_name))
+        assert response.status_code == 302
+        assert url_for('remote_database_details', selected_instance=sharded_instance_name,
+                            selected_database=database_name) == urlparse(response.location).path
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_remote_collection_details(app_client):
+    collection_name = 'test_collection'
+    database_name = 'test_database'
+    sharded_instance_name = 'test_sharded_instance'
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('remote_collection_details', selected_instance=sharded_instance_name,
+                                      selected_database=database_name, selected_collection=collection_name))
+        assert response.status_code == 200
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_create_remote_index(app_client):
+    all_index_keys = json.dumps({'test_index': 1})
+    background = True
+    collection_name = 'test_collection'
+    database_name = 'test_database'
+    name = 'test_index'
+    sharded_instance_name = 'test_sharded_instance'
+
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        print('Create collection index on remote instance')
+        response = client.post(url_for('create_remote_index'), data=dict(all_index_keys=all_index_keys,
+                                                                         background=background,
+                                                                         collection_name=collection_name,
+                                                                         database_name=database_name,
+                                                                         instance_name=sharded_instance_name,
+                                                                         name=name))
+        assert response.status_code == 302
+        assert url_for('remote_collection_details', selected_instance=sharded_instance_name,
+                       selected_database=database_name,
+                       selected_collection=collection_name) == urlparse(response.location).path
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_drop_remote_database(app_client):
+    database_name = 'test_database'
+    sharded_instance_name = 'test_sharded_instance'
+
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        print('Drop database on remote instance')
+        response = client.post(url_for('drop_remote_database'), data=dict(database_name=database_name,
+                                                                         instance_name=sharded_instance_name))
+        assert response.status_code == 302
+        assert url_for('remote_instance_details',
+                       selected_instance=sharded_instance_name) == urlparse(response.location).path
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_rename_remote_instance(app_client):
+    sharded_instance_name = 'test_sharded_instance'
+    new_remote_name = 'test_sharded_instance_rename'
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        print('Rename remote instance')
+        response = client.post(url_for('rename_remote_instance'), data=dict(current_remote_name=sharded_instance_name,
+                                                                            new_remote_name=new_remote_name))
+        assert response.status_code == 302
+        assert url_for('instances') == urlparse(response.location).path
+
+
+@pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
+def test_remove_remote_instance(app_client):
+    remote_instance_name = 'test_sharded_instance_rename'
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        print('Remove remote instance')
+        response = client.post(url_for('remove_remote_instance'), data=dict(remote_instance_name=remote_instance_name))
+        assert response.status_code == 302
+        assert url_for('instances') == urlparse(response.location).path

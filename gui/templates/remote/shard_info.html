@@ -1,0 +1,26 @@
+<!-- begin shard info -->
+<div class="rs-embedded-list-table-wrapper rs-embedded-large">
+    <table class="rs-list-table rs-embedded-list-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Data Size</th>
+                <th>Index Size</th>
+                <th>Storage Size</th>
+                <th>File Size</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for shard,stats in remote_instance.aggregate_shard_stats.items() %}
+                <tr>
+                    <td class="rs-table-text">{{ shard }}</td>
+                    <td class="rs-table-text">{{ stats.dataSize|filesizeformat }}</td>
+                    <td class="rs-table-text">{{ stats.indexSize|filesizeformat }}</td>
+                    <td class="rs-table-text">{{ stats.storageSize|filesizeformat }}</td>
+                    <td class="rs-table-text">{{ stats.fileSize|filesizeformat }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<!-- end shard info -->
