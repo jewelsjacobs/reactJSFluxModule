@@ -48,21 +48,21 @@ class ProductionConfig(Config):
         # Configure application logging.
         import logging
         from logging.handlers import SysLogHandler
-        viper_syslog = SysLogHandler(address='/dev/log', facility=SysLogHandler.LOG_LOCAL6)
-        viper_syslog.setLevel(logging.DEBUG)
+        gui_syslog = SysLogHandler(address='/dev/log', facility=SysLogHandler.LOG_LOCAL6)
+        gui_syslog.setLevel(logging.DEBUG)
 
-        viper_formatter = logging.Formatter('%(name)s: %(levelname)s %(message)s')
-        viper_syslog.setFormatter(viper_formatter)
+        gui_syslog_formatter = logging.Formatter('%(name)s: %(levelname)s %(message)s')
+        gui_syslog.setFormatter(gui_syslog_formatter)
 
         app.logger.setLevel(logging.DEBUG)
         app.logger_name = "gui"
-        app.logger.addHandler(viper_syslog)
+        app.logger.addHandler(gui_syslog)
 
-        app.logger.debug("Starting Viper")
+        app.logger.debug("Starting GUI.")
 
 
-class TestingConfig(Config):
-    """Configuration for application testing."""
+class UnittestingConfig(Config):
+    """Configuration for unit testing mode."""
     TESTING = True
 
 
@@ -71,5 +71,5 @@ config_map = {
     'default': DevelopmentConfig,
     'development': DevelopmentConfig,
     'production': ProductionConfig,
-    'testing': TestingConfig,
+    'unittest': UnittestingConfig,
 }

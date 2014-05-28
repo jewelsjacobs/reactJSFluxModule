@@ -5,7 +5,6 @@ from __future__ import division
 import collections
 import datetime
 import json
-import locale
 import urllib
 
 # 3rd party imports.
