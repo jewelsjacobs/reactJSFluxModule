@@ -1354,8 +1354,10 @@ def sign_up2():
 @viper_auth
 def sign_up3():
     if 'plan' in request.form and 'name' in request.form and 'zone' in request.form:
+        account_manager = AccountManager(config)
         return render_template('sign_up/sign_up3.html',
                                login=g.login,
+                               email=account_manager.get_account(g.login).email,
                                name=request.form['name'],
                                plan=request.form['plan'],
                                service_type=request.form['service_type'],
