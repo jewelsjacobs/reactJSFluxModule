@@ -992,6 +992,21 @@ def add_collection(selected_instance, selected_database):
                            default_mongo_version=config.DEFAULT_MONGO_VERSION)
 
 
+@app.route('/instances/<selected_instance>/databases/<selected_database>/collections/<selected_collection>/create_index')
+@viper_auth
+def add_index(selected_instance, selected_database, selected_collection):
+    """Add new index"""
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    user_database = user_instance.get_database(selected_database)
+    user_collection = user_database.get_collection(selected_collection)
+    
+    return render_template('instances/collection_index_create.html',
+                           instance=user_instance,
+                           database=user_database,
+                           collection=user_collection)
+
+
 @app.route('/create_collection/<selected_instance>/<selected_database>', methods=['POST'])
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
@@ -1043,7 +1058,7 @@ def shard_collection(selected_instance, selected_db, selected_collection):
                             selected_collection=selected_collection))
 
 
-@app.route('/create_index/<selected_instance>/<selected_db>/<selected_collection>', methods=['GET', 'POST'])
+@app.route('/create_index/<selected_instance>/<selected_db>/<selected_collection>', methods=['POST'])
 @exclude_admin_databases(check_argument='selected_db')
 @viper_auth
 def create_index(selected_instance, selected_db, selected_collection):

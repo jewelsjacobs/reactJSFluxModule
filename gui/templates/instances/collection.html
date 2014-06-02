@@ -44,7 +44,7 @@
 
     {% call detail_section(title="Indexes", collapsible=True) %}
         <div class="rs-btn-group">
-            <button id="add-index-target" data-popover="add-index-popover" data-popover-target="add-index-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source">Add Index</button>
+            <a href="{{ url_for('add_index', selected_instance=instance.name, selected_database=database.name, selected_collection=collection.name) }}" class="rs-btn rs-btn-primary">Add Index</a>
         </div>
 
         <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
@@ -133,53 +133,6 @@
 {% endblock content_area_body %}
 
 {% block popovers %}
-    <!-- add index popover -->
-    <div id="add-index-popover" class="rs-popover invisible">
-        <div class="rs-popover-arrow"></div>
-        <div class="rs-popover-content">
-            <div class="rs-popover-body">
-                <form id="add-index-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('create_index', selected_instance=instance.name, selected_db=database.name, selected_collection=collection.name) }}" method="POST">
-                    <div class="rs-control-group">
-                        <label class="rs-control-label">Index Key</label>
-                        <div class="rs-controls">
-                            <input id="indexkeys" name="indexkeys" type="text" class="rs-input rs-input-medium">
-                            <span class="rs-help-block">Indexes to add to this collection.</span>
-                            <select id="sort-order" name="sort-order">
-                                <option value="1">Ascending</option>
-                                <option value="-1">Descending</option>
-                            </select>
-                            <span><input type="checkbox" name="background" id="background" value="true" checked="checked">&nbsp;Background</span>
-                            <span><input type="checkbox" name="unique" id="unique" value="true">&nbsp;Unique</span>
-                            <div class="vertical-padding-helfem">
-                                <button id="add-index-key-button" form="" class="rs-btn rs-btn-primary">Add Key</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="rs-control-group">
-                        <label class="rs-control-label">Name</label>
-                        <div class="rs-controls">
-                            <input id="name" name="name" type="text" placeholder="Optional Name">
-                        </div>
-                    </div>
-
-                    <div class="rs-control-group">
-                        <label id="index-key-label" class="rs-control-label">Selected Index Keys</label>
-                        <div id="index-key-div" class="rs-controls">
-                            <pre id="index-key-pre" class="align-center min-height-1em"></pre>
-                            <span class="rs-help-block">These indexes will be applied to your collection.</span>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="rs-popover-footer rs-btn-group">
-                <button id="add-index-popover-form-button" form="add-index-popover-form" class="rs-btn rs-btn-primary save">Add Index</button>
-                <div class="rs-btn rs-btn-link">Cancel</div>
-            </div>
-        </div>
-    </div>
-    <!-- end add database popover -->
-
     <!-- add shard keys popover -->
     <div id="add-shard-keys-popover" class="rs-popover invisible">
         <div class="rs-popover-arrow"></div>
@@ -322,43 +275,6 @@
             $('#shard-key-input-div').show();
         }
 
-        // Update the list of index keys as they are added.
-        $('#add-index-key-button').click(function() {
-            var indexKey = $('#indexkeys').val();
-
-            if (indexKey) {
-                if (indexKey === '') {
-                    return false;
-                }
-
-                var indexKeys = $('#index-key-div').data('keys');
-
-                if (!indexKeys) {
-                    indexKeys = {};
-                }
-
-                if (!indexKeys.indexKey) {
-                    var indexKeyDirection = $('#sort-order').val();
-
-                    if (indexKeyDirection == 'hashed') {
-                        indexKeys = {};
-                    } else {
-                        for (key in indexKeys) {
-                            if (indexKeys[key] == 'hashed'){
-                                delete indexKeys[key];
-                            }
-                        }
-                    }
-
-                    indexKeys[indexKey] = indexKeyDirection;
-                    $('#index-key-div').data('keys', indexKeys);
-
-                    $('#index-key-pre').text(JSON.stringify(indexKeys));
-                    $('#indexkeys').val('');
-                }
-            }
-        });
-
         // Clear data when hashed-key-checkbox is clicked.
         $('#hashed-key-checkbox').click(function() {
             $('#shard-key-div').data('keys', {});
@@ -366,59 +282,7 @@
             $('#shardkeys').val('');
         });
 
-        // Update the list of shard keys as they are added.
-        $('#add-key-button').click(function() {
-            var shardKey = $('#shardkeys').val();
-
-            if (shardKey) {
-                if (shardKey === '') {
-                    return false;
-                }
-
-                if (containsInvalidShardKeyCharacters(shardKey)){
-                    var validator = $('#add-shard-key-popover-form').validate();
-                    validator.showErrors({"shardkeys": 'Cannot contain /\ ",*<>:|?{}'});
-                    return false;
-                }
-
-                var shardKeys = $('#shard-key-div').data('keys');
-
-                if (!shardKeys) {
-                    shardKeys = {};
-                }
-
-                if (!shardKeys.shardKey) {
-                    var shardKeyLabel = '<label>' + $('#shardkeys').val() + '</label>'
-                    var shardKeyQualifier = 1;
-
-                    if ($('#hashed-key-checkbox').is(':checked')) {
-                        shardKeyQualifier = 'hashed';
-                        shardKeys = {};
-                    }
-
-                    shardKeys[shardKey] = shardKeyQualifier;
-                    $('#shard-key-div').data('keys', shardKeys);
-
-                    $('#shard-key-pre').text(JSON.stringify(shardKeys));
-                    $('#shardkeys').val('');
-                }
-            }
-        });
-
         /* === VALIDATION === */
-        // Listener for Add Index button.
-        $('#add-index-popover-form-button').click(function() {
-            var indexKeys = $('#index-key-div').data('keys');
-
-            if (!indexKeys) {
-                var validator = $("#add-index-popover-form").validate();
-                validator.showErrors({"indexkeys": "An index key is required."});
-                return false;
-            }
-            var encodedIndexKeys = JSON.stringify(indexKeys);
-            $("#add-index-popover-form").append("<input type='hidden' name='all_index_keys' value='" + encodedIndexKeys + "' >");
-
-        });
 
         // Listener to validate shardKeys.
         $('#add-shard-key-popover-form-button').click(function() {
@@ -440,21 +304,6 @@
 
         // Validate Define Keys form.
         $('#add-shard-key-popover-form').validate({
-            rules: {},
-            errorClass: 'rs-validation-block',
-            errorElement: 'span',
-            highlight: function(label) {
-                $(label).closest('.rs-control-group').removeClass('success');
-                $(label).closest('.rs-control-group').addClass('error');
-            },
-            success: function(label) {
-                $(label).closest('.rs-control-group').removeClass('error');
-                $(label).closest('.rs-control-group').addClass('success');
-            }
-        });
-
-        // Validation for Add Index form.
-        $('#add-index-popover-form').validate({
             rules: {},
             errorClass: 'rs-validation-block',
             errorElement: 'span',

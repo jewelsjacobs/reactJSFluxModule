@@ -1,0 +1,140 @@
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    Create Index
+{% endblock title %}
+
+{% block back_link_area %}
+    {% call back_link() %}
+        <a href="{{ url_for('collection', selected_instance=instance.name, selected_database=database.name, selected_collection=collection.name) }}">&lsaquo; Back to Collection Details</a>
+    {% endcall %}
+{% endblock back_link_area %}
+
+{% block content_area_body %}
+    <form id="index-create-form" class="rs-form-create" action="{{ url_for('create_index', selected_instance=instance.name, selected_db=database.name, selected_collection=collection.name) }}" method="POST">
+        <div class="rs-detail-section">
+            <div class="rs-detail-section-header">
+                <h2 class="rs-page-title">Create Index</h2>
+            </div>
+            
+            <div class="rs-detail-section-body">
+                
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="indexkeys">Index Key</label>
+                    <div class="rs-controls">
+                        <input id="indexkeys" name="indexkeys" type="text" class="rs-input rs-input-medium">
+                        <span class="rs-help-block">Indexes to add to this collection.</span>
+                        <select id="sort-order" name="sort-order">
+                            <option value="1">Ascending</option>
+                            <option value="-1">Descending</option>
+                        </select>
+                        <span><input type="checkbox" name="background" id="background" value="true" checked="checked">&nbsp;Background</span>
+                        <span><input type="checkbox" name="unique" id="unique" value="true">&nbsp;Unique</span>
+                        <div class="vertical-padding-helfem">
+                            <button id="add-index-key-button" form="" class="rs-btn rs-btn-primary">Add Key</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="name">Name</label>
+                    <div class="rs-controls">
+                        <input id="name" name="name" type="text" placeholder="Optional name">
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label id="index-key-label" class="rs-control-label">Selected Index Keys</label>
+                    <div id="index-key-div" class="rs-controls">
+                        <pre id="index-key-pre" class="align-center min-height-1em"></pre>
+                        <span class="rs-help-block">These indexes will be applied to your collection.</span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="rs-detail-section">
+            <div class="rs-detail-section-header rs-btn-group">
+                <button id="index-create-button" class="rs-btn rs-btn-primary">Add Index</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </form>
+{% endblock content_area_body %}
+{% block script %}
+    {{ super() }}
+    <script type="text/javascript">
+    $(document).ready(function() {
+        // Update the list of index keys as they are added.
+        $('#add-index-key-button').click(function() {
+            var indexKey = $('#indexkeys').val();
+
+            if (indexKey) {
+                if (indexKey === '') {
+                    return false;
+                }
+
+                var indexKeys = $('#index-key-div').data('keys');
+
+                if (!indexKeys) {
+                    indexKeys = {};
+                }
+
+                if (!indexKeys.indexKey) {
+                    var indexKeyDirection = $('#sort-order').val();
+
+                    if (indexKeyDirection == 'hashed') {
+                        indexKeys = {};
+                    } else {
+                        for (key in indexKeys) {
+                            if (indexKeys[key] == 'hashed'){
+                                delete indexKeys[key];
+                            }
+                        }
+                    }
+
+                    indexKeys[indexKey] = indexKeyDirection;
+                    $('#index-key-div').data('keys', indexKeys);
+
+                    $('#index-key-pre').text(JSON.stringify(indexKeys));
+                    $('#indexkeys').val('');
+                }
+            }
+        });
+
+        // Validation for Add Index form.
+        $('#index-create-form').validate({
+            rules: {},
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function(label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function(label) {
+                $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
+        
+        // Listener for the submit button
+        $('#index-create-button').click(function(event) {
+            event.preventDefault();
+
+            var indexKeys = $('#index-key-div').data('keys');
+
+            if (!indexKeys) {
+                var validator = $("#index-create-form").validate();
+                validator.showErrors({"indexkeys": "An index key is required."});
+                return false;
+            }
+            var encodedIndexKeys = JSON.stringify(indexKeys);
+            $("#index-create-form").append("<input type='hidden' name='all_index_keys' value='" + encodedIndexKeys + "' >");
+            
+            form = $('#index-create-form');
+            $(form).submit();
+        });
+    });
+    </script>
+{% endblock script %}
