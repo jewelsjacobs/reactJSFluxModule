@@ -275,6 +275,11 @@ def inject_login():
     return {}
 
 
+@app.before_request
+def maintenance_mode():
+    if app.config.setdefault('MAINTENANCE', False) and not request.path.startswith('/static'):
+        return render_template('maintenance.html')
+
 # TODO: Refactor: Should be moved out of controllers.
 # -----------------------------------------------------------------------
 # Configure App Filters
