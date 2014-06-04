@@ -4,7 +4,7 @@ import locale
 from flask import abort
 from flaskext.kvsession import KVSessionExtension
 
-from gui.canon.http_exceptions import PaymentRequired
+from gui.http_exceptions import PaymentRequired
 from viper import config as viper_config
 from viper.mongo_sessions import MongoDBStore
 
