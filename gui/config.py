@@ -34,7 +34,7 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     """Configuration for development mode (default)."""
-    API_ENDPOINT = 'localhost:5050'
+    API_ENDPOINT = 'http://localhost:5050'
     DEBUG = True
 
     def init_app(self, app):
