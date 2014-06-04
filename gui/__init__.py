@@ -5,8 +5,6 @@ from gui.config import config_map
 from viper import config as viper_config
 
 
-# TODO(Anthony): if we use blueprints, then we can simply register the blueprint
-# below and then we won't have to check for VIPER_IN_DEV.
 def create_app(config_name='default'):
     """Application factory."""
     # Construct application and initialize configuration.
