@@ -17,6 +17,7 @@ class Config(object):
         # TODO(Anthony): We shouldn't be using this as config for GUI.
         # Register viper.config.
         app.config.from_object(viper_config)
+        app.config['MAINTENANCE'] = False
 
         abort.mapping[402] = PaymentRequired
 
@@ -27,8 +28,9 @@ class Config(object):
         locale.setlocale(locale.LC_ALL, '')
 
         # Session system.
-        store = MongoDBStore(viper_config)
-        KVSessionExtension(store, app)
+        if not app.config['MAINTENANCE']:
+            store = MongoDBStore(viper_config)
+            KVSessionExtension(store, app)
 
 
 class DevelopmentConfig(Config):
