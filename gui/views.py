@@ -5,7 +5,6 @@ from __future__ import division
 import collections
 import datetime
 import json
-import locale
 import urllib
 
 # 3rd party imports.
@@ -17,7 +16,6 @@ import stripe
 # 3rd part from imports.
 from flask import abort, Response
 from flask import flash, request, render_template, session, redirect, url_for, g
-from flaskext.kvsession import KVSessionExtension
 from functools import wraps
 from jinja2.filters import do_filesizeformat as filesizeformat
 from netaddr import IPNetwork, AddrFormatError
@@ -36,7 +34,6 @@ from viper.constants import Constants
 from viper.instance import InstanceManager
 from viper.messages import MessageManager
 from viper.mongo_instance import MongoDBInstanceException
-from viper.mongo_sessions import MongoDBStore
 from viper.notifier import Notifier
 from viper.replica import ReplicaException
 from viper.status import StatusManager
@@ -44,42 +41,6 @@ from viper.utility import Utility
 
 # Make app available in this scope.
 from gui import app
-
-# TODO: Refactor: Should be declared with app instantiation (__init.py__)
-# Define crypto key for cookies
-app.secret_key = "Super Secret Key"
-app.signing_key = "ba71f41a91e947f680d879c08982d302"
-
-# Session system.
-store = MongoDBStore(config)
-KVSessionExtension(store, app)
-
-# TODO: Move this somewhere else and never call it more than once
-locale.setlocale(locale.LC_ALL, '')
-
-# TODO: Refactor: Should move out of controllers into runserver or app (app resides in gui/__init__.py ... I'd move the app decl out of here)
-# -----------------------------------------------------------------------
-# Configure application logging
-# -----------------------------------------------------------------------
-if config.VIPER_IN_DEV:
-    app.debug = True  # disabled in PRODUCTION, and forces logging to syslog
-else:
-    app.debug = False
-
-if not app.debug:
-    import logging
-    from logging.handlers import SysLogHandler
-    viper_syslog = SysLogHandler(address='/dev/log', facility=SysLogHandler.LOG_LOCAL6)
-    viper_syslog.setLevel(logging.DEBUG)
-
-    viper_formatter = logging.Formatter('%(name)s: %(levelname)s %(message)s')
-    viper_syslog.setFormatter(viper_formatter)
-
-    app.logger.setLevel(logging.DEBUG)
-    app.logger_name = "gui"
-    app.logger.addHandler(viper_syslog)
-
-    app.logger.debug("Starting Viper")
 
 
 # TODO: Refactor: Should move to a Utility lib
@@ -114,6 +75,7 @@ def viper_auth(func):
         else:
             return redirect(url_for('sign_in'))
     return internal
+
 
 def viper_isadmin(func):
     """Decorator to test that the current user session is an admin."""
