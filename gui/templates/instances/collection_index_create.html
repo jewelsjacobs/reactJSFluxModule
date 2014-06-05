@@ -11,48 +11,45 @@
 {% endblock back_link_area %}
 
 {% block content_area_body %}
-    <form id="index-create-form" class="rs-form-create" action="{{ url_for('create_index', selected_instance=instance.name, selected_db=database.name, selected_collection=collection.name) }}" method="POST">
-        <div class="rs-detail-section">
-            <div class="rs-detail-section-header">
-                <h2 class="rs-page-title">Create Index</h2>
+    <div class="rs-detail-header">
+        <div class="rs-detail-header-subtitle">Add Index</div>
+        <div class="rs-detail-header-title">{{ collection.name }}</div>
+    </div>
+    
+    {% call detail_section() %}
+        {% call create_view(url_for('create_index', selected_instance=instance.name, selected_db=database.name, selected_collection=collection.name), 'index-create-form') %}
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="indexkeys">Index Key</label>
+                <div class="rs-controls">
+                    <input id="indexkeys" name="indexkeys" type="text" class="rs-input rs-input-medium">
+                    <span class="rs-help-block">Indexes to add to this collection.</span>
+                    <select id="sort-order" name="sort-order">
+                        <option value="1">Ascending</option>
+                        <option value="-1">Descending</option>
+                    </select>
+                    <span><input type="checkbox" name="background" id="background" value="true" checked="checked">&nbsp;Background</span>
+                    <span><input type="checkbox" name="unique" id="unique" value="true">&nbsp;Unique</span>
+                    <div class="vertical-padding-helfem">
+                        <button id="add-index-key-button" form="" class="rs-btn rs-btn-primary">Add Key</button>
+                    </div>
+                </div>
             </div>
-            
-            <div class="rs-detail-section-body">
-                
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="indexkeys">Index Key</label>
-                    <div class="rs-controls">
-                        <input id="indexkeys" name="indexkeys" type="text" class="rs-input rs-input-medium">
-                        <span class="rs-help-block">Indexes to add to this collection.</span>
-                        <select id="sort-order" name="sort-order">
-                            <option value="1">Ascending</option>
-                            <option value="-1">Descending</option>
-                        </select>
-                        <span><input type="checkbox" name="background" id="background" value="true" checked="checked">&nbsp;Background</span>
-                        <span><input type="checkbox" name="unique" id="unique" value="true">&nbsp;Unique</span>
-                        <div class="vertical-padding-helfem">
-                            <button id="add-index-key-button" form="" class="rs-btn rs-btn-primary">Add Key</button>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="rs-control-group">
-                    <label class="rs-control-label" for="name">Name</label>
-                    <div class="rs-controls">
-                        <input id="name" name="name" type="text" placeholder="Optional name">
-                    </div>
+            <div class="rs-control-group">
+                <label class="rs-control-label" for="name">Name</label>
+                <div class="rs-controls">
+                    <input id="name" name="name" type="text" placeholder="Optional name">
                 </div>
-
-                <div class="rs-control-group">
-                    <label id="index-key-label" class="rs-control-label">Selected Index Keys</label>
-                    <div id="index-key-div" class="rs-controls">
-                        <pre id="index-key-pre" class="align-center min-height-1em"></pre>
-                        <span class="rs-help-block">These indexes will be applied to your collection.</span>
-                    </div>
-                </div>
-                
             </div>
-        </div>
+
+            <div class="rs-control-group">
+                <label id="index-key-label" class="rs-control-label">Selected Index Keys</label>
+                <div id="index-key-div" class="rs-controls">
+                    <pre id="index-key-pre" class="align-center min-height-1em"></pre>
+                    <span class="rs-help-block">These indexes will be applied to your collection.</span>
+                </div>
+            </div>
+        {% endcall %}
 
         <div class="rs-detail-section">
             <div class="rs-detail-section-header rs-btn-group">
@@ -60,7 +57,7 @@
                 <div class="rs-btn rs-btn-link">Cancel</div>
             </div>
         </div>
-    </form>
+    {% endcall %}
 {% endblock content_area_body %}
 {% block script %}
     {{ super() }}
