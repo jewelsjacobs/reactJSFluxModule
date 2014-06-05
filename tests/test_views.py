@@ -182,7 +182,7 @@ def test_error(app_client):
         client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
         response = client.get(url_for('error'))
         print(response.data)
-        assert response.status_code == 200
+        assert response.status_code == 500
 
 
 def test_root(app_client):
@@ -276,10 +276,6 @@ def test_instance_details(app_client):
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post(url_for('instance_details', selected_instance=instance_name))
-        print(response.data)
-        assert response.status_code == 200
-
 
 def test_database(app_client):
     """Tests accessing a database."""
@@ -334,10 +330,6 @@ def test_cluster(app_client):
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post(url_for('cluster', selected_instance=instance_name), follow_redirects=True)
-        print(response.data)
-        assert response.status_code == 200
-
 
 def test_add_shard(app_client):
     with app_client as client:
@@ -351,6 +343,9 @@ def test_rename_instance(app_client):
     with app_client as client:
         client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
         response = client.post(url_for('rename_instance'),
+                               headers={
+                                   'Referer': url_for('instances')
+                               },
                                data=dict(
                                    current_name=instance_name,
                                    new_name=instance_name_rename,
@@ -358,9 +353,11 @@ def test_rename_instance(app_client):
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
-
-        # TODO: Can remove extra rename post when tests are decoupled
+        
         response = client.post(url_for('rename_instance'),
+                               headers={
+                                   'Referer': url_for('instance_details', selected_instance=instance_name)
+                               },
                                data=dict(
                                    current_name=instance_name_rename,
                                    new_name=instance_name,
