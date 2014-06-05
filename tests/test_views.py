@@ -4,6 +4,8 @@ import pytest
 from conftest import get_instance
 from flask import url_for
 
+from gui import app
+
 xfail = pytest.mark.xfail
 
 
@@ -48,6 +50,7 @@ def test_sign_up_1(app_client):
 def test_billing_enabled(app_client, monkeypatch):
     import viper
     from viper.account import Account
+
     class PsuedoAccount(Account):
         def __init__(self, *args, **kwargs):
             super(PsuedoAccount, self).__init__(*args, **kwargs)
@@ -884,3 +887,18 @@ def test_admin_remove_user(app_client):
         response = client.post(url_for('admin_remove_user'), data=dict(login=login), follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
+
+
+def test_invalid_view_maintenance_mode_off(app_client):
+    with app_client as client:
+        response = client.get('/asdf')
+        assert response.status_code == 404
+
+
+def test_invalid_view_maintenance_mode_on(app_client):
+    old_config = app.config['MAINTENANCE']
+    app.config['MAINTENANCE'] = True
+    with app_client as client:
+        response = client.get('/asdf')
+        assert response.status_code == 200
+    app.config['MAINTENANCE'] = old_config
