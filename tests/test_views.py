@@ -330,10 +330,6 @@ def test_cluster(app_client):
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post(url_for('cluster', selected_instance=instance_name), follow_redirects=True)
-        print(response.data)
-        assert response.status_code == 200
-
 
 def test_add_shard(app_client):
     with app_client as client:
