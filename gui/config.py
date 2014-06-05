@@ -12,6 +12,8 @@ from viper.mongo_sessions import MongoDBStore
 class Config(object):
     """Config base class."""
 
+    MAINTENANCE = False
+
     def init_app(self, app):
         """Config specific application initialization."""
         # TODO(Anthony): We shouldn't be using this as config for GUI.
@@ -27,8 +29,9 @@ class Config(object):
         locale.setlocale(locale.LC_ALL, '')
 
         # Session system.
-        store = MongoDBStore(viper_config)
-        KVSessionExtension(store, app)
+        if not app.config['MAINTENANCE']:
+            store = MongoDBStore(viper_config)
+            KVSessionExtension(store, app)
 
 
 class DevelopmentConfig(Config):
