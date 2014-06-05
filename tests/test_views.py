@@ -182,7 +182,7 @@ def test_error(app_client):
         client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
         response = client.get(url_for('error'))
         print(response.data)
-        assert response.status_code == 200
+        assert response.status_code == 500
 
 
 def test_root(app_client):
