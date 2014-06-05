@@ -12,12 +12,13 @@ from viper.mongo_sessions import MongoDBStore
 class Config(object):
     """Config base class."""
 
+    MAINTENANCE = False
+
     def init_app(self, app):
         """Config specific application initialization."""
         # TODO(Anthony): We shouldn't be using this as config for GUI.
         # Register viper.config.
         app.config.from_object(viper_config)
-        app.config['MAINTENANCE'] = False
 
         abort.mapping[402] = PaymentRequired
 
