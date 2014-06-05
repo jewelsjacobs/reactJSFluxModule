@@ -276,10 +276,6 @@ def test_instance_details(app_client):
         print(response.data)
         assert response.status_code == 200
 
-        response = client.post(url_for('instance_details', selected_instance=instance_name))
-        print(response.data)
-        assert response.status_code == 200
-
 
 def test_database(app_client):
     """Tests accessing a database."""
