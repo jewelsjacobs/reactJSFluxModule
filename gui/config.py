@@ -12,7 +12,7 @@ from viper.mongo_sessions import MongoDBStore
 class Config(object):
     """Config base class."""
 
-    MAINTENANCE = False
+    MAINTENANCE = True
 
     def init_app(self, app):
         """Config specific application initialization."""
