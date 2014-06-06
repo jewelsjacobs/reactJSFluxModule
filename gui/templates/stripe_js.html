@@ -29,6 +29,7 @@
 
         StripeCheckout.open({
             key: '{{ stripe_pub_key }}',
+            email: '{{ email }}',
             address: false,
             name: cc_form.attr('windowTitle'),
             panelLabel: cc_form.attr('windowLabel'),
