@@ -995,13 +995,13 @@ def add_collection(selected_instance, selected_database):
 @app.route('/instances/<selected_instance>/databases/<selected_database>/collections/<selected_collection>/create_index', methods=['GET', 'POST'])
 @viper_auth
 def add_index(selected_instance, selected_database, selected_collection):
+    instance_manager = InstanceManager(config)
+    user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+    user_database = user_instance.get_database(selected_database)
+    user_collection = user_database.get_collection(selected_collection)
+    
     if request.method == 'GET':
         """Add new index"""
-        instance_manager = InstanceManager(config)
-        user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
-        user_database = user_instance.get_database(selected_database)
-        user_collection = user_database.get_collection(selected_collection)
-
         return render_template('instances/collection_index_create.html',
                                instance=user_instance,
                                database=user_database,
@@ -1011,10 +1011,6 @@ def add_index(selected_instance, selected_database, selected_collection):
         drop_dups = request.form.get('dropdups', False)
         index_name = request.form.get('name', '')
         unique = request.form.get('unique', False)
-
-        instance_manager = InstanceManager(config)
-        user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
-        user_database = user_instance.get_database(selected_db)
 
         all_index_keys = request.form['all_index_keys']
         index_keys = json.loads(all_index_keys, object_pairs_hook=collections.OrderedDict)
@@ -1032,7 +1028,7 @@ def add_index(selected_instance, selected_database, selected_collection):
                              "support and provide Error ID %s." % (exception_uuid))
             flash(flash_message, canon_constants.STATUS_ERROR)
 
-        return redirect(url_for('collection', selected_instance=selected_instance, selected_database=selected_db,
+        return redirect(url_for('collection', selected_instance=selected_instance, selected_database=selected_database,
                                 selected_collection=selected_collection))
 
 
