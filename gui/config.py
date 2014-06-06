@@ -1,5 +1,6 @@
 """GUI configuration."""
 import locale
+import logging
 
 from flask import abort
 from flaskext.kvsession import KVSessionExtension
@@ -36,11 +37,24 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     """Configuration for development mode (default)."""
+    API_ENDPOINT = 'http://localhost:5050'
     DEBUG = True
+
+    def init_app(self, app):
+        """Production specific configuration."""
+        super(DevelopmentConfig, self).init_app(app)
+
+        # Configure logging for development mode.
+        logger = logging.getLogger()
+        handler = logging.StreamHandler()
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+        logging.captureWarnings(True)
 
 
 class ProductionConfig(Config):
     """Production configuration."""
+    API_ENDPOINT = ''  # FIXME: point this to the appropriate LB.
     DEBUG = False
 
     def init_app(self, app):
