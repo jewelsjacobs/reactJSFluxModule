@@ -278,6 +278,7 @@ def inject_login():
 
 @app.before_request
 def maintenance_mode():
+    #if True:
     if app.config.setdefault('MAINTENANCE', False) and not request.path.startswith('/static'):
         return render_template('maintenance.html')
 
@@ -1300,6 +1301,11 @@ def logout():
     """ Log out user."""
     session.pop('login', None)
     return redirect(url_for('sign_in'))
+
+
+@app.route('/sign_up', methods=['GET', 'POST'])
+def sign_up():
+    return render_template('sign_up/sign_up.html')
 
 
 @app.route('/sign_up1', methods=['GET', 'POST'])
