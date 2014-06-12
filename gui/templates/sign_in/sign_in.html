@@ -16,21 +16,27 @@
         <div class="or-focus-panel-login">
             <div class="or-login-brand"></div>
             <div class="or-login-form">
-               <p id="password-reset-target" class="or-login-welcome">ObjectRocket Control Panel</p>
+               <p id="password-reset-target" class="or-login-welcome">Sign in to your account</p>
                 <form id="login-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_in') }}" method="POST">
 
                     <div class="rs-control-group">
-                        <label class="rs-control-label">Login</label>
-                        <input name="login" type="text" class="rs-input rs-input-medium" placeholder="Login">
+                        <label class="rs-control-label" for="login">Login</label>
+                        <div class="rs-controls">
+                            <input id="login" name="login" type="text" class="rs-input rs-input-medium">
+                        </div>
                     </div>
 
                     <div class="rs-control-group">
-                        <label class="rs-control-label">Password</label>
-                        <input name="password" type="password" class="rs-input rs-input-medium" placeholder="Password">
+                        <label class="rs-control-label" for="password">Password</label>
+                        <div class="rs-controls">
+                            <input id="password" name="password" type="password" class="rs-input rs-input-medium">
+                        </div>
                     </div>
 
                     <div class="rs-btn-group">
-                        <button form="login-form" class="rs-btn rs-btn-login">Sign In</button>
+                        <div class="rs-controls">
+                            <button form="login-form" class="rs-btn rs-btn-login" type="submit">Sign In</button>
+                        </div>
                     </div>
                 </form>
                 <div class="rs-control-group">
@@ -40,7 +46,7 @@
         </div>
 
         <div class="or-focus-panel-link-pull-right">
-            <p>Need an account? <a href="{{ url_for('sign_up1') }}">Get one here »</a></p>
+            <p>Need an account? <a href="{{ url_for('sign_up') }}">Sign up here »</a></p>
         </div>
 
     </div>
@@ -97,7 +103,7 @@
                 success: function(label) {
                     $(label).closest('.rs-control-group').removeClass('error');
                     $(label).closest('.rs-control-group').addClass('success');
-                },
+                }
             });
 
             // Validation for password reset popover.
@@ -116,7 +122,7 @@
                 success: function(label) {
                     $(label).closest('.rs-control-group').removeClass('error');
                     $(label).closest('.rs-control-group').addClass('success');
-                },
+                }
             });
 
         });
