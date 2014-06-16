@@ -11,13 +11,18 @@
     </thead>
     <tbody>
         {% for member in remote_instance.rs_status.members %}
+            {% set primary_optime = None %}
             {% if member.stateStr == 'PRIMARY' %}
                 {% set delay = '(Primary)' %}
                 {% set primary_optime = member.optime %}
             {% elif member.stateStr == 'ARBITER' %}
                 {% set delay = '(Arbiter)' %}
             {% else %}
-                {% set delay = primary_optime.as_datetime() - member.optime.as_datetime() %}
+                {% if primary_optime %}
+                    {% set delay = primary_optime.as_datetime() - member.optime.as_datetime() %}
+                {% else %}
+                    {% set delay = None %}
+                {% endif %}
             {% endif %}
             <tr>
                 <td>{{ member.stateStr }}</td>
