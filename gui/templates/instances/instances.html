@@ -8,9 +8,14 @@
     <div class="rs-inner">
         <h2 class="rs-page-title">Instances</h2>
         <div class="rs-btn-group">
+            {% if not account.stripe_account %}
+            <a class="rs-btn rs-btn-primary disabled">Add Instance</a>
+            {% else %}
             <a href="{{ url_for('create_instance') }}" class="rs-btn rs-btn-primary">Add Instance</a>
+            {% endif %}
         </div>
 
+        {% if instances %}
         <table class="rs-list-table" id="instances-table">
             <thead>
                 <tr>
@@ -104,12 +109,14 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div id="instances-table-overlay" class="rs-table-overlay{% if instances %} hidden{% endif %}">
+        {% else %}
+        <div id="instances-table-overlay" class="rs-table-overlay">
             <div class="rs-table-overlay-content">
                 <div class="rs-table-overlay-title">You don't have any instances yet.</div>
                 <div class="rs-table-overlay-subtitle">Create one now by clicking on the Add Instance button.</div>
             </div>
         </div>
+        {% endif %}
     </div>
 
     <!-- remote instances section -->
