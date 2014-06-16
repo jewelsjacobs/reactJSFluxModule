@@ -431,25 +431,28 @@
             });
         });
         
-        $('#instances-table').DataTable({
-            paging: false,
-            searching: false,
-            info: false,
-            processing: false
-        });
-        $('#instances-table').on('order.dt', function(e, settings) {
-            $.each(settings.aoColumns, function(i, c) {
-                $(c.nTh).children('.rs-table-sort').removeClass('rs-table-sort-asc rs-table-sort-desc')
-                switch($(c.nTh).attr('class')) {
-                    case 'sorting_asc':
-                        $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-asc');
-                        break;
-                    case 'sorting_desc':
-                        $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-desc');
-                        break;
-                }
+        
+        if($('#instances-table').children('tbody tr').length) {
+            $('#instances-table').DataTable({
+                paging: false,
+                searching: false,
+                info: false,
+                processing: false
             });
-        });
+            $('#instances-table').on('order.dt', function(e, settings) {
+                $.each(settings.aoColumns, function(i, c) {
+                    $(c.nTh).children('.rs-table-sort').removeClass('rs-table-sort-asc rs-table-sort-desc')
+                    switch($(c.nTh).attr('class')) {
+                        case 'sorting_asc':
+                            $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-asc');
+                            break;
+                        case 'sorting_desc':
+                            $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-desc');
+                            break;
+                    }
+                });
+            });
+        }
 
         // Listener for requesting an instance compaction.
         $('a[data-popover="compact-instance-popover"]').each(function() {
