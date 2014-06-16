@@ -478,12 +478,19 @@ def instances():
 def create_instance():
     """Create an instance."""
     if request.method == 'GET':
-        return render_template('instances/create_instance.html', default_mongo_version=config.DEFAULT_MONGO_VERSION)
+        return render_template(
+            'instances/create_instance.html',
+            config=config,
+            active_datastores=app.config.get("ACTIVE_DATASTORES")
+        )
 
     name = request.form['name']
     plan_size_in_gb = int(request.form['plan'])
     service_type = request.form['service_type']
-    version = request.form['version']
+    if service_type == Constants.MONGODB_SERVICE:
+        version = request.form['mongo_version']
+    elif service_type == Constants.REDIS_SERVICE:
+        version = request.form['redis_version']
     zone = request.form['zone']
 
     # HACK ALERT HACK ALERT HACK ALERT HACK ALERT
@@ -492,6 +499,8 @@ def create_instance():
             instance_type = Constants.MONGODB_REPLICA_SET_INSTANCE
         else:
             instance_type = Constants.MONGODB_SHARDED_INSTANCE
+    elif service_type == Constants.REDIS_SERVICE:
+        instance_type = Constants.REDIS_HA_INSTANCE
 
     account_manager = AccountManager(config)
     account = account_manager.get_account(g.login)
@@ -575,7 +584,7 @@ def shards(selected_instance):
         html = render_template('instances/_shard_info.html',
                                aggregate_stats=aggregate_stats,
                                instance=instance)
-    else:
+    elif instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE:
         if instance.replica_set.primary:
             primary = instance.replica_set.primary
             has_primary = True
@@ -604,16 +613,18 @@ def instance_details(selected_instance):
     account_monitoring_checks = account_monitor.get_enabled_checks(asset_type=monitor.INSTANCE_ASSET_TYPE,
                                                                    user_controllable_only=True)
     balancer = None
-    stepdown_window = user_instance.stepdown_window
 
-    for key in ['start', 'end']:
-        if key in stepdown_window:
-            try:
-                stepdown_window[key] = stepdown_window[key].strftime('%m/%d/%Y %H:%M')
-            except AttributeError:
-                stepdown_window[key] = ''
+    if user_instance.stepdown_window is not None:
+        stepdown_window = user_instance.stepdown_window
 
-    stepdown_window.pop('election_started', None)
+        for key in ['start', 'end']:
+            if key in stepdown_window:
+                try:
+                    stepdown_window[key] = stepdown_window[key].strftime('%m/%d/%Y %H:%M')
+                except AttributeError:
+                    stepdown_window[key] = ''
+
+        stepdown_window.pop('election_started', None)
 
     try:
         enable_copy_database = user_instance.instance_connection.server_info()['versionArray'] >= [2, 4, 0, 0]
@@ -1004,7 +1015,7 @@ def add_index(selected_instance, selected_database, selected_collection):
     user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
     user_database = user_instance.get_database(selected_database)
     user_collection = user_database.get_collection(selected_collection)
-    
+
     if request.method == 'GET':
         # Add new index.
         return render_template('instances/collection_index_create.html',

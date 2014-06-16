@@ -11,16 +11,6 @@
         <p>Instances are the core of ObjectRocket services. Create an instance that fits your software needs.</p>
         <p><a target="blank" href="http://docs.objectrocket.com/">Visit Our Knowledge Center &raquo;</a></p>
 
-        <hr/>
-        <h4>All plans include</h4>
-        <ul>
-            <li>MongoDB {{ default_mongo_version }}
-                <a href="http://docs.mongodb.org/manual/release-notes/2.4/" target="1">Release Notes</a>
-            </li>
-            <li>3 member Replica Set</li>
-            <li>Solid State disk (SSD)</li>
-            <li>24x7 email Support</li>
-        </ul>
     {% endcall %}
 {% endblock sidebar %}
 
@@ -40,14 +30,61 @@
 
             <div class="rs-detail-section-body">
                 <!-- default input values -->
-                <input id="service_type" name="service_type" type="hidden" value="mongodb"/>
-                <input id="version" name="version" type="hidden" value="{{default_mongo_version}}"/>
                 <!-- end default input values -->
+                <input id="version" name="mongo_version" type="hidden" value="{{config.DEFAULT_MONGO_VERSION}}"/>
+                <input id="version" name="redis_version" type="hidden" value="{{config.DEFAULT_REDIS_VERSION}}"/>
 
                 <div class="rs-control-group">
                     <label class="rs-control-label">Instance Name</label>
                     <div class="rs-controls">
                         <input id="name" name="name" class="rs-input-large" type="text">
+                    </div>
+                </div>
+
+                <div class="rs-control-group" style=''>
+                    <label class="rs-control-label">Instance Type</label>
+                    <div class="rs-controls">
+
+                        {% if "mongodb" in active_datastores %}
+                            <p>
+                                <label for='mongo'>
+                                    <input value="mongodb" id="mongo" name="service_type" checked type="radio" />
+                                    MongoDB  - {{config.DEFAULT_MONGO_VERSION}}
+                                    <span id="mongo-tooltip" class="rs-icon-help" title=""></span>
+                                    <div class='hidden' id='mongo-tooltip-contents'>
+                                        <ul>
+                                            <li>MongoDB {{ config.DEFAULT_MONGO_VERSION }}
+                                                <a href="http://docs.mongodb.org/manual/release-notes/2.4/" target="1">Release Notes</a>
+                                            </li>
+                                            <li>3 member Replica Set</li>
+                                            <li>Solid State disk (SSD)</li>
+                                            <li>24x7 email Support</li>
+                                        </ul>
+                                    </div>
+                                </label>
+                            </p>
+                        {% endif %}
+
+                        {% if "redis" in active_datastores %}
+                            <p>
+                                <label for='redis'>
+                                    <input value="redis" id="redis" name="service_type" type="radio" />
+                                    Redis - {{config.DEFAULT_REDIS_VERSION}}
+                                    <span id="redis-tooltip" class="rs-icon-help" title=""></span>
+                                    <div class='hidden' id='redis-tooltip-contents'>
+                                        <ul>
+                                            <li>Redis {{ config.DEFAULT_REDIS_VERSION }}
+                                                <a href="http://download.redis.io/redis-stable/00-RELEASENOTES" target="1">Release Notes</a>
+                                            </li>
+                                            <li>2 Node HA</li>
+                                            <li>Automatic Failover</li>
+                                            <li>24x7 email Support</li>
+                                        </ul>
+                                    </div>
+                                </label>
+                            </p>
+                        {% endif %}
+
                     </div>
                 </div>
 
@@ -62,7 +99,6 @@
                             <option value="AP-HongKong">HKG</option>
                             <option value="AP-Sydney">SYD</option>
                         </select>
-                        <div class="rs-help-block">This is the location of the datacenter which your instance will exist in.</div>
                     </div>
                 </div>
 
@@ -76,7 +112,6 @@
                             <option value="50">50GB MEDIUM $899.00/mo</option>
                             <option value="100">100GB MEDIUM $1599.00/mo</option>
                         </select>
-                        <div class="rs-help-block">The plan is the base size of your instance. Each new shard added to your instance will increase your instance size by increments of the plan size you select.</div>
                     </div>
                 </div>
             </div>
@@ -95,6 +130,16 @@
 
     <script>
         $(document).ready(function () {
+            var mongo_tooltip, redis_tooltip;
+
+            mongo_tooltip = new canon.Tooltip();
+            $('#mongo-tooltip').attr("title", $("#mongo-tooltip-contents").html());
+            mongo_tooltip.attach($('#mongo-tooltip'));
+
+
+            redis_tooltip = new canon.Tooltip();
+            $('#redis-tooltip').attr("title", $("#redis-tooltip-contents").html());
+            redis_tooltip.attach($('#redis-tooltip'));
 
             $.validator.addMethod("noSpaces", function (value, element) {
                 return value.indexOf(" ") < 0 && value != "";
@@ -120,60 +165,119 @@
                 }
             });
 
-            $('#zone').change(function () {
-                var selectedZone = $(this).val();
+            $('[name=service_type]').change(function () {
+                var serviceType = $(this).val();
 
-                var usPrices = [
-                    {val: 1, text: '1GB SMALL $19.00/mo'},
-                    {val: 5, text: '5GB MEDIUM $149.00/mo'},
-                    {val: 20, text: '20GB MEDIUM $399.00/mo'},
-                    {val: 50, text: '50GB MEDIUM $899.00/mo'},
-                    {val: 100, text: '100GB MEDIUM $1,599.00/mo'},
-                ];
+                var mongo_zones = [
+                    {val: "US-East-IAD3", text: "US-East-IAD3, AWS Direct Connect" },
+                    {val: "US-West", text: "US-West, AWS Direct Connect"},
+                    {val: "US-Chicago", text: "ORD"},
+                    {val: "EU-London", text: "LON"},
+                    {val: "AP-HongKong", text: "HKG"},
+                    {val: "AP-Sydney", text: "SYD"}
+                ]
 
-                var lonPrices = [
-                    {val: 1, text: '1GB SMALL $25.00/mo'},
-                    {val: 5, text: '5GB MEDIUM $190.00/mo'},
-                    {val: 20, text: '20GB MEDIUM $500.00/mo'},
-                    {val: 50, text: '50GB MEDIUM $1,125.00/mo'},
-                    {val: 100, text: '100GB MEDIUM $2,000.00/mo'},
-                ];
+                var redis_zones = [
+                    {val: "US-East-IAD3", text: "US-East-IAD3, AWS Direct Connect"},
+                    {val: "US-Chicago", text: "ORD"},
+                    {val: "US-Dallas", text: "DFW"},
+                    {val: "EU-London", text: "LON"}
+                ]
 
-                var hkgPrices = [
-                    {val: 1, text: '1GB SMALL $25.00/mo'},
-                    {val: 5, text: '5GB MEDIUM $195.00/mo'},
-                    {val: 20, text: '20GB MEDIUM $525.00/mo'},
-                    {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
-                    {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
-                ];
+                var zones = mongo_zones;
 
-                var sydPrices = [
-                    {val: 1, text: '1GB SMALL $25.00/mo'},
-                    {val: 5, text: '5GB MEDIUM $195.00/mo'},
-                    {val: 20, text: '20GB MEDIUM $525.00/mo'},
-                    {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
-                    {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
-                ];
-
-                var prices = usPrices;
-
-                if (selectedZone == 'EU-London') {
-                    var prices = lonPrices;
-                } else if (selectedZone == 'AP-HongKong') {
-                    var prices = hkgPrices;
-                } else if (selectedZone == 'AP-Sydney') {
-                    var prices = sydPrices;
+                if (serviceType == 'redis') {
+                    var zones = redis_zones;
                 }
 
-                $('#plan_select').empty();
+                $('#zone').empty();
 
-                $(prices).each(function () {
-                    $('#plan_select').append($("<option>").attr('value', this.val).text(this.text));
+                $(zones).each(function () {
+                    $('#zone').append($("<option>").attr('value', this.val).text(this.text));
                 });
 
-                $('#plan_select').val(5);
+                change_pricing()
             });
+
+            $('#zone').change(change_pricing);
+
+
         });
+
+        function change_pricing(){
+
+            service = $('[name=service_type]:checked').val();
+            zone = $("#zone").val();
+
+            var usMongoPrices = [
+                {val: 1, text: '1GB SMALL $19.00/mo'},
+                {val: 5, text: '5GB MEDIUM $149.00/mo'},
+                {val: 20, text: '20GB MEDIUM $399.00/mo'},
+                {val: 50, text: '50GB MEDIUM $899.00/mo'},
+                {val: 100, text: '100GB MEDIUM $1,599.00/mo'},
+            ];
+
+            var lonMongoPrices = [
+                {val: 1, text: '1GB SMALL $25.00/mo'},
+                {val: 5, text: '5GB MEDIUM $190.00/mo'},
+                {val: 20, text: '20GB MEDIUM $500.00/mo'},
+                {val: 50, text: '50GB MEDIUM $1,125.00/mo'},
+                {val: 100, text: '100GB MEDIUM $2,000.00/mo'},
+            ];
+
+            var hkgMongoPrices = [
+                {val: 1, text: '1GB SMALL $25.00/mo'},
+                {val: 5, text: '5GB MEDIUM $195.00/mo'},
+                {val: 20, text: '20GB MEDIUM $525.00/mo'},
+                {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
+                {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
+            ];
+
+            var sydMongoPrices = [
+                {val: 1, text: '1GB SMALL $25.00/mo'},
+                {val: 5, text: '5GB MEDIUM $195.00/mo'},
+                {val: 20, text: '20GB MEDIUM $525.00/mo'},
+                {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
+                {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
+            ];
+
+            var redisPrices = [
+                {val: ".5", text: '500M $59.00/mo'},
+                {val: "1", text: '1G $99.00/mo'},
+                {val: "2.5", text: '2.5G $219.00/mo'},
+                {val: "5", text: '5G $429.00/mo'},
+                {val: "10", text: '10G $849.00/mo'},
+                {val: "20", text: '20G $1649.00/mo'},
+                {val: "50", text: '50G $3999.00/mo'},
+            ];
+
+            if(service == "redis"){
+                var prices = redisPrices;
+            } else if (service == "mongodb"){
+
+                var prices = usMongoPrices;
+
+                if (zone == 'EU-London') {
+                    var prices = lonMongoPrices;
+                } else if (zone == 'AP-HongKong') {
+                    var prices = hkgMongoPrices;
+                } else if (zone == 'AP-Sydney') {
+                    var prices = sydMongoPrices;
+                }
+            }
+
+            $('#plan_select').empty();
+
+            $(prices).each(function () {
+                $('#plan_select').append($("<option>").attr('value', this.val).text(this.text));
+            });
+
+            if(service == "mongodb"){
+                $('#plan_select').val(5);
+            }else if (service == "redis"){
+                $('#plan_select').val(1);
+            }
+        };
     </script>
 
 {% endblock script %}

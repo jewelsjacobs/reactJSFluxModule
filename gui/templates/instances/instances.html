@@ -99,12 +99,34 @@
                             </div>
                         </td>
                         <td id="instance-{{ loop.index0 }}-count" class="rs-table-link"><a href="{{ url_for('instance_details', selected_instance=instance.name) }}">{{ instance.name }}</a></td>
-                        <td class="rs-table-link">MongoDB</td>
-                        <td class="rs-table-link">{{ instance.type.replace('mongodb', 'MongoDB').replace('sharded', 'Sharded').replace('replica_set', 'Replica Set').replace('_', ' ') }}</td>
+                        <td class="rs-table-link">
+                            {% if instance.type == Constants.REDIS_SERVICE %}
+                                Redis
+                            {% elif instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+                                MongoDB
+                            {% elif instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE %}
+                                MongoDB
+                            {% endif %}
+                        </td>
+                        <td class="rs-table-link">
+                            {% if instance.type == Constants.REDIS_SERVICE %}
+                                Sentinel HA
+                            {% elif instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+                                MongoDB Sharded
+                            {% elif instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE %}}
+                                MongoDB Replica Set
+                            {% endif %}
+                        </td>
                         <td class="rs-table-link">{{ instance.version }}</td>
                         <td class="rs-table-link">{{ instance.zone }}</td>
                         <td class="rs-table-link">{{ instance.plan }}</td>
-                        <td class="rs-table-link">{{ instance.shards|count }}</td>
+                        <td class="rs-table-link">
+                            {% if instance.type == Constants.REDIS_SERVICE %}
+                                -
+                            {% else %}
+                                {{ instance.shards|count }}
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -446,8 +468,8 @@
                 $('#current_remote_name').val(name);
             });
         });
-        
-        
+
+
         if($('#instances-table').children('tbody tr').length) {
             $('#instances-table').DataTable({
                 paging: false,
