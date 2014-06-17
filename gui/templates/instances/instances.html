@@ -109,6 +109,13 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% elif not account.stripe_account %}
+        <div id="instances-table-overlay" class="rs-table-overlay">
+            <div class="rs-table-overlay-content">
+                <div class="rs-table-overlay-title">Welcome to ObjectRocket!</div>
+                <div class="rs-table-overlay-subtitle">To get started, please <a href="{{ url_for('account') }}">complete your profile</a>.</div>
+            </div>
+        </div>
         {% else %}
         <div id="instances-table-overlay" class="rs-table-overlay">
             <div class="rs-table-overlay-content">
