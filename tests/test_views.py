@@ -935,6 +935,10 @@ def test_add_remote_instance(app_client):
         replicated_host = 'rs01.local'
         replicated_port = 27017
 
+        localhost_instance_name = 'test_localhost'
+        localhost_host = '127.0.0.1'
+        localhost_port = 27017
+
         client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
         print('Adding remote sharded instance')
         response = client.post(url_for('add_remote_instance'), data=dict(instance_name=sharded_instance_name,
@@ -949,6 +953,15 @@ def test_add_remote_instance(app_client):
                                                                          port=replicated_port))
         assert response.status_code == 302
         assert url_for('instances') == urlparse(response.location).path
+
+        print('Adding localhost instance')
+        response = client.post(url_for('add_remote_instance'), data=dict(instance_name=localhost_instance_name,
+                                                                         host=localhost_host,
+                                                                         port=localhost_port),
+                               follow_redirects=True)
+
+        assert response.status_code == 200
+        assert 'invalid' in response.data.lower()
 
 
 @pytest.mark.skipif(os.getenv('REMOTE_INSTANCES') != 'True', reason="Requires remote instances on localhost.")
