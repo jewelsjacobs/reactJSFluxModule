@@ -8,7 +8,7 @@
     <div class="rs-inner">
         <h2 class="rs-page-title">Instances</h2>
         <div class="rs-btn-group">
-            {% if not account.stripe_account %}
+            {% if not (account.stripe_account or account.invoiced) %}
             <a class="rs-btn rs-btn-primary disabled">Add Instance</a>
             {% else %}
             <a href="{{ url_for('create_instance') }}" class="rs-btn rs-btn-primary">Add Instance</a>
@@ -109,7 +109,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        {% elif not account.stripe_account %}
+        {% elif not (account.stripe_account or account.invoiced) %}
         <div id="instances-table-overlay" class="rs-table-overlay">
             <div class="rs-table-overlay-content">
                 <div class="rs-table-overlay-title">Welcome to ObjectRocket!</div>
