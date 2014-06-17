@@ -110,14 +110,14 @@
             </tbody>
         </table>
         {% elif not (account.stripe_account or account.invoiced) %}
-        <div id="instances-table-overlay" class="rs-table-overlay">
+        <div id="instances-table-overlay" class="or-table-overlay">
             <div class="rs-table-overlay-content">
                 <div class="rs-table-overlay-title">Welcome to ObjectRocket!</div>
                 <div class="rs-table-overlay-subtitle">To get started, please <a href="{{ url_for('account') }}">complete your profile</a>.</div>
             </div>
         </div>
         {% else %}
-        <div id="instances-table-overlay" class="rs-table-overlay">
+        <div id="instances-table-overlay" class="or-table-overlay">
             <div class="rs-table-overlay-content">
                 <div class="rs-table-overlay-title">You don't have any instances yet.</div>
                 <div class="rs-table-overlay-subtitle">Create one now by clicking on the Add Instance button.</div>
@@ -128,9 +128,10 @@
 
     <!-- remote instances section -->
     {% call detail_section(title="Remote Instances", collapsible=True) %}
-                <div class="rs-btn-group">
+        <div class="rs-btn-group">
             <a href="{{ url_for('remote_instance') }}" class="rs-btn rs-btn-primary">Add Remote Instance</a>
         </div>
+        {% if remote_instances %}
         <table class="rs-list-table">
             <thead>
             <tr>
@@ -220,7 +221,8 @@
             {% endfor %}
             </tbody>
         </table>
-        <div id="remote-instances-table-overlay" class="rs-table-overlay{% if remote_instances %} hidden{% endif %}">
+        {% else %}
+        <div id="remote-instances-table-overlay" class="or-table-overlay">
             <div class="rs-table-overlay-content">
                 <div class="rs-table-overlay-title">You don't have any remote instances yet.</div>
                 <div class="rs-table-overlay-subtitle">
@@ -228,6 +230,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     {% endcall %}
     <!-- end remote instances section -->
 
