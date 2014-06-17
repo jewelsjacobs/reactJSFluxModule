@@ -1305,6 +1305,33 @@ def logout():
 
 @app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
+    """The smallest signup form"""
+    if request.method == 'POST':
+        account_manager = AccountManager(config)
+        
+        # TODO: Put a unique constraint on user names to fix
+        #       this race condition
+
+        if account_manager.get_account(request.form['email']):
+            flash('The email "{}" is already associated with an account.'.format(request.form['email']), Constants.FLASH_ERROR)
+        else:
+            account = account_manager.create_account(request.form['email'],
+                                                     request.form['password'],
+                                                     request.form['email'],
+                                                     None,
+                                                     None,
+                                                     None,
+                                                     None)
+            annunciator = Annunciator(config)
+            annunciator.create_alarm(Constants.ACCOUNT_SIGNUP,
+                                     account.login,
+                                     Alarm.INFO,
+                                     account.login,
+                                     notify_once=True,
+                                     supplemental_data=account.login)
+            session['login'] = account.login
+            return redirect(url_for('instances'))
+
     return render_template('sign_up/sign_up.html')
 
 
