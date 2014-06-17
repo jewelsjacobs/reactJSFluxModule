@@ -453,6 +453,7 @@ def instances():
 
     return render_template('instances/instances.html',
                            account=account,
+                           add_instance_enabled=bool(account.stripe_account or account.invoiced),
                            api_keys=account.instance_api_keys,
                            default_mongo_version=config.DEFAULT_MONGO_VERSION,
                            instances=instances,
@@ -1688,7 +1689,6 @@ def amazon():
                            obfuscated_ec2_access_key=obfuscated_ec2_access_key,
                            obfuscated_ec2_secret_key=obfuscated_ec2_secret_key,
                            login=g.login)
-
 
 
 @app.route('/external/add_ec2_settings', methods=['POST'])
