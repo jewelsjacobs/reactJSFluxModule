@@ -1,10 +1,5 @@
 {% extends 'web_app_base.html' %}
 
-<!--
-TODO:
-- Provide sidebar filtering for instances, types, et cetera.
--->
-
 {% block title %}
     Instances
 {% endblock title %}
@@ -116,6 +111,112 @@ TODO:
             </div>
         </div>
     </div>
+
+    <!-- remote instances section -->
+    {% call detail_section(title="Remote Instances", collapsible=True) %}
+                <div class="rs-btn-group">
+            <a href="{{ url_for('remote_instance') }}" class="rs-btn rs-btn-primary">Add Remote Instance</a>
+        </div>
+        <table class="rs-list-table">
+            <thead>
+            <tr>
+                <th class="rs-table-status"></th>
+                <th class="rs-table-cog"></th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">Name</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">Engine</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">Replicated</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">Sharded</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">SSL</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">Status</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for remote_instance in remote_instances %}
+                <tr>
+                    {% if remote_instance.disconnected %}
+                        <td class="rs-table-status rs-table-status-error"></td>
+                    {% else %}
+                        <td class="rs-table-status rs-table-status-ok"></td>
+                    {% endif %}
+                    <td class="rs-table-cog">
+                        <div class="rs-dropdown">
+                            <div id="remote_instance_{{ loop.index0 }}" class="rs-cog rs-dropdown-toggle"></div>
+                            <ul class="rs-dropdown-menu">
+                                <li><span class="rs-dropdown-category" id="first">Actions</span></li>
+                                <li><a data-popover="rename_remote_instance_popover" data-count="{{ loop.index0 }}"
+                                       data-popover-target="remote_instance_{{ loop.index0 }}"
+                                       data-popover-position="bottom-right"
+                                       class="rs-btn rs-btn-link rs-popover-source">Rename</a></li>
+                                <li><a data-popover="remove_remote_instance_popover" data-count="{{ loop.index0 }}"
+                                       data-popover-target="remote_instance_{{ loop.index0 }}"
+                                       data-popover-position="bottom-right"
+                                       class="rs-btn rs-btn-link rs-popover-source">Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td id="remote_instance_{{ loop.index0 }}_count" class="rs-table-link">
+                        {% if remote_instance.disconnected %}
+                            {{ remote_instance.name }}
+                        {% else %}
+                            <a href="{{ url_for('remote_instance_details', selected_instance=remote_instance.name) }}">
+                                {{ remote_instance.name }}
+                            </a>
+                        {% endif %}
+                    </td>
+                    <td class="rs-table-link">MongoDB</td>
+                    <td class="rs-table-link">{{ remote_instance.replicated }}</td>
+                    <td class="rs-table-link">{{ remote_instance.sharded }}</td>
+                    <td class="rs-table-link">{{ remote_instance.ssl }}</td>
+                        {% if remote_instance.disconnected %}
+                            <td class="rs-table-link">Connection Failure</td>
+                        {% else %}
+                            <td class="rs-table-link">Okay</td>
+                        {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div id="remote-instances-table-overlay" class="rs-table-overlay{% if remote_instances %} hidden{% endif %}">
+            <div class="rs-table-overlay-content">
+                <div class="rs-table-overlay-title">You don't have any remote instances yet.</div>
+                <div class="rs-table-overlay-subtitle">
+                    Create one now by clicking on the Add Remote Instance button.
+                </div>
+            </div>
+        </div>
+    {% endcall %}
+    <!-- end remote instances section -->
+
 {% endblock content_area_body %}
 
 {% block popovers %}
@@ -215,6 +316,55 @@ TODO:
         </div>
     </div>
     <!-- end add instance user popover -->
+
+    <!-- remove remote instance popover -->
+    <div id="remove_remote_instance_popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="remove_remote_instance_popover_form" class="rs-form-horizontal rs-form-small"
+                      action="{{ url_for('remove_remote_instance') }}" method="POST">
+                    <p><b>Remove</b> remote instance <strong id="remove_remote_instance_popover_name"></strong>?</p>
+                    <input id="remote_instance_name" name="remote_instance_name" type="hidden" value="">
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="remove_remote_instance_popover_form_button" form="remove_remote_instance_popover_form"
+                        class="rs-btn rs-btn-primary save">Delete Remote Instance
+                </button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end remove remote instance popover -->
+
+    <!-- rename remote instance popover -->
+    <div id="rename_remote_instance_popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="rename_remote_instance_popover_form" class="rs-form-horizontal rs-form-small"
+                      action="{{ url_for('rename_remote_instance') }}" method="POST">
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">New Name</label>
+
+                        <div class="rs-controls">
+                            <input id="new_remote_name" name="new_remote_name" type="text" placeholder=""
+                                   class="rs-input rs-input-medium">
+                            <input id="current_remote_name" name="current_remote_name" type="hidden" value="">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="rename_remote_instance_popover_form_button" form="rename_remote_instance_popover_form"
+                        class="rs-btn rs-btn-primary save">Rename
+                </button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end remote rename instance popover -->
 {% endblock popovers %}
 
 {% block script %}
@@ -245,6 +395,32 @@ TODO:
                 $('#delete-instance-popover-form').attr('action', '/' + name + '/delete');
                 $('#delete-instance-popover-name').text(name);
                 $('#instance-input').val(name);
+            });
+        });
+
+        // Listener for removing remote instances.
+        $('a[data-popover="remove_remote_instance_popover"]').each(function() {
+            $(this).click(function() {
+                // Get the instance name.
+                var count = $(this).attr('data-count');
+                var name = $.trim($('#remote_instance_' + count + '_count').text());
+
+                // Inject the remote instance name into popover.
+                $('#remove_remote_instance_popover_name').text(name);
+                $('#remote_instance_name').val(name);
+            });
+        });
+
+        // Listener for renaming remote instances.
+        $('a[data-popover="rename_remote_instance_popover"]').each(function() {
+            $(this).click(function() {
+                // Get the instance name.
+                var count = $(this).attr('data-count');
+                var name = $.trim($('#remote_instance_' + count + '_count').text());
+
+                // Inject the instance name into popover.
+                $('#new_remote_name').attr('placeholder', name);
+                $('#current_remote_name').val(name);
             });
         });
         

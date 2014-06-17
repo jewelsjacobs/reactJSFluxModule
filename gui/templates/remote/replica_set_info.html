@@ -1,0 +1,37 @@
+<!-- Begin replset info -->
+<div class="rs-embedded-list-table-wrapper rs-embedded-medium">
+    <table class="rs-list-table rs-embedded-list-table">
+    <thead>
+        <tr>
+            <th>Role</th>
+            <th>Health</th>
+            <th>Delay</th>
+            <th>Last Heartbeat</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for member in remote_instance.rs_status.members %}
+            {% set primary_optime = None %}
+            {% if member.stateStr == 'PRIMARY' %}
+                {% set delay = '(Primary)' %}
+                {% set primary_optime = member.optime %}
+            {% elif member.stateStr == 'ARBITER' %}
+                {% set delay = '(Arbiter)' %}
+            {% else %}
+                {% if primary_optime %}
+                    {% set delay = primary_optime.as_datetime() - member.optime.as_datetime() %}
+                {% else %}
+                    {% set delay = None %}
+                {% endif %}
+            {% endif %}
+            <tr>
+                <td>{{ member.stateStr }}</td>
+                <td>{% if member.health == 1 %}HEALTHY{% else %}FAULT{% endif %}</td>
+                <td>{{ delay }}</td>
+                <td>{{ member.lastHeartbeat|default('(Primary)') }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+<!-- End replset info -->
