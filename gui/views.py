@@ -1312,7 +1312,7 @@ def sign_up():
         #       this race condition
 
         if account_manager.get_account(request.form['email']):
-            flash('The email "{}" is already associated with an account.'.format(request.form['email']), Constants.FLASH_ERROR)
+            flash('The email "{}" is already associated with an account.'.format(request.form['email']), canon_constants.STATUS_ERROR)
         else:
             account = account_manager.create_account(request.form['email'],
                                                      request.form['password'],
