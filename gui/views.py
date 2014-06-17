@@ -444,7 +444,6 @@ def instance_stats(selected_instance):
 
 @app.route('/instances')
 @viper_auth
-@billing_enabled
 def instances():
     """"Display account instances."""
     account_manager = AccountManager(config)
