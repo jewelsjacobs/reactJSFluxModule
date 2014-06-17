@@ -157,6 +157,15 @@ img.invoice-logo {
     margin: 25px 0 0;
 }
 
+#tos {
+    padding: 2em;
+    margin: -235px 0 0 -388px;
+    display: none;
+}
+#sign-up {
+    margin: -215px 0 0 -345px;
+}
+
 .or-focus-panel .or-focus-panel-link-pull-right {
     bottom: -14%;
     position: absolute;
