@@ -13,12 +13,13 @@ import itsdangerous
 import requests
 import stripe
 
-# 3rd part from imports.
+# 3rd party from imports.
 from flask import abort, Response
 from flask import flash, request, render_template, session, redirect, url_for, g
 from functools import wraps
 from jinja2.filters import do_filesizeformat as filesizeformat
 from netaddr import IPNetwork, AddrFormatError
+from pymongo.errors import ConnectionFailure, OperationFailure
 from werkzeug.datastructures import ImmutableMultiDict
 from urlparse import urlparse
 
@@ -35,10 +36,11 @@ from viper.instance import InstanceManager
 from viper.messages import MessageManager
 from viper.mongo_instance import MongoDBInstanceException
 from viper.notifier import Notifier
+from viper.remote_instance import ClientWrapper, SslConnectionFailure
 from viper.remote_instance_manager import RemoteInstanceManager
 from viper.replica import ReplicaException
 from viper.status import StatusManager
-from viper.utility import Utility
+from viper.utility import Host, InvalidHost, Utility
 
 # Make app available in this scope.
 from gui import app
@@ -2221,17 +2223,15 @@ def silence_alarm():
 @app.route('/remote/instance')
 @viper_auth
 def remote_instance():
-    return render_template('remote/remote_instance.html')
+    reserved_networks = Utility.get_reserved_networks(config)
+    return render_template('remote/remote_instance.html', reserved_networks=reserved_networks)
 
 
 @app.route('/remote/instance/add', methods=['POST'])
 @viper_auth
 def add_remote_instance():
-    from viper.remote_instance import ClientWrapper, SslConnectionFailure
-    from pymongo.errors import ConnectionFailure, OperationFailure
-
     instance_name = request.form['instance_name']
-    host = request.form['host']
+    hostname = request.form['host']
     port = int(request.form['port'])
     admin_username = request.form.get('admin_username')
     admin_password = request.form.get('admin_password')
@@ -2240,8 +2240,21 @@ def add_remote_instance():
     if 'ssl' in request.form:
         ssl = True
 
+    valid_host = False
     try:
-        client = ClientWrapper(host, port, ssl=ssl)
+        host = Host(hostname)
+        reserved_networks = Utility.get_reserved_networks(config)
+        if host.is_routable() and not host.in_cidr_list(reserved_networks):
+            valid_host = True
+    except InvalidHost:
+            pass
+    finally:
+        if not valid_host:
+            flash("Invalid hostname or IP.", canon_constants.STATUS_ERROR)
+            return redirect(url_for('remote_instance'))
+
+    try:
+        client = ClientWrapper(hostname, port, ssl=ssl)
     except SslConnectionFailure:
         flash("Unable to establish SSL connection to remote instance.", canon_constants.STATUS_ERROR)
         return redirect(url_for('remote_instance'))
