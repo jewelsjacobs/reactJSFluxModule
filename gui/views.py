@@ -280,6 +280,7 @@ def inject_login():
 
 @app.before_request
 def maintenance_mode():
+    #if True:
     if app.config.setdefault('MAINTENANCE', False) and not request.path.startswith('/static'):
         return render_template('maintenance.html')
 
@@ -393,7 +394,16 @@ def account():
     if account is None:
         return redirect(url_for('sign_in'))
 
-    return render_template('account/account.html', account=account, login=g.login)
+    show_cc_form = not (account.invoiced or account.stripe_account)
+
+    return render_template('account/account.html',
+                           account=account,
+                           email=account.email,
+                           login=g.login,
+                           redirect_to=url_for('instances'),
+                           show_cc_form=show_cc_form,
+                           stripe_pub_key=config.STRIPE_PUB_KEY
+                           )
 
 
 @app.route('/update_account_contact', methods=['POST'])
@@ -405,8 +415,6 @@ def update_account_contact():
     name = request.form['name']
     phone = request.form['phone']
     zipcode = request.form['zipcode']
-
-    app.logger.debug(company+email+name+phone+zipcode)
 
     account_manager = AccountManager(config)
     account_manager.update_account_contact(g.login, company=company, email=email, name=name, phone=phone, zipcode=zipcode)
@@ -445,7 +453,6 @@ def instance_stats(selected_instance):
 
 @app.route('/instances')
 @viper_auth
-@billing_enabled
 def instances():
     """"Display account instances."""
     account_manager = AccountManager(config)
@@ -455,6 +462,7 @@ def instances():
 
     return render_template('instances/instances.html',
                            account=account,
+                           add_instance_enabled=bool(account.stripe_account or account.invoiced),
                            api_keys=account.instance_api_keys,
                            default_mongo_version=config.DEFAULT_MONGO_VERSION,
                            instances=instances,
@@ -1304,6 +1312,38 @@ def logout():
     return redirect(url_for('sign_in'))
 
 
+@app.route('/sign_up', methods=['GET', 'POST'])
+def sign_up():
+    """The smallest signup form"""
+    if request.method == 'POST':
+        account_manager = AccountManager(config)
+        
+        # TODO: Put a unique constraint on user names to fix
+        #       this race condition
+
+        if account_manager.get_account(request.form['email']):
+            flash('The email "{}" is already associated with an account.'.format(request.form['email']), canon_constants.STATUS_ERROR)
+        else:
+            account = account_manager.create_account(request.form['email'],
+                                                     request.form['password'],
+                                                     request.form['email'],
+                                                     None,
+                                                     None,
+                                                     None,
+                                                     None)
+            annunciator = Annunciator(config)
+            annunciator.create_alarm(Constants.ACCOUNT_SIGNUP,
+                                     account.login,
+                                     Alarm.INFO,
+                                     account.login,
+                                     notify_once=True,
+                                     supplemental_data=account.login)
+            session['login'] = account.login
+            return redirect(url_for('instances'))
+
+    return render_template('sign_up/sign_up.html')
+
+
 @app.route('/sign_up1', methods=['GET', 'POST'])
 def sign_up1():
     """Sign up and create a user account."""
@@ -1553,12 +1593,20 @@ def billing():
 @viper_auth
 def set_credit_card():
     billing_manager = BillingManager(config)
+    valid_redirect_routes = [url_for('billing'), url_for('instances')]
+
     try:
         billing_manager.set_credit_card(g.login, request.form['stripe_token'])
         flash('Credit card information updated.', canon_constants.STATUS_OK)
+
     except stripe.CardError as ex:
         flash(ex.message, canon_constants.STATUS_ERROR)
-    return redirect(url_for('billing'))
+
+    return_target = request.form.get('returntarget', url_for('billing'))
+    if return_target in valid_redirect_routes:
+        return redirect(return_target)
+    else:
+        return redirect(url_for('billing'))
 
 
 @app.route('/invoices/<invoice_id>')
@@ -1658,7 +1706,6 @@ def amazon():
                            obfuscated_ec2_access_key=obfuscated_ec2_access_key,
                            obfuscated_ec2_secret_key=obfuscated_ec2_secret_key,
                            login=g.login)
-
 
 
 @app.route('/external/add_ec2_settings', methods=['POST'])

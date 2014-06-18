@@ -34,6 +34,13 @@ body.rs-responsive .rs-container {
     z-index: 999;
 }
 
+.or-table-overlay {
+    display: table;
+    width: 100%;
+    height: 150px;
+    border: 1px solid #e7e7e7
+}
+
 span.rs-validation-block {
     padding-left: 0;
 }
@@ -148,6 +155,15 @@ img.invoice-logo {
 }
 #login-form + .rs-control-group {
     margin: 25px 0 0;
+}
+
+#tos {
+    padding: 2em;
+    margin: -235px 0 0 -388px;
+    display: none;
+}
+#sign-up {
+    margin: -215px 0 0 -345px;
 }
 
 .or-focus-panel .or-focus-panel-link-pull-right {

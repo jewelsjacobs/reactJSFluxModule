@@ -63,31 +63,34 @@
             <ul class="rs-detail-list">
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Name</div>
-                    <div class="rs-detail-value">{{ account.name }}</div>
+                    <div class="rs-detail-value">{{ account.name or '<i>Not set</i>'|safe }}</div>
                 </li>
 
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Email</div>
-                    <div class="rs-detail-value">{{ account.email }}</div>
+                    <div class="rs-detail-value">{{ account.email or '<i>Not set</i>'|safe }}</div>
                 </li>
 
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Phone</div>
-                    <div class="rs-detail-value">{{ account.phone }}</div>
+                    <div class="rs-detail-value">{{ account.phone or '<i>Not set</i>'|safe }}</div>
                 </li>
 
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Company</div>
-                    <div class="rs-detail-value">{{ account.company }}</div>
+                    <div class="rs-detail-value">{{ account.company or '<i>Not set</i>'|safe }}</div>
                 </li>
 
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Zip Code</div>
-                    <div class="rs-detail-value">{{ account.zipcode }}</div>
+                    <div class="rs-detail-value">{{ account.zipcode or '<i>Not set</i>'|safe }}</div>
                 </li>
             </ul>
         </div>
     </div>
+    {% if show_cc_form %}
+        {% include 'billing/cc_details.html' %}
+    {% endif %}
 {% endblock content_area_body %}
 
 {% block popovers %}
@@ -99,31 +102,31 @@
                     <div class="rs-control-group">
                         <label class="rs-control-label">Name</label>
                         <div class="rs-controls">
-                            <input name="name" type="text" class="rs-input rs-input-medium">
+                            <input name="name" type="text" class="rs-input rs-input-medium" value="{{ account.name or '' }}">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Email</label>
                         <div class="rs-controls">
-                            <input name="email" type="text" class="rs-input rs-input-medium">
+                            <input name="email" type="text" class="rs-input rs-input-medium" value="{{ account.email or '' }}">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Phone</label>
                         <div class="rs-controls">
-                            <input name="phone" type="text" class="rs-input rs-input-medium">
+                            <input name="phone" type="text" class="rs-input rs-input-medium" value="{{ account.phone or '' }}">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Company</label>
                         <div class="rs-controls">
-                            <input name="company" type="text" class="rs-input rs-input-medium">
+                            <input name="company" type="text" class="rs-input rs-input-medium" value="{{ account.company or '' }}">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Zip</label>
                         <div class="rs-controls">
-                            <input name="zipcode" type="text" class="rs-input rs-input-medium">
+                            <input name="zipcode" type="text" class="rs-input rs-input-medium" value="{{ account.zipcode or '' }}">
                         </div>
                     </div>
                 </form>
@@ -164,6 +167,9 @@
 
 {% block script %}
     {{ super() }}
+    {% if show_cc_form %}
+        {% include 'stripe_js.html' %}
+    {% endif %}
     <script type="text/javascript">
     $(document).ready(function() {
 

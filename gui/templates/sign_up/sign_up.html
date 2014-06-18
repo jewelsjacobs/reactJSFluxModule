@@ -1,0 +1,132 @@
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    Sign Up
+{% endblock title %}
+
+{% block body %}
+    <div id="sign-up" class="rs-panel or-focus-panel">
+
+        <div class="or-focus-panel-messages">
+            {% block flash_messages %}
+                {{ flash_messages(classes='white-space-normal') }}
+            {% endblock %}
+        </div>
+
+        <div class="or-focus-panel-signup">
+            <div class="or-login-brand"></div>
+            <div class="or-login-form">
+               <p class="or-login-welcome">Create an account</p>
+                <form id="signup-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_up') }}" method="POST">
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label" for="email">Email</label>
+                        <div class="rs-controls">
+                            <input id="email" name="email" type="text" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label" for="password">Password</label>
+                        <div class="rs-controls">
+                            <input id="password" name="password" type="password" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label" for="confirmPassword">Confirm</label>
+                        <div class="rs-controls">
+                            <input id="confirmPassword" name="confirmPassword" type="password" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <div class="rs-controls">
+                           <input type="checkbox" name="agree" id="agree"> I agree to the <a href="#tos">terms of service</a>.
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="rs-btn-group">
+                        <div class="rs-controls">
+                            <button form="signup-form" class="rs-btn rs-btn-login" type="submit">Sign Up</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="or-focus-panel-link-pull-right">
+            <p>Already have an account? <a href="{{ url_for('sign_in') }}">Sign in here »</a></p>
+        </div>
+    </div>
+
+
+    <div id="tos" class="rs-panel or-focus-panel">
+        <div style="float:right;"><a href="#close-tos">Close</a></div>
+        <h3>Terms and Conditions</h3>
+        <p>In addition to the <strong>ObjectRocket Service Terms</strong> (available at: <a href="http://www.objectrocket.com/st">http://www.objectrocket.com/st</a>), the following terms apply to the use of ObjectRocket services in the Promotional Period:</p>
+        <p>You must sign up for ObjectRocket services and accept the <strong>ObjectRocket Service Terms</strong>.</p>
+        <p>Your new ObjectRocket account will become active after you receive your login details.</p>
+        <p>Eligible NEW customers that sign up for ObjectRocket services during the Promotional Period will receive a single 5GB shard free for the FIRST 30 days after sign up. <strong>No other plans</strong> are eligible for this promotional offer and will be charged at its standard rates.</p>
+        <p>After the end of this promotion, standard fees for ObjectRocket services will apply. Your account is not billed until the end of each 30-day service period, starting from the day you sign up.</p>
+        <p>You can cancel at any time by <a href="https://objectrocket.zendesk.com/home">contacting support</a>. You will be able to monitor your usage via [the ObjectRocket Control Panel].</p>
+        <p>If the account remains open after the 30 day trial period, you will be billed standard fees for the ObjectRocket services. For more information see our <a href="http://www.objectrocket.com/pricing">Billing information</a>.</p>
+        <p>If the eligible ObjectRocket service is used in conjunction with any other services, that service will be billed according to its standard pricing terms.</p>
+    </div>
+
+    {% block script %}
+        {{ super() }}
+        <script type="text/javascript">
+        $(document).ready(function() {
+            $('a[href=#tos]').click(function(e) {
+                $('#tos').fadeIn();
+                e.preventDefault();
+            });
+            $('a[href=#close-tos]').click(function(e) {
+                $('#tos').fadeOut();
+                e.preventDefault();
+            });
+            
+            // Validation for sign up form.
+            $('#signup-form').validate({
+                rules: {
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    password: {
+                        minlength: 6,
+                        required: true
+                    },
+                    confirmPassword: {
+                        required: true,
+                        equalTo: "#password"
+                    },
+                    agree: {
+                        required: true
+                    }
+                },
+                messages: {
+                    agree: '&nbsp;'
+                },
+                errorPlacement: function (error, element) {
+                    element.parent('.rs-controls').append(error);
+                },
+                errorClass: 'rs-validation-block',
+                errorElement: 'span',
+                highlight: function (label) {
+                    $(label).closest('.rs-control-group').removeClass('success');
+                    $(label).closest('.rs-control-group').addClass('error');
+                },
+                success: function (label) {
+                    $(label).closest('.rs-control-group').removeClass('error');
+                    $(label).closest('.rs-control-group').addClass('success');
+                }
+            });
+        });
+        </script>
+    {% endblock script %}
+
+{% endblock body %}

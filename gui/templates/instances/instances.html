@@ -8,9 +8,14 @@
     <div class="rs-inner">
         <h2 class="rs-page-title">Instances</h2>
         <div class="rs-btn-group">
+            {% if not add_instance_enabled %}
+            <a class="rs-btn rs-btn-primary disabled">Add Instance</a>
+            {% else %}
             <a href="{{ url_for('create_instance') }}" class="rs-btn rs-btn-primary">Add Instance</a>
+            {% endif %}
         </div>
 
+        {% if instances %}
         <table class="rs-list-table" id="instances-table">
             <thead>
                 <tr>
@@ -104,19 +109,29 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div id="instances-table-overlay" class="rs-table-overlay{% if instances %} hidden{% endif %}">
+        {% elif not add_instance_enabled %}
+        <div id="instances-table-overlay" class="or-table-overlay">
+            <div class="rs-table-overlay-content">
+                <div class="rs-table-overlay-title">Welcome to ObjectRocket!</div>
+                <div class="rs-table-overlay-subtitle">In order to add instances, please complete <a href="{{ url_for('account') }}">your profile and add a credit card</a>.</div>
+            </div>
+        </div>
+        {% else %}
+        <div id="instances-table-overlay" class="or-table-overlay">
             <div class="rs-table-overlay-content">
                 <div class="rs-table-overlay-title">You don't have any instances yet.</div>
                 <div class="rs-table-overlay-subtitle">Create one now by clicking on the Add Instance button.</div>
             </div>
         </div>
+        {% endif %}
     </div>
 
     <!-- remote instances section -->
     {% call detail_section(title="Remote Instances", collapsible=True) %}
-                <div class="rs-btn-group">
+        <div class="rs-btn-group">
             <a href="{{ url_for('remote_instance') }}" class="rs-btn rs-btn-primary">Add Remote Instance</a>
         </div>
+        {% if remote_instances %}
         <table class="rs-list-table">
             <thead>
             <tr>
@@ -206,14 +221,16 @@
             {% endfor %}
             </tbody>
         </table>
-        <div id="remote-instances-table-overlay" class="rs-table-overlay{% if remote_instances %} hidden{% endif %}">
+        {% else %}
+        <div id="remote-instances-table-overlay" class="or-table-overlay">
             <div class="rs-table-overlay-content">
                 <div class="rs-table-overlay-title">You don't have any remote instances yet.</div>
                 <div class="rs-table-overlay-subtitle">
-                    Create one now by clicking on the Add Remote Instance button.
+                    Remote instances are any MongoDB instance on any cloud provider. Add your instance now to enable free backups.
                 </div>
             </div>
         </div>
+        {% endif %}
     {% endcall %}
     <!-- end remote instances section -->
 
@@ -424,25 +441,28 @@
             });
         });
         
-        $('#instances-table').DataTable({
-            paging: false,
-            searching: false,
-            info: false,
-            processing: false
-        });
-        $('#instances-table').on('order.dt', function(e, settings) {
-            $.each(settings.aoColumns, function(i, c) {
-                $(c.nTh).children('.rs-table-sort').removeClass('rs-table-sort-asc rs-table-sort-desc')
-                switch($(c.nTh).attr('class')) {
-                    case 'sorting_asc':
-                        $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-asc');
-                        break;
-                    case 'sorting_desc':
-                        $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-desc');
-                        break;
-                }
+        
+        if($('#instances-table').children('tbody tr').length) {
+            $('#instances-table').DataTable({
+                paging: false,
+                searching: false,
+                info: false,
+                processing: false
             });
-        });
+            $('#instances-table').on('order.dt', function(e, settings) {
+                $.each(settings.aoColumns, function(i, c) {
+                    $(c.nTh).children('.rs-table-sort').removeClass('rs-table-sort-asc rs-table-sort-desc')
+                    switch($(c.nTh).attr('class')) {
+                        case 'sorting_asc':
+                            $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-asc');
+                            break;
+                        case 'sorting_desc':
+                            $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-desc');
+                            break;
+                    }
+                });
+            });
+        }
 
         // Listener for requesting an instance compaction.
         $('a[data-popover="compact-instance-popover"]').each(function() {

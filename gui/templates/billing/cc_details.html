@@ -1,5 +1,5 @@
 {%- from 'canon/canon_detail_list.html' import detail_list with context %}
-{% set attr_map = {'type': 'Cart Type', 'exp': 'Expiration', 'last4': 'Card Number'} %}
+{% set attr_map = {'type': 'Card Type', 'exp': 'Expiration', 'last4': 'Card Number'} %}
 <div class="rs-detail-section">
     <div class="rs-detail-section-header">
         <div class="rs-detail-section-title">Credit Card</div>
@@ -18,6 +18,9 @@
 
                 <button type="button" id="set_cc_button" class="rs-btn rs-btn-primary cc_button">Set Credit Card</button>
                 <input type="hidden" name="stripe_token" id="stripe_token">
+                {% if redirect_to -%}
+                    <input type="hidden" name="returntarget" value="{{ redirect_to }}">
+                {% endif %}
             </form>
         {% endif %}
     </div>
