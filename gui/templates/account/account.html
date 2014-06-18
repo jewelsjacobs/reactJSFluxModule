@@ -63,27 +63,27 @@
             <ul class="rs-detail-list">
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Name</div>
-                    <div class="rs-detail-value">{{ account.name }}</div>
+                    <div class="rs-detail-value">{{ account.name or '<i>Not set</i>'|safe }}</div>
                 </li>
 
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Email</div>
-                    <div class="rs-detail-value">{{ account.email }}</div>
+                    <div class="rs-detail-value">{{ account.email or '<i>Not set</i>'|safe }}</div>
                 </li>
 
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Phone</div>
-                    <div class="rs-detail-value">{{ account.phone }}</div>
+                    <div class="rs-detail-value">{{ account.phone or '<i>Not set</i>'|safe }}</div>
                 </li>
 
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Company</div>
-                    <div class="rs-detail-value">{{ account.company }}</div>
+                    <div class="rs-detail-value">{{ account.company or '<i>Not set</i>'|safe }}</div>
                 </li>
 
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Zip Code</div>
-                    <div class="rs-detail-value">{{ account.zipcode }}</div>
+                    <div class="rs-detail-value">{{ account.zipcode or '<i>Not set</i>'|safe }}</div>
                 </li>
             </ul>
         </div>
