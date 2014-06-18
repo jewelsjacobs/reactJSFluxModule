@@ -102,31 +102,31 @@
                     <div class="rs-control-group">
                         <label class="rs-control-label">Name</label>
                         <div class="rs-controls">
-                            <input name="name" type="text" class="rs-input rs-input-medium">
+                            <input name="name" type="text" class="rs-input rs-input-medium" value="{{ account.name or '' }}">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Email</label>
                         <div class="rs-controls">
-                            <input name="email" type="text" class="rs-input rs-input-medium">
+                            <input name="email" type="text" class="rs-input rs-input-medium" value="{{ account.email or '' }}">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Phone</label>
                         <div class="rs-controls">
-                            <input name="phone" type="text" class="rs-input rs-input-medium">
+                            <input name="phone" type="text" class="rs-input rs-input-medium" value="{{ account.phone or '' }}">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Company</label>
                         <div class="rs-controls">
-                            <input name="company" type="text" class="rs-input rs-input-medium">
+                            <input name="company" type="text" class="rs-input rs-input-medium" value="{{ account.company or '' }}">
                         </div>
                     </div>
                     <div class="rs-control-group">
                         <label class="rs-control-label">Zip</label>
                         <div class="rs-controls">
-                            <input name="zipcode" type="text" class="rs-input rs-input-medium">
+                            <input name="zipcode" type="text" class="rs-input rs-input-medium" value="{{ account.zipcode or '' }}">
                         </div>
                     </div>
                 </form>
