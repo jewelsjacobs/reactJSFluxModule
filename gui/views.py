@@ -398,8 +398,9 @@ def account():
                            account=account,
                            email=account.email,
                            login=g.login,
+                           redirect_to=url_for('instances'),
                            show_cc_form=show_cc_form,
-                           stripe_pub_key=config.STRIPE_PUB_KEY,
+                           stripe_pub_key=config.STRIPE_PUB_KEY
                            )
 
 
