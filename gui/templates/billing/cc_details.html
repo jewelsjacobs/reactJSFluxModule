@@ -18,6 +18,9 @@
 
                 <button type="button" id="set_cc_button" class="rs-btn rs-btn-primary cc_button">Set Credit Card</button>
                 <input type="hidden" name="stripe_token" id="stripe_token">
+                {% if redirect_to -%}
+                    <input type="hidden" name="returntarget" value="{{ redirect_to }}">
+                {% endif %}
             </form>
         {% endif %}
     </div>
