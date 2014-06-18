@@ -392,7 +392,15 @@ def account():
     if account is None:
         return redirect(url_for('sign_in'))
 
-    return render_template('account/account.html', account=account, login=g.login)
+    show_cc_form = not (account.invoiced or account.stripe_account)
+
+    return render_template('account/account.html',
+                           account=account,
+                           email=account.email,
+                           login=g.login,
+                           show_cc_form=show_cc_form,
+                           stripe_pub_key=config.STRIPE_PUB_KEY,
+                           )
 
 
 @app.route('/update_account_contact', methods=['POST'])
@@ -404,8 +412,6 @@ def update_account_contact():
     name = request.form['name']
     phone = request.form['phone']
     zipcode = request.form['zipcode']
-
-    app.logger.debug(company+email+name+phone+zipcode)
 
     account_manager = AccountManager(config)
     account_manager.update_account_contact(g.login, company=company, email=email, name=name, phone=phone, zipcode=zipcode)
