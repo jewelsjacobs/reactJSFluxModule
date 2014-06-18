@@ -1117,3 +1117,15 @@ def test_remove_remote_instance(app_client):
         response = client.post(url_for('remove_remote_instance'), data=dict(remote_instance_name=remote_instance_name))
         assert response.status_code == 302
         assert url_for('instances') == urlparse(response.location).path
+
+
+def test_new_signup(app_client):
+    with app_client as client:
+        response = client.get(url_for('sign_up'))
+        assert response.status_code == 200
+
+        response = client.post(url_for('sign_up'),
+                               data={'email': 'test7@test.com', 'password': 'password', 'confirmPassword': 'password'})
+        print response.data
+        assert response.status_code == 302
+        assert response.location.split('http://localhost')[1] == url_for('instances')
