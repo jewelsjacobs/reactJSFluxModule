@@ -459,6 +459,7 @@ def instances():
                            add_instance_enabled=bool(account.stripe_account or account.invoiced),
                            api_keys=account.instance_api_keys,
                            default_mongo_version=config.DEFAULT_MONGO_VERSION,
+                           email=account.email,
                            instances=instances,
                            login=g.login,
                            remote_instances=remote_instances,
