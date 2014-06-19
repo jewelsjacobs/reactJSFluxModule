@@ -158,18 +158,20 @@
                 </thead>
                 <tbody id="backups-table-body">
                 {% for backup in backups %}
-                <td>
-                    <span class="rs-icon-help" data-delay="0.1"
-                          data-title="If you need a backup restored, please
-                          <a href=&quot;https://objectrocket.zendesk.com/home&quot;>contact support</a>.">
-                    </span>
-                </td>
-                <td>
-                    {{ backup.timestamp }}
-                </td>
-                <td>
-                    {{ backup.error_msg }}
-                </td>
+                    <tr>
+                        <td>
+                            <span class="rs-icon-help" data-delay="0.1"
+                                  data-title="If you need a backup restored, please
+                                  <a href=&quot;https://objectrocket.zendesk.com/home&quot;>contact support</a>.">
+                            </span>
+                        </td>
+                        <td>
+                            {{ backup.timestamp }}
+                        </td>
+                        <td>
+                            {{ backup.error_msg }}
+                        </td>
+                    </tr>
                 {% endfor %}
                 </tbody>
             </table>
