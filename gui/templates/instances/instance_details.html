@@ -721,10 +721,7 @@
                 // Map each backup onto this function.
                 backupData.map(function(backupObject) {
                     var status_message = backupObject['error_msg'];
-                    var filename = backupObject['filename'];
                     var formattedTimestamp = backupObject['timestamp_formatted'];
-                    var id = backupObject['_id']['$oid'];
-                    var port = backupObject['port'];
                     var timestamp = backupObject['timestamp'];
 
                     var $tooltip = $('<span>');
