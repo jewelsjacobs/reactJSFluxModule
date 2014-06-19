@@ -146,6 +146,49 @@
     {% endcall %}
     {% endif %}
 
+    {% call detail_section(title='Backups', collapsible=True, id='backups_section') %}
+        <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="backups-table-body">
+                {% for backup in backups %}
+                    <tr>
+                        <td>
+                            <span class="rs-icon-help" data-delay="0.1"
+                                  data-title="If you need a backup restored, please
+                                  <a href=&quot;https://objectrocket.zendesk.com/home&quot;>contact support</a>.">
+                            </span>
+                        </td>
+                        <td>
+                            {{ backup.timestamp }}
+                        </td>
+                        <td>
+                            {{ backup.error_msg }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% if not backups %}
+            <div id="backups-table-overlay" class="rs-table-overlay">
+                <div class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-title">You don't have any backups yet.</div>
+                    <div class="rs-table-overlay-subtitle">Backups will be created for you automatically.</div>
+                    <div class="rs-table-overlay-message">Backups are created per your backup plan.
+                        If you would like an upgraded plan, or need a backup restored, please
+                        <a href="https://objectrocket.zendesk.com/home">contact support</a>.
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    {% endcall %}
 {% endblock %}
 
 {% block popovers %}
