@@ -2361,12 +2361,10 @@ def remote_instance_details(selected_instance):
     remote_instance_manager = RemoteInstanceManager(config)
     remote_instance = remote_instance_manager.get_remote_instance({Constants.LOGIN: g.login,
                                                                    Constants.NAME: selected_instance})
-
     if not remote_instance:
         abort(404)
-
-    return render_template('remote/remote_instance_details.html',
-                           remote_instance=remote_instance)
+    backups = remote_instance_manager.get_backup_history(g.login, selected_instance)
+    return render_template('remote/remote_instance_details.html', backups=backups, remote_instance=remote_instance)
 
 
 @app.route('/remote/instance/rename', methods=['POST'])
