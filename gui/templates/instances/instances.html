@@ -113,7 +113,11 @@
         <div id="instances-table-overlay" class="or-table-overlay">
             <div class="rs-table-overlay-content">
                 <div class="rs-table-overlay-title">Welcome to ObjectRocket!</div>
-                <div class="rs-table-overlay-subtitle">In order to add instances, please complete <a href="{{ url_for('account') }}">your profile and add a credit card</a>.</div>
+                <form id="set_cc_form" name="set_cc_form" method="POST" action="{{ url_for('set_credit_card') }}" windowTitle="Set Credit Card" windowLabel="Set Card">
+                    <div class="rs-table-overlay-subtitle">In order to add instances, please <a href="#" class="cc_button">add a credit card to your account</a>.</div>
+                    <input type="hidden" name="stripe_token" id="stripe_token">
+                    <input type="hidden" name="returntarget" value="{{ url_for('instances') }}">
+                </form>
             </div>
         </div>
         {% else %}
@@ -386,6 +390,8 @@
 
 {% block script %}
     {{ super() }}
+    {% include 'stripe_js.html' %}
+
     <script type="text/javascript">
     $(document).ready(function() {
         // Listener for renaming instances.

@@ -88,9 +88,6 @@
             </ul>
         </div>
     </div>
-    {% if show_cc_form %}
-        {% include 'billing/cc_details.html' %}
-    {% endif %}
 {% endblock content_area_body %}
 
 {% block popovers %}
@@ -167,9 +164,6 @@
 
 {% block script %}
     {{ super() }}
-    {% if show_cc_form %}
-        {% include 'stripe_js.html' %}
-    {% endif %}
     <script type="text/javascript">
     $(document).ready(function() {
 
