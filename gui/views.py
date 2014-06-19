@@ -394,16 +394,10 @@ def account():
     if account is None:
         return redirect(url_for('sign_in'))
 
-    show_cc_form = not (account.invoiced or account.stripe_account)
-
     return render_template('account/account.html',
                            account=account,
                            email=account.email,
-                           login=g.login,
-                           redirect_to=url_for('instances'),
-                           show_cc_form=show_cc_form,
-                           stripe_pub_key=config.STRIPE_PUB_KEY
-                           )
+                           login=g.login)
 
 
 @app.route('/update_account_contact', methods=['POST'])
