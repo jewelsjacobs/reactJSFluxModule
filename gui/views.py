@@ -372,7 +372,6 @@ def api_serverstatus(selected_instance):
 # ----------------------------------------------------------------------------
 @app.route('/')
 @viper_auth
-@billing_enabled
 def root():
     """Root url."""
     return redirect(url_for('sign_in'))
@@ -1341,132 +1340,23 @@ def sign_up():
 
 @app.route('/sign_up1', methods=['GET', 'POST'])
 def sign_up1():
-    """Sign up and create a user account."""
-
-    if request.method == 'POST':
-        # Request came from the pricing page.
-        if 'pricing_plan' in request.form:
-            return render_template('sign_up1.html',
-                                   pricing_plan=request.form['pricing_plan'])
-        else:
-            account_manager = AccountManager(config)
-            if not account_manager.get_account(request.form['login']):
-                account_manager.create_account(request.form['login'],
-                                               request.form['password'],
-                                               request.form['email'],
-                                               request.form['name'],
-                                               request.form['company'],
-                                               request.form['phone'],
-                                               request.form['zipcode'])
-
-                annunciator = Annunciator(config)
-
-                annunciator.create_alarm(Constants.ACCOUNT_SIGNUP,
-                                         request.form['login'],
-                                         Alarm.INFO,
-                                         request.form['login'],
-                                         notify_once=True,
-                                         supplemental_data=request.form['name'])
-
-                login = request.form.get('login', None)
-                if login:
-                    session['login'] = login
-                    if 'requested_plan' in request.form:
-                        session['requested_plan'] = request.form['requested_plan']
-
-                return redirect(url_for('sign_up2'))
-
-            else:
-                ## user already exists
-                return render_template('sign_up/sign_up1.html', error="user_exists")
-
-    else:
-        return render_template('sign_up/sign_up1.html')
+    """Deprecated route to sign up and create a user account."""
+    return redirect(url_for('sign_up'))
 
 
 @app.route('/sign_up2', methods=['GET', 'POST'])
-@viper_auth
 def sign_up2():
-    account_manager = AccountManager(config)
-    account_id = account_manager.get_account(g.login).id
-    return render_template('sign_up/sign_up2.html',
-                           account_id=account_id,
-                           default_mongo_version=config.DEFAULT_MONGO_VERSION,
-                           login=g.login)
+    return redirect(url_for('sign_up'))
 
 
 @app.route('/sign_up3', methods=['GET', 'POST'])
-@viper_auth
 def sign_up3():
-    if 'plan' in request.form and 'name' in request.form and 'zone' in request.form:
-        account_manager = AccountManager(config)
-        return render_template('sign_up/sign_up3.html',
-                               login=g.login,
-                               email=account_manager.get_account(g.login).email,
-                               name=request.form['name'],
-                               plan=request.form['plan'],
-                               service_type=request.form['service_type'],
-                               stripe_pub_key=config.STRIPE_PUB_KEY,
-                               version=request.form['version'],
-                               zone=request.form['zone'])
-    else:
-        return redirect(url_for('sign_up2'))
+    return redirect(url_for('sign_up'))
 
 
-# @app.route('/sign_up_finish', methods=['POST'])
-@app.route('/sign_up_finish', methods=['GET', 'POST'])  # FIXME: Killl this line.
-@viper_auth
+@app.route('/sign_up_finish', methods=['GET', 'POST'])
 def sign_up_finish():
-    """Final stage of sign up process."""
-    name = request.form['name']
-    plan = request.form['plan']
-    service_type = request.form['service_type']
-    version = request.form['version']
-    zone = request.form['zone']
-
-    annunciator = Annunciator(config)
-    instance_manager = InstanceManager(config)
-    billing_manager = BillingManager(config)
-
-    # Choose shard or replica set instance based on plan size.
-    if service_type == Constants.MONGODB_SERVICE:
-        if int(plan) == 1:
-            instance_type = Constants.MONGODB_REPLICA_SET_INSTANCE
-        else:
-            instance_type = Constants.MONGODB_SHARDED_INSTANCE
-
-    free_instance_count = instance_manager.free_instance_count(plan, zone, version, service_type, instance_type)
-
-    if not free_instance_count:
-        annunciator.create_alarm(Constants.INSTANCE_UNAVAILABLE_EVENT,
-                                 zone,
-                                 Alarm.WARN,
-                                 g.login,
-                                 notify_once=True,
-                                 cc_support=True,
-                                 support_only=True,
-                                 supplemental_data={'name': name, 'plan': plan})
-
-    try:
-        billing_manager.set_credit_card(g.login, request.form['stripe_token'])
-    except stripe.CardError:
-        app.logger.info("Credit card declined during signup for user {}".format(g.login))
-        flash('There was a problem adding your credit card. Please try again.', canon_constants.STATUS_ERROR)
-        return render_template('sign_up/sign_up3.html',
-                               name=name,
-                               plan=plan,
-                               zone=zone,
-                               version=version,
-                               service_type=service_type)
-
-    return render_template('sign_up/sign_up_finish.html',
-                           free_instance_count=free_instance_count,
-                           login=g.login,
-                           name=name,
-                           plan=plan,
-                           service_type=service_type,
-                           version=version,
-                           zone=zone)
+    return redirect(url_for('sign_up'))
 
 
 @app.route('/msa')
