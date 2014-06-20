@@ -372,7 +372,6 @@ def api_serverstatus(selected_instance):
 # ----------------------------------------------------------------------------
 @app.route('/')
 @viper_auth
-@billing_enabled
 def root():
     """Root url."""
     return redirect(url_for('sign_in'))
@@ -1351,20 +1350,16 @@ def sign_up1():
 
 
 @app.route('/sign_up2', methods=['GET', 'POST'])
-@viper_auth
 def sign_up2():
     return redirect(url_for('sign_up'))
 
 
 @app.route('/sign_up3', methods=['GET', 'POST'])
-@viper_auth
 def sign_up3():
     return redirect(url_for('sign_up'))
 
 
-# @app.route('/sign_up_finish', methods=['POST'])
-@app.route('/sign_up_finish', methods=['GET', 'POST'])  # FIXME: Killl this line.
-@viper_auth
+@app.route('/sign_up_finish', methods=['GET', 'POST'])
 def sign_up_finish():
     return redirect(url_for('sign_up'))
 
