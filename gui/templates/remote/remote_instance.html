@@ -1,17 +1,17 @@
 {% extends "web_app_base.html" %}
 
-{#{% block sidebar %}#}
-{#    {% call sidebar_help(hidden=False) %}#}
-{#        <h3>Object Rocket Addresses</h3>#}
-{#        <p>To ensure connectivity to your remote instance please make sure the following IP addresses are white listed#}
-{#        on your firewall.</p>#}
-{#        <ul>#}
-{#        {% for network in reserved_networks %}#}
-{#            <li>{{ network }}</li>#}
-{#        {% endfor %}#}
-{#        </ul>#}
-{#    {% endcall %}#}
-{#{% endblock sidebar %}#}
+{% block sidebar %}
+    {% call sidebar_help(hidden=False) %}
+        <h3>Object Rocket Addresses</h3>
+        <p>To ensure connectivity to your remote instance please make sure the following IP addresses are white listed
+        on your firewall.</p>
+        <ul>
+        {% for network in reserved_networks %}
+            <li>{{ network }}</li>
+        {% endfor %}
+        </ul>
+    {% endcall %}
+{% endblock sidebar %}
 
 {% block content_area_body %}
     {% call detail_header(page_title="Add Remote Instance") %}{% endcall %}
