@@ -1311,7 +1311,7 @@ def sign_up():
     """The smallest signup form"""
     if request.method == 'POST':
         account_manager = AccountManager(config)
-        
+
         # TODO: Put a unique constraint on user names to fix
         #       this race condition
 
@@ -2163,30 +2163,44 @@ def remote_instance():
 @viper_auth
 def add_remote_instance():
     instance_name = request.form['instance_name']
-    hostname = request.form['host']
-    port = int(request.form['port'])
+    host_list = request.form['host']
     admin_username = request.form.get('admin_username')
     admin_password = request.form.get('admin_password')
 
-    ssl = False
-    if 'ssl' in request.form:
-        ssl = True
+    hosts = host_list.split(',')
 
-    valid_host = False
+    ssl = 'ssl' in request.form
+
+    # Verify no host is in the blacklist.
+    for hoststring in [host.split(':')[0] for host in hosts]:
+        valid_host = False
+        try:
+            host = Host(hoststring)
+            reserved_networks = Utility.get_reserved_networks(config)
+            if host.is_routable() and not host.in_cidr_list(reserved_networks):
+                valid_host = True
+        except InvalidHost:
+                pass
+        finally:
+            if not valid_host:
+                flash("Invalid host {}.".format(hoststring), canon_constants.STATUS_ERROR)
+                return redirect(url_for('remote_instance'))
+
+    # Ensure given info is sufficient for proper connectivity.
     try:
-        host = Host(hostname)
-        reserved_networks = Utility.get_reserved_networks(config)
-        if host.is_routable() and not host.in_cidr_list(reserved_networks):
-            valid_host = True
-    except InvalidHost:
+        client = ClientWrapper(hosts, ssl=ssl)
+
+        if client.is_sharded:
             pass
-    finally:
-        if not valid_host:
-            flash("Invalid hostname or IP.", canon_constants.STATUS_ERROR)
+        elif client.is_standalone:
+            pass
+        elif client.is_replicated and client.is_primary:
+            # The ``is_primary`` check will be True as long as one of the hosts given is a primary.
+            pass
+        else:
+            flash("Unable to establish connection to remote instance primary.", canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
 
-    try:
-        client = ClientWrapper(hostname, port, ssl=ssl)
     except SslConnectionFailure:
         flash("Unable to establish SSL connection to remote instance.", canon_constants.STATUS_ERROR)
         return redirect(url_for('remote_instance'))
@@ -2215,7 +2229,7 @@ def add_remote_instance():
             flash("Unable to add objectrocket user to remote instance.", canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
 
-    connection_info = client.connection_info
+    connection_info = {'host': hosts, 'ssl': ssl}
     feature_info = client.feature_info
     server_info = client.server_info()
 

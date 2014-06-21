@@ -3,6 +3,7 @@
     <table class="rs-list-table rs-embedded-list-table">
     <thead>
         <tr>
+            <th>Name</th>
             <th>Role</th>
             <th>Health</th>
             <th>Delay</th>
@@ -25,6 +26,7 @@
                 {% endif %}
             {% endif %}
             <tr>
+                <td>{{ member.name }}</td>
                 <td>{{ member.stateStr }}</td>
                 <td>{% if member.health == 1 %}HEALTHY{% else %}FAULT{% endif %}</td>
                 <td>{{ delay }}</td>
