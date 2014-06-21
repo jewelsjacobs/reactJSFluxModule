@@ -2192,7 +2192,6 @@ def add_remote_instance():
                 flash("Invalid host {}.".format(hoststring), canon_constants.STATUS_ERROR)
                 return redirect(url_for('remote_instance'))
 
-
     primary_host = None
     replset = False
 
