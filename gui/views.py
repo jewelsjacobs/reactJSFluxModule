@@ -1311,7 +1311,7 @@ def sign_up():
     """The smallest signup form"""
     if request.method == 'POST':
         account_manager = AccountManager(config)
-        
+
         # TODO: Put a unique constraint on user names to fix
         #       this race condition
 
@@ -2164,35 +2164,55 @@ def remote_instance():
 def add_remote_instance():
     instance_name = request.form['instance_name']
     hostname = request.form['host']
-    port = int(request.form['port'])
+    #port = int(request.form['port'])
     admin_username = request.form.get('admin_username')
     admin_password = request.form.get('admin_password')
+
+    if ',' in host:
+        hosts = host.split(',')
+    else:
+        hosts = [host]
 
     ssl = False
     if 'ssl' in request.form:
         ssl = True
 
-    valid_host = False
-    try:
-        host = Host(hostname)
-        reserved_networks = Utility.get_reserved_networks(config)
-        if host.is_routable() and not host.in_cidr_list(reserved_networks):
-            valid_host = True
-    except InvalidHost:
-            pass
-    finally:
-        if not valid_host:
-            flash("Invalid hostname or IP.", canon_constants.STATUS_ERROR)
-            return redirect(url_for('remote_instance'))
+    # verify no host is in the disallowed list
+    for hoststring in hosts:
+        valid_host = False
+        try:
+            host = Host(hostname)
+            reserved_networks = Utility.get_reserved_networks(config)
+            if host.is_routable() and not host.in_cidr_list(reserved_networks):
+                valid_host = True
+        except InvalidHost:
+                pass
+        finally:
+            if not valid_host:
+                flash("Invalid host {}.".format(hoststring), canon_constants.STATUS_ERROR)
+                return redirect(url_for('remote_instance'))
 
-    try:
-        client = ClientWrapper(hostname, port, ssl=ssl)
-    except SslConnectionFailure:
-        flash("Unable to establish SSL connection to remote instance.", canon_constants.STATUS_ERROR)
-        return redirect(url_for('remote_instance'))
-    except ConnectionFailure:
-        flash("Unable to establish connection to remote instance.", canon_constants.STATUS_ERROR)
-        return redirect(url_for('remote_instance'))
+
+    primary_host = None
+
+    # find the 'primary' host
+    for hoststring in hosts:
+        try:
+            client = ClientWrapper(hoststring, ssl=ssl)
+
+            if client.is_mongos:
+                primary_host = hoststring
+                break
+            else:
+                if client.is_primary:
+                    primary_host = hoststring
+
+        except SslConnectionFailure:
+            flash("Unable to establish SSL connection to remote instance.", canon_constants.STATUS_ERROR)
+            return redirect(url_for('remote_instance'))
+        except ConnectionFailure:
+            flash("Unable to establish connection to remote instance.", canon_constants.STATUS_ERROR)
+            return redirect(url_for('remote_instance'))
 
     auth_info = {}
     if admin_username and admin_password:
@@ -2215,6 +2235,7 @@ def add_remote_instance():
             flash("Unable to add objectrocket user to remote instance.", canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
 
+    client = ClientWrapper(primary_host, ssl=ssl)
     connection_info = client.connection_info
     feature_info = client.feature_info
     server_info = client.server_info()
