@@ -2163,15 +2163,15 @@ def remote_instance():
 @viper_auth
 def add_remote_instance():
     instance_name = request.form['instance_name']
-    hostname = request.form['host']
+    host_list = request.form['host']
     #port = int(request.form['port'])
     admin_username = request.form.get('admin_username')
     admin_password = request.form.get('admin_password')
 
-    if ',' in host:
-        hosts = host.split(',')
+    if ',' in host_list:
+        hosts = host_list.split(',')
     else:
-        hosts = [host]
+        hosts = [host_list]
 
     ssl = False
     if 'ssl' in request.form:
@@ -2181,7 +2181,7 @@ def add_remote_instance():
     for hoststring in hosts:
         valid_host = False
         try:
-            host = Host(hostname)
+            host = Host(hoststring)
             reserved_networks = Utility.get_reserved_networks(config)
             if host.is_routable() and not host.in_cidr_list(reserved_networks):
                 valid_host = True
@@ -2194,6 +2194,7 @@ def add_remote_instance():
 
 
     primary_host = None
+    replset = False
 
     # find the 'primary' host
     for hoststring in hosts:
@@ -2248,7 +2249,7 @@ def add_remote_instance():
     account_manager = AccountManager(config)
     account = account_manager.get_account(g.login)
 
-    account.add_remote_instance(instance_name, connection_info, auth_info, feature_info, server_info)
+    account.add_remote_instance(instance_name, host_list, auth_info, feature_info, server_info)
 
     flash("Remote instance successfully added.", canon_constants.STATUS_OK)
     return redirect(url_for('instances'))
