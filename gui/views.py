@@ -2214,6 +2214,12 @@ def add_remote_instance():
             flash("Unable to establish connection to remote instance.", canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
 
+    if not primary_host:
+        flash("Unable to establish connection to remote instance primary.", canon_constants.STATUS_ERROR)
+        return redirect(url_for('remote_instance'))
+
+    client = ClientWrapper(primary_host, ssl=ssl)
+
     auth_info = {}
     if admin_username and admin_password:
         try:
@@ -2235,7 +2241,6 @@ def add_remote_instance():
             flash("Unable to add objectrocket user to remote instance.", canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
 
-    client = ClientWrapper(primary_host, ssl=ssl)
     connection_info = client.connection_info
     feature_info = client.feature_info
     server_info = client.server_info()
