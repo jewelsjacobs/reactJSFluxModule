@@ -2164,21 +2164,15 @@ def remote_instance():
 def add_remote_instance():
     instance_name = request.form['instance_name']
     host_list = request.form['host']
-    #port = int(request.form['port'])
     admin_username = request.form.get('admin_username')
     admin_password = request.form.get('admin_password')
 
-    if ',' in host_list:
-        hosts = host_list.split(',')
-    else:
-        hosts = [host_list]
+    hosts = host_list.split(',')
 
-    ssl = False
-    if 'ssl' in request.form:
-        ssl = True
+    ssl = 'ssl' in request.form
 
-    # verify no host is in the disallowed list
-    for hoststring in hosts:
+    # Verify no host is in the blacklist.
+    for hoststring in [host.split(':')[0] for host in hosts]:
         valid_host = False
         try:
             host = Host(hoststring)
@@ -2192,33 +2186,27 @@ def add_remote_instance():
                 flash("Invalid host {}.".format(hoststring), canon_constants.STATUS_ERROR)
                 return redirect(url_for('remote_instance'))
 
-    primary_host = None
-    replset = False
+    # Ensure given info is sufficient for proper connectivity.
+    try:
+        client = ClientWrapper(hosts, ssl=ssl)
 
-    # find the 'primary' host
-    for hoststring in hosts:
-        try:
-            client = ClientWrapper(hoststring, ssl=ssl)
-
-            if client.is_mongos:
-                primary_host = hoststring
-                break
-            else:
-                if client.is_primary:
-                    primary_host = hoststring
-
-        except SslConnectionFailure:
-            flash("Unable to establish SSL connection to remote instance.", canon_constants.STATUS_ERROR)
-            return redirect(url_for('remote_instance'))
-        except ConnectionFailure:
-            flash("Unable to establish connection to remote instance.", canon_constants.STATUS_ERROR)
+        if client.is_sharded:
+            pass
+        elif client.is_standalone:
+            pass
+        elif client.is_replicated and client.is_primary:
+            # The ``is_primary`` check will be True as long as one of the hosts given is a primary.
+            pass
+        else:
+            flash("Unable to establish connection to remote instance primary.", canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
 
-    if not primary_host:
-        flash("Unable to establish connection to remote instance primary.", canon_constants.STATUS_ERROR)
+    except SslConnectionFailure:
+        flash("Unable to establish SSL connection to remote instance.", canon_constants.STATUS_ERROR)
         return redirect(url_for('remote_instance'))
-
-    client = ClientWrapper(primary_host, ssl=ssl)
+    except ConnectionFailure:
+        flash("Unable to establish connection to remote instance.", canon_constants.STATUS_ERROR)
+        return redirect(url_for('remote_instance'))
 
     auth_info = {}
     if admin_username and admin_password:
@@ -2241,14 +2229,14 @@ def add_remote_instance():
             flash("Unable to add objectrocket user to remote instance.", canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
 
-    connection_info = client.connection_info
+    connection_info = {'host': hosts, 'ssl': ssl}
     feature_info = client.feature_info
     server_info = client.server_info()
 
     account_manager = AccountManager(config)
     account = account_manager.get_account(g.login)
 
-    account.add_remote_instance(instance_name, host_list, auth_info, feature_info, server_info)
+    account.add_remote_instance(instance_name, connection_info, auth_info, feature_info, server_info)
 
     flash("Remote instance successfully added.", canon_constants.STATUS_OK)
     return redirect(url_for('instances'))
