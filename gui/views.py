@@ -2190,17 +2190,6 @@ def add_remote_instance():
     try:
         client = ClientWrapper(hosts, ssl=ssl)
 
-        if client.is_sharded:
-            pass
-        elif client.is_standalone:
-            pass
-        elif client.is_replicated and client.is_primary:
-            # The ``is_primary`` check will be True as long as one of the hosts given is a primary.
-            pass
-        else:
-            flash("Unable to establish connection to remote instance primary.", canon_constants.STATUS_ERROR)
-            return redirect(url_for('remote_instance'))
-
     except SslConnectionFailure:
         flash("Unable to establish SSL connection to remote instance.", canon_constants.STATUS_ERROR)
         return redirect(url_for('remote_instance'))
@@ -2208,6 +2197,7 @@ def add_remote_instance():
         flash("Unable to establish connection to remote instance.", canon_constants.STATUS_ERROR)
         return redirect(url_for('remote_instance'))
 
+    # Authenticate if necessary.
     auth_info = {}
     if admin_username and admin_password:
         try:
@@ -2228,6 +2218,11 @@ def add_remote_instance():
         except OperationFailure:
             flash("Unable to add objectrocket user to remote instance.", canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
+
+    # Ensure that we have access to the primary when dealing with a replicated instance.
+    if client.is_replicated and not client.is_primary:
+        flash("Unable to establish connection to remote instance primary.", canon_constants.STATUS_ERROR)
+        return redirect(url_for('remote_instance'))
 
     connection_info = {'host': hosts, 'ssl': ssl}
     feature_info = client.feature_info
