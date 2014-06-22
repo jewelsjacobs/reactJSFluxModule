@@ -2211,10 +2211,10 @@ def add_remote_instance():
             import random
             import string
             plain_text_password = ''.join([random.choice(string.ascii_letters) for i in range(64)])
-            encrypted_password = Utility.encrypt(config, plain_text_password)
+            # encrypted_password = Utility.encrypt(config, plain_text_password)
             auth_info = {'admin': {'name': 'objectrocket', 'password': plain_text_password}}
             client.add_admin_user(**auth_info['admin'])
-            auth_info['admin']['password'] = encrypted_password
+            # auth_info['admin']['password'] = encrypted_password
         except OperationFailure:
             flash("Unable to add objectrocket user to remote instance.", canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
