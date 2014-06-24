@@ -67,7 +67,7 @@
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Connect String</div>
                 <div class="rs-detail-value">
-                    {{ remote_instance.client.host }}:{{ remote_instance.client.port }}
+                    {{ remote_instance.connection_string }}
                 </div>
             </li>
             {% include 'remote/space_usage.html' %}

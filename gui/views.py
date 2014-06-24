@@ -2163,11 +2163,11 @@ def remote_instance():
 @viper_auth
 def add_remote_instance():
     instance_name = request.form['instance_name']
-    host_list = request.form['host']
+    connection_string = request.form['connection_string']
     admin_username = request.form.get('admin_username')
     admin_password = request.form.get('admin_password')
 
-    hosts = host_list.split(',')
+    hosts = connection_string.split(',')
 
     ssl = 'ssl' in request.form
 
@@ -2206,25 +2206,31 @@ def add_remote_instance():
         except OperationFailure:
             flash("Unable to authenticate with remote instance.", canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
+
+        try:
+            if client.is_replicated and not client.is_primary:
+                flash("Unable to establish connection to remote instance primary.", canon_constants.STATUS_ERROR)
+                return redirect(url_for('remote_instance'))
+        except OperationFailure:
+            flash("Unable to determine instance state. Please check user privileges.", canon_constants.STATUS_ERROR)
+            return redirect(url_for('remote_instance'))
+
         try:
             # TODO: Refactor
             import random
             import string
+            username = 'objectrocket_{}'.format(''.join([random.choice(string.ascii_letters) for i in range(12)]))
             plain_text_password = ''.join([random.choice(string.ascii_letters) for i in range(64)])
-            # encrypted_password = Utility.encrypt(config, plain_text_password)  # FIXME
-            auth_info = {'admin': {'name': 'objectrocket', 'password': plain_text_password}}
+            encrypted_password = Utility.encrypt(config, plain_text_password)
+            auth_info = {'admin': {'name': username, 'password': plain_text_password}}
             client.add_admin_user(**auth_info['admin'])
-            # auth_info['admin']['password'] = encrypted_password  # FIXME
+            auth_info['admin']['password'] = encrypted_password
         except OperationFailure:
-            flash("Unable to add objectrocket user to remote instance.", canon_constants.STATUS_ERROR)
+            flash("Unable to add objectrocket user to remote instance. Please check user privileges.",
+                  canon_constants.STATUS_ERROR)
             return redirect(url_for('remote_instance'))
 
-    # Ensure that we have access to the primary when dealing with a replicated instance.
-    if client.is_replicated and not client.is_primary:
-        flash("Unable to establish connection to remote instance primary.", canon_constants.STATUS_ERROR)
-        return redirect(url_for('remote_instance'))
-
-    connection_info = {'host': hosts, 'ssl': ssl}
+    connection_info = {'host': connection_string, 'ssl': ssl}
     feature_info = client.feature_info
     server_info = client.server_info()
 
@@ -2309,7 +2315,8 @@ def add_remote_database_user():
     remote_instance_manager = RemoteInstanceManager(config)
     remote_instance = remote_instance_manager.get_remote_instance({'login': g.login, 'name': instance_name})
     database = remote_instance.client.get_database(database_name)
-    database.add_user(username, password=password)
+    database.add_user(username, password=password, roles=["readWrite"])
+    database.collection_names()
     flash('User added successfully.', canon_constants.STATUS_OK)
     return redirect(url_for('remote_instance_details', selected_instance=instance_name))
 

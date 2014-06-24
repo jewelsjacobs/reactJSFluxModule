@@ -28,11 +28,16 @@
                 </div>
 
                 <div class="rs-control-group">
-                    <label class="rs-control-label" for="host">Host list</label>
+                    <label class="rs-control-label" for="connection_string">Connection String</label>
 
                     <div class="rs-controls">
-                        <input type="text" name="host" class="rs-input-xlarge" id="host">
-                        <span class="rs-help-block">Enter a fully qualified hostname, IP address, or list of hosts in a replica set separated by commas (e.g. 'host1:27017,host2:27017,host3:27017'). All hosts specified must be publicly accessible.</span>
+                        <input type="text" name="connection_string" class="rs-input-xlarge" id="connection_string">
+                        <span class="rs-help-block">Fully qualified hostname or IP address and port.<br>
+                            Standalone example: <pre>host01.domain.tld</pre>
+                            Sharded example: <pre>host01.domain.tld:27019</pre>
+                            Replicated example:
+                            <pre>host01.domain.tldr:27017,host02.domain.tld:27017,host03.domain.tldr:27017</pre>
+                        </span>
                     </div>
                 </div>
 
@@ -42,8 +47,8 @@
                     <div class="rs-controls">
                         <input class="rs-input-xlarge" type="text" name="admin_username" id="admin_username">
                         <span class="rs-help-block">
-                            Username with administrative privileges.
-                            Requires userAdmin privileges on the admin database.
+                            Username with administrative privileges.<br>
+                            Requires roles userAdminAnyDatabase and readWriteAnyDatabase.
                         </span>
                     </div>
                 </div>
