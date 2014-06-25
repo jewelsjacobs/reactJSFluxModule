@@ -56,8 +56,8 @@
                     <label class="rs-control-label" for="ec2_access_key">Access Key ID</label>
                     <div class="rs-controls">
                         {% if obfuscated_ec2_access_key %}
-                            <input type="text" name="ec2_access_key" class="rs-input-xlarge" readonly
-                                    placeholder="{{ obfuscated_ec2_access_key }}">
+                            <input type="text" name="ec2_access_key" class="rs-input-xlarge" disabled
+                                   value="{{ obfuscated_ec2_access_key }}">
                         {% else %}
                             <input type="text" name="ec2_access_key" class="rs-input-xlarge" id="ec2_access_key">
                         {% endif %}
@@ -70,8 +70,8 @@
 
                     <div class="rs-controls">
                         {% if obfuscated_ec2_secret_key %}
-                            <input type="text" name="ec2_secret_key" class="rs-input-xlarge" readonly
-                                    placeholder="{{ obfuscated_ec2_secret_key }}">
+                            <input type="text" name="ec2_secret_key" class="rs-input-xlarge" disabled
+                                   value="{{ obfuscated_ec2_secret_key }}">
                         {% else %}
                             <input class="rs-input-xlarge" type="text" name="ec2_secret_key" id="ec2_secret_key">
                         {% endif %}
