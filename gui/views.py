@@ -1730,6 +1730,19 @@ def admin_billing():
     return render_template('admin/billing.html')
 
 
+@app.route('/admin/error_logs')
+@viper_auth
+@viper_isadmin
+def admin_error_logs():
+    error_id = request.args.get('error_id')
+    error = None
+    if error_id is not None:
+        audit_connection = Utility.get_audit_db_connection(config)
+        log_collection = audit_connection[Constants.LOGS_COLLECTION]
+        error = log_collection.find_one({'info.error_id': error_id})
+    return render_template('admin/error_log.html', error=error, error_id=error_id)
+
+
 @app.route('/admin/status_management')
 @viper_auth
 @viper_isadmin

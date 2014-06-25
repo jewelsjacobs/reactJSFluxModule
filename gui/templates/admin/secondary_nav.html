@@ -4,6 +4,9 @@
 <li class="rs-nav-item {% if url_for('admin_customer_reports').endswith(request.path) %} active {% endif %}">
     <a class="rs-nav-link" href="{{ url_for('admin_customer_reports') }}">Customer Reports</a>
 </li>
+<li class="rs-nav-item {% if url_for('admin_error_logs').endswith(request.path) %} active {% endif %}">
+	<a class="rs-nav-link" href="{{ url_for('admin_error_logs') }}">Error Log Search</a>
+</li>
 <li class="rs-nav-item {% if url_for('admin_instance_management').endswith(request.path) %} active {% endif %}">
     <a class="rs-nav-link" href="{{ url_for('admin_instance_management') }}">Instance Management</a>
 </li>
