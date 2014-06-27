@@ -33,6 +33,7 @@ from viper.aws import AWSManager
 from viper.billing import BillingManager, BillingException
 from viper.constants import Constants
 from viper.instance import InstanceManager
+from viper.keypair import KeypairManager
 from viper.messages import MessageManager
 from viper.mongo_instance import MongoDBInstanceException
 from viper.notifier import Notifier
@@ -69,11 +70,15 @@ def viper_auth(func):
 
     Set session info to g.session, and redirect the user to the log in page
     if they aren't already signed in.
+
+    This decorator will bind the session login to ``g.login`` as well as the account's admin
+    keypair to ``g.keypair``.
     """
     @wraps(func)
     def internal(*args, **kwargs):
         if 'login' in session:
             g.login = session['login']
+            g.keypair = KeypairManager(config).get_account_admin_keypair(g.login)
             return func(*args, **kwargs)
         else:
             return redirect(url_for('sign_in'))
