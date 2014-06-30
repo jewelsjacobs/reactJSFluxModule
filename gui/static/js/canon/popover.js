@@ -49,11 +49,7 @@ var positionPopover = function(source) {
 	popover.css("top",top+"px").css("left", left+"px");
 };
 
-$(document).ready(function () {
-	$('.rs-popover .rs-btn-group .rs-btn-link').click(function() {
-		hidePopover();
-	});
-
+var positionAllPopovers = function() {
 	$('.rs-popover-source').each(function() {
 		var popoverSource = $(this);
 		positionPopover(popoverSource);
@@ -65,4 +61,12 @@ $(document).ready(function () {
 			}
 		});
 	});
+}
+
+$(document).ready(function () {
+	$('.rs-popover .rs-btn-group .rs-btn-link').click(function() {
+		hidePopover();
+	});
+
+	positionAllPopovers();
 });
