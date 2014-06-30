@@ -78,6 +78,8 @@
 
     {% block script %}
         {{ super() }}
+        {{ coremetrics_conversion("Signup") }}
+        
         <script type="text/javascript">
         $(document).ready(function() {
             $('a[href=#tos]').click(function(e) {
