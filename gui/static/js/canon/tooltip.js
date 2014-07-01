@@ -32,7 +32,7 @@ var attachTooltip = function(params) {
 		return tooltip;
 }
 
-$(document).ready(function() {
+var attachAllTooltips = function() {
 	$('.tip').each(function() {
 		$(this).attr('data-title',$(this).attr('title')).removeAttr('title');
 	});
@@ -50,4 +50,8 @@ $(document).ready(function() {
 		clearTimeout(attachTipTimer);
 		removeTipTimer = setTimeout(function(){removeTooltips();}, hideTipTimeout);
 	});
+}
+
+$(document).ready(function() {
+	attachAllTooltips();
 });

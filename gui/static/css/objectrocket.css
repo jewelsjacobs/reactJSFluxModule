@@ -97,26 +97,53 @@ img.invoice-logo {
     background: #ff9d00; /* .orange */
 }
 
-.rs-status.or-status-ns {
-    background: #0062ff; /* .blue */
-}
-
-.rs-status.or-status-data {
-    background: #45b300; /* .green */
-}
-
-.rs-status.or-status-index {
-    background: #9d00ff; /* .violet */
-}
-
-.rs-status.or-status-storage {
-    background: #ff9d00; /* .orange */
-}
-
 .or-bar-file {
     background: #00a96d;
 }
 
+.or-legend {
+    font-size: 0.9em;
+    font-weight: bold;
+    margin: 2px 3px 0 0;
+    padding: 1px 3px;
+}
+
+.or-legend span {
+    float: left;
+    height: 1em;
+    margin: 4px 4px 0 0;
+    width: 1em;
+}
+
+.or-legend .or-legend-ns {
+    background: #0062ff; /* .blue */
+}
+
+.or-legend .or-legend-data {
+    background: #45b300; /* .green */
+}
+
+.or-legend .or-legend-index {
+    background: #9d00ff; /* .violet */
+}
+
+.or-legend .or-legend-storage {
+    background: #ff9d00; /* .orange */
+}
+
+.or-legend .or-legend-overage {
+    background: #ff0000; /* .red */
+}
+
+.or-flexbox-row .rs-btn, .or-flexbox-row .rs-status {
+    font-size: 0.95em;
+    margin: 2px 3px 0 0;
+    padding: 1px 3px;
+}
+
+.or-flexbox-row .rs-status .rs-icon-help {
+    margin-left: 2px;
+}
 
 /* === focus panel code === */
 .or-focus-panel {
@@ -207,6 +234,10 @@ img.invoice-logo {
 
 .valign-baseline {
     vertical-align: baseline;
+}
+
+.valign-middle {
+    vertical-align: middle;
 }
 
 .white-space-normal {

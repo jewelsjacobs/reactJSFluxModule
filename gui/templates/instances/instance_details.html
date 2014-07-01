@@ -68,12 +68,14 @@
                 <div id="space_usage_data" class="rs-detail-value">
                     <span>&nbsp;</span>
                     <div class="rs-progress">
-                        <div class="rs-progress-inner">
+                        <div class="rs-progress-inner or-flexbox-row">
                             <div class="rs-segment" style="width:100%;">
                                 <div class="rs-bar rs-bar-ok rs-bar-striped"></div>
-                                <div class="rs-caption">Loading&hellip;</div>
                             </div>
                         </div>
+                    </div>
+                    <div class="or-flexbox-row">
+                        <div class="rs-status">Loading&hellip;</div>
                     </div>
                 </div>
             </li>
@@ -556,25 +558,9 @@
             dataType: 'html',
             type: 'GET',
             success: function(html) {
-                $('#space_usage_data')
-                    .removeClass('hidden')
-                    .html(html);
-
-                // Bind the tooltip listener to the space usage legend.
-                $('#space_usage_data .tip').hover(function(event) {
-                    removeTooltips();
-                    clearTimeout(removeTipTimer);
-                    clearTimeout(attachTipTimer);
-                    var tooltip = new Object();
-                    tooltip.contents = $(this).attr('data-title');
-                    tooltip.delay = $(this).attr('data-delay');
-                    tooltip.left = event.clientX;
-                    tooltip.top = $(document).scrollTop()+event.clientY;
-                    attachTooltip(tooltip);
-                }, function(e) {
-                    clearTimeout(attachTipTimer);
-                    removeTipTimer = setTimeout(function(){removeTooltips();}, hideTipTimeout);
-                });
+                $('#space_usage_data').html(html);
+                attachAllTooltips();
+                positionAllPopovers();
             },
         });
     }

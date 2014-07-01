@@ -284,6 +284,7 @@ def maintenance_mode():
     if app.config.setdefault('MAINTENANCE', False) and not request.path.startswith('/static'):
         return render_template('maintenance.html')
 
+
 # TODO: Refactor: Should be moved out of controllers.
 # -----------------------------------------------------------------------
 # Configure App Filters
@@ -652,79 +653,7 @@ def instance_space_usage(selected_instance):
     if instance is None:
         abort(404)
 
-    usage_totals = {}
-
-    # The total size in bytes of the data held in all database.
-    total_data_size = 0
-
-    # The total size in bytes of all indexes created on all databases.
-    total_index_size = 0
-
-    # The total size of the namespace files for all databases.
-    total_ns_size = 0
-
-    # The total size in bytes of the data files that hold the databases.
-    total_file_size = 0
-
-    # The total amount of space in bytes allocated to collections in all database for document storage.
-    total_storage_size = 0
-
-    if instance.type == Constants.MONGODB_SHARDED_INSTANCE:
-
-        # Aggregate size stats across all shards.
-        for shard in instance.shards:
-            shard_stats = shard.replica_set.primary.aggregate_database_statistics
-            total_data_size += shard_stats[Constants.DATA_SIZE_IN_BYTES]
-            total_index_size += shard_stats[Constants.INDEX_SIZE_IN_BYTES]
-            total_ns_size += shard_stats[Constants.NAMESPACE_SIZE_IN_BYTES]
-            total_file_size += shard_stats[Constants.FILE_SIZE_IN_BYTES]
-            total_storage_size += shard_stats[Constants.STORAGE_SIZE_IN_BYTES]
-
-    else:
-        primary_stats = instance.replica_set.primary.aggregate_database_statistics
-        total_data_size = primary_stats[Constants.DATA_SIZE_IN_BYTES]
-        total_index_size = primary_stats[Constants.INDEX_SIZE_IN_BYTES]
-        total_ns_size = primary_stats[Constants.NAMESPACE_SIZE_IN_BYTES]
-        total_file_size = primary_stats[Constants.FILE_SIZE_IN_BYTES]
-        total_storage_size = primary_stats[Constants.STORAGE_SIZE_IN_BYTES]
-
-    # Serialize size totals.
-    usage_totals['total_data_size'] = total_data_size
-    usage_totals['total_index_size'] = total_index_size
-    usage_totals['total_ns_size'] = total_ns_size
-    usage_totals['total_file_size'] = total_file_size
-    usage_totals['total_storage_size'] = total_storage_size
-
-    # Get size in bytes.
-    size_in_bytes = instance.maximum_capacity
-
-    # Round percentage totals.
-    if float(size_in_bytes) == 0:
-        data_percentage = 0
-        index_percentage = 0
-        ns_percentage = 0
-        storage_percentage = 0
-    else:
-        data_percentage = (float(total_data_size) / float(size_in_bytes)) * 100
-        index_percentage = (float(total_index_size) / float(size_in_bytes)) * 100
-        ns_percentage = (float(total_ns_size) / float(size_in_bytes)) * 100
-        storage_percentage = (float(total_storage_size) / float(size_in_bytes)) * 100
-
-    remaining_percentage = 100 - data_percentage - index_percentage - ns_percentage - storage_percentage
-
-    # Serialize percentage totals.
-    usage_totals['percentages'] = {
-        'data': data_percentage,
-        'index': index_percentage,
-        'ns': ns_percentage,
-        'storage': storage_percentage,
-        'remaining': remaining_percentage,
-    }
-
-    # Account for LV extensions.
-    if total_file_size + total_ns_size > size_in_bytes:
-        overage = (total_file_size + total_ns_size) - size_in_bytes
-        usage_totals['overage'] = overage
+    usage_totals = instance.space_usage
 
     return render_template('instances/_space_usage.html',
                            instance=instance,
@@ -759,9 +688,9 @@ def rename_instance():
 
     ref = urlparse(request.referrer)
     if ref.path == '/instances':
-      return redirect(url_for('instances'))
+        return redirect(url_for('instances'))
     else:
-      return redirect(url_for('instance_details', selected_instance=new_name))
+        return redirect(url_for('instance_details', selected_instance=new_name))
 
 
 @app.route('/instances/<selected_instance>/cluster')
@@ -1514,10 +1443,12 @@ def show_invoice(invoice_id):
                            invoice=invoice,
                            format_timestamp=Utility.format_timestamp)
 
+
 @app.route('/external')
 @viper_auth
 def external():
     return redirect(url_for('new_relic'))
+
 
 @app.route('/external/new_relic')
 @viper_auth
@@ -1547,13 +1478,13 @@ def add_new_relic_key():
         account_manager = AccountManager(config)
         account_manager.add_new_relic_key(g.login, new_relic_key, enable_on_all_instances=True)
         flash('Your New Relic license key was successfully updated. If your information does not appear on the New'
-        ' Relic site within 30 minutes, please contact support.', canon_constants.STATUS_OK)
+              ' Relic site within 30 minutes, please contact support.', canon_constants.STATUS_OK)
 
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
         flash_message = ("There was a problem with your New Relic license key. If this problem persists and you "
                          "believe your key is valid, please contact support and provide Error ID {}.".format(
-            exception_uuid))
+                         exception_uuid))
         flash(flash_message, canon_constants.STATUS_ERROR)
 
     return redirect(url_for('new_relic'))
@@ -1935,7 +1866,7 @@ def admin_inventory():
     # node_map = Utility.get_node_map(config)
     # TODO: Temp hack, get_node_map attempts to connect to all instances causing a timeout.
     node_map = {}
-    checkouts=instance_manager.get_checkouts_by_type()
+    checkouts = instance_manager.get_checkouts_by_type()
     return render_template('admin/inventory.html',
                            checkouts=checkouts,
                            node_map=node_map)
