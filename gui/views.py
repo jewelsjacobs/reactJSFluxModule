@@ -880,6 +880,12 @@ def delete_instance_user(selected_instance, selected_database, username=None):
     if username is None:
         username = request.form['username']
 
+    database = user_instance.get_database(selected_database)
+
+    if user_instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE and len(database.users) <= 1:
+        flash('Cannot remove the last user of a replicated instance. Please add another user first.',
+              canon_constants.STATUS_ERROR)
+
     user_instance.delete_user(selected_database, username)
 
     return redirect(url_for('database', selected_instance=selected_instance, selected_database=selected_database))
