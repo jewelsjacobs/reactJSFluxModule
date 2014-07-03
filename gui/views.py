@@ -1001,7 +1001,7 @@ def add_index(selected_instance, selected_database, selected_collection):
     user_collection = user_database.get_collection(selected_collection)
     
     if request.method == 'GET':
-        """Add new index"""
+        # Add new index.
         return render_template('instances/collection_index_create.html',
                                instance=user_instance,
                                database=user_database,
