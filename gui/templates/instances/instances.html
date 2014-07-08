@@ -99,30 +99,14 @@
                             </div>
                         </td>
                         <td id="instance-{{ loop.index0 }}-count" class="rs-table-link"><a href="{{ url_for('instance_details', selected_instance=instance.name) }}">{{ instance.name }}</a></td>
-                        <td class="rs-table-link">
-                            {% if instance.type == Constants.REDIS_SERVICE %}
-                                Redis
-                            {% elif instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
-                                MongoDB
-                            {% elif instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE %}
-                                MongoDB
-                            {% endif %}
-                        </td>
-                        <td class="rs-table-link">
-                            {% if instance.type == Constants.REDIS_SERVICE %}
-                                Sentinel HA
-                            {% elif instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
-                                MongoDB Sharded
-                            {% elif instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE %}}
-                                MongoDB Replica Set
-                            {% endif %}
-                        </td>
+                        <td class="rs-table-link">{{ Constants.SERVICE_DISPLAY_NAMES[instance.service] }}</td>
+                        <td class="rs-table-link">{{ Constants.TYPE_DISPLAY_NAMES[instance.type] }}</td>
                         <td class="rs-table-link">{{ instance.version }}</td>
                         <td class="rs-table-link">{{ instance.zone }}</td>
                         <td class="rs-table-link">{{ instance.plan }}</td>
                         <td class="rs-table-link">
                             {% if instance.type == Constants.REDIS_SERVICE %}
-                                -
+                                N/A
                             {% else %}
                                 {{ instance.shards|count }}
                             {% endif %}
