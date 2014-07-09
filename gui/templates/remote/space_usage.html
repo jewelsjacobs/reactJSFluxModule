@@ -4,6 +4,7 @@
         {% set space_usage = remote_instance.space_usage() %}
         {% set space_usage_percentages = remote_instance.space_usage_percentages() %}
         <span>{{ space_usage.totalSize|filesizeformat }}</span>
+        {% if space_usage.totalSize %}
                     <span data-title="<h4>Legend:</h4>
                     <p>
                     <span class='rs-status or-status-data'>dataSize: {{ space_usage.dataSize|filesizeformat }}</span>
@@ -45,5 +46,6 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 </li>
