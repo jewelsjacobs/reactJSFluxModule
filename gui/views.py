@@ -803,8 +803,8 @@ def create_instance_user(selected_instance, selected_database=None):
         return redirect(url_for('instance_details', selected_instance=selected_instance))
 
 
-@app.route('/delete_instance_user/<selected_instance>/<selected_database>', methods=['GET', 'POST'])
-@app.route('/delete_instance_user/<selected_instance>/<selected_database>/<username>', methods=['GET', 'POST'])
+@app.route('/delete_instance_user/<selected_instance>/<selected_database>', methods=['POST'])
+@app.route('/delete_instance_user/<selected_instance>/<selected_database>/<username>', methods=['POST'])
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
 def delete_instance_user(selected_instance, selected_database, username=None):
