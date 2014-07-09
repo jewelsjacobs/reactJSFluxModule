@@ -363,6 +363,18 @@ def test_rename_instance(app_client):
         assert response.status_code == 200
 
 
+def test_new_index(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.get(url_for('add_index',
+                                       selected_instance=instance_name,
+                                       selected_database=database_name,
+                                       selected_collection=collection_name),
+                               follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
+
 def test_create_index(app_client):
     all_index_keys = '{"test_index_desc":"-1","test_index_asc":"1"}'
     background = 'true'
@@ -371,10 +383,10 @@ def test_create_index(app_client):
     unique = 'true'
 
     with app_client as client:
-        client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
-        response = client.post(url_for('create_index',
+        client.post(url_for('sign_in'), data=dict(login=login, password=password), follow_redirects=True)
+        response = client.post(url_for('add_index',
                                        selected_instance=instance_name,
-                                       selected_db=database_name,
+                                       selected_database=database_name,
                                        selected_collection=collection_name),
                                data=dict(
                                    all_index_keys=all_index_keys,
