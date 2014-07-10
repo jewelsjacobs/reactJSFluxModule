@@ -52,8 +52,7 @@ from gui import app
 # Viper Decorators
 # -----------------------------------------------------------------------
 def billing_enabled(func):
-    """Decorator to test that the account has billing enabled.
-    """
+    """Decorator to test that the account has billing enabled."""
     @wraps(func)
     def internal(*args, **kwargs):
         account_manager = AccountManager(config)

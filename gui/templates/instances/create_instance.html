@@ -10,7 +10,6 @@
         <h4>What Are Instances?</h4>
         <p>Instances are the core of ObjectRocket services. Create an instance that fits your software needs.</p>
         <p><a target="blank" href="http://docs.objectrocket.com/">Visit Our Knowledge Center &raquo;</a></p>
-
     {% endcall %}
 {% endblock sidebar %}
 
@@ -29,11 +28,6 @@
             </div>
 
             <div class="rs-detail-section-body">
-                <!-- default input values -->
-                <!-- end default input values -->
-                <input id="version" name="mongo_version" type="hidden" value="{{config.DEFAULT_MONGO_VERSION}}"/>
-                <input id="version" name="redis_version" type="hidden" value="{{config.DEFAULT_REDIS_VERSION}}"/>
-
                 <div class="rs-control-group">
                     <label class="rs-control-label">Instance Name</label>
                     <div class="rs-controls">
@@ -41,52 +35,61 @@
                     </div>
                 </div>
 
-                <div class="rs-control-group" style=''>
-                    <label class="rs-control-label">Instance Type</label>
+                <div id="service-type" class="rs-control-group">
+                    <label class="rs-control-label">Service Type</label>
                     <div class="rs-controls">
+                        <label class="rs-radio">
+                            <input checked name="service_type" type="radio" value="mongodb"/>
+                            <strong>MongoDB</strong>
+                            <span class="rs-icon-help tip" data-title='
+                                <h4>MongoDB — {{ default_mongo_version }}</h4>
+                                <p><i><a href="http://docs.mongodb.org/manual/release-notes/2.4/" target="1">Release Notes</a></i></p>
+                                <ul>
+                                    <li>3 member Replica Set</li>
+                                    <li>Solid State disk (SSD)</li>
+                                    <li>24x7 email Support</li>
+                                </ul>' data-delay="0.1">
+                            </span>
 
-                        {% if "mongodb" in active_datastores %}
-                            <p>
-                                <label for='mongo'>
-                                    <input value="mongodb" id="mongo" name="service_type" checked type="radio" />
-                                    MongoDB  - {{config.DEFAULT_MONGO_VERSION}}
-                                    <span id="mongo-tooltip" class="rs-icon-help" title=""></span>
-                                    <div class='hidden' id='mongo-tooltip-contents'>
-                                        <ul>
-                                            <li>MongoDB {{ config.DEFAULT_MONGO_VERSION }}
-                                                <a href="http://docs.mongodb.org/manual/release-notes/2.4/" target="1">Release Notes</a>
-                                            </li>
-                                            <li>3 member Replica Set</li>
-                                            <li>Solid State disk (SSD)</li>
-                                            <li>24x7 email Support</li>
-                                        </ul>
-                                    </div>
-                                </label>
-                            </p>
+                        </label>
+
+                        {% if Constants.TOKUMX_SERVICE in active_datastores %}
+                        <label class="rs-radio">
+                            <input name="service_type" type="radio" value="tokumx"/>
+                            <strong>TokuMX</strong>
+                            <span class="rs-icon-help tip" data-title='
+                                <h4>TokuMX — 1.5.0</h4>
+                                <p><i><a href="http://www.tokutek.com/products/tokumx-for-mongodb/" target="1">Additional Information</a></i></p>
+                                <ul>
+                                    <li>3 member Replica Set</li>
+                                    <li>Solid State disk (SSD)</li>
+                                    <li>24x7 email Support</li>
+                                </ul>' data-delay="0.1">
+                            </span>
+                        </label>
                         {% endif %}
 
-                        {% if "redis" in active_datastores %}
-                            <p>
-                                <label for='redis'>
-                                    <input value="redis" id="redis" name="service_type" type="radio" />
-                                    Redis - {{config.DEFAULT_REDIS_VERSION}}
-                                    <span id="redis-tooltip" class="rs-icon-help" title=""></span>
-                                    <div class='hidden' id='redis-tooltip-contents'>
-                                        <ul>
-                                            <li>Redis {{ config.DEFAULT_REDIS_VERSION }}
-                                                <a href="http://download.redis.io/redis-stable/00-RELEASENOTES" target="1">Release Notes</a>
-                                            </li>
-                                            <li>2 Node HA</li>
-                                            <li>Automatic Failover</li>
-                                            <li>24x7 email Support</li>
-                                        </ul>
-                                    </div>
-                                </label>
-                            </p>
+                        {% if Constants.REDIS_SERVICE in active_datastores %}
+                        <label class="rs-radio">
+                            <input name="service_type" type="radio" value="redis"/>
+                            <strong>Redis</strong>
+                            <span class="rs-icon-help tip" data-title='
+                                <h4>Redis — 2.8.10</h4>
+                                <p><i><a href="http://download.redis.io/redis-stable/00-RELEASENOTES" target="1">Release Notes</a></i></p>
+                                <ul>
+                                    <li>2 Node HA</li>
+                                    <li>Automatic Failover</li>
+                                    <li>24x7 email Support</li>
+                                </ul>' data-delay="0.1">
+                            </span>
+                        </label>
                         {% endif %}
-
                     </div>
                 </div>
+
+                <!-- service type version -->
+                <input id="version" name="version" type="hidden" value=""/>
+                <!-- end service type version -->
 
                 <div class="rs-control-group">
                     <label class="rs-control-label">Zone</label>
@@ -99,6 +102,7 @@
                             <option value="AP-HongKong">HKG</option>
                             <option value="AP-Sydney">SYD</option>
                         </select>
+                        <div class="rs-help-block">This is the location of the datacenter which your instance will exist in.</div>
                     </div>
                 </div>
 
@@ -112,6 +116,7 @@
                             <option value="50">50GB MEDIUM $899.00/mo</option>
                             <option value="100">100GB MEDIUM $1599.00/mo</option>
                         </select>
+                        <div class="rs-help-block">The plan is the base size of your instance. Each new shard added to your instance will increase your instance size by increments of the plan size you select.</div>
                     </div>
                 </div>
             </div>
@@ -130,16 +135,15 @@
 
     <script>
         $(document).ready(function () {
-            var mongo_tooltip, redis_tooltip;
 
-            mongo_tooltip = new canon.Tooltip();
-            $('#mongo-tooltip').attr("title", $("#mongo-tooltip-contents").html());
-            mongo_tooltip.attach($('#mongo-tooltip'));
-
-
-            redis_tooltip = new canon.Tooltip();
-            $('#redis-tooltip').attr("title", $("#redis-tooltip-contents").html());
-            redis_tooltip.attach($('#redis-tooltip'));
+            var versionMap = {
+                mongodb: {
+                    'default': '{{ Constants.DEFAULT_MONGODB_VERSION }}',
+                },
+                tokumx: {
+                    'default': '{{ Constants.DEFAULT_TOKUMX_VERSION }}',
+                },
+            }
 
             $.validator.addMethod("noSpaces", function (value, element) {
                 return value.indexOf(" ") < 0 && value != "";
@@ -164,6 +168,74 @@
                     $(label).closest('.rs-control-group').addClass('success');
                 }
             });
+
+            // Initialize a value for #version.
+            $('#version').val(versionMap[$('#service-type input:checked').val()].default);
+
+            // Bind listener to change service type value when input selection changes.
+            $('#service-type input').change(function() {
+                var versionInput = $('#version'),
+                    serviceType = $('#service-type input:checked').val();
+
+                versionInput.val(versionMap[serviceType].default)
+            });
+
+            $('#zone').change(function () {
+                var selectedZone = $(this).val();
+
+                var usPrices = [
+                    {val: 1, text: '1GB SMALL $19.00/mo'},
+                    {val: 5, text: '5GB MEDIUM $149.00/mo'},
+                    {val: 20, text: '20GB MEDIUM $399.00/mo'},
+                    {val: 50, text: '50GB MEDIUM $899.00/mo'},
+                    {val: 100, text: '100GB MEDIUM $1,599.00/mo'},
+                ];
+
+                var lonPrices = [
+                    {val: 1, text: '1GB SMALL $25.00/mo'},
+                    {val: 5, text: '5GB MEDIUM $190.00/mo'},
+                    {val: 20, text: '20GB MEDIUM $500.00/mo'},
+                    {val: 50, text: '50GB MEDIUM $1,125.00/mo'},
+                    {val: 100, text: '100GB MEDIUM $2,000.00/mo'},
+                ];
+
+                var hkgPrices = [
+                    {val: 1, text: '1GB SMALL $25.00/mo'},
+                    {val: 5, text: '5GB MEDIUM $195.00/mo'},
+                    {val: 20, text: '20GB MEDIUM $525.00/mo'},
+                    {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
+                    {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
+                ];
+
+                var sydPrices = [
+                    {val: 1, text: '1GB SMALL $25.00/mo'},
+                    {val: 5, text: '5GB MEDIUM $195.00/mo'},
+                    {val: 20, text: '20GB MEDIUM $525.00/mo'},
+                    {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
+                    {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
+                ];
+
+                var prices = usPrices;
+
+                if (selectedZone == 'EU-London') {
+                    var prices = lonPrices;
+                } else if (selectedZone == 'AP-HongKong') {
+                    var prices = hkgPrices;
+                } else if (selectedZone == 'AP-Sydney') {
+                    var prices = sydPrices;
+                }
+
+                $('#plan_select').empty();
+
+                $(prices).each(function () {
+                    $('#plan_select').append($("<option>").attr('value', this.val).text(this.text));
+                });
+
+                $('#plan_select').val(5);
+            });
+
+
+
 
             $('[name=service_type]').change(function () {
                 var serviceType = $(this).val();
@@ -277,7 +349,7 @@
             }else if (service == "redis"){
                 $('#plan_select').val(1);
             }
-        };
+        });
     </script>
 
 {% endblock script %}
