@@ -281,6 +281,45 @@
             $('#shard-key-pre').text('');
             $('#shardkeys').val('');
         });
+        
+        // Add key to data
+        $('#add-key-button').click(function() {
+            var shardKey = $('#shardkeys').val();
+
+            if (shardKey) {
+                if (shardKey === '') {
+                    return false;
+                }
+
+                if (containsInvalidShardKeyCharacters(shardKey)) {
+                    var validator = $('#add-collection-popover-form').validate();
+                    validator.showErrors({"shardkeys": 'Cannot contain /\ ",*<>:|?{}'});
+                    return false;
+                }
+
+                var shardKeys = $('#shard-key-div').data('keys');
+
+                if (!shardKeys) {
+                    shardKeys = {};
+                }
+
+                if (!shardKeys.shardKey) {
+                    var shardKeyLabel = '<label>' + $('#shardkeys').val() + '</label>'
+                    var shardKeyQualifier = 1;
+
+                    if ($('#hashed-key-checkbox').is(':checked')) {
+                        shardKeyQualifier = 'hashed';
+                        shardKeys = {};
+                    }
+
+                    shardKeys[shardKey] = shardKeyQualifier;
+                    $('#shard-key-div').data('keys', shardKeys);
+
+                    $('#shard-key-pre').text(JSON.stringify(shardKeys));
+                    $('#shardkeys').val('');
+                }
+            }
+        });
 
         /* === VALIDATION === */
 
