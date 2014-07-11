@@ -471,6 +471,7 @@ def instances():
                            Utility=Utility)
 
 
+# TODO: Refactor: move pretty much all of this logic into core.
 @app.route('/instances/create', methods=['GET', 'POST'])
 @viper_auth
 @billing_enabled
@@ -492,55 +493,64 @@ def create_instance():
         version = request.form['redis_version']
     zone = request.form['zone']
 
-    # HACK ALERT HACK ALERT HACK ALERT HACK ALERT
+    # Determine the type of instance to use for mongodb.
     if service_type == Constants.MONGODB_SERVICE:
-        if int(plan_size_in_gb) == 1:
+        if plan_size_in_gb == 1:
             instance_type = Constants.MONGODB_REPLICA_SET_INSTANCE
         else:
             instance_type = Constants.MONGODB_SHARDED_INSTANCE
     elif service_type == Constants.REDIS_SERVICE:
         instance_type = Constants.REDIS_HA_INSTANCE
 
-    account_manager = AccountManager(config)
-    account = account_manager.get_account(g.login)
+    # Determine the type of instance to use for tokumx.
+    elif service_type == Constants.TOKUMX_SERVICE:
+        if plan_size_in_gb == 1:
+            instance_type = Constants.TOKUMX_REPLICA_SET_INSTANCE
+        else:
+            instance_type = Constants.TOKUMX_SHARDED_INSTANCE
 
+    account = AccountManager(config).get_account(g.login)
     instance_manager = InstanceManager(config)
 
+    # Check if an instance with the same name already belongs to the account.
     if instance_manager.instance_exists(g.login, name):
         flash_message = "Cannot create instance '%s': an instance with this name already exists." % name
         flash(flash_message, canon_constants.STATUS_ERROR)
         return redirect(url_for('instances'))
 
+    # Check if there are any free instances meeting the given specifications.
     if not instance_manager.free_instance_count(plan_size_in_gb, zone, version, service_type, instance_type):
         flash_message = ("Cannot create instance '%s': no instances are available for plan %s, zone %s, version %s."
                          % (name, plan_size_in_gb, zone, version))
         flash(flash_message, canon_constants.STATUS_ERROR)
 
         subject = "Instance not available in UI."
-        body = "Login %s attempted to add %s instance type %s with plan: %s zone: %s name: %s, version: %s" % (
-            g.login, service_type, instance_type, plan_size_in_gb, zone, name, version)
+        body = ("Login %s attempted to add %s instance type %s with plan: %s zone: %s name: %s, version: %s"
+                % (g.login, service_type, instance_type, plan_size_in_gb, zone, name, version))
         send_email(config.SUPPORT_EMAIL, subject, body)
         return redirect(url_for('instances'))
 
-    if len(account.instances) < config.MAX_INSTANCES_PER_USER:
-        try:
-            Utility.log_to_db(config, "Created instance.",
-                              {'login': g.login, 'area': 'gui', 'instance_name': name})
-            account.add_instance(name, zone, plan_size_in_gb, version, service_type, instance_type)
-        except Exception as ex:
-            exception_uuid = Utility.obfuscate_exception_message(ex.message)
-            flash_message = ("There was a problem creating an instance. If this problem persists, contact"
-                             "support and provide Error ID %s." % (exception_uuid))
-            flash(flash_message, canon_constants.STATUS_ERROR)
-
-            log_message = "Failed to create instance for login %s, plan %s, zone %s, name %s: %s" % (g.login, plan_size_in_gb, zone, name, ex)
-            app.logger.error(log_message)
-            return redirect(url_for('instances'))
-    else:
+    # Check if at or above max instances for this account.
+    if len(account.instances) >= config.MAX_INSTANCES_PER_USER:
         flash_message = "Please contact support if you need more than %d instances"
         flash(flash_message % config.MAX_INSTANCES_PER_USER, canon_constants.STATUS_WARNING)
+        return redirect(url_for('instances'))
 
-    return redirect(url_for('instances'))
+    # Attempt to add a new instance of the given specifications.
+    try:
+        account.add_instance(name, zone, plan_size_in_gb, version, service_type, instance_type)
+        Utility.log_to_db(config, 'Created instance.', {'login': g.login, 'area': 'gui', 'instance_name': name})
+        flash('Instance "{}" successfully added to account.'.format(name), canon_constants.STATUS_OK)
+        return redirect(url_for('instances'))
+    except Exception as ex:
+        exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        flash_message = ("There was a problem creating an instance. If this problem persists, contact"
+                         "support and provide Error ID %s." % (exception_uuid))
+        flash(flash_message, canon_constants.STATUS_ERROR)
+
+        log_message = "Failed to create instance for login %s, plan %s, zone %s, name %s: %s" % (g.login, plan_size_in_gb, zone, name, ex)
+        app.logger.error(log_message)
+        return redirect(url_for('instances'))
 
 
 @app.route('/<instance_name>/delete', methods=['POST'])
