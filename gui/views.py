@@ -25,6 +25,7 @@ from urlparse import urlparse
 
 # ObjectRocket from imports.
 from canon import constants as canon_constants
+from gui import forms
 from viper import config
 from viper import monitor
 from viper.account import AccountManager
@@ -471,36 +472,42 @@ def instances():
                            Utility=Utility)
 
 
-# TODO: Refactor: move pretty much all of this logic into core.
 @app.route('/instances/create', methods=['GET', 'POST'])
 @viper_auth
 @billing_enabled
 def create_instance():
     """Create an instance."""
+    form = forms.CreateInstance()
+
     if request.method == 'GET':
-        return render_template(
-            'instances/create_instance.html',
-            config=config,
-            active_datastores=app.config.get("ACTIVE_DATASTORES")
-        )
+        return render_template('instances/create_instance.html',
+                               active_datastores=app.config.get("ACTIVE_DATASTORES"),
+                               form=form,
+                               default_mongo_version=config.DEFAULT_MONGO_VERSION)
 
-    name = request.form['name']
-    plan_size_in_gb = int(request.form['plan'])
-    service_type = request.form['service_type']
-    if service_type == Constants.MONGODB_SERVICE:
-        version = request.form['mongo_version']
-    elif service_type == Constants.REDIS_SERVICE:
-        version = request.form['redis_version']
-    zone = request.form['zone']
+    # If form does not validate, send back to create_instance page.
+    if not form.validate_on_submit():
+        errors = ['{}: {}'.format(key, ' - '.join(val)) for key, val in form.errors.items()]
+        flash(';'.join(errors), canon_constants.STATUS_ERROR)
+        return render_template('instances/create_instance.html',
+                               active_datastores=app.config.get("ACTIVE_DATASTORES"),
+                               form=form,
+                               default_mongo_version=config.DEFAULT_MONGO_VERSION)
 
+    # Populate variables from form.
+    name = form.name.data
+    plan_size_in_gb = form.plan.data
+    service_type = form.service_type.data
+    version = form.version.data
+    zone = form.zone.data
+
+    # TODO: Refactor: move pretty much all of the following logic into core.
     # Determine the type of instance to use for mongodb.
     if service_type == Constants.MONGODB_SERVICE:
         if plan_size_in_gb == 1:
             instance_type = Constants.MONGODB_REPLICA_SET_INSTANCE
         else:
             instance_type = Constants.MONGODB_SHARDED_INSTANCE
-    elif service_type == Constants.REDIS_SERVICE:
-        instance_type = Constants.REDIS_HA_INSTANCE
 
     # Determine the type of instance to use for tokumx.
     elif service_type == Constants.TOKUMX_SERVICE:
@@ -508,6 +515,10 @@ def create_instance():
             instance_type = Constants.TOKUMX_REPLICA_SET_INSTANCE
         else:
             instance_type = Constants.TOKUMX_SHARDED_INSTANCE
+
+    # Determine the type of instance to use for redis.
+    elif service_type == Constants.REDIS_SERVICE:
+        instance_type = Constants.REDIS_HA_INSTANCE
 
     account = AccountManager(config).get_account(g.login)
     instance_manager = InstanceManager(config)
@@ -571,7 +582,7 @@ def shards(selected_instance):
     if instance is None:
         abort(404)
 
-    if instance.type == Constants.MONGODB_SHARDED_INSTANCE:
+    if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
 
         aggregate_stats = {}
         total_file_size = 0
@@ -593,7 +604,7 @@ def shards(selected_instance):
         html = render_template('instances/_shard_info.html',
                                aggregate_stats=aggregate_stats,
                                instance=instance)
-    elif instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE:
+    elif instance.type in (Constants.MONGODB_REPLICA_SET_INSTANCE, Constants.TOKUMX_REPLICA_SET_INSTANCE):
         if instance.replica_set.primary:
             primary = instance.replica_set.primary
             has_primary = True
@@ -621,25 +632,13 @@ def instance_details(selected_instance):
     account_monitor = monitor.AccountMonitor(config)
     account_monitoring_checks = account_monitor.get_enabled_checks(asset_type=monitor.INSTANCE_ASSET_TYPE,
                                                                    user_controllable_only=True)
-    balancer = None
-
-    if user_instance.stepdown_window is not None:
-        stepdown_window = user_instance.stepdown_window
-
-        for key in ['start', 'end']:
-            if key in stepdown_window:
-                try:
-                    stepdown_window[key] = stepdown_window[key].strftime('%m/%d/%Y %H:%M')
-                except AttributeError:
-                    stepdown_window[key] = ''
-
-        stepdown_window.pop('election_started', None)
 
     try:
         enable_copy_database = user_instance.instance_connection.server_info()['versionArray'] >= [2, 4, 0, 0]
     except Exception:
         enable_copy_database = False
 
+    balancer = None
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
         balancer = user_instance.balancer
 

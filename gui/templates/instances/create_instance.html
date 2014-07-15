@@ -21,6 +21,7 @@
 
 {% block content_area_body %}
     <form id="instances-create-form" class="rs-form-create" action="{{ url_for('create_instance') }}" method="POST">
+        {{ form.hidden_tag() }}
         <div class="rs-detail-section">
             <div class="rs-detail-section-header">
                 <h2 class="rs-page-title">Create Instance</h2>
@@ -31,7 +32,7 @@
                 <div class="rs-control-group">
                     <label class="rs-control-label">Instance Name</label>
                     <div class="rs-controls">
-                        <input id="name" name="name" class="rs-input-large" type="text">
+                        {{ form.name(class='rs-input-large', id='name') }}
                     </div>
                 </div>
 
@@ -70,7 +71,7 @@
                 </div>
 
                 <!-- service type version -->
-                <input id="version" name="version" type="hidden" value=""/>
+                {{ form.version(id='version') }}
                 <!-- end service type version -->
 
                 <div class="rs-control-group">
@@ -173,7 +174,7 @@
     $(document).ready(function () {
 
         // Initialize a value for #version.
-        $('#version').val(serviceVersionsMap[$('#service-type input:checked').val()].default);
+        $('#version').attr('value', serviceVersionsMap[$('#service-type input:checked').val()].default);
 
         // Build and select initial '<option>' elements for #zone & #plan_select.
         buildZoneOptions(datacenterDisplayNameMap);
