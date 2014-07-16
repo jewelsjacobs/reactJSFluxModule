@@ -70,12 +70,14 @@
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Database Connect String</div>
-                <div class="rs-detail-value">{{ instance.host }}:{{ instance.port }}/{{ database.name }}</div>
+                <div class="rs-detail-value">{{ instance.connect_string }}/{{ database.name }}</div>
             </li>
+            {% if instance.ssl_connect_string %}
             <li class="rs-detail-item">
                 <div class="rs-detail-key">SSL Database Connect String</div>
-                <div class="rs-detail-value">{{ instance.host }}:{{ "%.f" | format(instance.port + 10000) }}/{{ database.name }}</div>
+                <div class="rs-detail-value">{{ instance.ssl_connect_string }}/{{ database.name }}</div>
             </li>
+            {% endif %}
         </ul>
     {% endcall %}
 
