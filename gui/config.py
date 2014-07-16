@@ -39,6 +39,7 @@ class DevelopmentConfig(Config):
     """Configuration for development mode (default)."""
     API_ENDPOINT = 'http://localhost:5050'
     DEBUG = True
+    ENV_NAME = 'Development'
 
     def init_app(self, app):
         """Production specific configuration."""
@@ -56,6 +57,7 @@ class ProductionConfig(Config):
     """Production configuration."""
     API_ENDPOINT = ''  # FIXME: point this to the appropriate LB.
     DEBUG = False
+    ENV_NAME = 'Production'
 
     def init_app(self, app):
         """Production specific configuration."""
@@ -79,6 +81,7 @@ class ProductionConfig(Config):
 
 class UnittestingConfig(Config):
     """Configuration for unit testing mode."""
+    ENV_NAME = 'Unittest'
     TESTING = True
 
 
