@@ -1,18 +1,34 @@
 """GUI configuration."""
 import locale
 import logging
+import os
+import sys
 
-from flask import abort
+
+# noinspection PyPackageRequirements
+from airbrake.airbrake import AirbrakeErrorHandler
+from flask import abort, got_request_exception, request
 from flaskext.kvsession import KVSessionExtension
 
 from gui.http_exceptions import PaymentRequired
-from viper import config as viper_config
+
 from viper.mongo_sessions import MongoDBStore
+from viper import config as viper_config
+
+
+# noinspection PyUnusedLocal
+def log_exception(app, exception, **kwargs):
+    api_key = app.config.get('AIRBRAKE_API_KEY')
+    env_name = app.config.get('GUI_ENV_NAME')
+    handler = AirbrakeErrorHandler(api_key=api_key, env_name=env_name, request=request)
+    handler.emit(exception, sys.exc_info())
 
 
 class Config(object):
     """Config base class."""
 
+    AIRBRAKE_API_KEY = os.getenv('AIRBRAKE_API_KEY') or '5b03037d33a7371379fafc35c48af98b'
+    GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Base'
     MAINTENANCE = False
 
     def init_app(self, app):
@@ -34,11 +50,14 @@ class Config(object):
             store = MongoDBStore(viper_config)
             KVSessionExtension(store, app)
 
+        got_request_exception.connect(log_exception, app)
+
 
 class DevelopmentConfig(Config):
     """Configuration for development mode (default)."""
     API_ENDPOINT = 'http://localhost:5050'
     DEBUG = True
+    GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Development'
 
     def init_app(self, app):
         """Production specific configuration."""
@@ -56,6 +75,7 @@ class ProductionConfig(Config):
     """Production configuration."""
     API_ENDPOINT = ''  # FIXME: point this to the appropriate LB.
     DEBUG = False
+    GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Production'
 
     def init_app(self, app):
         """Production specific configuration."""
@@ -79,6 +99,7 @@ class ProductionConfig(Config):
 
 class UnittestingConfig(Config):
     """Configuration for unit testing mode."""
+    GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Unittest'
     TESTING = True
 
 
