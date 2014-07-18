@@ -83,12 +83,14 @@
                 <div class="rs-detail-key">Connect String</div>
                 <div class="rs-detail-value">{{ instance.connect_string }}</div>
             </li>
-            {% if instance.ssl_connect_string %}
             <li class="rs-detail-item">
                 <div class="rs-detail-key">SSL Connect String</div>
+                {% if instance.ssl_connect_string %}
                 <div class="rs-detail-value">{{ instance.ssl_connect_string }}</div>
-            </li>
-            {% endif %}
+                {% else %}
+                <div class="rs-detail-value">SSL connections only available for <a href="http://www.objectrocket.com/pricing">Medium and larger instances</a></div>
+                {% endif %}
+            </li>            
             <li class="rs-detail-item">
                 <div class="rs-detail-key">API Key</div>
                 <div class="rs-detail-value">{{ instance.api_key }}</div>
