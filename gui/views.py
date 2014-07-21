@@ -581,6 +581,7 @@ def shards(selected_instance):
         abort(404)
 
     html = ''
+    # TODO(Anthony): This logic should be moved to core.
     if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
 
         aggregate_stats = {}
@@ -724,7 +725,7 @@ def cluster(selected_instance):
 
     if not instance:
         abort(404)
-    elif instance.type != Constants.MONGODB_SHARDED_INSTANCE:
+    elif instance.type not in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
         return redirect(url_for('instance_details', selected_instance=selected_instance))
 
     return render_template('cluster.html', instance=instance, get_host_zone=Utility.get_host_zone)

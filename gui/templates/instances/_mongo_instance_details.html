@@ -199,7 +199,7 @@
         </div>
     {% endcall %}
 
-    {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+    {% if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE) %}
         {% set shard_section_title = 'Shards' %}
     {% else %}
         {% set shard_section_title = 'Replica Set' %}
