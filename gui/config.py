@@ -4,16 +4,20 @@ import logging
 import os
 import sys
 
+from logging.handlers import SysLogHandler
 
 # noinspection PyPackageRequirements
 from airbrake.airbrake import AirbrakeErrorHandler
+
 from flask import abort, got_request_exception, request
 from flaskext.kvsession import KVSessionExtension
 
 from gui.http_exceptions import PaymentRequired
 
-from viper.mongo_sessions import MongoDBStore
+from loggly import LogglyHandler
+
 from viper import config as viper_config
+from viper.mongo_sessions import MongoDBStore
 
 
 # noinspection PyUnusedLocal
@@ -50,7 +54,15 @@ class Config(object):
             store = MongoDBStore(viper_config)
             KVSessionExtension(store, app)
 
+        # Exception logging
         got_request_exception.connect(log_exception, app)
+
+        # General logging
+        loggly_rest_handler = LogglyHandler('bb275711-4460-49e0-9b13-a9997da10d2d', tags=['flask', 'gui'])
+        formatter = logging.Formatter('%(asctime)s loggly:severity=%(levelname)s, %(message)s')
+        loggly_rest_handler.setFormatter(formatter)
+        app.logger.addHandler(loggly_rest_handler)
+        app.logger.setLevel(logging.ERROR)
 
 
 class DevelopmentConfig(Config):
@@ -82,8 +94,6 @@ class ProductionConfig(Config):
         super(ProductionConfig, self).init_app(app)
 
         # Configure application logging.
-        import logging
-        from logging.handlers import SysLogHandler
         gui_syslog = SysLogHandler(address='/dev/log', facility=SysLogHandler.LOG_LOCAL6)
         gui_syslog.setLevel(logging.DEBUG)
 
