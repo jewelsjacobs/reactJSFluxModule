@@ -21,7 +21,6 @@ class LogglyHandler(Handler):
             tag_str = ''
 
         self.url = 'https://logs-01.loggly.com/inputs/{}/{}'.format(token, tag_str)
-        print(self.url)
 
     def emit(self, record):
         """Emit log record
