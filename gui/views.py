@@ -581,29 +581,13 @@ def shards(selected_instance):
         abort(404)
 
     html = ''
-    # TODO(Anthony): This logic should be moved to core.
     if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
-
-        aggregate_stats = {}
-        total_file_size = 0
-
-        for shard in instance.shards:
-            shard_stats = shard.replica_set.primary.aggregate_database_statistics
-            aggregate_stats[shard.name] = shard_stats
-            total_file_size += shard_stats[Constants.FILE_SIZE_IN_BYTES]
-
-        # Calculate shard balance percentage per shard.
-        for shard_name in aggregate_stats:
-            shard_stats = aggregate_stats[shard_name]
-            shard_file_size_in_bytes = shard_stats[Constants.FILE_SIZE_IN_BYTES]
-            if total_file_size == 0:
-                shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = 0
-            else:
-                shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = round((float(shard_file_size_in_bytes) / float(total_file_size)) * 100, 2)
-
-        html = render_template('instances/_shard_info.html',
+        template = 'instances/_shard_info.html' if instance.type == Constants.MONGODB_SHARDED_INSTANCE else 'instances/tokumx/_shard_info.html'
+        aggregate_stats = instance.shard_balance
+        html = render_template(template_name_or_list=template,
                                aggregate_stats=aggregate_stats,
                                instance=instance)
+
     elif instance.type in (Constants.MONGODB_REPLICA_SET_INSTANCE, Constants.TOKUMX_REPLICA_SET_INSTANCE):
         if instance.replica_set.primary:
             primary = instance.replica_set.primary
@@ -611,6 +595,7 @@ def shards(selected_instance):
         else:
             primary = instance.replica_set.members[0]
             has_primary = False
+
         html = render_template('instances/_replica_set_info.html',
                                get_host_zone=Utility.get_host_zone,
                                has_primary=has_primary,
