@@ -599,6 +599,7 @@ def shards(selected_instance):
         html = render_template('instances/_replica_set_info.html',
                                get_host_zone=Utility.get_host_zone,
                                has_primary=has_primary,
+                               instance=instance,
                                primary=primary)
 
     return html
