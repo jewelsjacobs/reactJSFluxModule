@@ -10,14 +10,16 @@ from logging.handlers import SysLogHandler
 from airbrake.airbrake import AirbrakeErrorHandler
 from flask import abort, got_request_exception, request
 from flask_debugtoolbar import DebugToolbarExtension
-from flaskext.kvsession import KVSessionExtension
+from flask_kvsession import KVSessionExtension
+
+from simplekv.db.mongo import MongoStore
 
 from gui.http_exceptions import PaymentRequired
 
 from loggly import LogglyHandler
 
 from viper import config as viper_config
-from viper.mongo_sessions import MongoDBStore
+from viper.utility import Utility
 
 
 # noinspection PyUnusedLocal
@@ -51,7 +53,8 @@ class Config(object):
 
         # Session system.
         if not app.config['MAINTENANCE']:
-            store = MongoDBStore(viper_config)
+            session_db = Utility.get_sessions_db_connection(viper_config)
+            store = MongoStore(session_db, 'sessions')
             KVSessionExtension(store, app)
 
         # Exception logging
