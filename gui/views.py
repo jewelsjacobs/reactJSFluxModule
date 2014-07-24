@@ -679,7 +679,12 @@ def instance_space_usage(selected_instance):
 
     usage_totals = instance.space_usage
 
-    return render_template('instances/_space_usage.html',
+    if instance.service == Constants.TOKUMX_SERVICE:
+        template = 'instances/tokumx/_space_usage.html'
+    else:
+        template = 'instances/_space_usage.html'
+
+    return render_template(template_name_or_list=template,
                            instance=instance,
                            usage_totals=usage_totals)
 
@@ -911,8 +916,13 @@ def databases(selected_instance):
     if instance is None:
         abort(404)
 
+    if instance.service == Constants.TOKUMX_SERVICE:
+        template = 'instances/tokumx/_databases.html'
+    else:
+        template = 'instances/_databases.html'
+
     databases = instance.databases
-    html = render_template('instances/_databases.html',
+    html = render_template(template_name_or_list=template,
                            databases=databases,
                            instance=instance)
     return html

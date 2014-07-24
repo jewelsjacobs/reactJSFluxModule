@@ -39,11 +39,11 @@
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Server</div>
-                <div class="rs-detail-value">MongoDB</div>
+                <div class="rs-detail-value">{{ Constants.SERVICE_DISPLAY_NAMES[instance.service] }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Type</div>
-                <div class="rs-detail-value">{{instance.type.replace('mongodb', 'MongoDB').replace('sharded', 'Sharded').replace('replica_set', 'Replica Set').replace('_', ' ')}}</div>
+                <div class="rs-detail-value">{{ Constants.TYPE_DISPLAY_NAMES[instance.type] }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Version</div>
@@ -57,7 +57,7 @@
                 <div class="rs-detail-key">Plan</div>
                 <div class="rs-detail-value">{{instance.plan}} GB</div>
             </li>
-            {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+            {% if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE) %}
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Shards</div>
                 <div class="rs-detail-value">{{ instance.shards|count }}</div>
