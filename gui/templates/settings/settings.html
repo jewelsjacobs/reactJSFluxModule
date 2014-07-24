@@ -137,6 +137,7 @@
                     <span class="rs-help-block">Enables weekly stepdowns.</span>
                 </div>
             </div>
+            {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
             <div class="rs-control-group">
                 <label class="rs-control-label">Enable Weekly Compaction</label>
                 <div class="rs-controls">
@@ -146,6 +147,7 @@
                     <span class="rs-help-block">Enable Weekly Compaction to allow this instance to be automatically compacted during the defined window. Run Weekly must also be enabled. For more information, please visit the <a href="http://docs.objectrocket.com/settings_guide.html#stepdown-window" target="_blank">settings documentation</a>.</span>
                 </div>
             </div>
+            {% endif %}
         {% endcall %}
         {% call detail_section(title='External Integration', collapsible=true) %}
             <div class="rs-control-group">
