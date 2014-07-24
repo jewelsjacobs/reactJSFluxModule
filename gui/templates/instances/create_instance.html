@@ -43,7 +43,7 @@
                             <input checked name="service_type" type="radio" value="mongodb"/>
                             <strong>MongoDB</strong>
                             <span class="rs-icon-help tip" data-title='
-                                <h4>MongoDB — {{ default_mongo_version }}</h4>
+                                <h4>MongoDB — {{ Constants.SERVICE_VERSIONS_MAP["mongodb"]["default"] }}</h4>
                                 <p><i><a href="http://docs.mongodb.org/manual/release-notes/2.4/" target="1">Release Notes</a></i></p>
                                 <ul>
                                     <li>3 member Replica Set</li>
@@ -54,11 +54,12 @@
 
                         </label>
 
+                        {% if Constants.TOKUMX_SERVICE in active_datastores %}
                         <label class="rs-radio">
                             <input name="service_type" type="radio" value="tokumx"/>
                             <strong>TokuMX</strong>
                             <span class="rs-icon-help tip" data-title='
-                                <h4>TokuMX — 1.5.0</h4>
+                                <h4>TokuMX — Constants.SERVICE_VERSIONS_MAP["tokumx"]["default"]</h4>
                                 <p><i><a href="http://www.tokutek.com/products/tokumx-for-mongodb/" target="1">Additional Information</a></i></p>
                                 <ul>
                                     <li>3 member Replica Set</li>
@@ -67,6 +68,23 @@
                                 </ul>' data-delay="0.1">
                             </span>
                         </label>
+                        {% endif %}
+
+                        {% if Constants.REDIS_SERVICE in active_datastores %}
+                        <label class="rs-radio">
+                            <input name="service_type" type="radio" value="redis"/>
+                            <strong>Redis</strong>
+                            <span class="rs-icon-help tip" data-title='
+                                <h4>Redis - Constants.SERVICE_VERSIONS_MAP["redis"]["default"]</h4>
+                                <p><i><a href="http://download.redis.io/redis-stable/00-RELEASENOTES" target="1">Release Notes</a></i></p>
+                                <ul>
+                                    <li>2 Node HA</li>
+                                    <li>Automatic Failover</li>
+                                    <li>24x7 email Support</li>
+                                </ul>' data-delay="0.1">
+                            </span>
+                        </label>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -108,13 +126,15 @@
     {{ super() }}
 
     <script>
-    var serviceVersionsMap = {{ Constants.SERVICE_VERSIONS_MAP|tojson|safe }}
-
-    var datacenterDisplayNameMap = {{ Constants.DATACENTER_DISPLAY_NAME_MAP|tojson|safe }}
+    var serviceVersionsMap = {{ Constants.SERVICE_VERSIONS_MAP|tojson|safe }},
+        redisDatacentersAndDisplayNames = {{ Constants.REDIS_DATACENTERS_AND_DISPLAY_NAMES|tojson|safe }},
+        tokumxDatacentersAndDisplayNames = {{ Constants.TOKUMX_DATACENTERS_AND_DISPLAY_NAMES|tojson|safe }},
+        mongodbDatacentersAndDisplayNames = {{ Constants.MONGODB_DATACENTERS_AND_DISPLAY_NAMES|tojson|safe }},
+        serviceToDatacentersMap = {{ Constants.SERVICE_TO_DATACENTERS_MAP|tojson|safe }};
 
     var usPrices = [
         {val: 1, text: '1GB SMALL $19.00/mo'},
-        {val: 5, text: '5GB MEDIUM $149.00/mo'},
+        {val: 5, text: '5GB MEDIUM $149.00/mo', default: true},
         {val: 20, text: '20GB MEDIUM $399.00/mo'},
         {val: 50, text: '50GB MEDIUM $899.00/mo'},
         {val: 100, text: '100GB MEDIUM $1,599.00/mo'},
@@ -122,7 +142,7 @@
 
     var lonPrices = [
         {val: 1, text: '1GB SMALL $25.00/mo'},
-        {val: 5, text: '5GB MEDIUM $190.00/mo'},
+        {val: 5, text: '5GB MEDIUM $190.00/mo', default: true},
         {val: 20, text: '20GB MEDIUM $500.00/mo'},
         {val: 50, text: '50GB MEDIUM $1,125.00/mo'},
         {val: 100, text: '100GB MEDIUM $2,000.00/mo'},
@@ -130,7 +150,7 @@
 
     var hkgPrices = [
         {val: 1, text: '1GB SMALL $25.00/mo'},
-        {val: 5, text: '5GB MEDIUM $195.00/mo'},
+        {val: 5, text: '5GB MEDIUM $195.00/mo', default: true},
         {val: 20, text: '20GB MEDIUM $525.00/mo'},
         {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
         {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
@@ -138,23 +158,43 @@
 
     var sydPrices = [
         {val: 1, text: '1GB SMALL $25.00/mo'},
-        {val: 5, text: '5GB MEDIUM $195.00/mo'},
+        {val: 5, text: '5GB MEDIUM $195.00/mo', default: true},
         {val: 20, text: '20GB MEDIUM $525.00/mo'},
         {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
         {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
     ];
 
+    var redisPrices = [
+        {val: '.5', text: '500M $59.00/mo'},
+        {val: '1', text: '1G $99.00/mo', default: true},
+        {val: '2.5', text: '2.5G $219.00/mo'},
+        {val: '5', text: '5G $429.00/mo'},
+        {val: '10', text: '10G $849.00/mo'},
+        {val: '20', text: '20G $1649.00/mo'},
+        {val: '50', text: '50G $3999.00/mo'},
+    ];
+
+
     function buildPlanOptions(pricingMap) {
+        var defaultPlan;
+
         // Clear out #plan_select contents.
         $('#plan_select').empty();
 
         // Build new '<option>' elements.
         $(pricingMap).each(function () {
             $('#plan_select').append($("<option>").attr('value', this.val).text(this.text));
+
+            // Initialize the default plan to present to the user.
+            if ('default' in this) {
+                defaultPlan = this.val;
+            }
         });
 
-        // Auto select the option having a value of 5.
-        $('#plan_select').val(5);
+        // Select the defaultPlan if defined, else default to first option.
+        if (typeof defaultPlan != 'undefined') {
+            $('#plan_select').val(defaultPlan);
+        }
     }
 
     function buildZoneOptions(zoneMap) {
@@ -166,40 +206,56 @@
             $('#zone').append($("<option>").attr('value', key).text(zoneMap[key]));
         }
 
-        // Auto select US-East-IAD3.
-        $('#zone').val('US-East-IAD3');
+        // Select 'US-East-IAD3' if present in map, else default to first option.
+        if ('US-East-IAD3' in zoneMap) {
+            $('#zone').val('US-East-IAD3');
+        }
 
     }
 
     $(document).ready(function () {
 
+        // Bind the value of the service selected by default (really should be mongodb).
+        var defaultService = $('#service-type input:checked').val();
+
         // Initialize a value for #version.
-        $('#version').attr('value', serviceVersionsMap[$('#service-type input:checked').val()].default);
+        $('#version').attr('value', serviceVersionsMap[defaultService].default);
 
         // Build and select initial '<option>' elements for #zone & #plan_select.
-        buildZoneOptions(datacenterDisplayNameMap);
+        buildZoneOptions(serviceToDatacentersMap[defaultService]);
         buildPlanOptions(usPrices);
 
-        // Bind listener to change service type value when input selection changes.
+        // Bind listener to change the value of #version when '#service-type input' changes.
         $('#service-type input').change(function() {
             var versionInput = $('#version'),
                 serviceType = $('#service-type input:checked').val();
 
-            versionInput.val(serviceVersionsMap[serviceType].default)
+            versionInput.val(serviceVersionsMap[serviceType].default);
         });
 
-        // Bind listener to change pricing map when #zone changes.
-        $('#zone').change(function () {
-            var selectedZone = $(this).val();
+        // Bind listener to change the value of #zone when '#service-type input' changes.
+        $('#service-type input').change(function() {
+            var zoneInput = $('#zone'),
+                serviceType = $('#service-type input:checked').val();
 
-            var prices = usPrices;
+            buildZoneOptions(serviceToDatacentersMap[serviceType]);
+        });
 
-            if (selectedZone == 'EU-London') {
-                var prices = lonPrices;
+        // Bind listener to change pricing map when #zone or '#service_type input' changes.
+        $('#zone, #service-type input').change(function () {
+            var prices = usPrices,
+                selectedZone = $(this).val(),
+                serviceType = $('#service-type input:checked').val();
+
+
+            if (serviceType == 'redis') {
+                prices = redisPrices;
+            } else if (selectedZone == 'EU-London') {
+                prices = lonPrices;
             } else if (selectedZone == 'AP-HongKong') {
-                var prices = hkgPrices;
+                prices = hkgPrices;
             } else if (selectedZone == 'AP-Sydney') {
-                var prices = sydPrices;
+                prices = sydPrices;
             }
 
             buildPlanOptions(prices);
@@ -229,128 +285,7 @@
                 $(label).closest('.rs-control-group').addClass('success');
             }
         });
-
-
-
-
-
-
-
-
-
-            $('[name=service_type]').change(function () {
-                var serviceType = $(this).val();
-
-                var mongo_zones = [
-                    {val: "US-East-IAD3", text: "US-East-IAD3, AWS Direct Connect" },
-                    {val: "US-West", text: "US-West, AWS Direct Connect"},
-                    {val: "US-Chicago", text: "ORD"},
-                    {val: "EU-London", text: "LON"},
-                    {val: "AP-HongKong", text: "HKG"},
-                    {val: "AP-Sydney", text: "SYD"}
-                ]
-
-                var redis_zones = [
-                    {val: "US-East-IAD3", text: "US-East-IAD3, AWS Direct Connect"},
-                    {val: "US-Chicago", text: "ORD"},
-                    {val: "US-Dallas", text: "DFW"},
-                    {val: "EU-London", text: "LON"}
-                ]
-
-                var zones = mongo_zones;
-
-                if (serviceType == 'redis') {
-                    var zones = redis_zones;
-                }
-
-                $('#zone').empty();
-
-                $(zones).each(function () {
-                    $('#zone').append($("<option>").attr('value', this.val).text(this.text));
-                });
-
-                change_pricing()
-            });
-
-            $('#zone').change(change_pricing);
-
-
-        });
-
-        function change_pricing(){
-
-            service = $('[name=service_type]:checked').val();
-            zone = $("#zone").val();
-
-            var usMongoPrices = [
-                {val: 1, text: '1GB SMALL $19.00/mo'},
-                {val: 5, text: '5GB MEDIUM $149.00/mo'},
-                {val: 20, text: '20GB MEDIUM $399.00/mo'},
-                {val: 50, text: '50GB MEDIUM $899.00/mo'},
-                {val: 100, text: '100GB MEDIUM $1,599.00/mo'},
-            ];
-
-            var lonMongoPrices = [
-                {val: 1, text: '1GB SMALL $25.00/mo'},
-                {val: 5, text: '5GB MEDIUM $190.00/mo'},
-                {val: 20, text: '20GB MEDIUM $500.00/mo'},
-                {val: 50, text: '50GB MEDIUM $1,125.00/mo'},
-                {val: 100, text: '100GB MEDIUM $2,000.00/mo'},
-            ];
-
-            var hkgMongoPrices = [
-                {val: 1, text: '1GB SMALL $25.00/mo'},
-                {val: 5, text: '5GB MEDIUM $195.00/mo'},
-                {val: 20, text: '20GB MEDIUM $525.00/mo'},
-                {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
-                {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
-            ];
-
-            var sydMongoPrices = [
-                {val: 1, text: '1GB SMALL $25.00/mo'},
-                {val: 5, text: '5GB MEDIUM $195.00/mo'},
-                {val: 20, text: '20GB MEDIUM $525.00/mo'},
-                {val: 50, text: '50GB MEDIUM $1,175.00/mo'},
-                {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
-            ];
-
-            var redisPrices = [
-                {val: ".5", text: '500M $59.00/mo'},
-                {val: "1", text: '1G $99.00/mo'},
-                {val: "2.5", text: '2.5G $219.00/mo'},
-                {val: "5", text: '5G $429.00/mo'},
-                {val: "10", text: '10G $849.00/mo'},
-                {val: "20", text: '20G $1649.00/mo'},
-                {val: "50", text: '50G $3999.00/mo'},
-            ];
-
-            if(service == "redis"){
-                var prices = redisPrices;
-            } else if (service == "mongodb"){
-
-                var prices = usMongoPrices;
-
-                if (zone == 'EU-London') {
-                    var prices = lonMongoPrices;
-                } else if (zone == 'AP-HongKong') {
-                    var prices = hkgMongoPrices;
-                } else if (zone == 'AP-Sydney') {
-                    var prices = sydMongoPrices;
-                }
-            }
-
-            $('#plan_select').empty();
-
-            $(prices).each(function () {
-                $('#plan_select').append($("<option>").attr('value', this.val).text(this.text));
-            });
-
-            if(service == "mongodb"){
-                $('#plan_select').val(5);
-            }else if (service == "redis"){
-                $('#plan_select').val(1);
-            }
-        });
+    });
     </script>
 
 {% endblock script %}

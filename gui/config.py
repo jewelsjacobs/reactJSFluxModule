@@ -34,7 +34,6 @@ class Config(object):
     AIRBRAKE_API_KEY = os.getenv('AIRBRAKE_API_KEY') or '5b03037d33a7371379fafc35c48af98b'
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Base'
     MAINTENANCE = False
-    ACTIVE_DATASTORES = ["mongodb", "redis"]
 
     def init_app(self, app):
         """Config specific application initialization."""
@@ -72,7 +71,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Development'
-    ACTIVE_DATASTORES = ["mongodb", "redis", "tokumx"]
+    ACTIVE_DATASTORES = ['mongodb', 'redis', 'tokumx']
 
     def init_app(self, app):
         """Production specific configuration."""
@@ -94,7 +93,7 @@ class ProductionConfig(Config):
     API_ENDPOINT = ''  # FIXME: point this to the appropriate LB.
     DEBUG = False
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Production'
-    ACTIVE_DATASTORES = ["mongodb"]
+    ACTIVE_DATASTORES = ['mongodb']
 
     def init_app(self, app):
         """Production specific configuration."""
@@ -118,7 +117,7 @@ class UnittestingConfig(Config):
     """Configuration for unit testing mode."""
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Unittest'
     TESTING = True
-    ACTIVE_DATASTORES = ["mongodb", "redis", "tokumx"]
+    ACTIVE_DATASTORES = ['mongodb', 'redis', 'tokumx']
 
 
 # Config mapping for application factory.

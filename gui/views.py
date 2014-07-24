@@ -481,18 +481,16 @@ def create_instance():
 
     if request.method == 'GET':
         return render_template('instances/create_instance.html',
-                               active_datastores=app.config.get("ACTIVE_DATASTORES"),
-                               form=form,
-                               default_mongo_version=config.DEFAULT_MONGO_VERSION)
+                               active_datastores=app.config.get('ACTIVE_DATASTORES'),
+                               form=form)
 
     # If form does not validate, send back to create_instance page.
     if not form.validate_on_submit():
         errors = ['{}: {}'.format(key, ' - '.join(val)) for key, val in form.errors.items()]
         flash(';'.join(errors), canon_constants.STATUS_ERROR)
         return render_template('instances/create_instance.html',
-                               active_datastores=app.config.get("ACTIVE_DATASTORES"),
-                               form=form,
-                               default_mongo_version=config.DEFAULT_MONGO_VERSION)
+                               active_datastores=app.config.get('ACTIVE_DATASTORES'),
+                               form=form)
 
     # Populate variables from form.
     name = form.name.data
@@ -582,6 +580,7 @@ def shards(selected_instance):
     if instance is None:
         abort(404)
 
+    html = ''
     if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
 
         aggregate_stats = {}
