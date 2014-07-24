@@ -73,7 +73,8 @@ def test_new_signup(app_client):
                                data={
                                    'email': email,
                                    'password': password,
-                                   'confirmPassword': password
+                                   'confirmPassword': password,
+                                   'agree': 'on'
                                })
         print response.data
         assert response.status_code == 302
@@ -91,6 +92,7 @@ def test_billing_enabled(app_client, monkeypatch):
 
     monkeypatch.setattr(viper.account, "Account", PsuedoAccount)
     with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
         response = client.get(url_for('create_instance'))
         assert response.status_code == 402
 
@@ -217,14 +219,6 @@ def test_create_instance_user(app_client):
 def test_delete_instance_user(app_client):
     with app_client as client:
         client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
-        response = client.get(url_for('delete_instance_user',
-                                      selected_instance=instance_name,
-                                      selected_database=database_name,
-                                      username=database_user_01),
-                              follow_redirects=True)
-        print(response.data)
-        assert response.status_code == 200
-
         response = client.post(url_for('delete_instance_user',
                                        selected_instance=instance_name,
                                        selected_database=database_name),
@@ -349,7 +343,7 @@ def test_rename_instance(app_client):
                                follow_redirects=True)
         print(response.data)
         assert response.status_code == 200
-        
+
         response = client.post(url_for('rename_instance'),
                                headers={
                                    'Referer': url_for('instance_details', selected_instance=instance_name)
