@@ -8,13 +8,13 @@ from wtforms import validators
 VALID_SIZE_INPUT = [1, 5, 20, 50, 100]
 
 
-# TODO(Anthony): Rafactor: do not key on the form to select 'service_type'.
 def valid_version(form, field):
     """Ensure the given version is valid for the specified service type."""
-    service = form['service_type'].data
+    _service = form.get('service_type', None)
+    service = _service.data if _service else None
     version = field.data
 
-    if version not in Constants.SERVICE_VERSIONS_MAP[service]['versions']:
+    if service not in Constants.ALL_INSTANCE_SERVICES or version not in Constants.SERVICE_VERSIONS_MAP[service]['versions']:
         raise validators.ValidationError('Invalid value "{}" for service "{}".'.format(version, service))
 
 
