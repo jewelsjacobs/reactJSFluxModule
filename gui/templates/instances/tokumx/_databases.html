@@ -10,7 +10,6 @@
                 <th><a href="#" class="rs-table-sort"><span class="rs-table-sort-text">Index Size</span><span class="rs-table-sort-indicator"></span></a></th>
                 <th><a href="#" class="rs-table-sort"><span class="rs-table-sort-text">Storage Size</span><span class="rs-table-sort-indicator"></span></a></th>
                 <th><a href="#" class="rs-table-sort"><span class="rs-table-sort-text">Average Object Size</span><span class="rs-table-sort-indicator"></span></a></th>
-                <th><a href="#" class="rs-table-sort"><span class="rs-table-sort-text">File Size</span><span class="rs-table-sort-indicator"></span></a></th>
             </tr>
         </thead>
         <tbody id="databases_tbody">
@@ -24,7 +23,6 @@
                 <td class="rs-table-text">{{ database.index_size_in_bytes|filesizeformat(binary=True) }}</td>
                 <td class="rs-table-text">{{ database.storage_size_in_bytes|filesizeformat(binary=True) }}</td>
                 <td class="rs-table-text">{{ database.average_object_size_in_bytes|filesizeformat(binary=True) }}</td>
-                <td class="rs-table-text">{{ database.file_size_in_bytes|filesizeformat(binary=True)}}</td>
             </tr>
         {% endfor %}
         </tbody>

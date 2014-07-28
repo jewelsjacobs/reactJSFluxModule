@@ -581,6 +581,7 @@ def shards(selected_instance):
         abort(404)
 
     html = ''
+    # TODO(Anthony): This logic should be moved to core.
     if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
 
         aggregate_stats = {}
@@ -678,7 +679,12 @@ def instance_space_usage(selected_instance):
 
     usage_totals = instance.space_usage
 
-    return render_template('instances/_space_usage.html',
+    if instance.service == Constants.TOKUMX_SERVICE:
+        template = 'instances/tokumx/_space_usage.html'
+    else:
+        template = 'instances/_space_usage.html'
+
+    return render_template(template_name_or_list=template,
                            instance=instance,
                            usage_totals=usage_totals)
 
@@ -724,7 +730,7 @@ def cluster(selected_instance):
 
     if not instance:
         abort(404)
-    elif instance.type != Constants.MONGODB_SHARDED_INSTANCE:
+    elif instance.type not in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
         return redirect(url_for('instance_details', selected_instance=selected_instance))
 
     return render_template('cluster.html', instance=instance, get_host_zone=Utility.get_host_zone)
@@ -910,8 +916,13 @@ def databases(selected_instance):
     if instance is None:
         abort(404)
 
+    if instance.service == Constants.TOKUMX_SERVICE:
+        template = 'instances/tokumx/_databases.html'
+    else:
+        template = 'instances/_databases.html'
+
     databases = instance.databases
-    html = render_template('instances/_databases.html',
+    html = render_template(template_name_or_list=template,
                            databases=databases,
                            instance=instance)
     return html

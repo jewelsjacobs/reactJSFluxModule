@@ -118,21 +118,17 @@
             <table class="rs-list-table rs-embedded-list-table {% if has_more_collections < 30 %}sortable{% endif %}" id="collections-table">
                 <thead>
                     <tr>
-<!--                         <th></th> -->
-                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Name</span><span class="rs-table-sort-indicator"></span></a></th>
-                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Documents</span><span class="rs-table-sort-indicator"></span></a></th>
-                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Data Size</span><span class="rs-table-sort-indicator"></span></a></th>
-                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Avg Object Size</span><span class="rs-table-sort-indicator"></span></a></th>
-                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Index Size</span><span class="rs-table-sort-indicator"></span></a></th>
-                        <th><a href="javascript:void(0);" class="rs-table-sort"><span class="rs-table-sort-text">Sharded</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="#" class="rs-table-sort"><span class="rs-table-sort-text">Name</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="#" class="rs-table-sort"><span class="rs-table-sort-text">Documents</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="#" class="rs-table-sort"><span class="rs-table-sort-text">Data Size</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="#" class="rs-table-sort"><span class="rs-table-sort-text">Avg Object Size</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="#" class="rs-table-sort"><span class="rs-table-sort-text">Index Size</span><span class="rs-table-sort-indicator"></span></a></th>
+                        <th><a href="#" class="rs-table-sort"><span class="rs-table-sort-text">Sharded</span><span class="rs-table-sort-indicator"></span></a></th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for collection in collections %}
                     <tr id="collection-{{ collection.name }}">
-<!--                         <td class="rs-table-text">
-                            <span data-title="Collections are groupings of MongoDB documents, and are equivalent to an RDBMS table." data-delay="0.1" class="rs-icon-help tip"></span>
-                        </td> -->
                         <td class="rs-table-text"><a href="{{ url_for('collection', selected_instance=instance.name, selected_database=database.name, selected_collection=collection.name) }}">{{ collection.name }}</td>
                         <td class="rs-table-text">{{ collection.document_count or 0 }}</td>
                         <td class="rs-table-text">{{ (collection.size or 0)|filesizeformat(binary=True) }}</td>
@@ -260,7 +256,7 @@
                 $('#delete-user-input').val(name);
             });
         });
-        
+
         $('#collections-table.sortable').DataTable({
             paging: false,
             searching: false,
