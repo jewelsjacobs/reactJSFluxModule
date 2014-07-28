@@ -20,8 +20,8 @@
 
             <div class="rs-detail-section-body">
                 <!-- default input values -->
-                <input id="service_type" name="service_type" type="hidden" value="mongodb"/>
-                <input id="version" name="version" type="hidden" value="{{default_mongo_version}}"/>
+                <input id="service_type" name="service_type" type="hidden" value="{{ instance.service }}"/>
+                <input id="version" name="version" type="hidden" value="{{ Constants.SERVICE_VERSIONS_MAP[instance.service]['default'] }}"/>
                 <!-- end default input values -->
 
                 <div class="rs-control-group">
@@ -92,7 +92,6 @@
         }
     }
 
-    // FIXME(Anthony): This is quite bad. We shouldn't interpolate jinja variables into the JS.
     $(document).ready(function () {
 
         var instanceVersion = {{ instance.version|tojson|safe }};
@@ -138,7 +137,7 @@
             $('#shard-key-pre').text('');
             $('#shardkeys').val('');
         });
-        
+
         // Listener for the submit button
         $('#collection-create-button').click(function(event) {
             event.preventDefault();

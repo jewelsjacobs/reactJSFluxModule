@@ -12,7 +12,6 @@
                 <th>Data Size</th>
                 <th>Index Size</th>
                 <th>Storage Size</th>
-                <th>File Size</th>
                 <th>Shard Balance</th>
             </tr>
         </thead>
@@ -26,11 +25,10 @@
                     <td class="rs-table-text">{{ shard_statistics[Constants.DATA_SIZE_IN_BYTES]|filesizeformat(binary=True) }}</td>
                     <td class="rs-table-text">{{ shard_statistics[Constants.INDEX_SIZE_IN_BYTES]|filesizeformat(binary=True) }}</td>
                     <td class="rs-table-text">{{ shard_statistics[Constants.STORAGE_SIZE_IN_BYTES]|filesizeformat(binary=True) }}</td>
-                    <td class="rs-table-text">{{ shard_statistics[Constants.FILE_SIZE_IN_BYTES]|filesizeformat(binary=True) }}</td>
                     <td class="rs-table-text">
                         <div class="rs-progress">
                             <div class="rs-progress-inner">
-                                <div class="rs-segment" style="width: {{ shard_statistics[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE]|round(1) }}%">
+                                <div class="rs-segment" style="width: {{ shard_statistics[Constants.TOKUMX_SHARD_BALANCE_PERCENTAGE]|round(1) }}%">
                                     <div class="rs-bar rs-bar-ok"></div>
                                 </div>
                             </div>

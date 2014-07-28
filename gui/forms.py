@@ -26,6 +26,7 @@ class CreateInstance(Form):
     service_type = fields.RadioField('service_type',
                                      validators=[validators.AnyOf(values=Constants.SERVICE_VERSIONS_MAP.keys())],
                                      choices=[(Constants.MONGODB_SERVICE, Constants.SERVICE_DISPLAY_NAMES[Constants.MONGODB_SERVICE]),
-                                              (Constants.TOKUMX_SERVICE, Constants.SERVICE_DISPLAY_NAMES[Constants.TOKUMX_SERVICE])])
+                                              (Constants.TOKUMX_SERVICE, Constants.SERVICE_DISPLAY_NAMES[Constants.TOKUMX_SERVICE]),
+                                              (Constants.REDIS_SERVICE, Constants.SERVICE_DISPLAY_NAMES[Constants.REDIS_SERVICE])])
     version = fields.HiddenField('version', validators=[valid_version])
     zone = fields.StringField('zone', validators=[validators.AnyOf(values=Constants.SERVER_ZONES, message='Invalid zone.')])

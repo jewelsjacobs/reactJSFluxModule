@@ -484,13 +484,14 @@ def create_instance():
                                active_datastores=app.config.get('ACTIVE_DATASTORES'),
                                form=form)
 
+    # TODO(Anthony): See objectrocket/gui#433 (the commented code below needs to be refactored).
     # If form does not validate, send back to create_instance page.
-    if not form.validate_on_submit():
-        errors = ['{}: {}'.format(key, ' - '.join(val)) for key, val in form.errors.items()]
-        flash(';'.join(errors), canon_constants.STATUS_ERROR)
-        return render_template('instances/create_instance.html',
-                               active_datastores=app.config.get('ACTIVE_DATASTORES'),
-                               form=form)
+    # if not form.validate_on_submit():
+    #     errors = ['{}: {}'.format(key, ' - '.join(val)) for key, val in form.errors.items()]
+    #     flash(';'.join(errors), canon_constants.STATUS_ERROR)
+    #     return render_template('instances/create_instance.html',
+    #                            active_datastores=app.config.get('ACTIVE_DATASTORES'),
+    #                            form=form)
 
     # Populate variables from form.
     name = form.name.data
@@ -581,29 +582,13 @@ def shards(selected_instance):
         abort(404)
 
     html = ''
-    # TODO(Anthony): This logic should be moved to core.
     if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
-
-        aggregate_stats = {}
-        total_file_size = 0
-
-        for shard in instance.shards:
-            shard_stats = shard.replica_set.primary.aggregate_database_statistics
-            aggregate_stats[shard.name] = shard_stats
-            total_file_size += shard_stats[Constants.FILE_SIZE_IN_BYTES]
-
-        # Calculate shard balance percentage per shard.
-        for shard_name in aggregate_stats:
-            shard_stats = aggregate_stats[shard_name]
-            shard_file_size_in_bytes = shard_stats[Constants.FILE_SIZE_IN_BYTES]
-            if total_file_size == 0:
-                shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = 0
-            else:
-                shard_stats[Constants.PERCENTAGE_OF_INSTANCE_FILE_SIZE] = round((float(shard_file_size_in_bytes) / float(total_file_size)) * 100, 2)
-
-        html = render_template('instances/_shard_info.html',
+        template = 'instances/_shard_info.html' if instance.type == Constants.MONGODB_SHARDED_INSTANCE else 'instances/tokumx/_shard_info.html'
+        aggregate_stats = instance.shard_balance
+        html = render_template(template_name_or_list=template,
                                aggregate_stats=aggregate_stats,
                                instance=instance)
+
     elif instance.type in (Constants.MONGODB_REPLICA_SET_INSTANCE, Constants.TOKUMX_REPLICA_SET_INSTANCE):
         if instance.replica_set.primary:
             primary = instance.replica_set.primary
@@ -611,9 +596,11 @@ def shards(selected_instance):
         else:
             primary = instance.replica_set.members[0]
             has_primary = False
+
         html = render_template('instances/_replica_set_info.html',
                                get_host_zone=Utility.get_host_zone,
                                has_primary=has_primary,
+                               instance=instance,
                                primary=primary)
 
     return html
@@ -1021,7 +1008,7 @@ def add_collection(selected_instance, selected_database):
 
     return render_template('instances/collection_create.html',
                            instance=user_instance,
-                           is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
+                           is_sharded_instance=user_instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE),
                            database=user_database,
                            default_mongo_version=config.DEFAULT_MONGO_VERSION)
 
