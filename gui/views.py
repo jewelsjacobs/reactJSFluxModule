@@ -484,13 +484,14 @@ def create_instance():
                                active_datastores=app.config.get('ACTIVE_DATASTORES'),
                                form=form)
 
+    # TODO(Anthony): See objectrocket/gui#433 (the commented code below needs to be refactored).
     # If form does not validate, send back to create_instance page.
-    if not form.validate_on_submit():
-        errors = ['{}: {}'.format(key, ' - '.join(val)) for key, val in form.errors.items()]
-        flash(';'.join(errors), canon_constants.STATUS_ERROR)
-        return render_template('instances/create_instance.html',
-                               active_datastores=app.config.get('ACTIVE_DATASTORES'),
-                               form=form)
+    # if not form.validate_on_submit():
+    #     errors = ['{}: {}'.format(key, ' - '.join(val)) for key, val in form.errors.items()]
+    #     flash(';'.join(errors), canon_constants.STATUS_ERROR)
+    #     return render_template('instances/create_instance.html',
+    #                            active_datastores=app.config.get('ACTIVE_DATASTORES'),
+    #                            form=form)
 
     # Populate variables from form.
     name = form.name.data
