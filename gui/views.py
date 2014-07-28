@@ -1007,7 +1007,7 @@ def add_collection(selected_instance, selected_database):
 
     return render_template('instances/collection_create.html',
                            instance=user_instance,
-                           is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
+                           is_sharded_instance=user_instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE),
                            database=user_database,
                            default_mongo_version=config.DEFAULT_MONGO_VERSION)
 
