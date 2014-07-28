@@ -31,8 +31,12 @@
     {% call detail_section(title='Instance Details', id='details_section') %}
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
-                <div class="rs-detail-key">Type</div>
+                <div class="rs-detail-key">Engine</div>
                 <div class="rs-detail-value">Redis</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Service Type</div>
+                <div class="rs-detail-value">HA Redis</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Version</div>
@@ -66,8 +70,8 @@
                 <div class="rs-detail-value">{{ instance.connect_string }}</div>
             </li>
             <li class="rs-detail-item">
-                <div class="rs-detail-key">API Key</div>
-                <div class="rs-detail-value">{{ instance.api_key }}</div>
+                <div class="rs-detail-key">Password</div>
+                <div class="rs-detail-value">{{ instance.password }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Max Memory Policy</div>
@@ -76,6 +80,10 @@
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Max Clients</div>
                 <div class="rs-detail-value">{{ instance.config_database['maxclients'] }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Connected Slaves</div>
+                <div class="rs-detail-value">{{ self.runtime_info.get("connected_slaves") }}</div>
             </li>
         </ul>
     {% endcall %}

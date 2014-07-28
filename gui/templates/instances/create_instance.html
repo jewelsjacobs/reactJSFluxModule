@@ -37,11 +37,12 @@
                 </div>
 
                 <div id="service-type" class="rs-control-group">
-                    <label class="rs-control-label">Service Type</label>
+                    <label class="rs-control-label">Engine</label>
                     <div class="rs-controls">
                         <label class="rs-radio">
                             <input checked name="service_type" type="radio" value="mongodb"/>
-                            <strong>MongoDB</strong>
+                            <strong>MongoDB</strong> -
+                            Document-Oriented NoSQL database
                             <span class="rs-icon-help tip" data-title='
                                 <h4>MongoDB — {{ Constants.SERVICE_VERSIONS_MAP["mongodb"]["default"] }}</h4>
                                 <p><i><a href="http://docs.mongodb.org/manual/release-notes/2.4/" target="1">Release Notes</a></i></p>
@@ -57,7 +58,8 @@
                         {% if Constants.TOKUMX_SERVICE in active_datastores %}
                         <label class="rs-radio">
                             <input name="service_type" type="radio" value="tokumx"/>
-                            <strong>TokuMX</strong>
+                            <strong>TokuMX</strong> -
+                            Custom MongoDB Distribution
                             <span class="rs-icon-help tip" data-title='
                                 <h4>TokuMX — {{ Constants.SERVICE_VERSIONS_MAP["tokumx"]["default"] }}</h4>
                                 <p><i><a href="http://www.tokutek.com/products/tokumx-for-mongodb/" target="1">Additional Information</a></i></p>
@@ -66,6 +68,7 @@
                                     <li>Solid State disk (SSD)</li>
                                     <li>24x7 email Support</li>
                                 </ul>' data-delay="0.1">
+
                             </span>
                         </label>
                         {% endif %}
@@ -73,7 +76,8 @@
                         {% if Constants.REDIS_SERVICE in active_datastores %}
                         <label class="rs-radio">
                             <input name="service_type" type="radio" value="redis"/>
-                            <strong>Redis</strong>
+                            <strong>Redis</strong> -
+                            In-memory key-value Datastore
                             <span class="rs-icon-help tip" data-title='
                                 <h4>Redis - {{ Constants.SERVICE_VERSIONS_MAP["redis"]["default"] }}</h4>
                                 <p><i><a href="http://download.redis.io/redis-stable/00-RELEASENOTES" target="1">Release Notes</a></i></p>
@@ -98,7 +102,7 @@
                         <select name="zone" id="zone">
                             <!-- Populated by JS. -->
                         </select>
-                        <div class="rs-help-block">This is the location of the datacenter which your instance will exist in.</div>
+                        <div class="rs-help-block">The datacenter in which your instance is provisioned.</div>
                     </div>
                 </div>
 
@@ -108,7 +112,22 @@
                         <select name="plan" id="plan_select">
                             <!-- Populated by JS. -->
                         </select>
-                        <div class="rs-help-block">The plan is the base size of your instance. Each new shard added to your instance will increase your instance size by increments of the plan size you select.</div>
+                        <div class="rs-help-block" id="service_type">
+                            <span id="service_type_mongodb_sharded">
+                                <strong>Sharded Instance</strong>
+                                The plan is the base size of your instance. Each new
+                                shard added to your instance will increase your
+                                instance size by increments of the plan size you select.
+                            </span>
+                            <span id="service_type_mongodb_replica_set" style="display:none">
+                                <strong>Replica Set</strong>
+                                The plan is the base size of your instance.
+                            </span>
+                            <span id="service_type_redis_ha" style="display:none">
+                                <strong>HA Redis</strong>
+                                The plan is the base size of your instance.
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -165,13 +184,13 @@
     ];
 
     var redisPrices = [
-        {val: '.5', text: '500M SMALL $59.00/mo'},
-        {val: '1', text: '1G SMALL $99.00/mo', default: true},
-        {val: '2.5', text: '2.5G SMALL $219.00/mo'},
-        {val: '5', text: '5G MEDIUM $429.00/mo'},
-        {val: '10', text: '10G MEDIUM $849.00/mo'},
-        {val: '20', text: '20G MEDIUM $1649.00/mo'},
-        {val: '50', text: '50G LARGE $3999.00/mo'},
+        {val: '.5', text: '500MB SMALL $59.00/mo'},
+        {val: '1', text: '1GB SMALL $99.00/mo', default: true},
+        {val: '2.5', text: '2.5GB SMALL $219.00/mo'},
+        {val: '5', text: '5GB MEDIUM $429.00/mo'},
+        {val: '10', text: '10GB MEDIUM $849.00/mo'},
+        {val: '20', text: '20GB MEDIUM $1649.00/mo'},
+        {val: '50', text: '50GB LARGE $3999.00/mo'},
     ];
 
 
@@ -213,6 +232,27 @@
 
     }
 
+    function buildServiceType(){
+        var price = $("#plan_select").val(),
+            serviceType = $('#service-type input:checked').val();
+
+        if (serviceType == "redis"){
+            instanceType = "redis_ha";
+
+        } else if (serviceType == "mongodb" || serviceType == "tokumx"){
+            if (price == 1){
+                instanceType = "mongodb_replica_set";
+            } else {
+                instanceType = "mongodb_sharded";
+            }
+        }
+
+        console.log(price);
+        console.log($('#service_type_'+instanceType));
+        $('#service_type span').hide();
+        $('#service_type_' + instanceType).show();
+    }
+
     $(document).ready(function () {
 
         // Bind the value of the service selected by default (really should be mongodb).
@@ -242,7 +282,7 @@
         });
 
         // Bind listener to change pricing map when #zone or '#service_type input' changes.
-        $('#zone, #service-type input').change(function () {
+        $('#zone, #service-type input, #plan').change(function () {
             var prices = usPrices,
                 selectedZone = $(this).val(),
                 serviceType = $('#service-type input:checked').val();
@@ -259,7 +299,12 @@
             }
 
             buildPlanOptions(prices);
+            buildServiceType();
         });
+
+        $('#plan_select').change(function(){
+            buildServiceType();
+        })
 
         // Validator code for instances-create-form.
         $.validator.addMethod("noSpaces", function (value, element) {

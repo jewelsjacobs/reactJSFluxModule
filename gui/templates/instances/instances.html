@@ -57,12 +57,6 @@
                             <span class="rs-table-sort-indicator"></span>
                         </a>
                     </th>
-                    <th>
-                        <a href="#" class="rs-table-sort">
-                            <span class="rs-table-sort-text">Shards</span>
-                            <span class="rs-table-sort-indicator"></span>
-                        </a>
-                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -103,14 +97,7 @@
                         <td class="rs-table-link">{{ Constants.TYPE_DISPLAY_NAMES[instance.type] }}</td>
                         <td class="rs-table-link">{{ instance.version }}</td>
                         <td class="rs-table-link">{{ instance.zone }}</td>
-                        <td class="rs-table-link">{{ instance.plan }}</td>
-                        <td class="rs-table-link">
-                            {% if instance.type == Constants.REDIS_SERVICE %}
-                                N/A
-                            {% else %}
-                                {{ instance.shards|count }}
-                            {% endif %}
-                        </td>
+                        <td class="rs-table-link">{{ instance.plan }}G</td>
                     </tr>
                 {% endfor %}
             </tbody>
