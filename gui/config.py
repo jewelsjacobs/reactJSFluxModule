@@ -8,8 +8,8 @@ from logging.handlers import SysLogHandler
 
 # noinspection PyPackageRequirements
 from airbrake.airbrake import AirbrakeErrorHandler
-
 from flask import abort, got_request_exception, request
+from flask_debugtoolbar import DebugToolbarExtension
 from flaskext.kvsession import KVSessionExtension
 
 from gui.http_exceptions import PaymentRequired
@@ -67,13 +67,18 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     """Configuration for development mode (default)."""
-    API_ENDPOINT = 'http://localhost:5050'
+    API_ENDPOINT = viper_config.API_SERVER
     DEBUG = True
+    DEBUG_TB_INTERCEPT_REDIRECTS = False
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Development'
+    ACTIVE_DATASTORES = ['mongodb', 'redis', 'tokumx']
 
     def init_app(self, app):
         """Production specific configuration."""
         super(DevelopmentConfig, self).init_app(app)
+
+        # Initialize the development toolbar.
+        DebugToolbarExtension(app)
 
         # Configure logging for development mode.
         logger = logging.getLogger()
@@ -88,6 +93,7 @@ class ProductionConfig(Config):
     API_ENDPOINT = ''  # FIXME: point this to the appropriate LB.
     DEBUG = False
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Production'
+    ACTIVE_DATASTORES = ['mongodb']
 
     def init_app(self, app):
         """Production specific configuration."""
@@ -111,6 +117,7 @@ class UnittestingConfig(Config):
     """Configuration for unit testing mode."""
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Unittest'
     TESTING = True
+    ACTIVE_DATASTORES = ['mongodb', 'redis', 'tokumx']
 
 
 # Config mapping for application factory.

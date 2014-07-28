@@ -1,0 +1,182 @@
+{% extends 'web_app_base.html' %}
+
+{% block back_link_area %}
+    {% call back_link() %}
+        <a href="{{ url_for('instances') }}">&lsaquo; Back to Instances</a>
+    {% endcall %}
+{% endblock back_link_area %}
+
+{% block content_area_body %}
+    <div class="rs-detail-header">
+        <div class="rs-detail-header-actions">
+            <div class="rs-dropdown">
+                <button id="action-target" class="rs-btn rs-btn-action rs-dropdown-toggle">
+                    <span class="rs-cog"></span>
+                    Actions
+                    <span class="rs-caret"></span>
+                </button>
+                <ul class="rs-dropdown-menu" style="right:0;">
+                    <li><span class="rs-dropdown-category">Manage</span></li>
+                    <li><a data-popover="rename-instance-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Rename</a></li>
+                    <li><span class="rs-dropdown-category">Views</span></li>
+                    <li><a class="rs-btn rs-btn-link or-expand-all">Expand All</a></li>
+                    <li><a class="rs-btn rs-btn-link or-collapse-all">Collapse All</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="rs-detail-header-subtitle">Instance Details</div>
+        <div class="rs-detail-header-title">{{ instance.name }}</div>
+    </div>
+
+    {% call detail_section(title='Instance Details', id='details_section') %}
+        <ul class="rs-detail-list">
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Type</div>
+                <div class="rs-detail-value">Redis</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Version</div>
+                <div class="rs-detail-value">{{instance.version}}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Zone</div>
+                <div class="rs-detail-value">{{instance.zone}}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Plan</div>
+                <div class="rs-detail-value">{{instance.plan}} GB</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Space Usage</div>
+                <div id="space_usage_data" class="rs-detail-value">
+
+                    <div class="rs-progress">
+                        <div class="rs-progress-inner or-flexbox-row">
+                            <div id="usage-bar-ns" class="rs-segment" style="width: {{ instance.free_space_percentage}}%;">
+                                <div class="rs-bar or-bar-ns"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <span class="or-legend tip" data-title="The total used memory as returned via INFO used_memory_human" data-delay="0.1"><span class="or-legend-ns"></span>usedmemory: {{ instance.runtime_info.get("used_memory_human")}}</span>
+                </div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Connect String</div>
+                <div class="rs-detail-value">{{ instance.connect_string }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">API Key</div>
+                <div class="rs-detail-value">{{ instance.api_key }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Max Memory Policy</div>
+                <div class="rs-detail-value">{{ instance.config_database['maxmemory-policy'] }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Max Clients</div>
+                <div class="rs-detail-value">{{ instance.config_database['maxclients'] }}</div>
+            </li>
+        </ul>
+    {% endcall %}
+
+{% endblock content_area_body %}
+
+{% block popovers %}
+    <!-- rename instance popover -->
+    <div id="rename-instance-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="rename_instance_popover_form" class="rs-form-horizontal rs-form-small" action="{{ url_for('rename_instance') }}" method="POST">
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">New Name</label>
+                        <div class="rs-controls">
+                            <input name="new_name" type="text" placeholder="{{ instance.name }}" class="rs-input rs-input-medium">
+                            <input name="current_name" type="hidden" value="{{ instance.name }}">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="rename_instance_popover_form_button" form="rename_instance_popover_form" class="rs-btn rs-btn-primary save">Rename</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end rename instance popover -->
+{% endblock popovers %}
+
+{% block script %}
+    {{ super() }}
+    <script type="text/javascript">
+
+    // Instance API key and name.
+    var apiKey = {{instance.api_key|tojson|safe}};
+    var instanceName = '{{instance.name}}';
+
+    $(document).ready(function() {
+
+        // Asynchronous calls.
+        fetchSpaceUsage();
+        fetchDatabases();
+
+        // Validation for renaming instances.
+        $('#rename_instance_popover_form').validate({
+            rules: {
+                new_name: {
+                    alphanumeric: true,
+                    minlength: 2,
+                    nowhitespace: true,
+                    required: true
+                }
+            },
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function (label) {
+                $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
+
+        $('#rename_instance_popover_form').bind("change keyup", function () {
+            if ($(this).validate().checkForm()) {
+                $("#rename_instance_popover_form_button").attr('disabled', false);
+            } else {
+                $('#rename_instance_popover_form_button').attr('disabled', true);
+            }
+        });
+
+        // Validation for adding instance users.
+        $('#add-instance-user-popover-form').validate({
+            rules: {
+                username: {
+                    minlength: 2,
+                    nowhitespace: true,
+                    required: true
+                },
+                password: {
+                    minlength: 2,
+                    required: true
+                },
+            },
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function(label) {
+                $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
+
+
+    });
+    </script>
+{% endblock script %}
