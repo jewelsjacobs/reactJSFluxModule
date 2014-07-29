@@ -1,0 +1,861 @@
+{% extends 'web_app_base.html' %}
+
+{% block back_link_area %}
+    {% call back_link() %}
+        <a href="{{ url_for('instances') }}">&lsaquo; Back to Instances</a>
+    {% endcall %}
+{% endblock back_link_area %}
+
+{% block content_area_body %}
+    <div class="rs-detail-header">
+        <div class="rs-detail-header-actions">
+            <div class="rs-dropdown">
+                <button id="action-target" class="rs-btn rs-btn-action rs-dropdown-toggle">
+                    <span class="rs-cog"></span>
+                    Actions
+                    <span class="rs-caret"></span>
+                </button>
+                <ul class="rs-dropdown-menu" style="right:0;">
+                    <li><span class="rs-dropdown-category">Manage</span></li>
+                    <li><a data-popover="rename-instance-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Rename</a></li>
+                    <li><a data-popover="delete-instance-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Delete</a></li>
+                    {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+                    <li><a data-popover="compact-instance-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Compact</a></li>
+                    {% endif %}
+                    <li><a data-popover="add-instance-user-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Add User</a></li>
+                    <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Manage Settings</a></li>
+                    <li><span class="rs-dropdown-category">Views</span></li>
+                    <li><a class="rs-btn rs-btn-link or-expand-all">Expand All</a></li>
+                    <li><a class="rs-btn rs-btn-link or-collapse-all">Collapse All</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="rs-detail-header-subtitle">Instance Details</div>
+        <div class="rs-detail-header-title">{{ instance.name }}</div>
+    </div>
+
+    {% call detail_section(title='Instance Details', id='details_section') %}
+        <ul class="rs-detail-list">
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Server</div>
+                <div class="rs-detail-value">{{ Constants.SERVICE_DISPLAY_NAMES[instance.service] }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Type</div>
+                <div class="rs-detail-value">{{ Constants.TYPE_DISPLAY_NAMES[instance.type] }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Version</div>
+                <div class="rs-detail-value">{{instance.version}}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Zone</div>
+                <div class="rs-detail-value">{{instance.zone}}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Plan</div>
+                <div class="rs-detail-value">{{instance.plan}} GB</div>
+            </li>
+            {% if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE) %}
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Shards</div>
+                <div class="rs-detail-value">{{ instance.shards|count }}</div>
+            </li>
+            {% endif %}
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Space Usage</div>
+                <div id="space_usage_data" class="rs-detail-value">
+                    <span>&nbsp;</span>
+                    <div class="rs-progress">
+                        <div class="rs-progress-inner or-flexbox-row">
+                            <div class="rs-segment" style="width:100%;">
+                                <div class="rs-bar rs-bar-ok rs-bar-striped"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="or-flexbox-row">
+                        <div class="rs-status">Loading&hellip;</div>
+                    </div>
+                </div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Connect String</div>
+                <div class="rs-detail-value">{{ instance.connect_string }}</div>
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">SSL Connect String</div>
+                {% if instance.ssl_connect_string %}
+                <div class="rs-detail-value">{{ instance.ssl_connect_string }}</div>
+                {% else %}
+                <div class="rs-detail-value">SSL connections only available for <a href="http://www.objectrocket.com/pricing">Medium and larger instances</a></div>
+                {% endif %}
+            </li>
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">API Key</div>
+                <div class="rs-detail-value">{{ instance.api_key }}</div>
+            </li>
+        </ul>
+    {% endcall %}
+
+    {% call detail_section(title='Instance Operations Status', collapsible=True, id='operations_section') %}
+        {% if database_copy_state == 'scheduled' or database_copy_state == 'started' %}
+            {% set copy_class='rs-status-processing' %}
+            {% set copy_text='Processing' %}
+        {% elif database_copy_state == 'failed' %}
+            {% set copy_class='rs-status-error' %}
+            {% set copy_text='Failed' %}
+        {% else %}
+            {% set copy_class='rs-status-disabled' %}
+            {% set copy_text='Inactive' %}
+        {% endif %}
+
+        <ul class="rs-detail-list">
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Database Copy</div>
+                <div class="rs-detail-value">
+                    <span class="rs-status {{ copy_class }}">{{ copy_text }}</span>
+                </div>
+            </li>
+        </ul>
+    {% endcall %}
+
+
+    {% call detail_section(title='Databases', collapsible=True, id='databases_section') %}
+        {% set add_database_enabled = is_sharded_instance or (not is_sharded_instance and databases|count < max_databases_per_replica_set_instances) %}
+        {% if not (add_database_enabled and enable_copy_database) %}
+            {% set copy_database_enabled = false %}
+        {% elif 'copy_database' not in instance.document %}
+            {% set copy_database_enabled = true %}
+        {% elif instance.document['copy_database'].get('state', 'failed') == 'failed' %}
+            {% set copy_database_enabled = true %}
+        {% else %}
+            {% set copy_database_enabled = false %}
+        {% endif %}
+
+        <div class="rs-btn-group">
+            <button id="add-database-target" data-popover="add-database-popover" data-popover-target="add-database-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source{% if not add_database_enabled %} disabled{% endif %}">Add Database</button>
+            <button id="copy-remote-database-target" data-popover="copy-remote-database-popover" data-popover-target="copy-remote-database-target" data-popover-position="bottom-right" class="rs-btn rs-btn-secondary rs-popover-source{% if not copy_database_enabled %} disabled{% endif %}">Copy Remote Database</button>
+        </div>
+
+        <div id="databases_container" class="rs-embedded-list-table-wrapper rs-embedded-medium">
+            <div id="databases_overlay_loading" class="rs-table-overlay rs-table-overlay-loading">
+                <div id="databases-table-overlay-content" class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-message">Loading &hellip;</div>
+                </div>
+            </div>
+            <div id="databases_overlay_failure" class="rs-table-overlay hidden">
+                <div id="databases-table-overlay-content" class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-title">Failed to load databases.</div>
+                    <div class="rs-table-overlay-subtitle">If this issue persists, contact support.</div>
+                </div>
+            </div>
+        </div>
+    {% endcall %}
+
+    {% if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE) %}
+        {% set shard_section_title = 'Shards' %}
+    {% else %}
+        {% set shard_section_title = 'Replica Set' %}
+    {% endif %}
+    {% call detail_section(title=shard_section_title, collapsible=True, expanded=False, id='shards_section') %}
+        <div id="shards_overlay" class="rs-embedded-list-table-wrapper rs-embedded-medium">
+            <div id="shards_overlay_loading" class="rs-table-overlay rs-table-overlay-loading">
+                <div id="databases-table-overlay-content" class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-message">Loading &hellip;</div>
+                </div>
+            </div>
+            <div id="shards_overlay_failure" class="rs-table-overlay hidden">
+                <div id="databases-table-overlay-content" class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-title">Failed to load shards.</div>
+                    <div class="rs-table-overlay-subtitle">If this issue persists, contact support.</div>
+                </div>
+            </div>
+        </div>
+    {% endcall %}
+
+    {% call detail_section(title='Security', collapsible=True, expanded=False, id='acls_section') %}
+        <div class="rs-btn-group">
+            <button id="add-acl-target" data-popover="add-acl-popover" data-popover-target="add-acl-target" data-popover-position="bottom-right" class="rs-btn rs-btn-primary rs-popover-source">Add ACL</button>
+        </div>
+
+        <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Source IP CIDR</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody id="acls-table-body">
+                </tbody>
+            </table>
+            <div id="acls-table-overlay" class="rs-table-overlay">
+                <div class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-title">You don't have any ACLs yet.</div>
+                    <div class="rs-table-overlay-subtitle">Create one now by clicking on the Add ACL button.</div>
+                    <div class="rs-table-overlay-message">Access Control Lists (ACLs) allow you to limit who connects to your instance.</div>
+                </div>
+            </div>
+        </div>
+    {% endcall %}
+
+    {% call detail_section(title='Backups', collapsible=True, expanded=False, id='backups_section') %}
+        <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
+            <table class="rs-list-table rs-embedded-list-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="backups-table-body">
+                </tbody>
+            </table>
+            <div id="backups-table-overlay" class="rs-table-overlay">
+                <div class="rs-table-overlay-content">
+                    <div class="rs-table-overlay-title">You don't have any backups yet.</div>
+                    <div class="rs-table-overlay-subtitle">Backups will be created for you automatically.</div>
+                    <div class="rs-table-overlay-message">Backups are created per your backup plan. If you would like an upgraded plan, or need a backup restored, please <a href="https://objectrocket.zendesk.com/home">contact support</a>.</div>
+                </div>
+            </div>
+        </div>
+    {% endcall %}
+
+    {% call detail_section(title='Additional Item Details', collapsible=True, expanded=False, id='misc_section') %}
+        <ul class="rs-detail-list">
+            <li class="rs-detail-item">
+                <div class="rs-detail-key">Created</div>
+                <div class="rs-detail-value">{{ instance.creation_date }}</div>
+            </li>
+        </ul>
+    {% endcall %}
+{% endblock content_area_body %}
+
+{% block popovers %}
+    <!-- rename instance popover -->
+    <div id="rename-instance-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="rename_instance_popover_form" class="rs-form-horizontal rs-form-small" action="{{ url_for('rename_instance') }}" method="POST">
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">New Name</label>
+                        <div class="rs-controls">
+                            <input name="new_name" type="text" placeholder="{{ instance.name }}" class="rs-input rs-input-medium">
+                            <input name="current_name" type="hidden" value="{{ instance.name }}">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="rename_instance_popover_form_button" form="rename_instance_popover_form" class="rs-btn rs-btn-primary save">Rename</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end rename instance popover -->
+
+    <!-- delete instance popover -->
+    <div id="delete-instance-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="delete-instance-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('delete_instance', instance_name=instance.name) }}" method="POST">
+                    <p><b>Permanently delete</b> instance <b id="delete-instance-popover-name"></b>?</p>
+                    <p>This will permanently delete the instance and all data within its databases.</p>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="delete-instance-popover-form-button" form="delete-instance-popover-form" class="rs-btn rs-btn-primary save">Delete Instance</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end delete instance popover -->
+
+    <!-- compact instance popover -->
+    <div id="compact-instance-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="compact-instance-popover-form" class="rs-form-horizontal rs-form-small"
+                      action="{{ url_for('compact_instance', instance_name=instance.name) }}" method="POST">
+                    <div class="rs-control-group">
+                        Request <strong>compaction</strong> for instance <strong>{{ instance.name }}</strong>?
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="compact-instance-popover-form-button" form="compact-instance-popover-form"
+                        class="rs-btn rs-btn-primary save">Compact</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end compact instance popover -->
+
+    <!-- add instance user popover -->
+    <div id="add-instance-user-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="add-instance-user-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('add_instance_user', selected_instance=instance.name) }}" method="POST">
+                    <h4>Add Instance User</h4>
+                    <p>
+                        This will add a new user to all currently existing databases belonging to this instance.
+                        <br/>
+                        <a target="blank" href="http://docs.objectrocket.com/features.html#add-instance-user">More Details About Adding Instance Users</a><span class="rs-icon-external"></span>
+                    </p>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Username</label>
+                        <div class="rs-controls">
+                            <input name="username" type="text" placeholder="Username" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Password</label>
+                        <div class="rs-controls">
+                            <input name="password" type="password" placeholder="Password" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="add-instance-user-popover-form-button" form="add-instance-user-popover-form" class="rs-btn rs-btn-primary">Add Instance User</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end add instance user popover -->
+
+    <!-- add database popover -->
+    <div id="add-database-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="add-database-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('create_instance_user', selected_instance=instance.name) }}" method="POST">
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Database Name</label>
+                        <div class="rs-controls">
+                            <input name="database" type="text" placeholder="Database Name" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Username</label>
+                        <div class="rs-controls">
+                            <input name="username" type="text" placeholder="Username" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Password</label>
+                        <div class="rs-controls">
+                            <input name="password" type="password" placeholder="Password" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="add-database-popover-form-button" form="add-database-popover-form" class="rs-btn rs-btn-primary save">Add Database</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end add database popover -->
+
+    <!-- copy remote database popover -->
+    <div id="copy-remote-database-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="copy-remote-database-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('copy_database', selected_instance=instance.name ) }}" method="POST">
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Connect String</label>
+                        <div class="rs-controls">
+                            <input name="connect_string" type="text" placeholder="my.host.com:12345" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Database Name</label>
+                        <div class="rs-controls">
+                            <input name="database" type="text" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Database Username</label>
+                        <div class="rs-controls">
+                            <input name="username" type="text" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Database Password</label>
+                        <div class="rs-controls">
+                            <input name="password" type="password" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="copy-remote-database-popover-form-button" form="copy-remote-database-popover-form" class="rs-btn rs-btn-primary save">Copy Database</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end copy remote database popover -->
+
+    <!-- delete database popover -->
+    <div id="delete-database-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="delete-database-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('drop_database') }}" method="POST">
+                    <p><b>Permanently delete</b> database <b id="delete-database-popover-name"></b>?</p>
+                    <p>This will permanently delete all data within this database.</p>
+                    <input name="instance" type="hidden" value="{{ instance.name }}">
+                    <input id="delete-database-db-input" name="db" type="hidden" value="">
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="delete-database-popover-form-button" form="delete-database-popover-form" class="rs-btn rs-btn-primary">Delete Database</button>
+                <button class="rs-btn rs-btn-link">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- end delete database popover -->
+
+    <!-- add acl popover -->
+    <div id="add-acl-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="add-acl-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('add_acl', instance=instance.name) }}" method="POST">
+                    <p>Access Control Lists (ACLs) allow you to limit who connects to your MongoDB instance. By default, no one is allowed to connect. If you know the set of IP addresses you wish to connect from, you can add them here. If you don't, or if you're connecting from a service such as Heroku that uses dynamic ranges of IP addresses, you can select "any" here; You'll still be able to limit access via the login/password pairs that you configure, and you can still encrypt your connections with SSL.</p>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">IP Address</label>
+                        <div class="rs-controls">
+                            <input id="acl" name="cidr_mask" type="text" placeholder="1.1.1.1/24" class="rs-input rs-input-large">
+                            <p class="rs-help-block">Must be a <a href="http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing" target="1">CIDR</a> IP address, or <span class="strong-blue">any</span> to allow any source IP.</p>
+                        </div>
+                    </div>
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Description</label>
+                        <div class="rs-controls">
+                            <input id="description" name="description" type="text" class="rs-input rs-input-large">
+                            <p class="rs-help-block">Enter a short description for this ACL.</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="add-acl-popover-form-button" form="add-acl-popover-form" class="rs-btn rs-btn-primary">Add ACL</button>
+                <button class="rs-btn rs-btn-link">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- end add acl popover -->
+
+    <!-- delete acl popover -->
+    <div id="delete-acl-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="delete-acl-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('delete_acl', instance=instance.name) }}" method="POST">
+                    <p><strong>Delete</strong> ACL <span id="delete-acl-popover-cidr"></span>?</p>
+                    <input id="delete-acl-input" name="acl_id" type="hidden" value="">
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="delete-acl-popover-form-button" form="delete-acl-popover-form" class="rs-btn rs-btn-primary">Delete ACL</button>
+                <button class="rs-btn rs-btn-link">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- end delete acl popover -->
+
+    <!-- add shard popover -->
+    <div id="add-shard-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="add-shard-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('add_shard', selected_instance=instance.name) }}" method="POST">
+                    <p>Add a shard to instance <b>{{ instance.name }}</b>?</p>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="add-shard-popover-form-button" form="add-shard-popover-form" class="rs-btn rs-btn-primary">Add Shard</button>
+                <div class="rs-btn rs-btn-link">Cancel</div>
+            </div>
+        </div>
+    </div>
+    <!-- end shard popover -->
+{% endblock popovers %}
+
+{% block script %}
+    {{ super() }}
+    <script type="text/javascript">
+
+    // Instance API key and name.
+    var apiKey = {{instance.api_key|tojson|safe}};
+    var instanceName = '{{instance.name}}';
+
+    // Fetch and render instance space usage data.
+    function fetchSpaceUsage() {
+        var url = "{{url_for('instance_space_usage', selected_instance=instance.name)}}";
+        $.ajax({
+            url: url,
+            dataType: 'html',
+            type: 'GET',
+            success: function(html) {
+                $('#space_usage_data').html(html);
+                attachAllTooltips();
+                positionAllPopovers();
+            },
+        });
+    }
+
+    // Fetch and render the shards for this instance.
+    function fetchShards() {
+        var url = "{{url_for('shards', selected_instance=instance.name)}}";
+        $.ajax({
+            url: url,
+            dataType: 'html',
+            type: 'GET',
+            success: function(html) {
+                $shardsSection = $('#shards_section');
+                $shardsSection.find('.rs-detail-section-body').html(html);
+                $addShardButton = $('#add-shard-popover-target');
+                $addShardButton.click(function() {
+                    positionPopover($addShardButton);
+                    showPopover($addShardButton);
+                });
+            },
+            error: function() {
+                $('#shards_overlay_loading').addClass('hidden');
+                $('#shards_overlay_failure').removeClass('hidden');
+            }
+        });
+    }
+
+    // Fetch and render the databases for this instance.
+    function fetchDatabases() {
+        var url = "{{url_for('databases', selected_instance=instance.name)}}";
+        $.ajax({
+            url: url,
+            dataType: 'html',
+            type: 'GET',
+            success: function(html) {
+                $databasesContainer = $('#databases_container');
+                $databasesContainer.html(html);
+                bindDeleteDatabaseListeners();
+                $('#databases_container .rs-list-table').DataTable({
+                    paging: false,
+                    searching: false,
+                    info: false,
+                    processing: false
+                });
+                $('#databases_container .rs-list-table').on('order.dt', function(e, settings) {
+                    $.each(settings.aoColumns, function(i, c) {
+                        $(c.nTh).children('.rs-table-sort').removeClass('rs-table-sort-asc rs-table-sort-desc')
+                        switch($(c.nTh).attr('class')) {
+                            case 'sorting_asc':
+                                $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-asc');
+                                break;
+                            case 'sorting_desc':
+                                $(c.nTh).children('.rs-table-sort').addClass('rs-table-sort-desc');
+                                break;
+                        }
+                    });
+                });
+            },
+            error: function() {
+                $('#databases_overlay_loading').addClass('hidden');
+                $('#databases_overlay_failure').removeClass('hidden');
+            }
+        });
+    }
+
+    // Render ACL data into the ACLs table.
+    function displayACLs() {
+        var apiURL = "/api/acls/" + apiKey;
+
+        $.ajax({
+            url: apiURL,
+            dataType: 'json',
+            type: 'POST',
+            data: {},
+            success: function(jsonData) {
+                var aclData = jsonData['data'];
+                $aclsTableBody = $('#acls-table-body');
+
+                // If ACLs are found, then remove the table overlay.
+                if (aclData.length > 0) {
+                    $('#acls-table-overlay').addClass('hidden');
+                }
+
+                // Map each ACL onto this function.
+                aclData.map(function(aclObject) {
+                    var cidrMask = aclObject['cidr_mask'];
+                    var description = aclObject['description'] ? aclObject['description'] : "";
+                    var id = aclObject['_id']['$oid'];
+                    var instance = aclObject['instance'];
+
+                    // Construct the delete button.
+                    var $deleteButton = $('<button>');
+                    $deleteButton.attr('id', 'delete-acl-target-' + id);
+                    $deleteButton.attr('data-popover', 'delete-acl-popover');
+                    $deleteButton.attr('data-popover-target', 'delete-acl-target-' + id);
+                    $deleteButton.attr('data-popover-position', 'right');
+                    $deleteButton.addClass('rs-delete rs-popover-source');
+
+                    // Construct the table row.
+                    var $aclEntry = $('<tr>');
+                    $aclEntry.append($('<td>').append($deleteButton));
+                    $aclEntry.append($('<td>').text(cidrMask));
+                    $aclEntry.append($('<td>').text('Allow'));
+                    $aclEntry.append($('<td>').text(description));
+
+                    // Append the table row to the acls table body.
+                    $aclsTableBody.append($aclEntry);
+
+                    // Bind popover listeners on new elements.
+                    $deleteButton.click(function() {
+                        if(!$deleteButton.prop('disabled')) {
+                            // Inject pertinent content into popover.
+                            $('#delete-acl-popover-cidr').text(cidrMask);
+                            $('#delete-acl-input').val(id);
+
+                            // Position and show popover.
+                            positionPopover($deleteButton);
+                            showPopover($deleteButton);
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    // Render backup data into the backups table.
+    function displayBackups() {
+        var apiURL = "/api/backups/" + apiKey;
+
+        $.ajax({
+            url: apiURL,
+            dataType: 'json',
+            type: 'POST',
+            data: {},
+            success: function(jsonData){
+                var backupData = jsonData['data'];
+                $backupsTable = $('#backups-table-body');
+
+                // If backups are found, then remove the table overlay.
+                if (backupData.length > 0) {
+                    $('#backups-table-overlay').addClass('hidden');
+                }
+
+                // Map each backup onto this function.
+                backupData.map(function(backupObject) {
+                    var status_message = backupObject['error_msg'];
+                    var formattedTimestamp = backupObject['timestamp_formatted'];
+                    var timestamp = backupObject['timestamp'];
+
+                    var $tooltip = $('<span>');
+                    $tooltip.attr('data-title', 'If you need a backup restored, please <a href="https://objectrocket.zendesk.com/home">contact support</a>.');
+                    $tooltip.attr('data-delay', 0.1);
+                    $tooltip.addClass('rs-icon-help');
+
+                    var $backupRow = $('<tr>');
+                    $backupRow.append($('<td>').append($tooltip));
+                    $backupRow.append($('<td>').text(formattedTimestamp));
+                    $backupRow.append($('<td>').text(status_message));
+                    $backupsTable.append($backupRow);
+
+                    // Bind tooltip listener.
+                    $tooltip.hover(function(event) {
+                        removeTooltips();
+                        clearTimeout(removeTipTimer);
+                        clearTimeout(attachTipTimer);
+                        var tooltip = new Object();
+                        tooltip.contents = $(this).attr('data-title');
+                        tooltip.delay = $(this).attr('data-delay');
+                        tooltip.left = event.clientX;
+                        tooltip.top = $(document).scrollTop()+event.clientY;
+                        attachTooltip(tooltip);
+                    }, function(e) {
+                        clearTimeout(attachTipTimer);
+                        removeTipTimer = setTimeout(function(){removeTooltips();}, hideTipTimeout);
+                    });
+                });
+            }
+        });
+    }
+
+    function bindDeleteDatabaseListeners() {
+        // Listener for delete database buttons.
+        $('button[data-popover="delete-database-popover"]').click(function() {
+            var $this = $(this);
+            // Get the database's name.
+            var count = $this.attr('data-count');
+            var name = $('#database-' + count).text();
+
+            // Inject the database's name into popover.
+            $('#delete-database-popover-name').text(name);
+            $('#delete-database-db-input').val(name);
+            positionPopover($this);
+            showPopover($this);
+        });
+    }
+
+    function asyncCallOnExpand($section, asyncCall) {
+        $section.click(function() {
+            if (!$section.attr('data-called')) {
+                asyncCall();
+                $section.attr('data-called', true);
+            }
+        });
+    }
+
+    $(document).ready(function() {
+
+        // Asynchronous calls.
+        fetchSpaceUsage();
+        fetchDatabases();
+        asyncCallOnExpand($('#shards_section'), fetchShards);
+        asyncCallOnExpand($('#acls_section'), displayACLs);
+        asyncCallOnExpand($('#backups_section'), displayBackups);
+
+        // Validation for renaming instances.
+        $('#rename_instance_popover_form').validate({
+            rules: {
+                new_name: {
+                    alphanumeric: true,
+                    minlength: 2,
+                    nowhitespace: true,
+                    required: true
+                }
+            },
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function (label) {
+                $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
+
+        $('#rename_instance_popover_form').bind("change keyup", function () {
+            if ($(this).validate().checkForm()) {
+                $("#rename_instance_popover_form_button").attr('disabled', false);
+            } else {
+                $('#rename_instance_popover_form_button').attr('disabled', true);
+            }
+        });
+
+        // Validation for adding instance users.
+        $('#add-instance-user-popover-form').validate({
+            rules: {
+                username: {
+                    minlength: 2,
+                    nowhitespace: true,
+                    required: true
+                },
+                password: {
+                    minlength: 2,
+                    required: true
+                },
+            },
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function(label) {
+                $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
+
+        // Ensure that the desired database name is not an OR administrative name.
+        var adminDbs = {{ Constants.ADMINISTRATIVE_DATABASES|tojson|safe }}
+        $.validator.addMethod('noadmindbs', function(value, element) {
+            return this.optional(element) || !(adminDbs.indexOf(value) > -1);
+        }, "Please use a different database name.");
+
+        // Ensure that the desired database username is not an OR administrative username.
+        $.validator.addMethod('noadminnames', function(value, element) {
+            return this.optional(element) || !(["dba", "objectrocket"].indexOf(value) > -1);
+        }, "Please use a different username.");
+
+        // Validation for adding databases.
+        $('#add-database-popover-form').validate({
+            rules: {
+                database: {
+                    minlength: 2,
+                    noadmindbs: true,
+                    nowhitespace: true,
+                    required: true,
+                },
+                username: {
+                    minlength: 2,
+                    noadminnames: true,
+                    nowhitespace: true,
+                    required: true,
+                },
+                password: {
+                    minlength: 2,
+                    required: true,
+                }
+            },
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function(label) {
+                $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
+
+        // Validation for copying remote databases.
+        $('#copy-remote-database-popover').validate({
+            rules: {
+                database: {
+                    minlength: 2,
+                    required: true
+                },
+                username: {
+                    minlength: 2,
+                    required: true
+                },
+                password: {
+                    minlength: 2,
+                    required: true
+                }
+            },
+            errorClass: 'rs-validation-block',
+            errorElement: 'span',
+            highlight: function (label) {
+                $(label).closest('.rs-control-group').removeClass('success');
+                $(label).closest('.rs-control-group').addClass('error');
+            },
+            success: function(label) {
+                $(label).closest('.rs-control-group').removeClass('error');
+                $(label).closest('.rs-control-group').addClass('success');
+            }
+        });
+
+    });
+    </script>
+{% endblock script %}

@@ -646,7 +646,7 @@ def instance_details(selected_instance):
     if user_instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE:
         database_repair_state = user_instance.repair_state
 
-    return render_template('instances/instance_details.html',
+    return render_template('instances/{}/instance_details.html'.format(user_instance.service),
                            account_monitoring_checks=account_monitoring_checks,
                            balancer=balancer,
                            database_compaction_state=database_compaction_state,
