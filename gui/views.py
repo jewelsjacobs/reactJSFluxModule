@@ -270,6 +270,11 @@ def payment_required(error):
     return html, 402
 
 
+@app.errorhandler(404)
+def page_not_found(error):
+    return redirect(url_for('instances'))
+
+
 @app.context_processor
 def inject_constants():
     return {'Constants': Constants}
