@@ -18,7 +18,7 @@
 
 {% call detail_header(page_title="External Integration Settings") %}{% endcall %}
     {% set action = 'add_rax_settings' %}
-    {% if obfuscated_rax_access_key %}
+    {% if obfuscated_rax_api_key %}
         {% set action = 'delete_rax_settings' %}
     {% endif %}
 {% call create_view(url_for(action), id="rax_settings_form", method="POST") %}

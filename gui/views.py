@@ -38,6 +38,7 @@ from viper.keypair import KeypairManager
 from viper.messages import MessageManager
 from viper.mongo_instance import MongoDBInstanceException
 from viper.notifier import Notifier
+from viper.rackspace import RAXManager
 from viper.remote_instance import ClientWrapper, SslConnectionFailure
 from viper.remote_instance_manager import RemoteInstanceManager
 from viper.replica import ReplicaException
@@ -1629,7 +1630,7 @@ def rackspace():
         obfuscated_rax_api_key = obfuscate(account.rax_api_key)
 
     return render_template('external/rackspace.html',
-                           rax_username=rax_username,
+                           rax_username=account.rax_username,
                            obfuscated_rax_api_key=obfuscated_rax_api_key,
                            login=g.login)
 
