@@ -10,7 +10,7 @@ VALID_SIZE_INPUT = [1, 5, 20, 50, 100]
 
 def valid_version(form, field):
     """Ensure the given version is valid for the specified service type."""
-    _service = form.get('service_type', None)
+    _service = getattr(form, 'service_type', None)
     service = _service.data if _service else None
     version = field.data
 
