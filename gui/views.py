@@ -283,6 +283,11 @@ def inject_login():
     return {}
 
 
+@app.context_processor
+def int_function():
+    return {'int': int}
+
+
 @app.before_request
 def maintenance_mode():
     #if True:
