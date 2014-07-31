@@ -105,8 +105,10 @@
                         <td class="rs-table-link">{% if instance.type == 'redis' %}
                                 {% if instance.plan < 1000 %}
                                     {{ instance.plan }}MB
+                                {% elif instance.plan % 1000 != 0 %}
+                                    {{ instance.plan / 1000.0 }}G
                                 {% else %}
-                                    {{ '{}'.format(instance.plan / 1000) }}G
+                                    {{ int(instance.plan / 1000.0) }}
                                 {% endif %}
                             {% else %}{{ instance.plan }}G{% endif %}</td>
                     </tr>

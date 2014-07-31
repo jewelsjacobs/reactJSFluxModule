@@ -51,8 +51,10 @@
                 <div class="rs-detail-value">
                 {% if instance.plan < 1000 %}
                     {{ instance.plan }} MB
+                {% elif instance.plan % 1000 != 0 %}
+                    {{ instance.plan / 1000 }} GB
                 {% else %}
-                    {{instance.plan / 1000}} GB
+                    {{ int(instance.plan / 1000) }} GB
                 {% endif %}
                 </div>
             </li>
