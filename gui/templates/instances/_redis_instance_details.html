@@ -48,7 +48,13 @@
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Plan</div>
-                <div class="rs-detail-value">{{instance.plan}} GB</div>
+                <div class="rs-detail-value">
+                {% if instance.plan < 1000 %}
+                    {{ instance.plan }} MB
+                {% else %}
+                    {{instance.plan / 1000}} GB
+                {% endif %}
+                </div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Space Usage</div>
@@ -56,7 +62,7 @@
 
                     <div class="rs-progress">
                         <div class="rs-progress-inner or-flexbox-row">
-                            <div id="usage-bar-ns" class="rs-segment" style="width: {{ instance.free_space_percentage}}%;">
+                            <div id="usage-bar-ns" class="rs-segment" style="width: {{ instance.free_space_percentage }}%;">
                                 <div class="rs-bar or-bar-ns"></div>
                             </div>
                         </div>
