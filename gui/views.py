@@ -1084,10 +1084,11 @@ def create_collection(selected_instance, selected_database):
             user_database.add_collection(request.form['collection'])
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        Utility.log_traceback(config, exception_uuid)
+        app.logger.error(ex)
         flash_message = ("There was a problem creating this collection. If this problem persists, contact "
                          "support and provide Error ID %s." % (exception_uuid))
         flash(flash_message, canon_constants.STATUS_ERROR)
-        app.logger.error(ex)
 
     return redirect(url_for('database', selected_instance=selected_instance, selected_database=selected_database))
 
