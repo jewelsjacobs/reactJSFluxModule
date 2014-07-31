@@ -108,7 +108,7 @@
                                 {% elif instance.plan % 1000 != 0 %}
                                     {{ instance.plan / 1000.0 }}G
                                 {% else %}
-                                    {{ int(instance.plan / 1000.0) }}
+                                    {{ int(instance.plan / 1000.0) }}G
                                 {% endif %}
                             {% else %}{{ instance.plan }}G{% endif %}</td>
                     </tr>
