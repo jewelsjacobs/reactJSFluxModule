@@ -106,7 +106,7 @@
                                 {% if instance.plan < 1000 %}
                                     {{ instance.plan }}MB
                                 {% else %}
-                                    {{ '{:0.1f}'.format(instance.plan / 1000.0) }}G
+                                    {{ '{}'.format(instance.plan / 1000) }}G
                                 {% endif %}
                             {% else %}{{ instance.plan }}G{% endif %}</td>
                     </tr>
