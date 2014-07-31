@@ -93,7 +93,7 @@ class ProductionConfig(Config):
     API_ENDPOINT = ''  # FIXME: point this to the appropriate LB.
     DEBUG = False
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Production'
-    ACTIVE_DATASTORES = ['mongodb']
+    ACTIVE_DATASTORES = ['mongodb', 'redis']
 
     def init_app(self, app):
         """Production specific configuration."""
