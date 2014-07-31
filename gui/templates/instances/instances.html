@@ -97,7 +97,13 @@
                         <td class="rs-table-link">{{ Constants.TYPE_DISPLAY_NAMES[instance.type] }}</td>
                         <td class="rs-table-link">{{ instance.version }}</td>
                         <td class="rs-table-link">{{ instance.zone }}</td>
-                        <td class="rs-table-link">{{ instance.plan }}G</td>
+                        <td class="rs-table-link">{% if instance.type == Constants.REDIS_HA_INSTANCE %}
+                                {% if instance.plan < 1000 %}
+                                    {{ instance.plan }}MB
+                                {% else %}
+                                    {{ '{:0.1f}'.format(instance.plan / 1000.0) }}G
+                                {% endif %}
+                            {% else %}{{ instance.plan }}G{% endif %}</td>
                     </tr>
                 {% endfor %}
             </tbody>
