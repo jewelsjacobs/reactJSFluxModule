@@ -94,10 +94,15 @@
                         </td>
                         <td id="instance-{{ loop.index0 }}-count" class="rs-table-link"><a href="{{ url_for('instance_details', selected_instance=instance.name) }}">{{ instance.name }}</a></td>
                         <td class="rs-table-link">{{ Constants.SERVICE_DISPLAY_NAMES[instance.service] }}</td>
-                        <td class="rs-table-link">{{ Constants.TYPE_DISPLAY_NAMES[instance.type] }}</td>
+                        <td class="rs-table-link">{% if instance.type == 'redis' %}
+                        {{ Constants.TYPE_DISPLAY_NAMES[Constants.REDIS_HA_INSTANCE] }}
+                        {% else %}
+                        {{ Constants.TYPE_DISPLAY_NAMES[instance.type] }}
+                        {% endif %}
+                        </td>
                         <td class="rs-table-link">{{ instance.version }}</td>
                         <td class="rs-table-link">{{ instance.zone }}</td>
-                        <td class="rs-table-link">{% if instance.type == Constants.REDIS_HA_INSTANCE %}
+                        <td class="rs-table-link">{% if instance.type == 'redis' %}
                                 {% if instance.plan < 1000 %}
                                     {{ instance.plan }}MB
                                 {% else %}
