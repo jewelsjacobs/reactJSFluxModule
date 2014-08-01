@@ -1647,8 +1647,9 @@ def add_rax_settings():
     error = False
     if not rax_manager.validate_credentials():
         error = True
-        flash("Your Rackspace API key could not be validated. If this problem persists and you believe your keys are valid, "
-              "please contact support.", canon_constants.STATUS_ERROR)
+        flash("Your Rackspace API key could not be validated. If this problem "
+              "persists and you believe your keys are valid, please contact support.",
+              canon_constants.STATUS_ERROR)
 
     if error is True:
         return redirect(url_for('rackspace'))
@@ -1661,11 +1662,11 @@ def add_rax_settings():
     for instance in account.instances:
         instance.update_attribute('settings.create_acls_for_rax_ips', ['on'])
 
-    flash("""Your Rackspace API key was successfully updated.
-    If your Rackspace-synchronized ACLs are not applied within 30 minutes, please contact support.""",
+    flash("Your Rackspace API key was successfully updated. If your Rackspace-synchronized "
+          "ACLs are not applied within 30 minutes, please contact support.",
           canon_constants.STATUS_OK)
 
-    return redirect(url_for('amazon'))
+    return redirect(url_for('rackspace'))
 
 
 @app.route('/external/delete_rax_settings', methods=['POST'])
@@ -1679,8 +1680,8 @@ def delete_rax_settings():
 
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
-        flash_message = """There was a problem with deleting your Rackspace API key.
-        If this problem persists, please contact support and provide Error ID {}.""".format(exception_uuid)
+        flash_message = "There was a problem with deleting your Rackspace API key. If this problem "
+                        "persists, please contact support and provide Error ID {}.".format(exception_uuid)
         flash(flash_message, canon_constants.STATUS_ERROR)
         Utility.log_traceback(config, exception_uuid)
 
