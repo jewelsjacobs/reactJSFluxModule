@@ -1680,8 +1680,8 @@ def delete_rax_settings():
 
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
-        flash_message = "There was a problem with deleting your Rackspace API key. If this problem "
-                        "persists, please contact support and provide Error ID {}.".format(exception_uuid)
+        flash_message = "There was a problem with deleting your Rackspace API key.  "
+        flash_message += "If this problem persists, please contact support and provide Error ID {}.".format(exception_uuid)
         flash(flash_message, canon_constants.STATUS_ERROR)
         Utility.log_traceback(config, exception_uuid)
 
@@ -1716,7 +1716,7 @@ def add_acl(instance):
     user_instance = instance_manager.get_instance_by_name(g.login, instance)
 
     cidr_mask = request.form['cidr_mask']
-    description  = request.form['description']
+    description = request.form['description']
 
     # Logic to handle allow any with "ANY" keyword.
     if str(cidr_mask).lower().strip() == "any":
