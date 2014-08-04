@@ -926,6 +926,10 @@ def databases(selected_instance):
 def database(selected_instance, selected_database):
     instance_manager = InstanceManager(config)
     user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    if not user_instance or user_instance == Constants.REDIS_SERVICE:
+        abort(404)
+
     user_database = user_instance.get_database(selected_database)
 
     is_sharded_instance = user_instance.type == Constants.MONGODB_SHARDED_INSTANCE
@@ -948,10 +952,15 @@ def database(selected_instance, selected_database):
 def collection(selected_instance, selected_database, selected_collection):
     instance_manager = InstanceManager(config)
     user_instance = instance_manager.get_instance_by_name(g.login, selected_instance)
+
+    if not user_instance or user_instance.service == Constants.REDIS_SERVICE:
+        abort(404)
+
     user_database = user_instance.get_database(selected_database)
     user_collection = user_database.get_collection(selected_collection)
     indexes = user_database.get_indexes(user_collection)
     shard_keys = user_database.get_shard_keys(user_collection)
+
     if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
         chunks = user_instance.get_chunks(user_collection)
     else:
@@ -962,7 +971,7 @@ def collection(selected_instance, selected_database, selected_collection):
     except ValueError:
         sample_document = None
 
-    return render_template('instances/collection.html',
+    return render_template('instances/{}/collection.html'.format(user_instance.service),
                            chunks=chunks,
                            collection=user_collection,
                            database=user_database,
