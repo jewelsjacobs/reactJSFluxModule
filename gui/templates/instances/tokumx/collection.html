@@ -94,7 +94,7 @@
         {% endif %}
     {% endcall %}
 
-    {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+    {% if instance.type == Constants.TOKUMX_SHARDED_INSTANCE %}
         {% call detail_section(title="Shard Key", collapsible=True) %}
             {% if shard_keys %}
                 <pre>{{ shard_keys }}</pre>
