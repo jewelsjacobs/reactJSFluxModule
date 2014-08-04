@@ -19,9 +19,6 @@
                     <li><span class="rs-dropdown-category">Manage</span></li>
                     <li><a data-popover="rename-instance-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Rename</a></li>
                     <li><a data-popover="delete-instance-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Delete</a></li>
-                    {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
-                    <li><a data-popover="compact-instance-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Compact</a></li>
-                    {% endif %}
                     <li><a data-popover="add-instance-user-popover" data-popover-target="action-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Add User</a></li>
                     <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Manage Settings</a></li>
                     <li><span class="rs-dropdown-category">Views</span></li>
@@ -56,7 +53,7 @@
                 <div class="rs-detail-key">Plan</div>
                 <div class="rs-detail-value">{{instance.plan}} GB</div>
             </li>
-            {% if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE) %}
+            {% if instance.type == Constants.TOKUMX_SHARDED_INSTANCE %}
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Shards</div>
                 <div class="rs-detail-value">{{ instance.shards|count }}</div>
@@ -152,7 +149,7 @@
         </div>
     {% endcall %}
 
-    {% if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE) %}
+    {% if instance.type == Constants.TOKUMX_SHARDED_INSTANCE %}
         {% set shard_section_title = 'Shards' %}
     {% else %}
         {% set shard_section_title = 'Replica Set' %}
@@ -375,7 +372,7 @@
                     <div class="rs-control-group">
                         <label class="rs-control-label">Connect String</label>
                         <div class="rs-controls">
-                            <input name="connect_string" type="text" placeholder="my.host.com:12345" class="rs-input rs-input-medium">
+                            <input name="connect_string" type="text" placeholder="example.com:12345" class="rs-input rs-input-medium">
                         </div>
                     </div>
 
