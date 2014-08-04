@@ -1,6 +1,6 @@
 <!-- Settings -->
 {% extends 'web_app_base.html' %}
-{% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
+{% if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE) %}
     {% set balancer = instance.balancer %}
 {% endif %}
 
@@ -11,7 +11,7 @@
 
 {% block back_link_area %}
     {% call back_link() %}
-        <a href="{{ url_for('instance_details', selected_instance=instance.name) }}">Back to Instance Details</a>
+        <a href="{{ url_for('instance_details', selected_instance=instance.name) }}">&lsaquo; Back to Instance Details</a>
     {% endcall %}
 {% endblock %}
 
