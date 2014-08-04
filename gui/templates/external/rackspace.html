@@ -9,7 +9,9 @@
 {% block sidebar %}
     {% call sidebar_help(hidden=False) %}
         <h3>Rackspace Help</h3>
-        <span class="rs-help-block"></span>
+        <span class="rs-help-block">After adding a valid API Key, ObjectRocket will automatically create an
+            ACL on each of your instances for every Cloud Server's IP address visible to this user. You can
+            disable ACLSync for a specific instance on that instance's settings page.</span>
     {% endcall %}
 {% endblock sidebar %}
 
