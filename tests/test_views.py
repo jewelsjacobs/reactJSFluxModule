@@ -508,6 +508,19 @@ def test_update_settings(app_client):
         assert response.status_code == 200
 
 
+def test_compact_present_in_settings(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
+        response = client.get(url_for('instance_settings', selected_instance=instance_name), follow_redirects=True)
+        assert response.status_code == 200
+        assert 'Enable Weekly Compaction' in response.data
+
+
+@xfail(reason="Test code doesn't support replset instances yet")
+def test_compact_missing_in_settings(app_client):
+    pass
+
+
 def test_shard_collection(app_client):
     all_shard_keys = json.dumps({'test': 'hashed'})
     create_indexes = 'true'
