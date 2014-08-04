@@ -270,6 +270,11 @@ def payment_required(error):
     return html, 402
 
 
+@app.errorhandler(404)
+def page_not_found(error):
+    return redirect(url_for('instances'))
+
+
 @app.context_processor
 def inject_constants():
     return {'Constants': Constants}
@@ -1314,27 +1319,6 @@ def sign_up():
             return redirect(url_for('instances'))
 
     return render_template('sign_up/sign_up.html')
-
-
-@app.route('/sign_up1', methods=['GET', 'POST'])
-def sign_up1():
-    """Deprecated route to sign up and create a user account."""
-    return redirect(url_for('sign_up'))
-
-
-@app.route('/sign_up2', methods=['GET', 'POST'])
-def sign_up2():
-    return redirect(url_for('sign_up'))
-
-
-@app.route('/sign_up3', methods=['GET', 'POST'])
-def sign_up3():
-    return redirect(url_for('sign_up'))
-
-
-@app.route('/sign_up_finish', methods=['GET', 'POST'])
-def sign_up_finish():
-    return redirect(url_for('sign_up'))
 
 
 @app.route('/msa')
