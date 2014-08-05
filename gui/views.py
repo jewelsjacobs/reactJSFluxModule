@@ -1661,18 +1661,9 @@ def add_rax_settings():
 @viper_auth
 def delete_rax_settings():
     """Delete RAX settings route."""
-    try:
-        account_manager = AccountManager(config)
-        account_manager.delete_rax_credentials(g.login)
-        flash('Your Rackspace API key were successfully deleted.', canon_constants.STATUS_OK)
-
-    except Exception as ex:
-        exception_uuid = Utility.obfuscate_exception_message(ex.message)
-        flash_message = "There was a problem with deleting your Rackspace API key. "
-                        "If this problem persists, please contact support and provide Error ID {}.".format(exception_uuid)
-        flash(flash_message, canon_constants.STATUS_ERROR)
-        Utility.log_traceback(config, exception_uuid)
-
+    account_manager = AccountManager(config)
+    account_manager.delete_rax_credentials(g.login)
+    flash('Your Rackspace API key were successfully deleted.', canon_constants.STATUS_OK)
     return redirect(url_for('rackspace'))
 
 
