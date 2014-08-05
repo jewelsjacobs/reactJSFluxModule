@@ -43,15 +43,15 @@
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Version</div>
-                <div class="rs-detail-value">{{instance.version}}</div>
+                <div class="rs-detail-value">{{ instance.version }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Zone</div>
-                <div class="rs-detail-value">{{instance.zone}}</div>
+                <div class="rs-detail-value">{{ instance.zone }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Plan</div>
-                <div class="rs-detail-value">{{instance.plan}} GB</div>
+                <div class="rs-detail-value">{{ instance.plan }} GB</div>
             </li>
             {% if instance.type == Constants.TOKUMX_SHARDED_INSTANCE %}
             <li class="rs-detail-item">
@@ -499,12 +499,12 @@
     <script type="text/javascript">
 
     // Instance API key and name.
-    var apiKey = {{instance.api_key|tojson|safe}};
-    var instanceName = '{{instance.name}}';
+    var apiKey = {{ instance.api_key|tojson|safe }};
+    var instanceName = '{{ instance.name }}';
 
     // Fetch and render instance space usage data.
     function fetchSpaceUsage() {
-        var url = "{{url_for('instance_space_usage', selected_instance=instance.name)}}";
+        var url = "{{ url_for('instance_space_usage', selected_instance=instance.name) }}";
         $.ajax({
             url: url,
             dataType: 'html',
@@ -519,7 +519,7 @@
 
     // Fetch and render the shards for this instance.
     function fetchShards() {
-        var url = "{{url_for('shards', selected_instance=instance.name)}}";
+        var url = "{{ url_for('shards', selected_instance=instance.name) }}";
         $.ajax({
             url: url,
             dataType: 'html',
@@ -542,7 +542,7 @@
 
     // Fetch and render the databases for this instance.
     function fetchDatabases() {
-        var url = "{{url_for('databases', selected_instance=instance.name)}}";
+        var url = "{{ url_for('databases', selected_instance=instance.name) }}";
         $.ajax({
             url: url,
             dataType: 'html',
