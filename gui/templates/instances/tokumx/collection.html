@@ -33,7 +33,7 @@
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Compression</div>
-                <div class="rs-detail-value">{{ database.get_collection_compression_algorithm(collection.name) or 'None' }}</div>
+                <div class="rs-detail-value">{{ ','.join(database.get_collection_compression_algorithms(collection.name)) or 'None' }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Documents</div>
