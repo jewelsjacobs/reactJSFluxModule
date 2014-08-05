@@ -466,6 +466,36 @@ def test_delete_ec2_settings(app_client):
         assert response.status_code == 200
 
 
+def test_rackspace(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
+        response = client.get(url_for('rackspace'))
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_add_rax_settings(app_client, monkeypatch):
+    monkeypatch.setattr("viper.rackspace.RAXManager.validate_credentials", lambda (x): True)
+
+    rax_username = 'test_username'
+    rax_api_key = 'test_api_key'
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
+        response = client.post(url_for('add_rax_settings'), data=dict(rax_username=rax_username,
+                                                                      rax_api_key=rax_api_key),
+                               follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
+
+def test_delete_rax_settings(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
+        response = client.post(url_for('delete_rax_settings'), follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+
+
 def test_update_settings(app_client):
     auto_shard_key = 'on'
     autoadd_shard_threshold = '85'

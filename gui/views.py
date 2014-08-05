@@ -38,6 +38,7 @@ from viper.keypair import KeypairManager
 from viper.messages import MessageManager
 from viper.mongo_instance import MongoDBInstanceException
 from viper.notifier import Notifier
+from viper.rackspace import RAXManager
 from viper.remote_instance import ClientWrapper, SslConnectionFailure
 from viper.remote_instance_manager import RemoteInstanceManager
 from viper.replica import ReplicaException
@@ -1603,6 +1604,78 @@ def delete_ec2_settings():
     return redirect(url_for('amazon'))
 
 
+@app.route('/external/rackspace')
+@viper_auth
+def rackspace():
+    def obfuscate(str):
+        return '{}{}'.format('*' * (len(str) - 4), str[-4:])
+
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+    obfuscated_rax_api_key = None
+
+    if account.rax_username:
+        obfuscated_rax_api_key = obfuscate(account.rax_api_key)
+
+    return render_template('external/rackspace.html',
+                           rax_username=account.rax_username,
+                           obfuscated_rax_api_key=obfuscated_rax_api_key,
+                           login=g.login)
+
+
+@app.route('/external/add_rax_settings', methods=['POST'])
+@viper_auth
+def add_rax_settings():
+    """Add Rackspace settings route."""
+
+    rax_username = request.form.get('rax_username')
+    rax_api_key = request.form.get('rax_api_key')
+    rax_manager = RAXManager(config, rax_username, rax_api_key)
+
+    error = False
+    if not rax_manager.validate_credentials():
+        error = True
+        flash("Your Rackspace API key could not be validated. If this problem "
+              "persists and you believe your keys are valid, please contact support.",
+              canon_constants.STATUS_ERROR)
+
+    if error is True:
+        return redirect(url_for('rackspace'))
+
+    account_manager = AccountManager(config)
+    account_manager.add_rax_credentials(g.login, rax_username, rax_api_key)
+
+    account = account_manager.get_account(g.login)
+
+    for instance in account.instances:
+        instance.update_attribute('settings.create_acls_for_rax_ips', ['on'])
+
+    flash("Your Rackspace API key was successfully updated. If your Rackspace-synchronized "
+          "ACLs are not applied within 30 minutes, please contact support.",
+          canon_constants.STATUS_OK)
+
+    return redirect(url_for('rackspace'))
+
+
+@app.route('/external/delete_rax_settings', methods=['POST'])
+@viper_auth
+def delete_rax_settings():
+    """Delete RAX settings route."""
+    try:
+        account_manager = AccountManager(config)
+        account_manager.delete_rax_credentials(g.login)
+        flash('Your Rackspace API key were successfully deleted.', canon_constants.STATUS_OK)
+
+    except Exception as ex:
+        exception_uuid = Utility.obfuscate_exception_message(ex.message)
+        flash_message = "There was a problem with deleting your Rackspace API key. "
+                        "If this problem persists, please contact support and provide Error ID {}.".format(exception_uuid)
+        flash(flash_message, canon_constants.STATUS_ERROR)
+        Utility.log_traceback(config, exception_uuid)
+
+    return redirect(url_for('rackspace'))
+
+
 @app.route('/add_shard/<selected_instance>', methods=['POST'])
 @viper_auth
 def add_shard(selected_instance):
@@ -1631,7 +1704,7 @@ def add_acl(instance):
     user_instance = instance_manager.get_instance_by_name(g.login, instance)
 
     cidr_mask = request.form['cidr_mask']
-    description  = request.form['description']
+    description = request.form['description']
 
     # Logic to handle allow any with "ANY" keyword.
     if str(cidr_mask).lower().strip() == "any":
