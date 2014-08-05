@@ -593,9 +593,8 @@ def shards(selected_instance):
 
     html = ''
     if instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
-        template = 'instances/_shard_info.html' if instance.type == Constants.MONGODB_SHARDED_INSTANCE else 'instances/tokumx/_shard_info.html'
         aggregate_stats = instance.shard_balance
-        html = render_template(template_name_or_list=template,
+        html = render_template(template_name_or_list='instances/{}/_shard_info.html'.format(instance.service),
                                aggregate_stats=aggregate_stats,
                                instance=instance)
 
@@ -636,7 +635,7 @@ def instance_details(selected_instance):
         enable_copy_database = False
 
     balancer = None
-    if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
+    if user_instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
         balancer = user_instance.balancer
 
     # Get instance operation states
@@ -648,7 +647,7 @@ def instance_details(selected_instance):
         database_copy_state = copy_database_document.get('state', None)
 
     database_repair_state = False
-    if user_instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE:
+    if user_instance.type in (Constants.MONGODB_REPLICA_SET_INSTANCE, Constants.TOKUMX_REPLICA_SET_INSTANCE):
         database_repair_state = user_instance.repair_state
 
     return render_template('instances/{}/instance_details.html'.format(user_instance.service),
@@ -660,7 +659,7 @@ def instance_details(selected_instance):
                            enable_copy_database=enable_copy_database,
                            get_host_zone=Utility.get_host_zone,
                            instance=user_instance,
-                           is_sharded_instance=user_instance.type == Constants.MONGODB_SHARDED_INSTANCE,
+                           is_sharded_instance=user_instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE),
                            max_databases_per_replica_set_instances=config.MAX_DATABASES_PER_REPLICA_SET_INSTANCE)
 
 
@@ -676,12 +675,7 @@ def instance_space_usage(selected_instance):
 
     usage_totals = instance.space_usage
 
-    if instance.service == Constants.TOKUMX_SERVICE:
-        template = 'instances/tokumx/_space_usage.html'
-    else:
-        template = 'instances/_space_usage.html'
-
-    return render_template(template_name_or_list=template,
+    return render_template(template_name_or_list='instances/{}/_space_usage.html'.format(instance.service),
                            instance=instance,
                            usage_totals=usage_totals)
 
@@ -837,7 +831,7 @@ def delete_instance_user(selected_instance, selected_database, username=None):
 
     database = user_instance.get_database(selected_database)
 
-    if user_instance.type == Constants.MONGODB_REPLICA_SET_INSTANCE and len(database.users) <= 1:
+    if user_instance.type in (Constants.MONGODB_REPLICA_SET_INSTANCE, Constants.TOKUMX_REPLICA_SET_INSTANCE) and len(database.users) <= 1:
         flash('Cannot remove the last user of a replicated instance. Please add another user first.',
               canon_constants.STATUS_ERROR)
 
@@ -913,13 +907,8 @@ def databases(selected_instance):
     if instance is None:
         abort(404)
 
-    if instance.service == Constants.TOKUMX_SERVICE:
-        template = 'instances/tokumx/_databases.html'
-    else:
-        template = 'instances/_databases.html'
-
     databases = instance.databases
-    html = render_template(template_name_or_list=template,
+    html = render_template(template_name_or_list='instances/{}/_databases.html'.format(instance.service),
                            databases=databases,
                            instance=instance)
     return html
@@ -937,7 +926,7 @@ def database(selected_instance, selected_database):
 
     user_database = user_instance.get_database(selected_database)
 
-    is_sharded_instance = user_instance.type == Constants.MONGODB_SHARDED_INSTANCE
+    is_sharded_instance = user_instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE)
     default_autohash_on_id = is_sharded_instance and user_instance.plan < config.DEFAULT_AUTO_HASH_ON_ID_CUTOFF_IN_GB
 
     return render_template('instances/instance_database.html',
@@ -966,7 +955,7 @@ def collection(selected_instance, selected_database, selected_collection):
     indexes = user_database.get_indexes(user_collection)
     shard_keys = user_database.get_shard_keys(user_collection)
 
-    if user_instance.type == Constants.MONGODB_SHARDED_INSTANCE:
+    if user_instance.type in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
         chunks = user_instance.get_chunks(user_collection)
     else:
         chunks = []
