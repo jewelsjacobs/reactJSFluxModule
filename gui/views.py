@@ -1680,8 +1680,8 @@ def delete_rax_settings():
 
     except Exception as ex:
         exception_uuid = Utility.obfuscate_exception_message(ex.message)
-        flash_message = "There was a problem with deleting your Rackspace API key.  "
-        flash_message += "If this problem persists, please contact support and provide Error ID {}.".format(exception_uuid)
+        flash_message = "There was a problem with deleting your Rackspace API key. "
+                        "If this problem persists, please contact support and provide Error ID {}.".format(exception_uuid)
         flash(flash_message, canon_constants.STATUS_ERROR)
         Utility.log_traceback(config, exception_uuid)
 
