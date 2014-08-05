@@ -54,7 +54,7 @@ class Config(object):
         # Session system.
         if not app.config['MAINTENANCE']:
             session_db = Utility.get_sessions_db_connection(viper_config)
-            store = MongoStore(session_db, 'sessions')
+            store = MongoStore(session_db, 'session')
             KVSessionExtension(store, app)
 
         # Exception logging
