@@ -162,13 +162,23 @@
                 </div>
             </div>
             <div class="rs-control-group">
-                <label class="rs-control-label">ACLSync</label>
+                <label class="rs-control-label">Amazon ACL Sync</label>
                 <div class="rs-controls">
                     {% set create_acls_for_aws_ips = instance.settings.get('create_acls_for_aws_ips', ['off'])[0] == 'on' %}
                     <input type="checkbox" name="create_acls_for_aws_ips_checkbox" {% if create_acls_for_aws_ips %}checked{% endif %}>
                     <input type="hidden" name="create_acls_for_aws_ips" value="{{ 'on' if create_acls_for_aws_ips else 'off' }}">
                     <span class="rs-help-block">Automatically creates an ACL for each AWS EC2 public or Elastic IP.
-                    This requires you <a href="{{ url_for('external') }}">add a valid AWS Key Pair.</a></span>
+                    This requires you <a href="{{ url_for('amazon') }}">add a valid AWS Key Pair.</a></span>
+                </div>
+            </div>
+            <div class="rs-control-group">
+                <label class="rs-control-label">Rackspace ACL Sync</label>
+                <div class="rs-controls">
+                    {% set create_acls_for_rax_ips = instance.settings.get('create_acls_for_rax_ips', ['off'])[0] == 'on' %}
+                    <input type="checkbox" name="create_acls_for_rax_ips_checkbox" {% if create_acls_for_rax_ips %}checked{% endif %}>
+                    <input type="hidden" name="create_acls_for_rax_ips" value="{{ 'on' if create_acls_for_rax_ips else 'off' }}">
+                    <span class="rs-help-block">Automatically creates an ACL for each Rackspace Cloud Servers IP.
+                    This requires you <a href="{{ url_for('rackspace') }}">add a valid Rackspace API Key.</a></span>
                 </div>
             </div>
         {% endcall %}
