@@ -80,6 +80,9 @@ class DevelopmentConfig(Config):
         """Production specific configuration."""
         super(DevelopmentConfig, self).init_app(app)
 
+        # Disconnect Airbrake handler to minimize spam
+        got_request_exception.disconnect(log_exception, app)
+
         # Initialize the development toolbar.
         DebugToolbarExtension(app)
 
