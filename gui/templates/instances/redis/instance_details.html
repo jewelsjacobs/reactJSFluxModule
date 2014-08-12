@@ -32,19 +32,19 @@
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Engine</div>
-                <div class="rs-detail-value">Redis</div>
+                <div class="rs-detail-value">{{ Constants.SERVICE_DISPLAY_NAMES[instance.service] }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Service Type</div>
-                <div class="rs-detail-value">HA Redis</div>
+                <div class="rs-detail-value">{{ Constants.TYPE_DISPLAY_NAMES[instance.type] }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Version</div>
-                <div class="rs-detail-value">{{instance.version}}</div>
+                <div class="rs-detail-value">{{ instance.version }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Zone</div>
-                <div class="rs-detail-value">{{instance.zone}}</div>
+                <div class="rs-detail-value">{{ instance.zone }}</div>
             </li>
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Plan</div>
@@ -206,8 +206,8 @@
     <script type="text/javascript">
 
     // Instance API key and name.
-    var apiKey = {{instance.api_key|tojson|safe}};
-    var instanceName = '{{instance.name}}';
+    var apiKey = {{ instance.api_key|tojson|safe }};
+    var instanceName = '{{ instance.name }}';
 
     // Render ACL data into the ACLs table.
     function displayACLs() {

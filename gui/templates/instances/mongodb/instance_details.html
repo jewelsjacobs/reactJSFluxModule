@@ -143,12 +143,14 @@
         {% endif %}
 
         <ul class="rs-detail-list">
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Auto Compact</div>
-                <div class="rs-detail-value">
-                    <span class="rs-status {{ compaction_class }}">{{ compaction_text }}</span>
-                </div>
-            </li>
+            {% if is_sharded_instance %}
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Auto Compact</div>
+                    <div class="rs-detail-value">
+                        <span class="rs-status {{ compaction_class }}">{{ compaction_text }}</span>
+                    </div>
+                </li>
+            {% endif %}
             <li class="rs-detail-item">
                 <div class="rs-detail-key">Database Copy</div>
                 <div class="rs-detail-value">
