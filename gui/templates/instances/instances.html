@@ -84,25 +84,27 @@
                                     <li><a data-popover="rename-instance-popover" data-count="{{ loop.index0 }}" data-popover-target="instance-{{ loop.index0 }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Rename</a></li>
                                     <li><a data-popover="delete-instance-popover" data-count="{{ loop.index0 }}" data-popover-target="instance-{{ loop.index0 }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Delete</a></li>
                                     {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
-                                    <li><a data-popover="compact-instance-popover" data-count="{{ loop.index0 }}" data-popover-target="instance-{{ loop.index0 }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Compact</a></li>
+                                        <li><a data-popover="compact-instance-popover" data-count="{{ loop.index0 }}" data-popover-target="instance-{{ loop.index0 }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Compact</a></li>
                                     {% endif %}
                                     <li><a data-popover="add-instance-user-popover" data-count="{{ loop.index0 }}" data-popover-target="instance-{{ loop.index0 }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add User</a></li>
-                                    <li><a href="{{ url_for('instance_stats', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Statistics</a></li>
+                                    {% if instance.service == Constants.MONGODB_SERVICE %}
+                                        <li><a href="{{ url_for('instance_stats', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Statistics</a></li>
+                                    {% endif %}
                                     <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Manage Settings</a></li>
                                 </ul>
                             </div>
                         </td>
                         <td id="instance-{{ loop.index0 }}-count" class="rs-table-link"><a href="{{ url_for('instance_details', selected_instance=instance.name) }}">{{ instance.name }}</a></td>
                         <td class="rs-table-link">{{ Constants.SERVICE_DISPLAY_NAMES[instance.service] }}</td>
-                        <td class="rs-table-link">{% if instance.type == 'redis' %}
-                        {{ Constants.TYPE_DISPLAY_NAMES[Constants.REDIS_HA_INSTANCE] }}
+                        <td class="rs-table-link">{{ Constants.TYPE_DISPLAY_NAMES[instance.type] }}</td>
+                        {% if instance.service == Constants.TOKUMX_SERVICE %}
+                            <td class="rs-table-link">{{ instance.tokumx_version }}</td>
                         {% else %}
-                        {{ Constants.TYPE_DISPLAY_NAMES[instance.type] }}
+                            <td class="rs-table-link">{{ instance.version }}</td>
                         {% endif %}
-                        </td>
-                        <td class="rs-table-link">{{ instance.version }}</td>
                         <td class="rs-table-link">{{ instance.zone }}</td>
-                        <td class="rs-table-link">{% if instance.type == 'redis' %}
+                        <td class="rs-table-link">
+                            {% if instance.service == Constants.REDIS_SERVICE %}
                                 {% if instance.plan < 1000 %}
                                     {{ instance.plan }}MB
                                 {% elif instance.plan % 1000 != 0 %}
@@ -110,7 +112,10 @@
                                 {% else %}
                                     {{ int(instance.plan / 1000.0) }}G
                                 {% endif %}
-                            {% else %}{{ instance.plan }}G{% endif %}</td>
+                            {% else %}
+                                {{ instance.plan }}G
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
