@@ -86,11 +86,13 @@
                                     {% if instance.type == Constants.MONGODB_SHARDED_INSTANCE %}
                                         <li><a data-popover="compact-instance-popover" data-count="{{ loop.index0 }}" data-popover-target="instance-{{ loop.index0 }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Compact</a></li>
                                     {% endif %}
-                                    <li><a data-popover="add-instance-user-popover" data-count="{{ loop.index0 }}" data-popover-target="instance-{{ loop.index0 }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add User</a></li>
+                                    {% if instance.service in (Constants.MONGODB_SERVICE, Constants.TOKUMX_SERVICE) %}
+                                        <li><a data-popover="add-instance-user-popover" data-count="{{ loop.index0 }}" data-popover-target="instance-{{ loop.index0 }}" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Add User</a></li>
+                                    {% endif %}
                                     {% if instance.service == Constants.MONGODB_SERVICE %}
                                         <li><a href="{{ url_for('instance_stats', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Statistics</a></li>
+                                        <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Manage Settings</a></li>
                                     {% endif %}
-                                    <li><a href="{{ url_for('instance_settings', selected_instance=instance.name) }}" class="rs-btn rs-btn-link">Manage Settings</a></li>
                                 </ul>
                             </div>
                         </td>
