@@ -15,6 +15,14 @@
       </form>
 #}
 
+<!-- Kenshoo tracking code -->
+<script type=text/javascript>
+    var hostProtocol = (("https:" == document.location.protocol) ? "https" : "http");
+    document.write('<scr'+'ipt src="', hostProtocol+
+    '://148.xg4ken.com/media/getpx.php?cid=3cda9f22-a5e4-4c5c-a526-2479a9748aba','" type="text/JavaScript"><\/scr'+'ipt>');
+</script>
+<!-- end Kenshoo tracking code -->
+
 <!-- stripe js -->
 <script src="https://checkout.stripe.com/v2/checkout.js"></script>
 <script>
@@ -24,6 +32,17 @@
 
         var on_card_submitted = function (result) {
             $("#stripe_token").val(result.id);
+            var params = new Array();
+            params[0]='id=3cda9f22-a5e4-4c5c-a526-2479a9748aba';
+            params[1]='type=complete';
+            params[2]='val=300';
+            params[3]='orderId=';
+            params[4]='promoCode=';
+            params[5]='valueCurrency=USD';
+            params[6]='GCID='; //For Live Tracking only
+            params[7]='kw='; //For Live Tracking only
+            params[8]='product='; //For Live Tracking only
+            k_trackevent(params,'148');
             cc_form.submit();
         };
 
