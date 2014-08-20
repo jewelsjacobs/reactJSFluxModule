@@ -1213,7 +1213,7 @@ def reset_password():
 
             # Ensure token is still valid.
             try:
-                max_age = config.PASSWORD_RESET_TOKEN_TTL_IN_SECONDS
+                max_age = Constants.PASSWORD_RESET_TOKEN_TTL_IN_SECONDS
                 login = serializer.loads(token, max_age=max_age)
                 password = request.form[Constants.PASSWORD]
 
@@ -1232,7 +1232,7 @@ def reset_password():
         token = request.args.get('token')
         if token:
             try:
-                max_age = config.PASSWORD_RESET_TOKEN_TTL_IN_SECONDS
+                max_age = Constants.PASSWORD_RESET_TOKEN_TTL_IN_SECONDS
                 serializer.loads(token, max_age=max_age)
                 return render_template('sign_in/change_password.html',
                                        token=token)
