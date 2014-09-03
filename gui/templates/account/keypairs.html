@@ -1,0 +1,213 @@
+{% extends "web_app_base.html" %}
+
+{% block nav_secondary %}
+    {% call nav_secondary_content() %}
+        {% include "account/secondary_nav.html" %}
+    {% endcall %}
+{% endblock %}
+
+{% block content_area_body %}
+
+    {% call detail_header(page_title="Keypair Management") %}{% endcall %}
+
+    {% call create_view(url_for('keypair_create'), id="keypair_create_form", method="POST") %}
+
+        {% call detail_section(title="Create Keypair", subtitle="Subtitle Text.", collapsible=true) %}
+            <div class="rs-detail-section-body">
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="name">Keypair Name</label>
+
+                    <div class="rs-controls">
+                        <input type="text" class="rs-input-xlarge" id="name" name="name">
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="description">Keypair Description</label>
+
+                    <div class="rs-controls">
+                        <textarea class="rs-input-xlarge" id="description" name="description"></textarea>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label">Keypair Role</label>
+
+                    <div class="rs-controls">
+                        <label class="rs-radio">
+                            <input type="radio" name="role" value="r">
+                            <strong>Read Only</strong><br>
+                        </label>
+                        <label class="rs-radio">
+                            <input type="radio" name="role" value="rw">
+                            <strong>Read Write</strong>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="rs-control-group">
+                    <label class="rs-control-label" for="instance_names">Instances</label>
+
+                    <div class="rs-controls">
+                        <table class="rs-list-table rs-select-table">
+                            <tbody>
+                            {% for instance in instances %}
+                                {% if loop.index is divisibleby 2 %}
+                                    <tr class="selected">
+                                {% else %}
+                                    <tr>
+                                {% endif %}
+                                <td class="rs-table-checkbox">
+                                    <input type="checkbox" name="instance_names" value={{ instance.name }}>
+                                </td>
+                                <td class="rs-table-text">{{ instance.name }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="rs-control-group">
+                    <div class="rs-controls">
+                        <button type="submit" id="keypair_create_button" class="rs-btn rs-btn-primary">Create Keypair
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endcall %}
+    {% endcall %}
+
+    {% call detail_section('Keypairs', collapsible=True) %}
+        <table class="rs-list-table">
+            <thead>
+            <tr>
+                <th></th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">Name</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">Role</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">Description</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">Instances</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">User Key</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+                <th>
+                    <a href="#list-table" class="rs-table-sort">
+                        <span class="rs-table-sort-text">Pass Key</span>
+                        <span class="rs-table-sort-indicator"></span>
+                    </a>
+                </th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for keypair in keypairs %}
+                {% if loop.index is divisibleby 2 %}
+                    <tr class="selected">
+                {% else %}
+                    <tr>
+                {% endif %}
+                <td>
+                    <button class="rs-delete rs-popover-source" id="delete-keypair-target-{{ loop.index }}"
+                            data-popover="delete-keypair-popover"
+                            data-popover-target="delete-keypair-target-{{ loop.index }}" data-popover-position="right"
+                            data-name="{{ keypair.name }}" data-user-key="{{ keypair.user_key }}"
+                            data-pass-key="{{ keypair.pass_key }}"></button>
+                </td>
+                <td class="rs-table-link">{{ keypair.name }}</td>
+                <td class="rs-table-text">
+                    {% if keypair.role == 'r' %}
+                        ReadOnly
+                    {% elif keypair.role == 'rw' %}
+                        ReadWrite
+                    {% endif %}
+                </td>
+                <td class="rs-table-text">{{ keypair.description }}</td>
+                <td class="rs-table-text">
+                    {% for instance_name in keypair.instance_names %}
+                        <span>{{ instance_name }}</span><br>
+                    {% endfor %}
+                </td>
+                <td class="rs-table-text">{{ keypair.user_key }}</td>
+                <td class="rs-table-text">{{ keypair.pass_key }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endcall %}
+
+{% endblock %}
+
+
+{% block popovers %}
+    <!-- delete keypair popover -->
+    <div id="delete-keypair-popover" class="rs-popover invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="delete-keypair-popover-form" class="rs-form-horizontal rs-form-small"
+                      action="{{ url_for('keypair_remove') }}" method="POST">
+                    <p><b>Permanently delete</b> keypair <b id="keypair_name"></b>?</p>
+                    <input name="name" type="hidden" value="">
+                    <input name="pass_key" type="hidden" value="">
+                    <input name="user_key" type="hidden" value="">
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="delete-keypair-popover-form-button" form="delete-keypair-popover-form"
+                        class="rs-btn rs-btn-primary">Delete Keypair
+                </button>
+                <button class="rs-btn rs-btn-link">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- end delete keypair popover -->
+{% endblock %}
+
+
+{% block script %}
+    {{ super() }}
+    <script>
+        $(document).ready(function () {
+            // Listener for delete keypair buttons.
+            $('button[data-popover="delete-keypair-popover"]').click(function () {
+                var $this = $(this);
+                var name = $this.attr('data-name');
+                var user_key = $this.attr('data-user-key');
+                var pass_key = $this.attr('data-pass-key');
+
+                // Inject the keypair data into popover.
+                $('#keypair_name').text(name);
+                $("input[name='name']").val(name);
+                $("input[name='pass_key']").val(pass_key);
+                $("input[name='user_key']").val(user_key);
+
+                positionPopover($this);
+                showPopover($this);
+            });
+
+        });
+    </script>
+{% endblock %}
