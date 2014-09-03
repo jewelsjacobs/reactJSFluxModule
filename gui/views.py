@@ -79,7 +79,7 @@ def viper_auth(func):
     def internal(*args, **kwargs):
         if 'login' in session:
             g.login = session['login']
-            g.keypair = KeypairManager(config).get_account_admin_keypair(g.login)
+            g.keypair = KeypairManager(config).get_account_root_keypair(g.login)
             return func(*args, **kwargs)
         else:
             return redirect(url_for('sign_in'))
