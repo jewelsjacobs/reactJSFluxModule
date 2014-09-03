@@ -36,35 +36,7 @@ company = 'test'
 name = 'test'
 
 
-def test_sign_up_1(app_client):
-    with app_client as client:
-        response = client.get(url_for('sign_up1'))
-        assert response.status_code == 302
-        assert urlparse(response.location).path == url_for('sign_up')
-
-
-def test_sign_up_2(app_client):
-    with app_client as client:
-        response = client.get(url_for('sign_up2'))
-        assert response.status_code == 302
-        assert urlparse(response.location).path == url_for('sign_up')
-
-
-def test_sign_up_3(app_client):
-    with app_client as client:
-        response = client.get(url_for('sign_up3'))
-        assert response.status_code == 302
-        assert urlparse(response.location).path == url_for('sign_up')
-
-
-def test_sign_up_finish(app_client):
-    with app_client as client:
-        response = client.get(url_for('sign_up_finish'))
-        assert response.status_code == 302
-        assert urlparse(response.location).path == url_for('sign_up')
-
-
-def test_new_signup(app_client):
+def test_sign_up(app_client):
     with app_client as client:
         response = client.get(url_for('sign_up'))
         assert response.status_code == 200
@@ -921,7 +893,8 @@ def test_admin_remove_user(app_client):
 def test_invalid_view_maintenance_mode_off(app_client):
     with app_client as client:
         response = client.get('/asdf')
-        assert response.status_code == 404
+        assert response.status_code == 302
+        assert response.location.endswith(url_for('instances'))
 
 
 def test_invalid_view_maintenance_mode_on(app_client):
