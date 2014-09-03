@@ -432,13 +432,25 @@ def keypair_create():
     """Keypair creation."""
     description = request.form['description']
     instance_names = request.form.getlist('instance_names', [])
-    name = request.form['name']
-    role = request.form['role']
 
+    # Handle the name field.
+    name = request.form['name']
+    if not name:
+        flash('Provide a name for the new keypair.', canon_constants.STATUS_WARNING)
+        return redirect(url_for('keypair_management'))
+
+    # Handle the role field.
+    role = request.form['role']
+    if not role:
+        flash('Select a valid role for the new keypair.', canon_constants.STATUS_WARNING)
+        return redirect(url_for('keypair_management'))
+
+    # Handle the all_instances field.
     all_instances = False
     if request.form.get('all_instances', False) == 'on':
         all_instances = True
 
+    # Attempt to create a new keypair from given specs.
     keypair_manager = KeypairManager(config)
     try:
         keypair_manager.create_keypair(g.login, instance_names, role, name, description, all_instances)
