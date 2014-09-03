@@ -34,7 +34,7 @@ from viper.aws import AWSManager
 from viper.billing import BillingManager, BillingException
 from viper.constants import Constants
 from viper.instance import InstanceManager
-from viper.keypair import KeypairManager
+from viper.keypair import KeypairException, KeypairManager
 from viper.messages import MessageManager
 from viper.mongo_instance import MongoDBInstanceException
 from viper.notifier import Notifier
@@ -414,6 +414,54 @@ def account():
                            account=account,
                            email=account.email,
                            login=g.login)
+
+
+@app.route('/account/keypair/management')
+@viper_auth
+def keypair_management():
+    """Keypair management."""
+    account_manager = AccountManager(config)
+    account = account_manager.get_account(g.login)
+    instances = account.get_instances()
+    return render_template('account/keypairs.html', instances=instances, keypairs=account.keypairs)
+
+
+@app.route('/account/keypair/create', methods=['POST'])
+@viper_auth
+def keypair_create():
+    """Keypair creation."""
+    description = request.form['description']
+    instance_names = request.form.getlist('instance_names')
+    name = request.form['name']
+    role = request.form['role']
+
+    keypair_manager = KeypairManager(config)
+    try:
+        keypair_manager.create_keypair(g.login, instance_names, role, name, description)
+        flash("Successfully added keypair: {}".format(name), canon_constants.STATUS_OK)
+    except KeypairException as ex:
+        flash(ex.message, canon_constants.STATUS_ERROR)
+
+    return redirect(url_for('keypair_management'))
+
+
+@app.route('/account/keypair/remove', methods=['POST'])
+@viper_auth
+def keypair_remove():
+    """Keypair removal."""
+    name = request.form['name']
+    user_key = request.form['user_key']
+    pass_key = request.form['pass_key']
+
+    keypair_manager = KeypairManager(config)
+
+    try:
+        keypair_manager.remove_keypair(g.login, user_key, pass_key)
+        flash("Successfully removed keypair: {}".format(name), canon_constants.STATUS_OK)
+    except OperationFailure:
+        flash("Unable to remove keypair: {}".format(name), canon_constants.STATUS_OK)
+
+    return redirect(url_for('keypair_management'))
 
 
 @app.route('/update_account_contact', methods=['POST'])

@@ -1,0 +1,6 @@
+<li class="rs-nav-item {% if url_for('account').endswith(request.path) %} active {% endif %}">
+    <a class="rs-nav-link" href="{{ url_for('account') }}">Account Settings</a>
+</li>
+<li class="rs-nav-item {% if url_for('keypair_management').endswith(request.path) %} active {% endif %}">
+    <a class="rs-nav-link" href="{{ url_for('keypair_management') }}">Keypair Management</a>
+</li>
