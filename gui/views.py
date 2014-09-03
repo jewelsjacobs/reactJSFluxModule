@@ -431,13 +431,17 @@ def keypair_management():
 def keypair_create():
     """Keypair creation."""
     description = request.form['description']
-    instance_names = request.form.getlist('instance_names')
+    instance_names = request.form.getlist('instance_names', [])
     name = request.form['name']
     role = request.form['role']
 
+    all_instances = False
+    if request.form.get('all_instances', False) == 'on':
+        all_instances = True
+
     keypair_manager = KeypairManager(config)
     try:
-        keypair_manager.create_keypair(g.login, instance_names, role, name, description)
+        keypair_manager.create_keypair(g.login, instance_names, role, name, description, all_instances)
         flash("Successfully added keypair: {}".format(name), canon_constants.STATUS_OK)
     except KeypairException as ex:
         flash(ex.message, canon_constants.STATUS_ERROR)
@@ -459,7 +463,7 @@ def keypair_remove():
         keypair_manager.remove_keypair(g.login, user_key, pass_key)
         flash("Successfully removed keypair: {}".format(name), canon_constants.STATUS_OK)
     except OperationFailure:
-        flash("Unable to remove keypair: {}".format(name), canon_constants.STATUS_OK)
+        flash("Unable to remove keypair: {}".format(name), canon_constants.STATUS_ERROR)
 
     return redirect(url_for('keypair_management'))
 
