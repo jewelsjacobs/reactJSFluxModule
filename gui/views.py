@@ -34,7 +34,7 @@ from viper.aws import AWSManager
 from viper.billing import BillingManager, BillingException
 from viper.constants import Constants
 from viper.instance import InstanceManager
-from viper.keypair import KeypairException, KeypairManager
+from viper.keypair import Keypair, KeypairException, KeypairManager
 from viper.messages import MessageManager
 from viper.mongo_instance import MongoDBInstanceException
 from viper.notifier import Notifier
@@ -431,13 +431,29 @@ def keypair_management():
 def keypair_create():
     """Keypair creation."""
     description = request.form['description']
-    instance_names = request.form.getlist('instance_names')
-    name = request.form['name']
-    role = request.form['role']
+    instance_names = request.form.getlist('instance_names', [])
 
+    # Handle the name field.
+    name = request.form['name']
+    if not name:
+        flash('Provide a name for the new keypair.', canon_constants.STATUS_WARNING)
+        return redirect(url_for('keypair_management'))
+
+    # Handle the role field.
+    role = request.form['role']
+    if not role or role not in (Keypair.ADMIN, Keypair.READ_WRITE, Keypair.READ):
+        flash('Select a valid role for the new keypair.', canon_constants.STATUS_WARNING)
+        return redirect(url_for('keypair_management'))
+
+    # Handle the all_instances field.
+    all_instances = False
+    if request.form.get('all_instances', False) == 'on':
+        all_instances = True
+
+    # Attempt to create a new keypair from given specs.
     keypair_manager = KeypairManager(config)
     try:
-        keypair_manager.create_keypair(g.login, instance_names, role, name, description)
+        keypair_manager.create_keypair(g.login, instance_names, role, name, description, all_instances)
         flash("Successfully added keypair: {}".format(name), canon_constants.STATUS_OK)
     except KeypairException as ex:
         flash(ex.message, canon_constants.STATUS_ERROR)
@@ -459,7 +475,7 @@ def keypair_remove():
         keypair_manager.remove_keypair(g.login, user_key, pass_key)
         flash("Successfully removed keypair: {}".format(name), canon_constants.STATUS_OK)
     except OperationFailure:
-        flash("Unable to remove keypair: {}".format(name), canon_constants.STATUS_OK)
+        flash("Unable to remove keypair: {}".format(name), canon_constants.STATUS_ERROR)
 
     return redirect(url_for('keypair_management'))
 
