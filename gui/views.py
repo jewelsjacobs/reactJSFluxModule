@@ -416,68 +416,68 @@ def account():
                            login=g.login)
 
 
-@app.route('/account/keypair/management')
-@viper_auth
-def keypair_management():
-    """Keypair management."""
-    account_manager = AccountManager(config)
-    account = account_manager.get_account(g.login)
-    instances = account.get_instances()
-    return render_template('account/keypairs.html', instances=instances, keypairs=account.keypairs)
+# @app.route('/account/keypair/management')
+# @viper_auth
+# def keypair_management():
+#     """Keypair management."""
+#     account_manager = AccountManager(config)
+#     account = account_manager.get_account(g.login)
+#     instances = account.get_instances()
+#     return render_template('account/keypairs.html', instances=instances, keypairs=account.keypairs)
 
 
-@app.route('/account/keypair/create', methods=['POST'])
-@viper_auth
-def keypair_create():
-    """Keypair creation."""
-    description = request.form['description']
-    instance_names = request.form.getlist('instance_names', [])
+# @app.route('/account/keypair/create', methods=['POST'])
+# @viper_auth
+# def keypair_create():
+#     """Keypair creation."""
+#     description = request.form['description']
+#     instance_names = request.form.getlist('instance_names', [])
 
-    # Handle the name field.
-    name = request.form['name']
-    if not name:
-        flash('Provide a name for the new keypair.', canon_constants.STATUS_WARNING)
-        return redirect(url_for('keypair_management'))
+#     # Handle the name field.
+#     name = request.form['name']
+#     if not name:
+#         flash('Provide a name for the new keypair.', canon_constants.STATUS_WARNING)
+#         return redirect(url_for('keypair_management'))
 
-    # Handle the role field.
-    role = request.form['role']
-    if not role or role not in (Keypair.ADMIN, Keypair.READ_WRITE, Keypair.READ):
-        flash('Select a valid role for the new keypair.', canon_constants.STATUS_WARNING)
-        return redirect(url_for('keypair_management'))
+#     # Handle the role field.
+#     role = request.form['role']
+#     if not role or role not in (Keypair.ADMIN, Keypair.READ_WRITE, Keypair.READ):
+#         flash('Select a valid role for the new keypair.', canon_constants.STATUS_WARNING)
+#         return redirect(url_for('keypair_management'))
 
-    # Handle the all_instances field.
-    all_instances = False
-    if request.form.get('all_instances', False) == 'on':
-        all_instances = True
+#     # Handle the all_instances field.
+#     all_instances = False
+#     if request.form.get('all_instances', False) == 'on':
+#         all_instances = True
 
-    # Attempt to create a new keypair from given specs.
-    keypair_manager = KeypairManager(config)
-    try:
-        keypair_manager.create_keypair(g.login, instance_names, role, name, description, all_instances)
-        flash("Successfully added keypair: {}".format(name), canon_constants.STATUS_OK)
-    except KeypairException as ex:
-        flash(ex.message, canon_constants.STATUS_ERROR)
+#     # Attempt to create a new keypair from given specs.
+#     keypair_manager = KeypairManager(config)
+#     try:
+#         keypair_manager.create_keypair(g.login, instance_names, role, name, description, all_instances)
+#         flash("Successfully added keypair: {}".format(name), canon_constants.STATUS_OK)
+#     except KeypairException as ex:
+#         flash(ex.message, canon_constants.STATUS_ERROR)
 
-    return redirect(url_for('keypair_management'))
+#     return redirect(url_for('keypair_management'))
 
 
-@app.route('/account/keypair/remove', methods=['POST'])
-@viper_auth
-def keypair_remove():
-    """Keypair removal."""
-    name = request.form['name']
-    user_key = request.form['user_key']
-    pass_key = request.form['pass_key']
+# @app.route('/account/keypair/remove', methods=['POST'])
+# @viper_auth
+# def keypair_remove():
+#     """Keypair removal."""
+#     name = request.form['name']
+#     user_key = request.form['user_key']
+#     pass_key = request.form['pass_key']
 
-    keypair_manager = KeypairManager(config)
+#     keypair_manager = KeypairManager(config)
 
-    try:
-        keypair_manager.remove_keypair(g.login, user_key, pass_key)
-        flash("Successfully removed keypair: {}".format(name), canon_constants.STATUS_OK)
-    except OperationFailure:
-        flash("Unable to remove keypair: {}".format(name), canon_constants.STATUS_ERROR)
+#     try:
+#         keypair_manager.remove_keypair(g.login, user_key, pass_key)
+#         flash("Successfully removed keypair: {}".format(name), canon_constants.STATUS_OK)
+#     except OperationFailure:
+#         flash("Unable to remove keypair: {}".format(name), canon_constants.STATUS_ERROR)
 
-    return redirect(url_for('keypair_management'))
+#     return redirect(url_for('keypair_management'))
 
 
 @app.route('/update_account_contact', methods=['POST'])
