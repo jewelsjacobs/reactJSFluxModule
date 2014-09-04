@@ -56,18 +56,24 @@
                     <div id="instances-table" class="rs-controls">
                         <table class="rs-list-table rs-select-table">
                             <tbody>
-                            {% for instance in instances %}
-                                {% if loop.index is divisibleby 2 %}
-                                    <tr class="selected">
-                                {% else %}
-                                    <tr>
-                                {% endif %}
-                                <td class="rs-table-checkbox">
-                                    <input type="checkbox" name="instance_names" value={{ instance.name }}>
-                                </td>
-                                <td class="rs-table-text">{{ instance.name }}</td>
+                            {% if instances %}
+                                {% for instance in instances %}
+                                    {% if loop.index is divisibleby 2 %}
+                                        <tr class="selected">
+                                    {% else %}
+                                        <tr>
+                                    {% endif %}
+                                    <td class="rs-table-checkbox">
+                                        <input type="checkbox" name="instance_names" value={{ instance.name }}>
+                                    </td>
+                                    <td class="rs-table-text">{{ instance.name }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td class="rs-table-text">N/A</td>
                                 </tr>
-                            {% endfor %}
+                            {% endif %}
                             </tbody>
                         </table>
                     </div>
@@ -165,9 +171,13 @@
                     </td>
                     <td class="rs-table-text">{{ keypair.description }}</td>
                     <td class="rs-table-text">
-                        {% for instance_name in keypair.instance_names %}
-                            <span>{{ instance_name }}</span><br>
-                        {% endfor %}
+                        {% if keypair.all_instances %}
+                            <span>ALL</span><br>
+                        {% else %}
+                            {% for instance_name in keypair.instance_names %}
+                                <span>{{ instance_name }}</span><br>
+                            {% endfor %}
+                        {% endif %}
                     </td>
                     <td class="rs-table-text">{{ keypair.user_key }}</td>
                     <td class="rs-table-text">{{ keypair.pass_key }}</td>

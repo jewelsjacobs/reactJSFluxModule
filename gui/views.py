@@ -34,7 +34,7 @@ from viper.aws import AWSManager
 from viper.billing import BillingManager, BillingException
 from viper.constants import Constants
 from viper.instance import InstanceManager
-from viper.keypair import KeypairException, KeypairManager
+from viper.keypair import Keypair, KeypairException, KeypairManager
 from viper.messages import MessageManager
 from viper.mongo_instance import MongoDBInstanceException
 from viper.notifier import Notifier
@@ -441,7 +441,7 @@ def keypair_create():
 
     # Handle the role field.
     role = request.form['role']
-    if not role:
+    if not role or role not in (Keypair.ADMIN, Keypair.READ_WRITE, Keypair.READ):
         flash('Select a valid role for the new keypair.', canon_constants.STATUS_WARNING)
         return redirect(url_for('keypair_management'))
 
