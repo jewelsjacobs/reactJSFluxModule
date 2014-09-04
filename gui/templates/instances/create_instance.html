@@ -183,7 +183,7 @@
         {val: 100, text: '100GB MEDIUM $2,075.00/mo'},
     ];
 
-    var redisPrices = [
+    var redisStandardPrices = [
         {val: '500', text: '500MB SMALL $59.00/mo'},
         {val: '1000', text: '1GB SMALL $99.00/mo', default: true},
         {val: '2500', text: '2.5GB SMALL $219.00/mo'},
@@ -193,6 +193,15 @@
         {val: '50000', text: '50GB LARGE $3999.00/mo'},
     ];
 
+    var redisLonPrices = [
+        {val: '500', text: '500MB SMALL $79.00/mo'},
+        {val: '1000', text: '1GB SMALL $129.00/mo', default: true},
+        {val: '2500', text: '2.5GB SMALL $279.00/mo'},
+        {val: '5000', text: '5GB MEDIUM $549.00/mo'},
+        {val: '10000', text: '10GB MEDIUM $1049.00/mo'},
+        {val: '20000', text: '20GB MEDIUM $2099.00/mo'},
+        {val: '50000', text: '50GB LARGE $4999.00/mo'},
+    ];
 
     function buildPlanOptions(pricingMap) {
         var defaultPlan;
@@ -282,12 +291,15 @@
         // Bind listener to change pricing map when #zone or '#service_type input' changes.
         $('#zone, #service-type input, #plan').change(function () {
             var prices = usPrices,
-                selectedZone = $(this).val(),
+                selectedZone = $('#zone').val(),
                 serviceType = $('#service-type input:checked').val();
 
-
             if (serviceType == 'redis') {
-                prices = redisPrices;
+                if (selectedZone == 'EU-London'){
+                    prices = redisLonPrices;
+                } else {
+                    prices = redisStandardPrices;
+                }
             } else if (selectedZone == 'EU-London') {
                 prices = lonPrices;
             } else if (selectedZone == 'AP-HongKong') {
