@@ -234,8 +234,9 @@
                 if (checkedInput.val() == 'a') {
                     instancesTable.hide();
                     allInstancesCheckbox.prop('checked', true);
+                    allInstancesCheckbox.prop('disabled', true);
                 } else if (allInstancesCheckbox.is(':checked')) {
-                    return
+                    allInstancesCheckbox.prop('disabled', false);
                 } else {
                     instancesTable.show();
                 }
