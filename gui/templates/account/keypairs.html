@@ -56,7 +56,6 @@
                     <div id="instances-table" class="rs-controls">
                         <table class="rs-list-table rs-select-table">
                             <tbody>
-                            {% if instances %}
                                 {% for instance in instances %}
                                     {% if loop.index is divisibleby 2 %}
                                         <tr class="selected">
@@ -69,15 +68,9 @@
                                     <td class="rs-table-text">{{ instance.name }}</td>
                                     </tr>
                                 {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td class="rs-table-text">N/A</td>
-                                </tr>
-                            {% endif %}
                             </tbody>
                         </table>
                     </div>
-
                 </div>
 
                 <div class="rs-control-group">
