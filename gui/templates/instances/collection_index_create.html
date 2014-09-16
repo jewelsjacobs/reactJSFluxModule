@@ -15,7 +15,7 @@
         <div class="rs-detail-header-subtitle">Add Index</div>
         <div class="rs-detail-header-title">{{ collection.name }}</div>
     </div>
-    
+
     {% call detail_section() %}
         {% call create_view(url_for('add_index', selected_instance=instance.name, selected_database=database.name, selected_collection=collection.name), 'index-create-form') %}
             <div class="rs-control-group">
@@ -28,7 +28,9 @@
                         <option value="-1">Descending</option>
                     </select>
                     <span><input type="checkbox" name="background" id="background" value="true" checked="checked">&nbsp;Background</span>
-                    <span><input type="checkbox" name="unique" id="unique" value="true">&nbsp;Unique</span>
+                    {% if not collection.sharded %}
+                        <span><input type="checkbox" name="unique" id="unique" value="true">&nbsp;Unique</span>
+                    {% endif %}
                     <div class="vertical-padding-helfem">
                         <button id="add-index-key-button" form="" class="rs-btn rs-btn-primary">Add Key</button>
                     </div>
@@ -114,7 +116,7 @@
                 $(label).closest('.rs-control-group').addClass('success');
             }
         });
-        
+
         // Listener for the submit button
         $('#index-create-button').click(function(event) {
             event.preventDefault();
@@ -128,7 +130,7 @@
             }
             var encodedIndexKeys = JSON.stringify(indexKeys);
             $("#index-create-form").append("<input type='hidden' name='all_index_keys' value='" + encodedIndexKeys + "' >");
-            
+
             form = $('#index-create-form');
             $(form).submit();
         });
