@@ -1761,6 +1761,9 @@ def add_acl(instance):
     cidr_mask = request.form['cidr_mask']
     description = request.form['description']
 
+    if str(cidr_mask) == "0.0.0.0/0":
+        cidr_mask = "any"
+
     # Logic to handle allow any with "ANY" keyword.
     if str(cidr_mask).lower().strip() == "any":
         user_instance.add_acl('0.0.0.0/1', "Allow Any")
