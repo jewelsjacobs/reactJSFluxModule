@@ -16,6 +16,7 @@ import stripe
 # 3rd party from imports.
 from flask import abort, Response
 from flask import flash, request, render_template, session, redirect, url_for, g
+from flask_wtf import csrf
 from functools import wraps
 from jinja2.filters import do_filesizeformat as filesizeformat
 from netaddr import IPNetwork, AddrFormatError
@@ -567,6 +568,9 @@ def create_instance():
     #     return render_template('instances/create_instance.html',
     #                            active_datastores=app.config.get('ACTIVE_DATASTORES'),
     #                            form=form)
+
+    if not csrf.validate_csrf(form.csrf_token.data):
+        abort(400)
 
     # Populate variables from form.
     name = form.name.data
