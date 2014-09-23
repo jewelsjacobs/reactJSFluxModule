@@ -509,6 +509,21 @@
                 $('#add-instance-user-popover-name').text(name);
             });
         });
+        
+        {% if not add_instance_enabled %}
+        var cat = 'orstart',
+            qty = 1,
+            cost = 200,
+            u4 = '',
+            ord = uuid;
+        {% else %}
+        var cat = '_A7ve-',
+            qty = 1,
+            cost = 300,
+            ord = uuid;
+        {% endif %}
+        
+        $('body').append('<iframe src="https://4361691.fls.doubleclick.net/activityi;src=4361691;type=Sales-;cat=' + cat + ';qty=' + qty + ';cost=' + cost + ';u1=' + location.pathname + ';u2=' + uuid + ';u3=' + navigator.language + ';ord=' + uuid + '?" width="1" height="1" frameborder="0" style="display:none"></iframe>');
     });
     </script>
 {% endblock script %}
