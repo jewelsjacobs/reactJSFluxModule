@@ -34,6 +34,7 @@
                     <div class="vertical-padding-helfem">
                         <button id="add-index-key-button" form="" class="rs-btn rs-btn-primary">Add Key</button>
                     </div>
+                    <span id="foreground-index-build-warning" class="rs-help-block red hidden">WARNING: A foreground index build may adversely impact your instance.</span>
                 </div>
             </div>
 
@@ -64,7 +65,35 @@
 {% block script %}
     {{ super() }}
     <script type="text/javascript">
+
+    var tokumxService = '{{ Constants.TOKUMX_SERVICE }}',
+        instanceService = '{{ instance.service }}';
+
+    function uniqueBackgroundMutex(target) {
+        var mutex = {unique: 'background', background: 'unique'};
+
+        // This will uncheck the manipulated target's counterpart only.
+        $('#' + mutex[target]).prop('checked', false);
+    };
+
     $(document).ready(function() {
+
+        // Show a warning when someone is about to build a foreground index.
+        $('#background').change(function() {
+            if (this.checked) {
+                $('#foreground-index-build-warning').addClass('hidden');
+            } else {
+                $('#foreground-index-build-warning').removeClass('hidden');
+            }
+        });
+
+        // Unique indexes cannot be built in the background using TokuMX, so add a mutex for the options here.
+        if (instanceService == tokumxService) {
+            $('#background,#unique').click(function() {
+                uniqueBackgroundMutex(this.id);
+            });
+        }
+
         // Update the list of index keys as they are added.
         $('#add-index-key-button').click(function() {
             var indexKey = $('#indexkeys').val();

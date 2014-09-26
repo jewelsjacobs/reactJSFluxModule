@@ -1111,10 +1111,16 @@ def add_index(selected_instance, selected_database, selected_collection):
                                database=user_database,
                                collection=user_collection)
     else:
-        background = request.form.get('background', True)
+        background = request.form.get('background', False)
         drop_dups = request.form.get('dropdups', False)
         index_name = request.form.get('name', '')
         unique = request.form.get('unique', False)
+
+        # TokuMX does not allow creation of unique indexes in the background.
+        if user_instance.service == Constants.TOKUMX_SERVICE:
+            if unique and background:
+                flash('Cannot build a unique index in the background for TokuMX instances.', canon_constants.STATUS_WARNING)
+                return redirect(url_for('add_index', selected_instance=selected_instance, selected_database=selected_database, selected_collection=selected_collection))
 
         all_index_keys = request.form['all_index_keys']
         index_keys = json.loads(all_index_keys, object_pairs_hook=collections.OrderedDict)
@@ -1130,6 +1136,7 @@ def add_index(selected_instance, selected_database, selected_collection):
             exception_uuid = Utility.obfuscate_exception_message(ex.message)
             flash_message = ("There was a problem creating this index. If this problem persists, contact "
                              "support and provide Error ID %s." % (exception_uuid))
+            Utility.log_traceback(config=config, error_id=exception_uuid)
             flash(flash_message, canon_constants.STATUS_ERROR)
 
         return redirect(url_for('collection', selected_instance=selected_instance, selected_database=selected_database,
