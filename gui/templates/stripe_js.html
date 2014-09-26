@@ -49,7 +49,7 @@
         StripeCheckout.open({
             key: '{{ stripe_pub_key }}',
             email: '{{ email }}',
-            address: false,
+            address: true,
             name: cc_form.attr('windowTitle'),
             panelLabel: cc_form.attr('windowLabel'),
             token: on_card_submitted
