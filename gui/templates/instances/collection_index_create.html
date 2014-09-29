@@ -27,10 +27,18 @@
                         <option value="1">Ascending</option>
                         <option value="-1">Descending</option>
                     </select>
+
+                    <!-- Code for index constraints. -->
                     <span><input type="checkbox" name="background" id="background" value="true" checked="checked">&nbsp;Background</span>
                     {% if not collection.sharded %}
                         <span><input type="checkbox" name="unique" id="unique" value="true">&nbsp;Unique</span>
+
+                        {# Show a nice little tool-tip to explain the Unique / Background mutex for TokuMX instances. #}
+                        {% if instance.service == Constants.TOKUMX_SERVICE %}
+                            <span class="rs-icon-help tip" data-title="TokuMX prohibits background builds of indices having the 'unique' constraint. See the last item discussed at <a href='http://tokutek.freshdesk.com/support/discussions/topics/4000277042'>http://tokutek.freshdesk.com/support/discussions/topics/4000277042</a>." data-delay="0.1"></span>
+                        {% endif %}
                     {% endif %}
+
                     <div class="vertical-padding-helfem">
                         <button id="add-index-key-button" form="" class="rs-btn rs-btn-primary">Add Key</button>
                     </div>

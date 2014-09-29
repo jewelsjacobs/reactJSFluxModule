@@ -584,7 +584,7 @@ def create_instance():
     # TODO: this should be pushed into a real validation setup
     if re.match(r'^[\w]{2,}$', form.name.data) is None:
         abort(400)
-        
+
     # TODO: Refactor: move pretty much all of the following logic into core.
     # Determine the type of instance to use for mongodb.
     if service_type == Constants.MONGODB_SERVICE:
