@@ -579,11 +579,8 @@ def create_instance():
     # validate the name of the instance
     # TODO: this should be pushed into a real validation setup
     if re.match(r'^[\w]{2,}$', form.name.data) is None:
-        flash('Instance Name: Use letters, numbers, and underscores only please.', canon_constants.STATUS_ERROR)
-        return render_template('instances/create_instance.html',
-                               active_datastores=app.config.get('ACTIVE_DATASTORES'),
-                               form=form)
-
+        abort(400)
+        
     # TODO: Refactor: move pretty much all of the following logic into core.
     # Determine the type of instance to use for mongodb.
     if service_type == Constants.MONGODB_SERVICE:
