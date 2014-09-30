@@ -6,6 +6,7 @@ import collections
 import datetime
 import json
 import urllib
+import re
 
 # 3rd party imports.
 import bson
@@ -16,6 +17,7 @@ import stripe
 # 3rd party from imports.
 from flask import abort, Response
 from flask import flash, request, render_template, session, redirect, url_for, g
+from flask_wtf import csrf
 from functools import wraps
 from jinja2.filters import do_filesizeformat as filesizeformat
 from netaddr import IPNetwork, AddrFormatError
@@ -34,7 +36,6 @@ from viper.aws import AWSManager
 from viper.billing import BillingManager, BillingException
 from viper.constants import Constants
 from viper.instance import InstanceManager
-from viper.keypair import Keypair, KeypairException, KeypairManager
 from viper.messages import MessageManager
 from viper.mongo_instance import MongoDBInstanceException
 from viper.notifier import Notifier
@@ -72,14 +73,12 @@ def viper_auth(func):
     Set session info to g.session, and redirect the user to the log in page
     if they aren't already signed in.
 
-    This decorator will bind the session login to ``g.login`` as well as the account's admin
-    keypair to ``g.keypair``.
+    This decorator will bind the session login to ``g.login``.
     """
     @wraps(func)
     def internal(*args, **kwargs):
         if 'login' in session:
             g.login = session['login']
-            g.keypair = KeypairManager(config).get_account_root_keypair(g.login)
             return func(*args, **kwargs)
         else:
             return redirect(url_for('sign_in'))
@@ -416,70 +415,6 @@ def account():
                            login=g.login)
 
 
-# @app.route('/account/keypair/management')
-# @viper_auth
-# def keypair_management():
-#     """Keypair management."""
-#     account_manager = AccountManager(config)
-#     account = account_manager.get_account(g.login)
-#     instances = account.get_instances()
-#     return render_template('account/keypairs.html', instances=instances, keypairs=account.keypairs)
-
-
-# @app.route('/account/keypair/create', methods=['POST'])
-# @viper_auth
-# def keypair_create():
-#     """Keypair creation."""
-#     description = request.form['description']
-#     instance_names = request.form.getlist('instance_names', [])
-
-#     # Handle the name field.
-#     name = request.form['name']
-#     if not name:
-#         flash('Provide a name for the new keypair.', canon_constants.STATUS_WARNING)
-#         return redirect(url_for('keypair_management'))
-
-#     # Handle the role field.
-#     role = request.form['role']
-#     if not role or role not in (Keypair.ADMIN, Keypair.READ_WRITE, Keypair.READ):
-#         flash('Select a valid role for the new keypair.', canon_constants.STATUS_WARNING)
-#         return redirect(url_for('keypair_management'))
-
-#     # Handle the all_instances field.
-#     all_instances = False
-#     if request.form.get('all_instances', False) == 'on':
-#         all_instances = True
-
-#     # Attempt to create a new keypair from given specs.
-#     keypair_manager = KeypairManager(config)
-#     try:
-#         keypair_manager.create_keypair(g.login, instance_names, role, name, description, all_instances)
-#         flash("Successfully added keypair: {}".format(name), canon_constants.STATUS_OK)
-#     except KeypairException as ex:
-#         flash(ex.message, canon_constants.STATUS_ERROR)
-
-#     return redirect(url_for('keypair_management'))
-
-
-# @app.route('/account/keypair/remove', methods=['POST'])
-# @viper_auth
-# def keypair_remove():
-#     """Keypair removal."""
-#     name = request.form['name']
-#     user_key = request.form['user_key']
-#     pass_key = request.form['pass_key']
-
-#     keypair_manager = KeypairManager(config)
-
-#     try:
-#         keypair_manager.remove_keypair(g.login, user_key, pass_key)
-#         flash("Successfully removed keypair: {}".format(name), canon_constants.STATUS_OK)
-#     except OperationFailure:
-#         flash("Unable to remove keypair: {}".format(name), canon_constants.STATUS_ERROR)
-
-#     return redirect(url_for('keypair_management'))
-
-
 @app.route('/update_account_contact', methods=['POST'])
 @viper_auth
 def update_account_contact():
@@ -568,12 +503,20 @@ def create_instance():
     #                            active_datastores=app.config.get('ACTIVE_DATASTORES'),
     #                            form=form)
 
+    if not csrf.validate_csrf(form.csrf_token.data):
+        abort(400)
+
     # Populate variables from form.
     name = form.name.data
     plan_size_in_gb = form.plan.data
     service_type = form.service_type.data
     version = form.version.data
     zone = form.zone.data
+
+    # validate the name of the instance
+    # TODO: this should be pushed into a real validation setup
+    if re.match(r'^[\w]{2,}$', form.name.data) is None:
+        abort(400)
 
     # TODO: Refactor: move pretty much all of the following logic into core.
     # Determine the type of instance to use for mongodb.
@@ -1101,10 +1044,16 @@ def add_index(selected_instance, selected_database, selected_collection):
                                database=user_database,
                                collection=user_collection)
     else:
-        background = request.form.get('background', True)
+        background = request.form.get('background', False)
         drop_dups = request.form.get('dropdups', False)
         index_name = request.form.get('name', '')
         unique = request.form.get('unique', False)
+
+        # TokuMX does not allow creation of unique indexes in the background.
+        if user_instance.service == Constants.TOKUMX_SERVICE:
+            if unique and background:
+                flash('Cannot build a unique index in the background for TokuMX instances.', canon_constants.STATUS_WARNING)
+                return redirect(url_for('add_index', selected_instance=selected_instance, selected_database=selected_database, selected_collection=selected_collection))
 
         all_index_keys = request.form['all_index_keys']
         index_keys = json.loads(all_index_keys, object_pairs_hook=collections.OrderedDict)
@@ -1120,6 +1069,7 @@ def add_index(selected_instance, selected_database, selected_collection):
             exception_uuid = Utility.obfuscate_exception_message(ex.message)
             flash_message = ("There was a problem creating this index. If this problem persists, contact "
                              "support and provide Error ID %s." % (exception_uuid))
+            Utility.log_traceback(config=config, error_id=exception_uuid)
             flash(flash_message, canon_constants.STATUS_ERROR)
 
         return redirect(url_for('collection', selected_instance=selected_instance, selected_database=selected_database,

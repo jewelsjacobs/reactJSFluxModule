@@ -375,48 +375,6 @@ def test_account(app_client):
         assert response.status_code == 200
 
 
-def test_keypair_management(app_client):
-    with app_client as client:
-        client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
-        response = client.get(url_for('keypair_management'))
-        print(response.data)
-        assert response.status_code == 200
-
-
-def test_keypair_create(app_client):
-    name = 'test_kp_ro'
-    with app_client as client:
-        client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
-        response = client.post(url_for('keypair_create'),
-                               data=dict(
-                                   description='Test Keypair RO',
-                                   instance_names=instance_name,
-                                   name=name,
-                                   role='r'),
-                               follow_redirects=True)
-        print(response.data)
-        assert 'test_kp_ro' in response.data
-        assert response.status_code == 200
-
-
-def test_keypair_remove(app_client):
-    with app_client as client:
-        client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
-        response = client.get(url_for('keypair_management'))
-
-        user_key = re.search(r'data-user-key=".+"', response.data).group().split('"')[1]
-        pass_key = re.search(r'data-pass-key=".+"', response.data).group().split('"')[1]
-        response = client.post(url_for('keypair_remove'),
-                               data=dict(
-                                   name=name,
-                                   user_key=user_key,
-                                   pass_key=pass_key),
-                               follow_redirects=True)
-        print(response.data)
-        assert 'test_kp_ro' not in response.data
-        assert response.status_code == 200
-
-
 def test_external(app_client):
     with app_client as client:
         client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
