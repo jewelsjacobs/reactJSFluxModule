@@ -81,19 +81,10 @@
         var mutex = {unique: 'background', background: 'unique'};
 
         // This will uncheck the manipulated target's counterpart only.
-        $('#' + mutex[target]).prop('checked', false);
+        $('#' + mutex[target]).removeAttr('checked');
     };
 
     $(document).ready(function() {
-
-        // Show a warning when someone is about to build a foreground index.
-        $('#background').change(function() {
-            if (this.checked) {
-                $('#foreground-index-build-warning').addClass('hidden');
-            } else {
-                $('#foreground-index-build-warning').removeClass('hidden');
-            }
-        });
 
         // Unique indexes cannot be built in the background using TokuMX, so add a mutex for the options here.
         if (instanceService == tokumxService) {
@@ -101,6 +92,18 @@
                 uniqueBackgroundMutex(this.id);
             });
         }
+
+        // Show a warning when someone is about to build a foreground index.
+        $('#background,#unique').change(function() {
+            var backgroundCheckbox = $('#background');
+            if (backgroundCheckbox.prop('checked')) {
+                // $('#foreground-index-build-warning').addClass('hidden');
+                $('#foreground-index-build-warning').hide();
+            } else {
+                // $('#foreground-index-build-warning').removeClass('hidden');
+                $('#foreground-index-build-warning').show();
+            }
+        });
 
         // Update the list of index keys as they are added.
         $('#add-index-key-button').click(function() {
