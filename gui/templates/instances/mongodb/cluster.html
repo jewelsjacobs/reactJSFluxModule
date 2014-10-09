@@ -13,7 +13,7 @@
 {% block content_area_body %}
     {% call detail_header(page_title='Cluster Details', title=instance.name) %}{% endcall %}
     {% for shard in instance.shards %}
-        {% call detail_section(title=shard.name, collapsible=True) %}
+        {% call detail_section(title=shard.name, collapsible=false) %}
             {% set primary = shard.replica_set.primary %}
             <div class="rs-embedded-list-table-wrapper rs-embedded-medium">
                 <table class="rs-list-table rs-embedded-list-table">
@@ -39,11 +39,7 @@
                                 {% set delay = '(Arbiter)' %}
                                 {% set heartbeat = member.lastHeartbeat %}
                             {% else %}
-                                {% if instance.service == Constants.MONGODB_SERVICE %}
-                                    {% set delay = primary.oplog_time.as_datetime() - member.optime.as_datetime() %}
-                                {% else %}
-                                    {% set delay = 'N/A' %}
-                                {% endif %}
+                                {% set delay = primary.oplog_time.as_datetime() - member.optime.as_datetime() %}
                                 {% set heartbeat = member.lastHeartbeat %}
                             {% endif %}
 

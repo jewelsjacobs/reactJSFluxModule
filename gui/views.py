@@ -724,6 +724,7 @@ def rename_instance():
 @app.route('/instances/<selected_instance>/cluster')
 @viper_auth
 def cluster(selected_instance):
+    """Display sharded cluster details."""
     instance_manager = InstanceManager(config)
     instance = instance_manager.get_instance_by_name(g.login, selected_instance)
 
@@ -732,7 +733,7 @@ def cluster(selected_instance):
     elif instance.type not in (Constants.MONGODB_SHARDED_INSTANCE, Constants.TOKUMX_SHARDED_INSTANCE):
         return redirect(url_for('instance_details', selected_instance=selected_instance))
 
-    return render_template('cluster.html', instance=instance, get_host_zone=Utility.get_host_zone)
+    return render_template('instances/{}/cluster.html'.format(instance.service), instance=instance, get_host_zone=Utility.get_host_zone)
 
 
 @app.route('/add_instance_user/<selected_instance>', methods=['POST'])
