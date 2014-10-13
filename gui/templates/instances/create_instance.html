@@ -106,6 +106,24 @@
                     </div>
                 </div>
 
+                <div class="rs-control-group hidden" id="network_option">
+
+                    <label class="rs-control-label">Network</label>
+                    <div class="rs-controls">
+                        <label class="rs-radio">
+                            <input name="network" type="radio" value="public"/>
+                            <strong>Public</strong> -
+                            Public network
+                        </label>
+                        <label class="rs-radio">
+                            <input name="network" type="radio" value="servicenet"/>
+                            <strong>Servicenet</strong> -
+                            Servicenet network
+                        </label>
+                    </div>
+                </div>
+
+
                 <div class="rs-control-group">
                     <label class="rs-control-label">Plan</label>
                     <div class="rs-controls">
@@ -246,9 +264,12 @@
             serviceType = $('#service-type input:checked').val();
 
         if (serviceType == "redis"){
+
             instanceType = "redis_ha";
+            $("#network_option").removeClass("hidden");
 
         } else if (serviceType == "mongodb" || serviceType == "tokumx"){
+            $("#network_option").addClass("hidden");
             if (price == 1){
                 instanceType = "mongodb_replica_set";
             } else {
