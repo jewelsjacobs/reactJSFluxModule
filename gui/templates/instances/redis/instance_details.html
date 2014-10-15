@@ -31,7 +31,11 @@
 
     {% if instance.network == "servicenet" %}
         <p style="margin:0px 30px;background-color: #FFC; border:1px solid #eee; padding:10px">
-            This instance is on ServiceNet. Some features may not be available
+
+            <img src="/static/art/warning.png" />
+            <strong>Note: </strong>
+            Because this instance uses the ServiceNet network, it is not accessible via the
+            internet and some UI features are not available.
         </p>
     {% endif %}
 
@@ -74,35 +78,55 @@
                 <div class="rs-detail-value">{{ instance.password }}</div>
             </li>
 
-            {% if instance.network != "servicenet" %}
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Space Usage</div>
                     <div id="space_usage_data" class="rs-detail-value">
 
-                        <div class="rs-progress">
-                            <div class="rs-progress-inner or-flexbox-row">
-                                <div id="usage-bar-ns" class="rs-segment" style="width: {{ instance.free_space_percentage }}%;">
-                                    <div class="rs-bar or-bar-ns"></div>
+                        {% if instance.runtime_info %}
+                            <div class="rs-progress">
+                                <div class="rs-progress-inner or-flexbox-row">
+                                    <div id="usage-bar-ns" class="rs-segment" style="width: {{ instance.free_space_percentage }}%;">
+                                        <div class="rs-bar or-bar-ns"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            <span class="or-legend tip" data-title="The total used memory as returned via INFO used_memory_human" data-delay="0.1"><span class="or-legend-ns"></span>usedmemory: {{ instance.runtime_info.get("used_memory_human")}}</span>
+                        {% else %}
+                            <span style="color:#999">Unavailable</span>
+                        {% endif %}
 
-                        <span class="or-legend tip" data-title="The total used memory as returned via INFO used_memory_human" data-delay="0.1"><span class="or-legend-ns"></span>usedmemory: {{ instance.runtime_info.get("used_memory_human")}}</span>
                     </div>
                 </li>
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Max Memory Policy</div>
-                    <div class="rs-detail-value">{{ instance.config_database['maxmemory-policy'] }}</div>
+                    <div class="rs-detail-value">
+                        {% if instance.config_database %}
+                            {{ instance.config_database['maxmemory-policy'] }}
+                        {% else %}
+                            <span style="color:#999">Unavailable</span>
+                        {% endif %}
+                    </div>
                 </li>
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Max Clients</div>
-                    <div class="rs-detail-value">{{ instance.config_database['maxclients'] }}</div>
+                    <div class="rs-detail-value">
+                        {% if instance.config_database %}
+                            {{ instance.config_database['maxclients'] }}
+                        {% else %}
+                            <span style="color:#999">Unavailable</span>
+                        {% endif %}
+                    </div>
                 </li>
                 <li class="rs-detail-item">
                     <div class="rs-detail-key">Connected Slaves</div>
-                    <div class="rs-detail-value">{{ instance.runtime_info.get("connected_slaves") }}</div>
+                    <div class="rs-detail-value">
+                        {% if instance.runtime_info %}
+                            {{ instance.runtime_info.get("connected_slaves") }}
+                        {% else %}
+                            <span style="color:#999">Unavailable</span>
+                        {% endif %}
+                    </div>
                 </li>
-            {% endif %}
         </ul>
     {% endcall %}
 

@@ -106,24 +106,6 @@
                     </div>
                 </div>
 
-                <div class="rs-control-group hidden" id="network_option">
-
-                    <label class="rs-control-label">Network</label>
-                    <div class="rs-controls">
-                        <label class="rs-radio">
-                            <input name="network" type="radio" value="public"/>
-                            <strong>Public</strong> -
-                            Public network
-                        </label>
-                        <label class="rs-radio">
-                            <input name="network" type="radio" value="servicenet"/>
-                            <strong>Servicenet</strong> -
-                            Servicenet network
-                        </label>
-                    </div>
-                </div>
-
-
                 <div class="rs-control-group">
                     <label class="rs-control-label">Plan</label>
                     <div class="rs-controls">
@@ -148,11 +130,51 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="rs-control-group" >
+
+                    <label class="rs-control-label">Network</label>
+                    <div class="rs-controls">
+                        <div id="network_non_option">
+                            <strong>Public</strong> -
+                            Public network for internet access
+                        </div>
+                        <div id="network_option" class='hidden'>
+                            <label class="rs-radio">
+                                <input name="network" type="radio" value="public" id='public_network' checked/>
+                                <strong>Public</strong> -
+                                Public network for internet access
+                            </label>
+                            <label class="rs-radio">
+                                <input name="network" type="radio" value="servicenet"/>
+                                <strong>Servicenet</strong> -
+                                Internal Rackspace Network
+                                <span class="rs-icon-help tip" data-title='
+                                    <h4Service Net</h4>
+                                    <p>ServiceNet is an internal only, multi-tenant network connection within each Rackspace
+                                    data center. ServiceNet IP addresses are not accessible from the public Internet and are
+                                    local to each data center. Any traffic that occurs between your cloud resources on the
+                                    Rackspace Network does not incur bandwidth charges.
+                                    </p>' data-delay="0.1">
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="rs-detail-section">
             <div class="rs-detail-section-header rs-btn-group">
+                <div id='snet_warning' class='hidden'>
+                    <p>
+                        <img src="/static/art/warning.png" />
+                        <strong>Warning: </strong>
+                        You have selected ServiceNet. This instance will not be
+                        accessible via the internet and some UI features may not
+                        be available.
+                    </p>
+                </div>
                 <button class="rs-btn rs-btn-primary save">Create Instance</button>
                 <a href="{{ url_for('instances') }}" class="rs-btn rs-btn-link cancel">Cancel</a>
             </div>
@@ -259,6 +281,15 @@
 
     }
 
+    function buildNetworkOptions(){
+        var network = $('#network_option input:checked').val(),
+            serviceType = $('#service-type input:checked').val();
+
+        $("#network_non_option").toggle(serviceType != "redis");
+        $("#network_option").toggle(serviceType == "redis");
+        $("#snet_warning").toggle(serviceType == "redis" && network=="servicenet");
+    }
+
     function buildServiceType(){
         var price = $("#plan_select").val(),
             serviceType = $('#service-type input:checked').val();
@@ -266,17 +297,15 @@
         if (serviceType == "redis"){
 
             instanceType = "redis_ha";
-            $("#network_option").removeClass("hidden");
 
         } else if (serviceType == "mongodb" || serviceType == "tokumx"){
-            $("#network_option").addClass("hidden");
             if (price == 1){
                 instanceType = "mongodb_replica_set";
             } else {
                 instanceType = "mongodb_sharded";
             }
         }
-
+        buildNetworkOptions()
         $('#service_type span').hide();
         $('#service_type_' + instanceType).show();
     }
@@ -302,11 +331,16 @@
         });
 
         // Bind listener to change the value of #zone when '#service-type input' changes.
-        $('#service-type input').change(function() {
-            var zoneInput = $('#zone'),
+        $('#network input').change(function() {
+            var zoneInput = $('#network'),
                 serviceType = $('#service-type input:checked').val();
 
             buildZoneOptions(serviceToDatacentersMap[serviceType]);
+        });
+
+        // Bind listener to change the value of #zone when '#service-type input' changes.
+        $('#network_option input').change(function() {
+            buildNetworkOptions();
         });
 
         // Bind listener to change pricing map when #zone or '#service_type input' changes.
