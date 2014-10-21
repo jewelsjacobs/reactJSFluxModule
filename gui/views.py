@@ -30,6 +30,7 @@ from canon import constants as canon_constants
 from gui import forms
 from viper import config
 from viper import monitor
+from viper import tokens
 from viper.account import AccountManager
 from viper.annunciator import Annunciator, Alarm
 from viper.aws import AWSManager
@@ -2489,3 +2490,15 @@ def create_remote_index():
 @viper_auth
 def drop_remote_index():
     pass
+
+
+@app.route('/api_token')
+@viper_auth
+def get_api_token():
+    if not "api_token" in session:
+        api_token_manager = tokens.APITokenManager(config)
+        session.api_token = api_token_manager.create_token(account=g.login)
+    
+    return json.dumps({'api_token': session.api_token, 'user': g.login}), 200, {'content-type': 'application/json'}
+    
+    
