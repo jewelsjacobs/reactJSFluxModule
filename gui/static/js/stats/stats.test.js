@@ -1,177 +1,114 @@
-function generateTsData() {
-	results = [];
-	for (i = 0; i <= 90; i++) {
-		results[results.length] = [(Date.now() / 1000) - (86400 * i), Math.floor((Math.random() * 100) + 1)];
-	}
-	return results;
-}
 
-opcountersCommandData = {
-	"data": generateTsData(),
-	"description": "The average or total number of commands performed per second since the last data point.",
-	"name": "opcounters.command",
-	"references": [
-		"http://docs.mongodb.org/manual/reference/server-status/#server-status-example-opcounters"
-	]
-};
+//
+// Auth Service Tests
+//
 
-opcountersQueryData = {
-	"data": generateTsData(),
-	"description": "The number of queries performed per unit time.",
-	"name": "opcounters.query",
-	"references": [
-		"http://docs.mongodb.org/manual/reference/server-status/#server-status-example-opcounters"
-	]
-};
+describe("AuthService", function () {
 
-opcountersUpdateData = {
-	"data": generateTsData(),
-	"description": "The number of updates performed per unit time.",
-	"name": "opcounters.update",
-	"references": [
-		"http://docs.mongodb.org/manual/reference/server-status/#server-status-example-opcounters"
-	]
-};
+	var AuthService, httpBackend;
 
-opcountersDeleteData = {
-	"data": generateTsData(),
-	"description": "The number of deletes performed per unit time.",
-	"name": "opcounters.delete",
-	"references": [
-		"http://docs.mongodb.org/manual/reference/server-status/#server-status-example-opcounters"
-	]
-};
+	it("should respond with a user and token", function () {
+		var data = {"user": "test_user", "api_token": "test_token"}
+		httpBackend.expect("GET", "/api_token").respond(data);
 
-opcountersGetmoreData = {
-	"data": generateTsData(),
-	"description": "The number of times getMore has been called on any cursor per unit time. On a primary, this number can be high even if the query count is low as the secondaries 'getMore' from the primary often as part of replication.",
-	"name": "opcounters.getmore",
-	"references": [
-		"http://docs.mongodb.org/manual/reference/server-status/#server-status-example-opcounters"
-	]
-};
-
-opcountersInsertData = {
-	"data": generateTsData(),
-	"description": "The number of inserts performed per unit time.",
-	"name": "opcounters.insert",
-	"references": [
-		"http://docs.mongodb.org/manual/reference/server-status/#server-status-example-opcounters"
-	]
-};
-
-describe("Controller Test", function() {
-	// Arrange
-	var mockScope, controller, backend, mockInterval, mockTimeout, mockLog;
-
-	beforeEach(angular.mock.module("statsGraphApp"));
-
-	beforeEach(angular.mock.inject(function($httpBackend) {
-		backend = $httpBackend;
-		backend.whenGET("http://127.0.0.1:5000/serverStatus/opcounters.command").respond(
-			opcountersCommandData
-		);
-
-		backend.whenGET("http://127.0.0.1:5000/serverStatus/opcounters.query").respond(
-			opcountersQueryData
-		);
-
-		backend.whenGET("http://127.0.0.1:5000/serverStatus/opcounters.update").respond(
-			opcountersUpdateData
-		);
-
-		backend.whenGET("http://127.0.0.1:5000/serverStatus/opcounters.delete").respond(
-			opcountersDeleteData
-		);
-
-		backend.whenGET("http://127.0.0.1:5000/serverStatus/opcounters.getmore").respond(
-			opcountersGetmoreData
-		);
-
-		backend.whenGET("http://127.0.0.1:5000/serverStatus/opcounters.insert").respond(
-			opcountersInsertData
-		);
-	}));
-
-	beforeEach(angular.mock.inject(function($controller, $rootScope, $http, $interval, $timeout, $log) {
-		mockScope = $rootScope.$new();
-		mockInterval = $interval;
-		mockTimeout = $timeout;
-		mockLog = $log;
-		$controller("OpcounterCtrl", {
-			$scope: mockScope,
-			$http: $http,
-			$interval: mockInterval,
-			$timeout: mockTimeout,
-			$log: mockLog
+		AuthService.getAuthHeaders().then(function (data) {
+			expect(data["X-Auth-Account"]).toEqual("test_user");
+			expect(data["X-Auth-Token"]).toEqual("test_token");
 		});
-		backend.flush();
-	}));
 
-	// Act and Assess
-	it("Creates legendDetails", function() {
-		expect(mockScope.legendDetails).toBeDefined();
+		httpBackend.flush();
 	});
 
-	it("Makes an Ajax request", function() {
-		backend.verifyNoOutstandingExpectation();
+    beforeEach(function() {
+		angular.mock.module('statsGraphApp');
+
+		inject(function($httpBackend, _AuthService_) {
+			httpBackend = $httpBackend;
+			AuthService = _AuthService_;
+		});
+  	});
+
+    afterEach(function() {
+		httpBackend.verifyNoOutstandingExpectation();
+		httpBackend.verifyNoOutstandingRequest();
+    });
+});
+
+//
+// Stats Service Tests
+//
+
+describe("StatsService", function () {
+
+	var StatsService, httpBackend, app;
+
+	var auth_data = {"user": "test_user", "api_token": "test_token"};
+
+	var shard_data = {
+		"data": [{
+			"replset": [
+				"test_host:0000"
+			]
+		}]
+	};
+
+	var stats_data = {
+	    "type": "gauge",
+	    "data": [
+	        [1413421980.0, 0]
+	    ],
+	    "name": "mongodb.opcounters.query",
+	    "references": [],
+	    "description": "mongodb.opcounters.query"
+	}
+
+	it("should return the set of shards for an instance", function () {
+		var apiEndpoint = "http://test.com/v2/instance/test_instance/replicaset";
+		httpBackend.expect("GET", "/api_token").respond(auth_data);
+		httpBackend.expect("GET", apiEndpoint).respond(shard_data);
+
+		StatsService.getShardsAndHosts("test_instance").then(function (data) {
+			expect(data.hasOwnProperty("replset")).toBe(true);
+			expect(data["replset"]).toContain("test_host:0000");
+		});
+
+		httpBackend.flush();
 	});
 
-	it("Processes API data", function() {
-		expect(mockScope.insertQueryData).toBeDefined();
-		expect(mockScope.insertQueryData.length).toEqual(2);
+	it("should return the data for a host on a shard", function () {
+		var apiEndpoint = "http://test.com/v2/instance/test_instance/host/test_host:0000/stats/mongodb.opcounters.query?period=300&granularity=minute";
+		httpBackend.expect("GET", "/api_token").respond(auth_data);
+		httpBackend.expect("GET", apiEndpoint).respond(stats_data);
 
-		expect(mockScope.commandGetmoreData).toBeDefined();
-		expect(mockScope.commandGetmoreData.length).toEqual(2);
+		var promise = StatsService.getStatForHostInPeriod(
+			"test_instance",
+			"test_host:0000",
+			"mongodb.opcounters.query",
+			300,
+			"minute"
+		);
 
-		expect(mockScope.deleteUpdateData).toBeDefined();
-		expect(mockScope.deleteUpdateData.length).toEqual(2);
+		promise.then(function (data) {
+			expect(data.type).toBe("gauge");
+			expect(data.name).toBe("mongodb.opcounters.query")
+		});
+
+		httpBackend.flush();
 	});
 
-	it("Inserts insertQueryData into scope", function() {
-		expect(mockScope.insertQueryData[0].key).toEqual("opcounters.insert");
-		expect(mockScope.insertQueryData[1].key).toEqual("opcounters.query");
-	});
+    beforeEach(function() {
+		angular.mock.module('statsGraphApp', {
+			apiUrl: "http://test.com"
+		});
 
-	it("Inserts commandGetmoreData into scope", function() {
-		expect(mockScope.commandGetmoreData[0].key).toEqual("opcounters.command");
-		expect(mockScope.commandGetmoreData[1].key).toEqual("opcounters.getmore");
-	});
+		inject(function($httpBackend, _StatsService_) {
+			httpBackend = $httpBackend;
+			StatsService = _StatsService_;
+		});
+  	});
 
-	it("Inserts deleteUpdateData into scope", function() {
-		expect(mockScope.deleteUpdateData[0].key).toEqual("opcounters.delete");
-		expect(mockScope.deleteUpdateData[1].key).toEqual("opcounters.update");
-	});
-
-	it("Defines xFunction", function() {
-		expect(mockScope.xFunction).toBeDefined();
-	});
-
-	it("xFunction returns first item in list", function() {
-		expect(mockScope.xFunction()([0, 1])).toBe(0);
-	});
-
-	it("Defines yFunction", function() {
-		expect(mockScope.yFunction).toBeDefined();
-	});
-
-	it("yFunction returns second item in list", function() {
-		expect(mockScope.yFunction()([0, 1])).toBe(1);
-	});
-
-	it("Defines toolTipContentFunction", function() {
-		expect(mockScope.toolTipContentFunction).toBeDefined();
-	});
-
-	it("Defines xAxisTickFormatFunction", function() {
-		expect(mockScope.xAxisTickFormatFunction).toBeDefined();
-	});
-
-	it("xAxisTickFormatFunction returns formatted date", function() {
-		expect(mockScope.xAxisTickFormatFunction()(1410159453.0)).toMatch("09/08/14 01:57:33");
-	});
-
-	it("toolTipContentFunction returns formatted string", function() {
-		expect(mockScope.toolTipContentFunction()("key", "x", "y", {}, "")).toMatch(/key: y events at x/);
-	});
+    afterEach(function() {
+		httpBackend.verifyNoOutstandingExpectation();
+		httpBackend.verifyNoOutstandingRequest();
+    });
 });

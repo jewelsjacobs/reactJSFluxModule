@@ -6,7 +6,9 @@
 
 {% block style %}
     {{ super() }}
-    <link rel="stylesheet" type="text/css" href="/static/css/dygraph.css"/>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.css">
+
     {% include 'stripe_css.html' %}
 {% endblock style %}
 
@@ -17,7 +19,6 @@
 {% endblock back_link_area %}
 
 {% block content_area_body %}
-
     <!-- detail header -->
     <div class="rs-detail-header">
         {% call detail_header_actions() %}
@@ -35,182 +36,43 @@
     </div>
     <!-- end detail header -->
 
-    {% call detail_section(title="Stats", collapsible=True) %}
-        <table class="rs-list-table">
-            <thead>
-                <tr>
-                    <td>Queries/Sec</td>
-                    <td>Inserts/Sec</td>
-                    <td>Updates/Sec</td>
-                    <td>Deletes/Sec</td>
-                    <td>Commands/Sec</td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><span class="lead" id="query">0</span></td>
-                    <td><span class="lead" id="insert">0</span></td>
-                    <td><span class="lead" id="update">0</span></td>
-                    <td><span class="lead" id="delete">0</span></td>
-                    <td><span class="lead" id="command">0</span></td>
-                </tr>
-            </tbody>
-        </table>
-    {% endcall %}
-
     {% call detail_section(title="Graphs", collapsible=True) %}
-        <div class="graphs">
-            <h6>Opcounters/Sec</h6>
-            <div class="pull-right" id="graphdiv-legend1"></div>
-            <br/>
+		{% raw %}
+			<div ng-controller="StatsPageCtrl">
+				<div ng-repeat="(key, value) in shards">
+					<h4>ReplicaSet: {{key}}</h4>
+					<div ng-repeat="host in value" ng-controller="StatsGraphCtrl">
+						<div ng-switch on="error">
+						    <div ng-switch-when="true">
+								There was an error getting your chart!
+						    </div>
+						    <div ng-switch-default>
 
-            <div class="well-graph" id="graphdiv1"></div>
-            <br/>
-
-            <h6>Network/Sec</h6>
-            <div class="pull-right" id="graphdiv-legend2"></div>
-            <br/>
-
-            <div class="well-graph" id="graphdiv2"></div>
-            <br/>
-
-            <h6>Disk Space Usage</h6>
-            <div class="pull-right" id="graphdiv-legend3"></div>
-            <br/>
-
-            <div class="well-graph" id="graphdiv3"></div>
-            <br/>
-        </div>
+						    </div>
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endraw %}
     {% endcall %}
-
 {% endblock content_area_body %}
 
 {% block script %}
     {{ super() }}
-    <script type="text/javascript" src="/static/js/dygraph-combined.js"></script>
-    <script type="text/javascript">
 
-    // Timeseries graphs.
-    var opcountersURL = "{{ url_for('api_timeseries', name='opcounters', selected_instance=instance.name) }}";
-    var networkURL = "{{ url_for('api_timeseries', name='network', selected_instance=instance.name) }}";
-    var diskURL = "{{ url_for('api_timeseries', name='disk', selected_instance=instance.name) }}";
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/angularjs.nvd3-directives/v0.0.7/angularjs-nvd3-directives.min.js"></script>
+	<script type="text/javascript" src="/static/js/stats/stats.js"></script>
 
-    function getTimeseriesData(url, name) {
-        $.get(url, {}, function(data) {
-            name.updateOptions( { 'file': data } );
-        });
-    }
+	<script type="text/javascript">
+		window.app = angular.module("statsGraphApp");
+		app.value("instanceName", "{{instance.name}}");
+		app.value("apiUrl", "http://localhost:5050");
+		angular.bootstrap(document.body , ["statsGraphApp"]);
+	</script>
 
-    var g1 = new Dygraph( document.getElementById("graphdiv1"), opcountersURL, {
-        legend: "always",
-        fillGraph: true,
-        gridLineColor: "#cccccc",
-        height: 100,
-        labelsDiv: "graphdiv-legend1",
-        labelsSeparateLines: false,
-        axisLabelFontSize: 10,
-        axisLabelColor: "#333333",
-        axisLineColor: "#333333",
-        maxNumberWidth: 12,
-        labels: [ "Date", "Getmore", "Insert", "Update", "Command", "Query", "Delete" ]
-    });
-
-    var g2 = new Dygraph(document.getElementById("graphdiv2"), networkURL, {
-        legend: "always",
-        fillGraph: true,
-        gridLineColor: "#cccccc",
-        height: 100,
-        labelsDiv: "graphdiv-legend2",
-        labelsSeparateLines: false,
-        axisLabelFontSize: 10,
-        axisLabelColor: "#333333",
-        axisLineColor: "#333333",
-        maxNumberWidth: 12,
-        labelsKMG2: true,
-        labels: [ "Date", "BytesOut", "BytesIn" ]
-    });
-
-    var g3 = new Dygraph(document.getElementById("graphdiv3"), diskURL, {
-        legend: "always",
-        fillGraph: true,
-        gridLineColor: "#cccccc",
-        height: 100,
-        labelsDiv: "graphdiv-legend3",
-        labelsSeparateLines: false,
-        axisLabelFontSize: 10,
-        axisLabelColor: "#333333",
-        axisLineColor: "#333333",
-        maxNumberWidth: 12,
-        labelsKMG2: true,
-        stackedGraph: false,
-        labels: [ "Date", "Data Size", "File Size", "Storage Size", "Index Size" ]
-    });
-
-    // Set an elements value.
-    function setElement(id, value) {
-        if (id != "" && id != null && id != " ") {
-            document.getElementById(id).innerHTML = value;
-        }
-    }
-
-    // Set an elements class.
-    function setElementClass(id, value) {
-        if (id != "" && id != null && id != " ") {
-            document.getElementById(id).className = value;
-        }
-    }
-
-    // Get an elements value.
-    function getElement(id) {
-        return document.getElementById(id).innerHTML;
-    }
-
-    function serverStatus(d) {
-        stats = ['query','insert','update','delete','command'];
-        for ( var i = 0; i < stats.length; i++ ) {
-            setElement(stats[i],d['data']['opcounters'][stats[i]]);
-        }
-    }
-
-    function fetchServerStatus(){
-        $.getJSON("{{ url_for('api_serverstatus', selected_instance=instance.name) }}", {}, function(json) {
-            serverStatus(json);
-        });
-    }
-
-    function refresh_status_box() {
-        $.getJSON('/api_status', function(data) {
-            var statuses = ['status-success', 'status-important', 'status-warning'];
-
-            data.data.forEach(function(element) {
-                var selector = $('#' + element._id),
-                status   = statuses[element.status];
-
-                if(!selector.hasClass(status)) {
-                    selector.removeClass();
-                    selector.addClass('status');
-                    selector.addClass(status);
-                }
-            });
-        });
-    }
-
-
-    $(document).ready(function() {
-        refresh_status_box();
-        setInterval(refresh_status_box, 9000);
-
-        fetchServerStatus();
-        setInterval('fetchServerStatus()', 9000);
-
-        // Timeseries.
-        setInterval('getTimeseriesData(opcountersURL,g1)', 4000);
-        setInterval('getTimeseriesData(networkURL,g2)', 4000);
-        setInterval('getTimeseriesData(diskURL,g3)', 4000);
-
-        var loaded = true;
-
-    });
-    </script>
     {% include 'stripe_js.html' %}
 {% endblock script %}
