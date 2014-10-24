@@ -164,6 +164,23 @@ img.invoice-logo {
     width: 192px;
 }
 
+.or-signup-brand {
+    display: inline-block;
+    float: left;
+    height: 57px;
+    padding: 40px;
+    width: 192px;
+}
+
+.or-signup-brand > img {
+    height: 57px;
+    width: 192px;
+}
+
+.or-signup-brand > p {
+    text-align: justify;
+}
+
 .or-focus-panel-login {
   min-width: 630px;
 }

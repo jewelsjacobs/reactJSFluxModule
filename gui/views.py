@@ -1306,13 +1306,13 @@ def sign_up():
         if account_manager.get_account(request.form['email']):
             flash('The email "{}" is already associated with an account.'.format(request.form['email']), canon_constants.STATUS_ERROR)
         else:
-            account = account_manager.create_account(request.form['email'],
-                                                     request.form['password'],
-                                                     request.form['email'],
-                                                     None,
-                                                     None,
-                                                     None,
-                                                     None)
+            account = account_manager.create_account(login=request.form['email'],
+                                                     password=request.form['password'],
+                                                     email=request.form['email'],
+                                                     name=None,
+                                                     company=request.form.get('company'),
+                                                     phone=request.form.get('phone'),
+                                                     zipcode=None)
             annunciator = Annunciator(config)
             annunciator.create_alarm(Constants.ACCOUNT_SIGNUP,
                                      account.login,
