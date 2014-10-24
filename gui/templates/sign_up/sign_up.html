@@ -14,7 +14,17 @@
         </div>
 
         <div class="or-focus-panel-signup">
-            <div class="or-login-brand"></div>
+            <div class="or-signup-brand">
+                <img src="/static/art/objectrocket.png">
+                <h4>Free Trial</h4>
+                <p>Try us out free for one month.
+                Once your account is created, simply provision a single Redis
+                instance and a single Mongo instance (5 GB replica set
+                <strong>or</strong> a single 5 GB shard) and you'll get your
+                first 30 days free. During the 30 days you'll not only get
+                access to the ObjectRocket paltform, but you'll also be able to
+                experience the Fanatical Support offered by our team.</p>
+            </div>
             <div class="or-login-form">
                <p class="or-login-welcome">Create an account</p>
                 <form id="signup-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_up') }}" method="POST">
@@ -23,6 +33,20 @@
                         <label class="rs-control-label" for="email">Email</label>
                         <div class="rs-controls">
                             <input id="email" name="email" type="text" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label" for="phone">Phone Number</label>
+                        <div class="rs-controls">
+                            <input id="phone" name="phone" type="text" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label" for="company">Company</label>
+                        <div class="rs-controls">
+                            <input id="company" name="company" type="text" class="rs-input rs-input-medium">
                         </div>
                     </div>
 
