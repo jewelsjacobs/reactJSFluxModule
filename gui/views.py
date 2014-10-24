@@ -458,7 +458,13 @@ def instance_stats(selected_instance):
     account = account_manager.get_account(g.login)
     instance = account.get_instance_by_name(selected_instance)
 
-    return render_template('instances/instance_stats.html', instance=instance)
+    # TODO: add a config to Viper to expose this
+    if config.VIPER_IN_DEV:
+        api_url = "http://localhost:5050"
+    else:
+        api_url = "https://sjc-api.objectrocket.com"
+
+    return render_template('instances/instance_stats.html', instance=instance, api_url=api_url)
 
 
 @app.route('/instances')
@@ -2498,7 +2504,7 @@ def get_api_token():
     if not "api_token" in session:
         api_token_manager = tokens.APITokenManager(config)
         session.api_token = api_token_manager.create_token(account=g.login)
-    
+
     return json.dumps({'api_token': session.api_token, 'user': g.login}), 200, {'content-type': 'application/json'}
-    
-    
+
+

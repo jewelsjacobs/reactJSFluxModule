@@ -9,6 +9,18 @@
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.css">
 
+    <style>
+        .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point {
+            fill-opacity: 0 !important;
+            stroke-opacity: 0 !important;
+        }
+
+        .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point:hover {
+            fill-opacity: 0.5 !important;
+            stroke-opacity: 0.5 !important;
+        }
+    </style>
+
     {% include 'stripe_css.html' %}
 {% endblock style %}
 
@@ -39,18 +51,57 @@
     {% call detail_section(title="Graphs", collapsible=True) %}
 		{% raw %}
 			<div ng-controller="StatsPageCtrl">
-				<div ng-repeat="(key, value) in shards">
-					<h4>ReplicaSet: {{key}}</h4>
-					<div ng-repeat="host in value" ng-controller="StatsGraphCtrl">
-						<div ng-switch on="error">
-						    <div ng-switch-when="true">
-								There was an error getting your chart!
-						    </div>
-						    <div ng-switch-default>
+                <ul class="rs-detail-list">
+                    <li class="rs-detail-item">
+                        <div class="rs-detail-key">Stat</div>
+                        <div class="rs-detail-value">
+                            <select ng-model="statName"
+                                    ng-options="name for name in statNames">
+                                <option value="mongodb.opcounters.query">mongodb.opcounters.query</option>
+                            </select>
+                        </div>
+                    </li>
+                    <li class="rs-detail-item">
+                        <div class="rs-detail-key">period</div>
+                        <div class="rs-detail-value">
+                            <input type="text" ng-model="period" value="300" />
+                            <select ng-model="granularity"
+                                    ng-options="granularity for granularity in ['minute', 'hour', 'day']"></select>
+                        </div>
+                    </li>
+                </ul>
 
-						    </div>
-						</div>
-					</div>
+                <div ng-if="statName !== ''">
+    				<div ng-repeat="(key, value) in shards">
+    					<h4 style="border-bottom: 1px solid #EEE">ReplicaSet: {{key}}</h4>
+
+    					<div ng-repeat="host in value" ng-controller="StatsGraphCtrl">
+                            <h5>Host: {{host}}</5>
+
+    						<div ng-switch on="error">
+    						    <div ng-switch-when="true">
+    								There was an error getting your chart!
+    						    </div>
+    						    <div ng-switch-default>
+                                    <nvd3-line-chart
+                                        id="chart-{{chartId}}"
+                                        data="data"
+                                        margin="{left:100,top:50,bottom:50,right:100}"
+                                        showXAxis="true"
+                                        showYAxis="true"
+                                        xAxisTickFormat="xAxisTickFormatFunction()"
+                                        tooltips="true"
+                                        interactive="true"
+                                        x="xFunction()"
+                                        y="yFunction()"
+                                        toolTipContent="toolTipContentFunction()"
+                                        useInteractiveGuideLine="true">
+                                        <svg></svg>
+                                    </nvd3-line-chart>
+    						    </div>
+    						</div>
+    					</div>
+                    </div>
 				</div>
 			</div>
 		{% endraw %}
@@ -70,7 +121,7 @@
 	<script type="text/javascript">
 		window.app = angular.module("statsGraphApp");
 		app.value("instanceName", "{{instance.name}}");
-		app.value("apiUrl", "http://localhost:5050");
+        app.value("apiUrl", "{{ api_url }}");
 		angular.bootstrap(document.body , ["statsGraphApp"]);
 	</script>
 

@@ -32,7 +32,7 @@ String.format = String.format || function (string) {
 app.factory("AuthService", ['$q', '$http', 'tokenRoute', function ($q, $http, tokenRoute) {
 
 	// private credential cache
-	var authHeaders = null;
+    var authHeaders = null;
 
 	//
 	// getAuthHeaders()
@@ -84,8 +84,8 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 	// Get the shards and hosts for a given instance.
 	//
 
-	var getShardsAndHosts = function (instance_name) {
-		var url = String.format("{0}/v2/instance/{1}/replicaset", apiUrl, instance_name);
+	var getShardsAndHosts = function (instanceName) {
+		var url = String.format("{0}/v2/instance/{1}/replicaset", apiUrl, instanceName);
 
 		var request = AuthService.getAuthHeaders().then(function (headers) {
 			return $http.get(url, {headers: headers});
@@ -122,14 +122,24 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 	// Get the specified stats (at the specified granularity) for the host in the period.
 	//
 
-	var getStatForHostInPeriod = function (instance_name, host_name, stat_name, period, granularity) {
+	var getStatForHostInPeriod = function (instanceName, hostName, statName, period, granularity) {
+
+        // conversions from the granularities to seconds
+        var multipliers = {
+            "minute": 60,
+            "hour": 60 * 60,
+            "day": 60 * 60 * 24
+        }
+
+        var period_seconds = period * multipliers[granularity];
+
 		var url = String.format(
 			"{0}/v2/instance/{1}/host/{2}/stats/{3}?period={4}&granularity={5}",
 			apiUrl,
-			instance_name,
-			host_name,
-			stat_name,
-			period,
+			instanceName,
+			hostName,
+			statName,
+			period_seconds,
 			granularity
 		);
 
@@ -140,7 +150,14 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 		var deferred = $q.defer();
 
 		var success = function (response) {
-			deferred.resolve(response.data);
+            var stat_info = response.data;
+
+            stat_info.data = [{
+                key: stat_info['name'],
+                values: stat_info['data']
+            }];
+
+			deferred.resolve(stat_info);
 		};
 
 		var failure = function (result) {
@@ -149,12 +166,56 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 
 		request.then(success, failure);
 		return deferred.promise;
-	}
+	};
+
+    //
+    // getStatNames
+    // Grab the names of the stats that we'll use to show in the dropdown. Right now this returns the
+    // list of names for the first host in the last shard.  We should eventually change the API to return a union
+    // of all of the stat options for all of the hosts on the instance.
+    //
+
+    var getStatNames = function (instanceName, shards) {
+        // we'll need to grab a host, given the shards structure here.
+        var host = null;
+        angular.forEach(shards, function (value) {
+            if (value.length == 0) {
+                return;
+            }
+
+            host = value[0];
+        });
+
+        if (host === null) {
+            return []
+        };
+
+        // we have a host now, lets get it's options
+		var url = String.format("{0}/v2/instance/{1}/host/{2}/stats/available", apiUrl, instanceName, host);
+
+        var request = AuthService.getAuthHeaders().then(function (headers) {
+			return $http.get(url, {headers: headers});
+		});
+
+		var deferred = $q.defer();
+
+        var success = function (result) {
+            deferred.resolve(result.data['names']);
+        };
+
+        var failure = function (result) {
+            deferred.reject(result);
+        };
+
+        request.then(success, failure);
+        return deferred.promise;
+    };
 
 	// stuff to expose
 	var StatsService = {
 		getShardsAndHosts: getShardsAndHosts,
-		getStatForHostInPeriod: getStatForHostInPeriod
+		getStatForHostInPeriod: getStatForHostInPeriod,
+        getStatNames: getStatNames
 	};
 
 	return StatsService;
@@ -166,15 +227,21 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 //
 
 app.controller("StatsPageCtrl", ["$scope", "StatsService", "instanceName", function ($scope, StatsService, instanceName) {
-
-	// TODO: these should be dynamic
-	$scope.statName = "mongodb.opcounters.query";
-	$scope.period = 300; // seconds
+	$scope.statName = "";
 	$scope.granularity = "minute";
+	$scope.period = 5;
 
 	// grab the shards for this instance
 	StatsService.getShardsAndHosts(instanceName).then(function (data) {
 		$scope.shards = data;
+
+        StatsService.getStatNames(instanceName, $scope.shards).then(function (data) {
+            $scope.statNames = data;
+
+            if (data.length > 0) {
+                $scope.statName = data[0];
+            }
+        });
 	});
 }]);
 
@@ -183,17 +250,36 @@ app.controller("StatsPageCtrl", ["$scope", "StatsService", "instanceName", funct
 // Owner of the scope for a single graph.
 //
 
-app.controller("StatsGraphCtrl", ["$scope", "StatsService", "instanceName", function ($scope, StatsService, instanceName) {
-	var getStats = function () {
+app.controller("StatsGraphCtrl", ["$scope", "$element", "StatsService", "instanceName", function ($scope, $element, StatsService, instanceName) {
+
+    $scope.chartId = $scope.host.split(".")[0];
+
+    // load the data into the graph
+	var updateGraph = function () {
 		var host = $scope.host;
 		var statName = $scope.statName;
 		var period = $scope.period;
 		var granularity = $scope.granularity;
 
-		var success = function (data) {
+        // don't do anything no stat is selected
+        if (statName === '') {
+            return;
+        }
+
+		var success = function (result) {
 			$scope.error = false;
-			$scope.data = data;
-		};
+
+            // if you go from a graph with data to one without, d3 will display both the old graph, and the no
+            // data message.  This hack makes it clear it out.
+            if (result.data[0]['values'].length == 0) {
+                $scope.data = [];
+            } else {
+    			$scope.data = result.data;
+            }
+
+            $scope.references = result.refereces;
+            $scope.description = result.description;
+        };
 
 		var error = function (result) {
 			$scope.error = true;
@@ -202,79 +288,51 @@ app.controller("StatsGraphCtrl", ["$scope", "StatsService", "instanceName", func
 		StatsService.getStatForHostInPeriod(instanceName, host, statName, period, granularity).then(success, error);
 	}
 
-	getStats();
-}]);
+    // do the first data load
+	updateGraph();
 
-//
-// //
-// // controller
-// //
-//
-// app.controller("OpcounterCtrl", function($scope, $http, apiUrl) {
-// 	function fetchApiData() {
-// 		var insertQueryData = [];
-// 		var commandGetmoreData = [];
-// 		var deleteUpdateData = [];
-//
-// 		$http.get(apiUrl + "serverStatus/opcounters.insert").
-// 		success(function(data, status, headers, config) {
-// 			insertQueryData[0] = data;
-// 		});
-//
-// 		$http.get(apiUrl + "serverStatus/opcounters.query").
-// 		success(function(data, status, headers, config) {
-// 			insertQueryData[1] = data;
-// 			$scope.insertQueryData = insertQueryData;
-// 		});
-//
-// 		$http.get(apiUrl + "serverStatus/opcounters.command").
-// 		success(function(data, status, headers, config) {
-// 			commandGetmoreData[0] = data;
-// 		});
-//
-// 		$http.get(apiUrl + "serverStatus/opcounters.getmore").
-// 		success(function(data, status, headers, config) {
-// 			commandGetmoreData[1] = data;
-// 			$scope.commandGetmoreData = commandGetmoreData;
-// 		});
-//
-// 		$http.get(apiUrl + "serverStatus/opcounters.delete").
-// 		success(function(data, status, headers, config) {
-// 			deleteUpdateData[0] = data;
-// 		});
-//
-// 		$http.get(apiUrl + "serverStatus/opcounters.update").
-// 		success(function(data, status, headers, config) {
-// 			deleteUpdateData[1] = data;
-// 			$scope.deleteUpdateData = deleteUpdateData;
-// 		});
-// 	}
-//
-// 	fetchApiData();
-//
-// 	$scope.xFunction = function() {
-// 		return function(data) {
-// 			return data[0];
-// 		}
-// 	};
-//
-// 	$scope.yFunction = function() {
-// 		return function(data) {
-// 			return data[1];
-// 		}
-// 	};
-//
-// 	$scope.legendDetails = {};
-//
-// 	$scope.toolTipContentFunction = function() {
-// 		return function(key, x, y, event, graph) {
-// 			return key + ": " + y + " events at " + x;
-// 		}
-// 	};
-//
-// 	$scope.xAxisTickFormatFunction = function() {
-// 		return function(data) {
-// 			return d3.time.format('%m/%d/%y %X')(moment.unix(data).toDate());
-// 		}
-// 	};
-// });
+    //
+    // watch for changes
+    //
+
+    angular.forEach(['statName', 'period', 'granularity'], function (item) {
+        $scope.$watch(item, function (newValue, oldValue) {
+            // only rerender on changes
+            if (newValue == oldValue) {
+                return;
+            }
+
+            updateGraph();
+        });
+    });
+
+    //
+    // Graph helper methods
+    //
+
+    $scope.xFunction = function() {
+        return function(data) {
+            return data[0];
+        }
+    };
+
+    $scope.yFunction = function() {
+        return function(data) {
+            return data[1];
+        }
+    };
+
+    $scope.legendDetails = {};
+
+    $scope.toolTipContentFunction = function() {
+        return function(key, x, y, event, graph) {
+            return key + ": " + y + " events at " + x;
+        }
+    };
+
+    $scope.xAxisTickFormatFunction = function() {
+        return function(data) {
+            return d3.time.format('%m/%d/%y %X')(moment.unix(data).toDate());
+        }
+    };
+}]);
