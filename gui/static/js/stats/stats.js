@@ -250,7 +250,7 @@ app.controller("StatsPageCtrl", ["$scope", "StatsService", "instanceName", funct
 // Owner of the scope for a single graph.
 //
 
-app.controller("StatsGraphCtrl", ["$scope", "$element", "StatsService", "instanceName", function ($scope, $element, StatsService, instanceName) {
+app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instanceName", function ($scope, $interval, StatsService, instanceName) {
 
     $scope.chartId = $scope.host.split(".")[0];
 
@@ -288,8 +288,12 @@ app.controller("StatsGraphCtrl", ["$scope", "$element", "StatsService", "instanc
 		StatsService.getStatForHostInPeriod(instanceName, host, statName, period, granularity).then(success, error);
 	}
 
-    // do the first data load
-	updateGraph();
+    //
+    // Update the graph, and schedule the auto updates
+    //
+
+    updateGraph();
+    $interval(updateGraph, 1000 * 30);
 
     //
     // watch for changes
