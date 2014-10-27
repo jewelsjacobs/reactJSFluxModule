@@ -143,11 +143,54 @@ describe("StatsPageCtrl", function () {
 		}]
 	};
 
+    beforeEach(function() {
+		angular.mock.module('statsGraphApp', {
+			apiUrl: "http://test.com",
+            instanceName: "test_instance"
+		});
+
+        inject(function ($q) {
+            createDeferred = function (data) {
+                var deferred = $q.defer();
+                deferred.resolve(data);
+                return deferred.promise;
+            };
+        });
+
+        StatsService = {
+            getShardsAndHosts: function () { return createDeferred(shardData); },
+            getStatNames: function () { return createDeferred(statNames); }
+        };
+
+        inject(function ($controller, $rootScope, instanceName) {
+            scope = $rootScope.$new();
+            $controller('StatsPageCtrl', {$scope: scope, StatsService: StatsService, instanceName: instanceName});
+            scope.$digest();
+        });
+    });
+});
+
+//
+// Stats Graph Controller test
+//
+
+describe("StatsGraphCtrl", function () {
+    var scope, createDeferred, StatsService;
+
+    it("should have a chart id", function () {
+        expect(scope.chartId).toEqual("test_host:0000");
+    });
+
+    it("should have data", function () {
+        expect(scope.data).toEqual(statsData['data']);
+    });
+
 	var statsData = {
 	    "type": "gauge",
-	    "data": [
-	        [1413421980.0, 0]
-	    ],
+	    "data": [{
+	        "key": "mongodb.opcounters.query",
+            "values": [1413421980.0, 0]
+	    }],
 	    "name": "mongodb.opcounters.query",
 	    "references": [],
 	    "description": "mongodb.opcounters.query"
@@ -161,21 +204,22 @@ describe("StatsPageCtrl", function () {
 
         inject(function ($q) {
             createDeferred = function (data) {
-        		var deferred = $q.defer();
+                var deferred = $q.defer();
                 deferred.resolve(data);
                 return deferred.promise;
             };
         });
 
         StatsService = {
-    		getShardsAndHosts: function () { return createDeferred(shardData); },
-    		getStatForHostInPeriod: function () { return createDeferred(statsData); },
-            getStatNames: function () { return createDeferred(statNames); }
+            getStatForHostInPeriod: function () { return createDeferred(statsData); },
         };
 
-        inject(function ($controller, $rootScope, instanceName) {
+        inject(function ($controller, $rootScope, $interval, instanceName) {
             scope = $rootScope.$new();
-            $controller('StatsPageCtrl', {$scope: scope, StatsService: StatsService, instanceName: instanceName});
+            scope.host = "test_host:0000";
+            scope.statName = "mongodb.opcounters.query";
+
+            $controller('StatsGraphCtrl', {$scope: scope, $interval: $interval, StatsService: StatsService, instanceName: instanceName});
             scope.$digest();
         });
   	});
