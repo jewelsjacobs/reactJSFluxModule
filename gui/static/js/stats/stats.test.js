@@ -39,7 +39,6 @@ describe("AuthService", function () {
 //
 
 describe("StatsService", function () {
-
 	var StatsService, httpBackend, app;
 
 	var auth_data = {"user": "test_user", "api_token": "test_token"};
@@ -76,7 +75,7 @@ describe("StatsService", function () {
 	});
 
 	it("should return the data for a host on a shard", function () {
-		var apiEndpoint = "http://test.com/v2/instance/test_instance/host/test_host:0000/stats/mongodb.opcounters.query?period=300&granularity=minute";
+		var apiEndpoint = "http://test.com/v2/instance/test_instance/host/test_host:0000/stats/mongodb.opcounters.query?period=18000&granularity=minute";
 		httpBackend.expect("GET", "/api_token").respond(auth_data);
 		httpBackend.expect("GET", apiEndpoint).respond(stats_data);
 
@@ -111,4 +110,73 @@ describe("StatsService", function () {
 		httpBackend.verifyNoOutstandingExpectation();
 		httpBackend.verifyNoOutstandingRequest();
     });
+});
+
+//
+// Stats Page Controller test
+//
+
+describe("StatsPageCtrl", function () {
+    var scope, createDeferred, StatsService;
+
+    it("should have information about the shards", function () {
+        expect(scope.shards).toEqual(shardData);
+    });
+
+    it("should have a list of stat names", function () {
+        expect(scope.statNames).toEqual(statNames);
+    });
+
+    it("should have a defined stat name", function () {
+        expect(scope.statName).toEqual(statNames[0]);
+    });
+
+    var statNames = [
+        "mongodb.opcounters.query"
+    ];
+
+	var shardData = {
+		"data": [{
+			"replset": [
+				"test_host:0000"
+			]
+		}]
+	};
+
+	var statsData = {
+	    "type": "gauge",
+	    "data": [
+	        [1413421980.0, 0]
+	    ],
+	    "name": "mongodb.opcounters.query",
+	    "references": [],
+	    "description": "mongodb.opcounters.query"
+	}
+
+    beforeEach(function() {
+		angular.mock.module('statsGraphApp', {
+			apiUrl: "http://test.com",
+            instanceName: "test_instance"
+		});
+
+        inject(function ($q) {
+            createDeferred = function (data) {
+        		var deferred = $q.defer();
+                deferred.resolve(data);
+                return deferred.promise;
+            };
+        });
+
+        StatsService = {
+    		getShardsAndHosts: function () { return createDeferred(shardData); },
+    		getStatForHostInPeriod: function () { return createDeferred(statsData); },
+            getStatNames: function () { return createDeferred(statNames); }
+        };
+
+        inject(function ($controller, $rootScope, instanceName) {
+            scope = $rootScope.$new();
+            $controller('StatsPageCtrl', {$scope: scope, StatsService: StatsService, instanceName: instanceName});
+            scope.$digest();
+        });
+  	});
 });
