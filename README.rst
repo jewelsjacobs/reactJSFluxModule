@@ -26,6 +26,10 @@ branching
 ---------
 Currently, we are using branches ``master`` and ``develop`` as the main branches in our workflow. When you need to create a new branch, branch off of ``develop``. ``develop`` will be merged back into ``master`` when it is time to cut a new release.
 
+lastly
+------
+Fire up the development server: ``./runserver.py``. You should now have a development GUI being served locally on port 5051.
+
 -----
 notes
 -----
