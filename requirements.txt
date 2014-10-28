@@ -1,6 +1,7 @@
-Flask==0.10.1
-Flask-KVSession==0.6.1
-Flask-WTF==0.9.5
 airbrake-flask==1.0.2
 blinker==1.3
+Flask-KVSession==0.6.1
+Flask-WTF==0.9.5
+Flask==0.10.1
+gunicorn==0.14.6
 http://mon1.sjc.objectrocket.com/viper-2.5.4-py27-none-any.whl
