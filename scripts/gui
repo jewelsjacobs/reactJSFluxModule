@@ -1,0 +1,173 @@
+#!/bin/bash
+# chkconfig: - 99 01
+# description: manage Viper gunicorn instances
+
+## Read instances list for this server
+
+declare -A INSTANCES
+INSTANCES["gui"]=8081
+
+start() {
+
+    app=gui
+    port=8081
+
+    cd /${app}
+
+    pidfile="/var/run/gunicorn_${app}.pid"
+
+    if [ -f ${pidfile} ];
+    then
+
+        PID=$(cat $pidfile)
+        if ps -fp ${PID} > /dev/null 2>&1;
+        then
+
+            echo "viper_${app} is already running, skipping.."
+            return 0
+            
+        fi
+
+    fi
+
+    
+    echo -n "daemonizing viper_${app} gunicorn on port ${port}, let's do this.."
+
+    /root/.virtualenvs/current/bin/gunicorn \
+      -u orocket \
+      -g orocket \
+      -D \
+      -p /var/run/gunicorn_${app}.pid \
+      --access-logfile=/var/log/gunicorn/access_${app}.log \
+      --error-logfile=/var/log/gunicorn/error_${app}.log \
+      -b 0.0.0.0:${port} \
+      -w 16 \
+      -t 120 \
+      ${app}:app
+
+    sleep 3
+    count=$(ps auxww | grep -v grep | egrep -c "gunicorn.*${app}")
+    echo " ${count} workers running."
+
+}
+
+stop() {
+
+    stop_app=$1
+    pidfile="/var/run/gunicorn_${stop_app}.pid"
+
+    if [ ! -f ${pidfile} ];
+    then
+
+        echo "No pidfile found for app ${stop_app} - that ones probably not running"
+
+    else
+
+        echo "Stopping ${pidfile} .."
+        PID=$(cat $pidfile)
+
+        ps -fp ${PID} > /dev/null 2>&1
+
+        if [ $? -ne 0 ];
+        then
+            echo "Valid pid file found, but the pid isn't running.. cleaning pid file"
+            rm -f $pidfile
+        else
+            kill ${PID} 2>/dev/null
+            sleep 1
+            kill -9 ${PID} 2>/dev/null
+        fi
+
+    fi
+
+}
+
+usage() {
+
+  echo ""
+  echo "Usage: $0 <stop|start> [app]"
+  echo ""
+  echo "Available applications: ${!INSTANCES[@]}"
+  echo ""
+  exit 1
+
+}
+
+case "$1" in
+  'start')  ACTION='start' 
+            ;;
+  'stop')   ACTION='stop'  
+            ;;
+  'restart') ACTION='restart'
+            ;;
+  *) usage
+     ;;
+esac
+
+if [ "$ACTION" == "start" ];
+then
+
+  if [ ! -z "$2" ];
+  then
+
+      PORT=${INSTANCES[$2]}
+
+      if [ -z ${PORT} ];
+      then
+          echo "ERROR: Unknown service $2 - please double check the instances.cfg file"
+          exit 1
+      else
+          echo "Starting service $2 on port $PORT"
+          start $2 ${PORT}
+      fi
+
+      exit 1
+
+  else
+
+      echo "INFO: No service specified - starting all.."
+
+      for a in ${!INSTANCES[@]}
+      do
+          start ${a} ${INSTANCES[$a]}
+      done
+
+      exit 1
+
+  fi
+
+elif [ "$ACTION" == "stop" ];
+then
+
+  if [ ! -z "$2" ];
+  then
+
+      app=$2
+
+      PORT=${INSTANCES[$app]}
+
+      if [ -z ${PORT} ];
+      then
+          echo "ERROR: Unknown service $app - please double check the instances.cfg file"
+          exit 1
+      else
+          echo "Stopping service $app on port $PORT"
+          stop ${app}
+      fi
+
+  else
+
+      echo "No service specified, stopping all Viper Gunicorn instances.."
+
+      for a in ${!INSTANCES[@]}
+      do
+
+          stop ${a}
+
+      done
+
+      exit 1
+
+  fi
+
+fi
