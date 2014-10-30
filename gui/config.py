@@ -6,10 +6,8 @@ import sys
 
 from logging.handlers import SysLogHandler
 
-# noinspection PyPackageRequirements
 from airbrake.airbrake import AirbrakeErrorHandler
 from flask import abort, got_request_exception, request
-from flask_debugtoolbar import DebugToolbarExtension
 from flask_kvsession import KVSessionExtension
 
 from simplekv.db.mongo import MongoStore
@@ -22,8 +20,23 @@ from viper import config as viper_config
 from viper.utility import Utility
 
 
-# noinspection PyUnusedLocal
+def configure_sys_log_handler(app):
+    """Configure application logging to use a sys log handler."""
+    gui_syslog = SysLogHandler(address='/dev/log', facility=SysLogHandler.LOG_LOCAL6)
+    gui_syslog.setLevel(logging.DEBUG)
+
+    gui_syslog_formatter = logging.Formatter('%(name)s: %(levelname)s %(message)s')
+    gui_syslog.setFormatter(gui_syslog_formatter)
+
+    app.logger.setLevel(logging.DEBUG)
+    app.logger_name = "gui"
+    app.logger.addHandler(gui_syslog)
+
+    app.logger.debug("Starting GUI.")
+
+
 def log_exception(app, exception, **kwargs):
+    """Log an exception to Airbrake."""
     api_key = app.config.get('AIRBRAKE_API_KEY')
     env_name = app.config.get('GUI_ENV_NAME')
     handler = AirbrakeErrorHandler(api_key=api_key, env_name=env_name, request=request)
@@ -84,6 +97,7 @@ class DevelopmentConfig(Config):
         got_request_exception.disconnect(log_exception, app)
 
         # Initialize the development toolbar.
+        from flask_debugtoolbar import DebugToolbarExtension  # Only import this in Dev.
         DebugToolbarExtension(app)
 
         # Configure logging for development mode.
@@ -106,17 +120,22 @@ class ProductionConfig(Config):
         super(ProductionConfig, self).init_app(app)
 
         # Configure application logging.
-        gui_syslog = SysLogHandler(address='/dev/log', facility=SysLogHandler.LOG_LOCAL6)
-        gui_syslog.setLevel(logging.DEBUG)
+        configure_sys_log_handler(app)
 
-        gui_syslog_formatter = logging.Formatter('%(name)s: %(levelname)s %(message)s')
-        gui_syslog.setFormatter(gui_syslog_formatter)
 
-        app.logger.setLevel(logging.DEBUG)
-        app.logger_name = "gui"
-        app.logger.addHandler(gui_syslog)
+class QAConfig(Config):
+    """QA configuration."""
+    API_ENDPOINT = ''  # FIXME: point this to the appropriate QA LB.
+    DEBUG = False
+    GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'QA'
+    ACTIVE_DATASTORES = ['mongodb', 'redis']
 
-        app.logger.debug("Starting GUI.")
+    def init_app(self, app):
+        """QA specific configuration."""
+        super(QAConfig, self).init_app(app)
+
+        # Configure application logging.
+        configure_sys_log_handler(app)
 
 
 class UnittestingConfig(Config):
@@ -131,5 +150,6 @@ config_map = {
     'default': DevelopmentConfig,
     'development': DevelopmentConfig,
     'production': ProductionConfig,
+    'qa': QAConfig,
     'unittest': UnittestingConfig,
 }
