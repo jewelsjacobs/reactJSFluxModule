@@ -8,7 +8,6 @@ from logging.handlers import SysLogHandler
 
 from airbrake.airbrake import AirbrakeErrorHandler
 from flask import abort, got_request_exception, request
-from flask_debugtoolbar import DebugToolbarExtension
 from flask_kvsession import KVSessionExtension
 
 from simplekv.db.mongo import MongoStore
@@ -98,6 +97,7 @@ class DevelopmentConfig(Config):
         got_request_exception.disconnect(log_exception, app)
 
         # Initialize the development toolbar.
+        from flask_debugtoolbar import DebugToolbarExtension  # Only import this in Dev.
         DebugToolbarExtension(app)
 
         # Configure logging for development mode.
