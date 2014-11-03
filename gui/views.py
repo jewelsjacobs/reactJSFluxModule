@@ -461,7 +461,7 @@ def instance_stats(selected_instance):
     if instance.zone in config.PERFSTATS_REGIONS:
         template = 'instances/new_instance_stats.html'
     else:
-        template = ''
+        template = 'instances/instance_stats.html'
 
     # TODO: add a config to Viper to expose this
     if config.VIPER_IN_DEV:
