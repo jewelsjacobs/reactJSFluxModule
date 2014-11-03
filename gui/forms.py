@@ -30,3 +30,4 @@ class CreateInstance(Form):
                                               (Constants.REDIS_SERVICE, Constants.SERVICE_DISPLAY_NAMES[Constants.REDIS_SERVICE])])
     version = fields.HiddenField('version', validators=[valid_version])
     zone = fields.StringField('zone', validators=[validators.AnyOf(values=Constants.SERVER_ZONES, message='Invalid zone.')])
+    network = fields.StringField('network', validators=[validators.AnyOf(values=Constants.NETWORKS, message='Invalid network.')])

@@ -512,6 +512,7 @@ def create_instance():
     service_type = form.service_type.data
     version = form.version.data
     zone = form.zone.data
+    network = None
 
     # validate the name of the instance
     # TODO: this should be pushed into a real validation setup
@@ -535,6 +536,7 @@ def create_instance():
 
     # Determine the type of instance to use for redis.
     elif service_type == Constants.REDIS_SERVICE:
+        network = form.network.data
         instance_type = Constants.REDIS_HA_INSTANCE
 
     account = AccountManager(config).get_account(g.login)
@@ -547,7 +549,7 @@ def create_instance():
         return redirect(url_for('instances'))
 
     # Check if there are any free instances meeting the given specifications.
-    if not instance_manager.free_instance_count(plan_size_in_gb, zone, version, service_type, instance_type):
+    if not instance_manager.free_instance_count(plan_size_in_gb, zone, version, service_type, instance_type, network):
         flash_message = ("Cannot create instance '%s': no instances are available for plan %s, zone %s, version %s."
                          % (name, plan_size_in_gb, zone, version))
         flash(flash_message, canon_constants.STATUS_ERROR)
@@ -566,7 +568,7 @@ def create_instance():
 
     # Attempt to add a new instance of the given specifications.
     try:
-        account.add_instance(name, zone, plan_size_in_gb, version, service_type, instance_type)
+        account.add_instance(name, zone, plan_size_in_gb, version, service_type, instance_type, network)
         Utility.log_to_db(config, 'Created instance.', {'login': g.login, 'area': 'gui', 'instance_name': name})
         flash('Instance "{}" successfully added to account.'.format(name), canon_constants.STATUS_OK)
         return redirect(url_for('instances'))
