@@ -458,13 +458,18 @@ def instance_stats(selected_instance):
     account = account_manager.get_account(g.login)
     instance = account.get_instance_by_name(selected_instance)
 
+    if instance.zone in config.PERFSTATS_REGIONS:
+        template = 'instances/new_instance_stats.html'
+    else:
+        template = ''
+
     # TODO: add a config to Viper to expose this
     if config.VIPER_IN_DEV:
         api_url = "http://localhost:5050"
     else:
         api_url = "https://sjc-api.objectrocket.com"
 
-    return render_template('instances/instance_stats.html', instance=instance, api_url=api_url)
+    return render_template(template, instance=instance, api_url=api_url, has_stats=has_stats)
 
 
 @app.route('/instances')
