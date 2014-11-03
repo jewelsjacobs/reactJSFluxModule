@@ -280,3 +280,14 @@ p.tos {
 a {
     cursor: pointer;
 }
+
+.warning_message {
+    margin: 0px 30px;
+    background-color: #FFC;
+    border: 1px solid #eee;
+    padding: 10px;
+}
+
+.unavailable {
+    color: #999;
+}
