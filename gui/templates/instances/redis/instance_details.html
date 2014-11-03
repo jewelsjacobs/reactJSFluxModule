@@ -29,6 +29,16 @@
         <div class="rs-detail-header-title">{{ instance.name }}</div>
     </div>
 
+    {% if instance.network == Constants.RAX_SERVICE_NET %}
+        <p class="warning_message">
+
+            <img src="/static/art/warning.png" />
+            <strong>Note: </strong>
+            Because this instance uses the ServiceNet network, it is not accessible via the
+            internet and some UI features are not available.
+        </p>
+    {% endif %}
+
     {% call detail_section(title='Instance Details', id='details_section') %}
         <ul class="rs-detail-list">
             <li class="rs-detail-item">
@@ -60,21 +70,6 @@
                 </div>
             </li>
             <li class="rs-detail-item">
-                <div class="rs-detail-key">Space Usage</div>
-                <div id="space_usage_data" class="rs-detail-value">
-
-                    <div class="rs-progress">
-                        <div class="rs-progress-inner or-flexbox-row">
-                            <div id="usage-bar-ns" class="rs-segment" style="width: {{ instance.free_space_percentage }}%;">
-                                <div class="rs-bar or-bar-ns"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <span class="or-legend tip" data-title="The total used memory as returned via INFO used_memory_human" data-delay="0.1"><span class="or-legend-ns"></span>usedmemory: {{ instance.runtime_info.get("used_memory_human")}}</span>
-                </div>
-            </li>
-            <li class="rs-detail-item">
                 <div class="rs-detail-key">Connect String</div>
                 <div class="rs-detail-value">{{ instance.connect_string }}</div>
             </li>
@@ -82,18 +77,56 @@
                 <div class="rs-detail-key">Password</div>
                 <div class="rs-detail-value">{{ instance.password }}</div>
             </li>
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Max Memory Policy</div>
-                <div class="rs-detail-value">{{ instance.config_database['maxmemory-policy'] }}</div>
-            </li>
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Max Clients</div>
-                <div class="rs-detail-value">{{ instance.config_database['maxclients'] }}</div>
-            </li>
-            <li class="rs-detail-item">
-                <div class="rs-detail-key">Connected Slaves</div>
-                <div class="rs-detail-value">{{ instance.runtime_info.get("connected_slaves") }}</div>
-            </li>
+
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Space Usage</div>
+                    <div id="space_usage_data" class="rs-detail-value">
+
+                        {% if instance.runtime_info %}
+                            <div class="rs-progress">
+                                <div class="rs-progress-inner or-flexbox-row">
+                                    <div id="usage-bar-ns" class="rs-segment" style="width: {{ instance.free_space_percentage }}%;">
+                                        <div class="rs-bar or-bar-ns"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="or-legend tip" data-title="The total used memory as returned via INFO used_memory_human" data-delay="0.1"><span class="or-legend-ns"></span>usedmemory: {{ instance.runtime_info.get("used_memory_human")}}</span>
+                        {% else %}
+                            <span class="unavailable">Unavailable</span>
+                        {% endif %}
+
+                    </div>
+                </li>
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Max Memory Policy</div>
+                    <div class="rs-detail-value">
+                        {% if instance.config_database %}
+                            {{ instance.config_database['maxmemory-policy'] }}
+                        {% else %}
+                            <span class="unavailable">Unavailable</span>
+                        {% endif %}
+                    </div>
+                </li>
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Max Clients</div>
+                    <div class="rs-detail-value">
+                        {% if instance.config_database %}
+                            {{ instance.config_database['maxclients'] }}
+                        {% else %}
+                            <span class="unavailable">Unavailable</span>
+                        {% endif %}
+                    </div>
+                </li>
+                <li class="rs-detail-item">
+                    <div class="rs-detail-key">Connected Slaves</div>
+                    <div class="rs-detail-value">
+                        {% if instance.runtime_info %}
+                            {{ instance.runtime_info.get("connected_slaves") }}
+                        {% else %}
+                            <span class="unavailable">Unavailable</span>
+                        {% endif %}
+                    </div>
+                </li>
         </ul>
     {% endcall %}
 
@@ -175,7 +208,7 @@
         <div class="rs-popover-content">
             <div class="rs-popover-body">
                 <form id="add-acl-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('add_acl', instance=instance.name) }}" method="POST">
-                    <p>Access Control Lists (ACLs) allow you to limit who connects to your MongoDB instance. By default, no one is allowed to connect. If you know the set of IP addresses you wish to connect from, you can add them here. If you don't, or if you're connecting from a service such as Heroku that uses dynamic ranges of IP addresses, you can select "any" here; You'll still be able to limit access via the login/password pairs that you configure, and you can still encrypt your connections with SSL.</p>
+                    <p>Access Control Lists (ACLs) allow you to limit who connects to your Redis instance. By default, no one is allowed to connect. If you know the set of IP addresses you wish to connect from, you can add them here. If you don't, or if you're connecting from a service such as Heroku that uses dynamic ranges of IP addresses, you can select "any" here; You'll still be able to limit access via the auth key, and you can still encrypt your connections with SSL.</p>
                     <div class="rs-control-group">
                         <label class="rs-control-label">IP Address</label>
                         <div class="rs-controls">
