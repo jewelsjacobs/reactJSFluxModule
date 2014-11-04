@@ -33,6 +33,7 @@ def log_exception(app, exception, **kwargs):
 class Config(object):
     """Config base class."""
 
+    API_ENDPOINT = viper_config.DEFAULT_API_ENDPOINT
     AIRBRAKE_API_KEY = os.getenv('AIRBRAKE_API_KEY') or '5b03037d33a7371379fafc35c48af98b'
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Base'
     MAINTENANCE = False
@@ -70,7 +71,7 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     """Configuration for development mode (default)."""
-    API_ENDPOINT = viper_config.API_SERVER
+
     DEBUG = True
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Development'
@@ -96,7 +97,7 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     """Production configuration."""
-    API_ENDPOINT = ''  # FIXME: point this to the appropriate LB.
+
     DEBUG = False
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Production'
     ACTIVE_DATASTORES = ['mongodb', 'redis']
@@ -120,6 +121,7 @@ class ProductionConfig(Config):
 
 
 class UnittestingConfig(Config):
+
     """Configuration for unit testing mode."""
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Unittest'
     TESTING = True

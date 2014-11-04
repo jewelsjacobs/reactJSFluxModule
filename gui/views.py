@@ -463,13 +463,7 @@ def instance_stats(selected_instance):
     else:
         template = 'instances/instance_stats.html'
 
-    # TODO: add a config to Viper to expose this
-    if config.VIPER_IN_DEV:
-        api_url = "http://localhost:5050"
-    else:
-        api_url = "https://sjc-api.objectrocket.com"
-
-    return render_template(template, instance=instance, api_url=api_url, has_stats=has_stats)
+    return render_template(template, instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
 
 
 @app.route('/instances')
