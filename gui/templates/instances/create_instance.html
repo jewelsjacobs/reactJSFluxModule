@@ -131,15 +131,11 @@
                     </div>
                 </div>
 
-                <div class="rs-control-group" >
+                <div class="rs-control-group hidden" id="network_option">
 
                     <label class="rs-control-label">Network</label>
                     <div class="rs-controls">
-                        <div id="network_non_option">
-                            <strong>Public</strong> -
-                            Public network for internet access
-                        </div>
-                        <div id="network_option" class='hidden'>
+                        <div>
                             <label class="rs-radio">
                                 <input name="network" type="radio" value="public" id='public_network' checked/>
                                 <strong>Public</strong> -
@@ -285,7 +281,6 @@
         var network = $('#network_option input:checked').val(),
             serviceType = $('#service-type input:checked').val();
 
-        $("#network_non_option").toggle(serviceType != "redis");
         $("#network_option").toggle(serviceType == "redis");
         $("#snet_warning").toggle(serviceType == "redis" && network=="servicenet");
     }
