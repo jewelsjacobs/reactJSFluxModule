@@ -28,6 +28,13 @@
             <div class="or-login-form">
                <p class="or-login-welcome">Create an account</p>
                 <form id="signup-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_up') }}" method="POST">
+                    
+                    <div class="rs-control-group">
+                        <label class="rs-control-label" for="name">Name</label>
+                        <div class="rs-controls">
+                            <input id="name" name="name" type="text" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
 
                     <div class="rs-control-group">
                         <label class="rs-control-label" for="email">Email</label>
@@ -120,6 +127,9 @@
             // Validation for sign up form.
             $('#signup-form').validate({
                 rules: {
+                    name: {
+                        required: true,
+                    },
                     email: {
                         required: true,
                         email: true
