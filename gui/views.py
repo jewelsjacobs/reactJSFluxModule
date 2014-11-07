@@ -34,6 +34,7 @@ from viper.account import AccountManager
 from viper.annunciator import Annunciator, Alarm
 from viper.aws import AWSManager
 from viper.billing import BillingManager, BillingException
+from viper.checks.salesforce import send_signup_to_salesforce
 from viper.constants import Constants
 from viper.instance import InstanceManager
 from viper.messages import MessageManager
@@ -1298,7 +1299,7 @@ def logout():
 
 @app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
-    """The smallest signup form"""
+    """The signup form"""
     if request.method == 'POST':
         account_manager = AccountManager(config)
 
@@ -1311,7 +1312,7 @@ def sign_up():
             account = account_manager.create_account(login=request.form['email'],
                                                      password=request.form['password'],
                                                      email=request.form['email'],
-                                                     name=None,
+                                                     name=request.form['name'],
                                                      company=request.form.get('company'),
                                                      phone=request.form.get('phone'),
                                                      zipcode=None)
@@ -1322,6 +1323,7 @@ def sign_up():
                                      account.login,
                                      notify_once=True,
                                      supplemental_data=account.login)
+            send_signup_to_salesforce.delay(account.name, account.email, account.phone, account.login)
             session['login'] = account.login
             return redirect(url_for('instances'))
 
