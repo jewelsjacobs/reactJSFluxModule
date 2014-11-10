@@ -458,7 +458,12 @@ def instance_stats(selected_instance):
     account = account_manager.get_account(g.login)
     instance = account.get_instance_by_name(selected_instance)
 
-    if instance.zone in config.PERFSTATS_REGIONS:
+    # Temporary feature gate, please remove when the stats gui is 
+    # released to everyone
+    if not instance.document.get("stats_enabled", False):
+        return render_template('instances/instance_stats.html', instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
+
+    if (instance.zone in config.PERFSTATS_REGIONS) and instance.document.get(''):
         template = 'instances/new_instance_stats.html'
     else:
         template = 'instances/instance_stats.html'
@@ -2500,7 +2505,7 @@ def drop_remote_index():
 @app.route('/api_token')
 @viper_auth
 def get_api_token():
-    if not "api_token" in session:
+    if "api_token" not in session:
         api_token_manager = tokens.APITokenManager(config)
         session.api_token = api_token_manager.create_token(account=g.login)
 

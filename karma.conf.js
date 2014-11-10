@@ -13,9 +13,12 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'gui/static/js/stats/lib/angular.js',
+      'https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min.js',
       'gui/static/js/stats/lib/angular-mocks.js',
-      'gui/static/js/stats/lib/*.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js',
+      'https://cdn.jsdelivr.net/angularjs.nvd3-directives/v0.0.7/angularjs-nvd3-directives.min.js',
       'gui/static/js/stats/*.js'
     ],
 
