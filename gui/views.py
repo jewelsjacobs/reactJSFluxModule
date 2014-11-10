@@ -463,7 +463,7 @@ def instance_stats(selected_instance):
     if not instance.document.get("stats_enabled", False):
         return render_template('instances/instance_stats.html', instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
 
-    if (instance.zone in config.PERFSTATS_REGIONS) and instance.document.get(''):
+    if instance.zone in config.PERFSTATS_REGIONS:
         template = 'instances/new_instance_stats.html'
     else:
         template = 'instances/instance_stats.html'
