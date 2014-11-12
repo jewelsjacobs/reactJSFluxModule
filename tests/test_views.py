@@ -18,7 +18,7 @@ xfail = pytest.mark.xfail
 
 # TODO: Move to settings file
 login = 'ortest'
-password = 'ortest'
+password = 'devpass'
 password_reset = 'ortest_reset'
 instance_name = 'test_instance'
 instance_name_rename = 'test_instance_rename'
@@ -906,6 +906,12 @@ def test_invalid_view_maintenance_mode_on(app_client):
         assert response.status_code == 200
     app.config['MAINTENANCE'] = old_config
 
+
+def test_get_tokens_for_account(app_client):
+    with app_client as client:
+        client.post(url_for('sign_in'), data=dict(login=email, password=password), follow_redirects=True)
+        response = client.get('/api_token')
+        assert response.status_code == 200
 
 ################################################################################
 # TODO: Add authenticated sharded instance
