@@ -460,7 +460,7 @@ def instance_stats(selected_instance):
     instance = account.get_instance_by_name(selected_instance)
 
     # Temporary feature gate, please remove when the stats gui is released to everyone
-    admin = (session['role'] == 'admin')
+    admin = (session.get('role', '') == 'admin')
     stats_enabled = instance.document.get("stats_enabled", False)
 
     if not stats_enabled or not admin:
