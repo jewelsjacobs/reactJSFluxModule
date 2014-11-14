@@ -661,7 +661,7 @@ def instance_details(selected_instance):
         balancer = user_instance.balancer
 
     # Get instance operation states
-    database_compaction_state = user_instance.compression.get(user_instance.COMPACTION_STATE, None)
+    database_compaction_state = user_instance.compression.get(Constants.COMPACTION_STATE, None)
 
     database_copy_state = None
     copy_database_document = user_instance.document.get('copy_database', None)
@@ -2086,8 +2086,8 @@ def compact_instance(instance_name):
         flash('Please schedule a stepdown window for before requesting compaction.', 'warning')
         return redirect(url_for('instance_details', selected_instance=instance_name))
 
-    compaction_state = instance.compression.get(instance.COMPACTION_STATE)
-    acceptable_states = (None, instance.COMPACTION_STATE_COMPRESSED, instance.COMPACTION_STATE_ABORTED)
+    compaction_state = instance.compression.get(Constants.COMPACTION_STATE)
+    acceptable_states = (None, Constants.COMPACTION_STATE_COMPRESSED, Constants.COMPACTION_STATE_ABORTED)
     if compaction_state not in acceptable_states:
         flash('Instance %s is currently undergoing compaction.' % instance.name, Constants.FLASH_ERROR)
         return redirect(url_for('instance_details', selected_instance=instance_name))

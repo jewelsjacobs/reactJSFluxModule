@@ -99,13 +99,13 @@
     {% endcall %}
 
     {% call detail_section(title='Instance Operations Status', collapsible=True, id='operations_section') %}
-        {% if database_compaction_state == instance.COMPACTION_STATE_REQUESTED %}
+        {% if database_compaction_state in Constants.COMPACTION_IN_PROGRESS_STATES %}
             {% set compaction_class='rs-status-processing' %}
             {% set compaction_text='Processing' %}
-        {% elif database_compaction_state == instance.COMPACTION_STATE_ABORTED %}
+        {% elif database_compaction_state == Constants.COMPACTION_STATE_ABORTED %}
             {% set compaction_class='rs-status-error' %}
             {% set compaction_text='Aborted' %}
-        {% elif database_compaction_state == instance.COMPACTION_STATE_COMPRESSED %}
+        {% elif database_compaction_state == Constants.COMPACTION_STATE_COMPRESSED %}
             {% set compaction_class='rs-status-ok' %}
             {% set compaction_text='Completed' %}
         {% else %}
