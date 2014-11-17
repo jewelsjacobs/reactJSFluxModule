@@ -288,12 +288,9 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
 		StatsService.getStatForHostInPeriod(instanceName, host, statName, period, granularity).then(success, error);
 	}
 
-    //
-    // Update the graph, and schedule the auto updates
-    //
-
     updateGraph();
-    $interval(updateGraph, 1000 * 30);
+    var doUpdateGraph = updateGraph.debounce(300);
+    $interval(doUpdateGraph, 1000 * 60 * 2);
 
     //
     // watch for changes
@@ -306,7 +303,7 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
                 return;
             }
 
-            updateGraph();
+            doUpdateGraph();
         });
     });
 
