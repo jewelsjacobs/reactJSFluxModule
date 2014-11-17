@@ -463,7 +463,7 @@ def instance_stats(selected_instance):
     admin = (session.get('role', '') == 'admin')
     stats_enabled = instance.document.get("stats_enabled", False)
 
-    if not stats_enabled or not admin:
+    if not stats_enabled and not admin:
         return render_template('instances/instance_stats.html', instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
 
     if instance.zone in config.PERFSTATS_REGIONS:
