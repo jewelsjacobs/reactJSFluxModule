@@ -289,7 +289,12 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
 	}
 
     updateGraph();
+    
+    // Make sure that we don't repeatedly call the update to the graph multiple times while
+    // a user is editing the form. The time to wait before executing the function is in ms.
     var doUpdateGraph = updateGraph.debounce(300);
+    
+    // Schedule updates to the graph for every 2 seconds
     $interval(doUpdateGraph, 1000 * 60 * 2);
 
     //
