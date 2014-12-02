@@ -288,12 +288,14 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
 		StatsService.getStatForHostInPeriod(instanceName, host, statName, period, granularity).then(success, error);
 	}
 
-    //
-    // Update the graph, and schedule the auto updates
-    //
-
     updateGraph();
-    $interval(updateGraph, 1000 * 30);
+    
+    // Make sure that we don't repeatedly call the update to the graph multiple times while
+    // a user is editing the form. The time to wait before executing the function is in ms.
+    var doUpdateGraph = updateGraph.debounce(300);
+    
+    // Schedule updates to the graph for every 2 seconds
+    $interval(doUpdateGraph, 1000 * 60 * 2);
 
     //
     // watch for changes
@@ -306,7 +308,7 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
                 return;
             }
 
-            updateGraph();
+            doUpdateGraph();
         });
     });
 

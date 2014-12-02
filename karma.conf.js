@@ -19,6 +19,7 @@ module.exports = function(config) {
       'https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.min.js',
       'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js',
       'https://cdn.jsdelivr.net/angularjs.nvd3-directives/v0.0.7/angularjs-nvd3-directives.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/sugar/1.4.1/sugar.min.js',
       'gui/static/js/stats/*.js'
     ],
 
