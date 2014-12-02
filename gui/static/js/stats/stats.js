@@ -254,6 +254,34 @@ app.controller("StatsPageCtrl", ["$scope", "StatsService", "instanceName", funct
 
 app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instanceName", function ($scope, $interval, StatsService, instanceName) {
 
+    // graph options
+    $scope.options = {
+        "chart": {
+            "type": "lineChart",
+            "height": 300,
+            "margin": {
+                "top": 20,
+                "right": 20,
+                "bottom": 20,
+                "left": 20
+            },
+            "useInteractiveGuideline": true,
+            "transitionDuration": 250,
+            "xAxis": {
+                "staggerLabels": true,
+                "tickFormat": function (data) {
+                    return d3.time.format('%m/%d/%y %X')(moment.unix(data).toDate());
+                }
+            },
+            "tooltipContent": function (key, x, y, event, graph) {
+                return key + ": " + y + " events at " + x;
+            }
+        }
+    };
+
+    // graph data
+    $scope.data = [];
+
     // load the data into the graph
 	var updateGraph = function () {
 		var statName = $scope.statName;
@@ -301,34 +329,4 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
             doUpdateGraph();
         });
     });
-
-    //
-    // Graph helper methods
-    //
-
-    $scope.xFunction = function() {
-        return function(data) {
-            return data[0];
-        }
-    };
-
-    $scope.yFunction = function() {
-        return function(data) {
-            return data[1];
-        }
-    };
-
-    $scope.legendDetails = {};
-
-    $scope.toolTipContentFunction = function() {
-        return function(key, x, y, event, graph) {
-            return key + ": " + y + " events at " + x;
-        }
-    };
-
-    $scope.xAxisTickFormatFunction = function() {
-        return function(data) {
-            return d3.time.format('%m/%d/%y %X')(moment.unix(data).toDate());
-        }
-    };
 }]);

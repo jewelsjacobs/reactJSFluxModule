@@ -6,6 +6,7 @@
 
 {% block style %}
     {{ super() }}
+    <meta charset="utf-8">
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.css">
 
@@ -74,21 +75,7 @@
                 <div ng-if="statName !== ''">
                     <div ng-repeat="(shardName, hosts) in shards" ng-controller="StatsGraphCtrl">
                         <h4 style="border-bottom: 1px solid #EEE">ReplicaSet: {{shardName}}</h4>
-                        <nvd3-line-chart
-                            id="chart-{{shardName}}"
-                            data="data"
-                            margin="{left:100,top:50,bottom:50,right:100}"
-                            showXAxis="true"
-                            showYAxis="true"
-                            xAxisTickFormat="xAxisTickFormatFunction()"
-                            tooltips="true"
-                            interactive="true"
-                            x="xFunction()"
-                            y="yFunction()"
-                            toolTipContent="toolTipContentFunction()"
-                            useInteractiveGuideLine="true">
-                            <svg></svg>
-                        </nvd3-line-chart>
+                        <nvd3 options="options" data="data"></nvd3>
                     </div>
                 </div>
             </div>
@@ -103,8 +90,8 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/angularjs.nvd3-directives/v0.0.7/angularjs-nvd3-directives.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sugar/1.4.1/sugar.min.js"></script>
+    <script type="text/javascript" src="/static/js/stats/lib/angular-nvd3.js"></script>
 	<script type="text/javascript" src="/static/js/stats/stats.js"></script>
 
     <script type="text/javascript">
