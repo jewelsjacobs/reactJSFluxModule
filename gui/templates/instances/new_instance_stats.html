@@ -7,13 +7,16 @@
 {% block style %}
     {{ super() }}
     <meta charset="utf-8">
-
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.css">
 
     <style>
+        .replset-header {
+            border-bottom: 1px solid #EEE;
+        }
+
         .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point {
-            fill-opacity: 0 !important;
-            stroke-opacity: 0 !important;
+            fill-opacity: 0.25 !important;
+            stroke-opacity: 0.25 !important;
         }
 
         .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point:hover {
@@ -74,8 +77,8 @@
 
                 <div ng-if="statName !== ''">
                     <div ng-repeat="(shardName, hosts) in shards" ng-controller="StatsGraphCtrl">
-                        <h4 style="border-bottom: 1px solid #EEE">ReplicaSet: {{shardName}}</h4>
-                        <nvd3 options="options" data="data"></nvd3>
+                        <h4 class="replset-header">ReplicaSet: {{shardName}}</h4>
+                        <nvd3 options="options" data="data" config="{autorefresh: true}"></nvd3>
                     </div>
                 </div>
             </div>
