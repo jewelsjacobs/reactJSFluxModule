@@ -122,40 +122,42 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 	// Get the specified stats (at the specified granularity) for the host in the period.
 	//
 
-	var getStatForHostInPeriod = function (instanceName, hostName, statName, period, granularity) {
+	var getStatForHostInPeriod = function (instanceName, statName, shardHosts, period, granularity) {
 
-        // conversions from the granularities to seconds
-        var multipliers = {
-            "minute": 60,
-            "hour": 60 * 60,
-            "day": 60 * 60 * 24
-        }
+		var url = String.format("{0}/v2/graph", apiUrl);
 
-        var period_seconds = period * multipliers[granularity];
+        var graph_data = {
+            "stats": [],
+            "granularity": granularity,
+            "period": period
+        };
 
-		var url = String.format(
-			"{0}/v2/instance/{1}/host/{2}/stats/{3}?period={4}&granularity={5}",
-			apiUrl,
-			instanceName,
-			hostName,
-			statName,
-			period_seconds,
-			granularity
-		);
+        for (var i = 0; i < shardHosts.length; i++) {
+            var host = shardHosts[i];
+
+            graph_data['stats'].push({
+                "instance": instanceName,
+                "host": host,
+                "name": statName
+            });
+        };
 
 		var request = AuthService.getAuthHeaders().then(function (headers) {
-			return $http.get(url, {headers: headers});
+			return $http.post(url, graph_data, {headers: headers});
 		});
 
 		var deferred = $q.defer();
 
 		var success = function (response) {
-            var stat_info = response.data;
+            var stat_info = [];
 
-            stat_info.data = [{
-                key: stat_info['name'],
-                values: stat_info['data']
-            }];
+            for (var i = 0; i < response.data.stats.length; i++) {
+                var stat = response.data.stats[i];
+                stat_info.push({
+                    key: stat.host_name,
+                    values: stat.data
+                });
+            }
 
 			deferred.resolve(stat_info);
 		};
@@ -228,8 +230,8 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 
 app.controller("StatsPageCtrl", ["$scope", "StatsService", "instanceName", function ($scope, StatsService, instanceName) {
 	$scope.statName = "";
-	$scope.granularity = "minute";
-	$scope.period = 5;
+	$scope.granularity = "hour";
+	$scope.period = 24;
 
 	// grab the shards for this instance
 	StatsService.getShardsAndHosts(instanceName).then(function (data) {
@@ -252,12 +254,10 @@ app.controller("StatsPageCtrl", ["$scope", "StatsService", "instanceName", funct
 
 app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instanceName", function ($scope, $interval, StatsService, instanceName) {
 
-    $scope.chartId = $scope.host.split(".")[0];
-
     // load the data into the graph
 	var updateGraph = function () {
-		var host = $scope.host;
 		var statName = $scope.statName;
+        var shardHosts = $scope.hosts;
 		var period = $scope.period;
 		var granularity = $scope.granularity;
 
@@ -267,25 +267,15 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
         }
 
 		var success = function (result) {
-			$scope.error = false;
-
-            // if you go from a graph with data to one without, d3 will display both the old graph, and the no
-            // data message.  This hack makes it clear it out.
-            if (result.data[0]['values'].length == 0) {
-                $scope.data = [];
-            } else {
-    			$scope.data = result.data;
-            }
-
-            $scope.references = result.refereces;
-            $scope.description = result.description;
+            $scope.error = false;
+            $scope.data = result;
         };
 
 		var error = function (result) {
 			$scope.error = true;
 		};
 
-		StatsService.getStatForHostInPeriod(instanceName, host, statName, period, granularity).then(success, error);
+		StatsService.getStatForHostInPeriod(instanceName, statName, shardHosts, period, granularity).then(success, error);
 	}
 
     updateGraph();

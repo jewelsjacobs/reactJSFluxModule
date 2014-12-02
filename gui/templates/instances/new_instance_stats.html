@@ -72,39 +72,27 @@
                 </ul>
 
                 <div ng-if="statName !== ''">
-    				<div ng-repeat="(key, value) in shards">
-    					<h4 style="border-bottom: 1px solid #EEE">ReplicaSet: {{key}}</h4>
-
-    					<div ng-repeat="host in value" ng-controller="StatsGraphCtrl">
-                            <h5>Host: {{host}}</5>
-
-    						<div ng-switch on="error">
-    						    <div ng-switch-when="true">
-    								There was an error getting your chart!
-    						    </div>
-    						    <div ng-switch-default>
-                                    <nvd3-line-chart
-                                        id="chart-{{chartId}}"
-                                        data="data"
-                                        margin="{left:100,top:50,bottom:50,right:100}"
-                                        showXAxis="true"
-                                        showYAxis="true"
-                                        xAxisTickFormat="xAxisTickFormatFunction()"
-                                        tooltips="true"
-                                        interactive="true"
-                                        x="xFunction()"
-                                        y="yFunction()"
-                                        toolTipContent="toolTipContentFunction()"
-                                        useInteractiveGuideLine="true">
-                                        <svg></svg>
-                                    </nvd3-line-chart>
-    						    </div>
-    						</div>
-    					</div>
+                    <div ng-repeat="(shardName, hosts) in shards" ng-controller="StatsGraphCtrl">
+                        <h4 style="border-bottom: 1px solid #EEE">ReplicaSet: {{shardName}}</h4>
+                        <nvd3-line-chart
+                            id="chart-{{shardName}}"
+                            data="data"
+                            margin="{left:100,top:50,bottom:50,right:100}"
+                            showXAxis="true"
+                            showYAxis="true"
+                            xAxisTickFormat="xAxisTickFormatFunction()"
+                            tooltips="true"
+                            interactive="true"
+                            x="xFunction()"
+                            y="yFunction()"
+                            toolTipContent="toolTipContentFunction()"
+                            useInteractiveGuideLine="true">
+                            <svg></svg>
+                        </nvd3-line-chart>
                     </div>
-				</div>
-			</div>
-		{% endraw %}
+                </div>
+            </div>
+        {% endraw %}
     {% endcall %}
 {% endblock content_area_body %}
 
