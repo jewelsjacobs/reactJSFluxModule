@@ -142,8 +142,6 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
             });
         };
 
-        console.log(graph_data);
-
 		var request = AuthService.getAuthHeaders().then(function (headers) {
 			return $http.post(url, graph_data, {headers: headers});
 		});
