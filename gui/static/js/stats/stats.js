@@ -1,4 +1,4 @@
-var app = angular.module("statsGraphApp", ['nvd3ChartDirectives']);
+var app = angular.module("statsGraphApp", ['nvd3']);
 
 //
 // config values
@@ -129,7 +129,7 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
         var graph_data = {
             "stats": [],
             "granularity": granularity,
-            "period": period
+            "period": parseInt(period, 10)
         };
 
         for (var i = 0; i < shardHosts.length; i++) {
@@ -254,6 +254,37 @@ app.controller("StatsPageCtrl", ["$scope", "StatsService", "instanceName", funct
 
 app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instanceName", function ($scope, $interval, StatsService, instanceName) {
 
+    // graph options
+    $scope.options = {
+        "chart": {
+            "type": "lineChart",
+            "height": 300,
+            "margin": {
+                "top": 20,
+                "right": 20,
+                "bottom": 20,
+                "left": 50
+            },
+            "useInteractiveGuideline": true,
+            "transitionDuration": 250,
+            "x": function (data) {
+                return data[0];
+            },
+            "xAxis": {
+                "staggerLabels": true,
+                "tickFormat": function (data) {
+                    return d3.time.format('%m/%d/%y %X')(moment.unix(data).toDate());
+                }
+            },
+            "y": function (data) {
+                return data[1];
+            }
+        }
+    };
+
+    // graph data
+    $scope.data = [];
+
     // load the data into the graph
 	var updateGraph = function () {
 		var statName = $scope.statName;
@@ -261,7 +292,7 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
 		var period = $scope.period;
 		var granularity = $scope.granularity;
 
-        // don't do anything no stat is selected
+        // don't do anything if no stat is selected
         if (statName === '') {
             return;
         }
@@ -279,11 +310,11 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
 	}
 
     updateGraph();
-    
+
     // Make sure that we don't repeatedly call the update to the graph multiple times while
     // a user is editing the form. The time to wait before executing the function is in ms.
     var doUpdateGraph = updateGraph.debounce(300);
-    
+
     // Schedule updates to the graph for every 2 seconds
     $interval(doUpdateGraph, 1000 * 60 * 2);
 
@@ -301,34 +332,4 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
             doUpdateGraph();
         });
     });
-
-    //
-    // Graph helper methods
-    //
-
-    $scope.xFunction = function() {
-        return function(data) {
-            return data[0];
-        }
-    };
-
-    $scope.yFunction = function() {
-        return function(data) {
-            return data[1];
-        }
-    };
-
-    $scope.legendDetails = {};
-
-    $scope.toolTipContentFunction = function() {
-        return function(key, x, y, event, graph) {
-            return key + ": " + y + " events at " + x;
-        }
-    };
-
-    $scope.xAxisTickFormatFunction = function() {
-        return function(data) {
-            return d3.time.format('%m/%d/%y %X')(moment.unix(data).toDate());
-        }
-    };
 }]);

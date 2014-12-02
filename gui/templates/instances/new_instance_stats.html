@@ -6,13 +6,17 @@
 
 {% block style %}
     {{ super() }}
-
+    <meta charset="utf-8">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.css">
 
     <style>
+        .replset-header {
+            border-bottom: 1px solid #EEE;
+        }
+
         .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point {
-            fill-opacity: 0 !important;
-            stroke-opacity: 0 !important;
+            fill-opacity: 0.25 !important;
+            stroke-opacity: 0.25 !important;
         }
 
         .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point:hover {
@@ -73,22 +77,8 @@
 
                 <div ng-if="statName !== ''">
                     <div ng-repeat="(shardName, hosts) in shards" ng-controller="StatsGraphCtrl">
-                        <h4 style="border-bottom: 1px solid #EEE">ReplicaSet: {{shardName}}</h4>
-                        <nvd3-line-chart
-                            id="chart-{{shardName}}"
-                            data="data"
-                            margin="{left:100,top:50,bottom:50,right:100}"
-                            showXAxis="true"
-                            showYAxis="true"
-                            xAxisTickFormat="xAxisTickFormatFunction()"
-                            tooltips="true"
-                            interactive="true"
-                            x="xFunction()"
-                            y="yFunction()"
-                            toolTipContent="toolTipContentFunction()"
-                            useInteractiveGuideLine="true">
-                            <svg></svg>
-                        </nvd3-line-chart>
+                        <h4 class="replset-header">ReplicaSet: {{shardName}}</h4>
+                        <nvd3 options="options" data="data" config="{autorefresh: true}"></nvd3>
                     </div>
                 </div>
             </div>
@@ -103,8 +93,8 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/angularjs.nvd3-directives/v0.0.7/angularjs-nvd3-directives.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sugar/1.4.1/sugar.min.js"></script>
+    <script type="text/javascript" src="/static/js/stats/lib/angular-nvd3.js"></script>
 	<script type="text/javascript" src="/static/js/stats/stats.js"></script>
 
     <script type="text/javascript">
