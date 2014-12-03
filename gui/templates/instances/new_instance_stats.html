@@ -23,6 +23,10 @@
             fill-opacity: 0.5 !important;
             stroke-opacity: 0.5 !important;
         }
+
+        nvd3 svg {
+            height: 350px;
+        }
     </style>
 
     {% include 'stripe_css.html' %}
@@ -78,7 +82,7 @@
                 <div ng-if="statName !== ''">
                     <div ng-repeat="(shardName, hosts) in shards" ng-controller="StatsGraphCtrl">
                         <h4 class="replset-header">ReplicaSet: {{shardName}}</h4>
-                        <nvd3 options="options" data="data" config="{autorefresh: true}"></nvd3>
+                        <nvd3 options="options" data="data" config="{autorefresh: true, refreshDataOnly: true}"></nvd3>
                     </div>
                 </div>
             </div>
