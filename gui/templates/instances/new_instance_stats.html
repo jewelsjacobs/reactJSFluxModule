@@ -8,42 +8,10 @@
     {{ super() }}
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.css">
-    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
     <link rel="stylesheet" href="/static/css/ng-quick-date.css">
     <link rel="stylesheet" href="/static/css/ng-quick-date-default-theme.css">
-
-    <style>
-        .replset-header {
-            border-bottom: 1px solid #EEE;
-        }
-
-        .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point {
-            fill-opacity: 0.25 !important;
-            stroke-opacity: 0.25 !important;
-        }
-
-        .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point:hover {
-            fill-opacity: 0.5 !important;
-            stroke-opacity: 0.5 !important;
-        }
-
-        nvd3 svg {
-            height: 350px;
-        }
-
-        .stats-container {
-            border-top: 1px solid #EEE;
-            padding: 10px 30px 0px 30px;
-            margin-bottom: 30px;
-        }
-
-        .rs-detail-item select,
-        .rs-detail-item input,
-        .rs-detail-key select {
-            margin: 0px;
-        }
-    </style>
-
+    <link rel="stylesheet" href="/static/css/stats.css">
     {% include 'stripe_css.html' %}
 {% endblock style %}
 
