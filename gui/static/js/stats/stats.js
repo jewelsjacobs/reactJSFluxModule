@@ -1,4 +1,4 @@
-var app = angular.module("statsGraphApp", ['nvd3']);
+var app = angular.module("statsGraphApp", ['nvd3', 'ngQuickDate']);
 
 //
 // config values
@@ -7,6 +7,17 @@ var app = angular.module("statsGraphApp", ['nvd3']);
 app.value("tokenRoute", "/api_token");
 app.value("instanceName", null);
 app.value("apiUrl", null);
+
+
+// configure our date pickers with icons from FontAwesome
+app.config(function(ngQuickDateDefaultsProvider) {
+    return ngQuickDateDefaultsProvider.set({
+    closeButtonHtml: "<i class='fa fa-times'></i>",
+    buttonIconHtml: "<i class='fa fa-calendar'></i>",
+    nextLinkHtml: "<i class='fa fa-chevron-right'></i>",
+    prevLinkHtml: "<i class='fa fa-chevron-left'></i>"
+  });
+});
 
 //
 // String.format
@@ -79,71 +90,29 @@ app.factory("AuthService", ['$q', '$http', 'tokenRoute', function ($q, $http, to
 
 app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($q, $http, apiUrl, AuthService) {
 
-	//
-	// getShardsAndHosts
-	// Get the shards and hosts for a given instance.
-	//
+    //
+    // getStatForHosts
+    // internal method to get a stat for a set of hosts, used by getStatForHostsInPeriod() and
+    // getStatForHostsBetweenDates().
+    //
 
-	var getShardsAndHosts = function (instanceName) {
-		var url = String.format("{0}/v2/instance/{1}/replicaset", apiUrl, instanceName);
-
-		var request = AuthService.getAuthHeaders().then(function (headers) {
-			return $http.get(url, {headers: headers});
-		});
-
-		var deferred = $q.defer();
-
-		// request is a default promise, not the $http one, so we'll need to
-		// use the standard .then() instead of .success() or .error().
-
-		var success = function (response) {
-			var output = {};
-
-			for (var i = 0; i < response.data['data'].length; i++) {
-				var item = response.data['data'][i];
-				angular.forEach(item, function (value, key) {
-					output[key] = value;
-				});
-			}
-
-			deferred.resolve(output);
-		};
-
-		var failure = function (result) {
-			deferred.reject(result);
-		};
-
-		request.then(success, failure);
-		return deferred.promise;
-	};
-
-	//
-	// getStatForHostInPeriod
-	// Get the specified stats (at the specified granularity) for the host in the period.
-	//
-
-	var getStatForHostInPeriod = function (instanceName, statName, shardHosts, period, granularity) {
-
-		var url = String.format("{0}/v2/graph", apiUrl);
-
-        var graph_data = {
-            "stats": [],
-            "granularity": granularity,
-            "period": parseInt(period, 10)
-        };
+    var getStatForHosts = function (instanceName, statName, shardHosts, graphData) {
+        graphData['stats'] = [];
 
         for (var i = 0; i < shardHosts.length; i++) {
             var host = shardHosts[i];
 
-            graph_data['stats'].push({
+            graphData['stats'].push({
                 "instance": instanceName,
                 "host": host,
                 "name": statName
             });
         };
 
+		var url = String.format("{0}/v2/graph", apiUrl);
+
 		var request = AuthService.getAuthHeaders().then(function (headers) {
-			return $http.post(url, graph_data, {headers: headers});
+			return $http.post(url, graphData, {headers: headers});
 		});
 
 		var deferred = $q.defer();
@@ -168,6 +137,35 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 
 		request.then(success, failure);
 		return deferred.promise;
+    };
+
+	//
+	// getStatForHostInPeriod
+	// Get the specified stats (at the specified granularity) for the host in the period.
+	//
+
+	var getStatForHostsInPeriod = function (instanceName, statName, shardHosts, period, granularity) {
+        var graphData = {
+            "granularity": granularity,
+            "period": parseInt(period, 10)
+        };
+
+        return getStatForHosts(instanceName, statName, shardHosts, graphData);
+	};
+
+	//
+	// getStatForHostsBetweenDates
+	// Get the specified stats (at the specified granularity) for the host in the period.
+	//
+
+	var getStatForHostsBetweenDates = function (instanceName, statName, shardHosts, fromDate, toDate, granularity) {
+        var graphData = {
+            "granularity": granularity,
+            "start_time": moment(fromDate).utc().format("YYYY-MM-DD HH:mm:ss"),
+            "end_time": moment(toDate).utc().format("YYYY-MM-DD HH:mm:ss")
+        };
+
+        return getStatForHosts(instanceName, statName, shardHosts, graphData);
 	};
 
     //
@@ -213,10 +211,50 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
         return deferred.promise;
     };
 
+	//
+	// getShardsAndHosts
+	// Get the shards and hosts for a given instance.
+	//
+
+	var getShardsAndHosts = function (instanceName) {
+		var url = String.format("{0}/v2/instance/{1}/replicaset", apiUrl, instanceName);
+
+		var request = AuthService.getAuthHeaders().then(function (headers) {
+			return $http.get(url, {headers: headers});
+		});
+
+		var deferred = $q.defer();
+
+		// request is a default promise, not the $http one, so we'll need to
+		// use the standard .then() instead of .success() or .error().
+
+		var success = function (response) {
+			var output = {};
+
+			for (var i = 0; i < response.data['data'].length; i++) {
+				var item = response.data['data'][i];
+				angular.forEach(item, function (value, key) {
+					output[key] = value;
+				});
+			}
+
+			deferred.resolve(output);
+		};
+
+		var failure = function (result) {
+			deferred.reject(result);
+		};
+
+		request.then(success, failure);
+		return deferred.promise;
+	};
+
+
 	// stuff to expose
 	var StatsService = {
 		getShardsAndHosts: getShardsAndHosts,
-		getStatForHostInPeriod: getStatForHostInPeriod,
+		getStatForHostsInPeriod: getStatForHostsInPeriod,
+        getStatForHostsBetweenDates: getStatForHostsBetweenDates,
         getStatNames: getStatNames
 	};
 
@@ -229,9 +267,33 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 //
 
 app.controller("StatsPageCtrl", ["$scope", "StatsService", "instanceName", function ($scope, StatsService, instanceName) {
-	$scope.statName = "";
-	$scope.granularity = "hour";
-	$scope.period = 24;
+    $scope.granularity = "hours";
+    $scope.mode = 'for the last';
+    $scope.period = 24;
+    $scope.statName = "";
+    $scope.fromDate = moment().subtract(1, 'days').format();
+    $scope.toDate = moment().format();
+
+    // change the options shown based on the ui mode
+    $scope.$watch('mode', function (newValue, oldValue) {
+        if (newValue == oldValue) {
+            return;
+        }
+
+        if (newValue == 'between'){
+            angular.element("#between").show();
+            angular.element("#last").hide();
+        } else {
+            angular.element("#between").hide();
+            angular.element("#last").show();
+        }
+    });
+
+    // executed when the update button is clicked.  $broadcast will notify all of the child
+    // scopes about the event that happened.
+    $scope.onUpdate = function () {
+        $scope.$broadcast('updateClicked');
+    };
 
 	// grab the shards for this instance
 	StatsService.getShardsAndHosts(instanceName).then(function (data) {
@@ -239,6 +301,7 @@ app.controller("StatsPageCtrl", ["$scope", "StatsService", "instanceName", funct
 
         StatsService.getStatNames(instanceName, $scope.shards).then(function (data) {
             $scope.statNames = data;
+            angular.element("#load-stat-names").hide();
 
             if (data.length > 0) {
                 $scope.statName = data[0];
@@ -283,31 +346,49 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
     };
 
     // graph data
-    $scope.data = [];
+    $scope.data = undefined;
 
     // load the data into the graph
 	var updateGraph = function () {
-		var statName = $scope.statName;
+        var fromDate = $scope.fromDate;
+        var period = $scope.period;
         var shardHosts = $scope.hosts;
-		var period = $scope.period;
-		var granularity = $scope.granularity;
+        var shardName = $scope.shardName;
+        var statName = $scope.statName;
+        var toDate = $scope.toDate;
+
+        // granularities in the form have an 's' appended for niceness, this strips it.
+        var granularity = $scope.granularity.slice(0, - 1);
 
         // don't do anything if no stat is selected
         if (statName === '') {
             return;
         }
 
-		var success = function (result) {
+        angular.element("#load-" + shardName).show();
+
+        var success = function (result) {
+            if (result[0]['values'].length === 0) {
+                $scope.data = [];
+            } else {
+                $scope.data = result;
+            }
+
+            angular.element("#load-" + shardName).hide();
             $scope.error = false;
-            $scope.data = result;
         };
 
-		var error = function (result) {
-			$scope.error = true;
-		};
+        var error = function (result) {
+            angular.element("#load-" + shardName).hide();
+            $scope.error = true;
+        };
 
-		StatsService.getStatForHostInPeriod(instanceName, statName, shardHosts, period, granularity).then(success, error);
-	}
+        if ($scope.mode === 'between') {
+            StatsService.getStatForHostsBetweenDates(instanceName, statName, shardHosts, fromDate, toDate, granularity).then(success, error);
+        } else {
+            StatsService.getStatForHostsInPeriod(instanceName, statName, shardHosts, period, granularity).then(success, error);
+        }
+    };
 
     updateGraph();
 
@@ -318,18 +399,8 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
     // Schedule updates to the graph for every 2 seconds
     $interval(doUpdateGraph, 1000 * 60 * 2);
 
-    //
-    // watch for changes
-    //
-
-    angular.forEach(['statName', 'period', 'granularity'], function (item) {
-        $scope.$watch(item, function (newValue, oldValue) {
-            // only rerender on changes
-            if (newValue == oldValue) {
-                return;
-            }
-
-            doUpdateGraph();
-        });
+    // on update click, do the graph update
+    $scope.$on('updateClicked', function () {
+        doUpdateGraph();
     });
 }]);
