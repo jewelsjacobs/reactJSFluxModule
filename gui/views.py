@@ -459,18 +459,14 @@ def instance_stats(selected_instance):
     account = account_manager.get_account(g.login)
     instance = account.get_instance_by_name(selected_instance)
 
-    # Temporary feature gate, please remove when the stats gui is released to everyone
+    admin = (session.get('role', '') == 'admin')
     stats_enabled = instance.document.get("stats_enabled", False)
 
-    if not stats_enabled:
+    # Temporary feature gate, please remove when the stats gui is released to everyone
+    if not stats_enabled and not admin:
         return render_template('instances/instance_stats.html', instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
 
-    if instance.zone in config.PERFSTATS_REGIONS:
-        template = 'instances/new_instance_stats.html'
-    else:
-        template = 'instances/instance_stats.html'
-
-    return render_template(template, instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
+    return render_template('instances/new_instance_stats.html', instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
 
 
 @app.route('/instances')
