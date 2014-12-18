@@ -30,17 +30,18 @@ def sso_consumer():
     if not samlobj:
         return redirect(url_for('sign_in'))
 
-    # Get username from SAMLResponse.
+    # Get user info from SAMLResponse.
     user_info = sso.util.get_user_info_from_name_id_serialization(samlobj)
     if not user_info:
         return redirect(url_for('sign_in'))
 
     # Get ObjectRocket 'login' for identity user (for resource mapping).
-    import ipdb;ipdb.set_trace()
-    username = user_info['username']
+    username = user_info[sso.constants.SAML_USERNAME]
     login = sso.util.get_login_from_identity_username(username, Utility.get_main_db_connection(config))
     if login is None:
-        pass
+        _id = sso.add_identities_entry(user_info[sso.constants.USERNAME], user_info[sso.constants.TENANT_ID], Utility.get_main_db_connection(config))
+
+
         # TODO(TheDodd): RESUME HERE -> create migrated account &c.
         # Need to account for edge-cases where main.user.login is already used (schema change for 'main.identities').
         # Migration page will need to handle resolving name conflicts and ensuring 'login' for resource mapping is updated in 'main.identities'.
