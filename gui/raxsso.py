@@ -35,17 +35,18 @@ def sso_consumer():
     if not user_info:
         return redirect(url_for('sign_in'))
 
-    # Get ObjectRocket 'login' for identity user (for resource mapping).
+    # Some variables for later use.
     username = user_info[sso.constants.SAML_USERNAME]
-    login = sso.util.get_login_from_identity_username(username, Utility.get_main_db_connection(config))
+    tenant_id = user_info[sso.constants.SAML_USER_ID]
+    email = user_info[sso.constants.SAML_EMAIL]
+    ddi = user_info[sso.constants.SAML_DDI]
+    main_db_connection = Utility.get_main_db_connection(config)
+
+    # Get ObjectRocket 'login' from identity tenant (for resource mapping).
+    login = sso.get_login_from_identity_tenant(tenant_id, main_db_connection)
     if login is None:
-        _id = sso.add_identities_entry(user_info[sso.constants.USERNAME], user_info[sso.constants.TENANT_ID], Utility.get_main_db_connection(config))
-
-
-        # TODO(TheDodd): RESUME HERE -> create migrated account &c.
-        # Need to account for edge-cases where main.user.login is already used (schema change for 'main.identities').
-        # Migration page will need to handle resolving name conflicts and ensuring 'login' for resource mapping is updated in 'main.identities'.
-        # TODO(TheDodd): will account for edge-cases by simply using an additional field in 'main.identities' for resource mapping.
+        sso.add_identity_tenant_entry(tenant_id, ddi, email, main_db_connection)
+        login = sso.ensure_resource_login(tenant_id, email, main_db_connection)
 
     # Get the account object corresponding to the derived username.
     account = AccountManager(config).get_account(username)
