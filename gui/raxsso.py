@@ -30,13 +30,14 @@ def sso_consumer():
     if not samlobj:
         return redirect(url_for('sign_in'))
 
-
     # Get username from SAMLResponse.
-    username = sso.util.get_username_from_saml_response_object(samlobj)
-    if username is None:
+    user_info = sso.util.get_user_info_from_name_id_serialization(samlobj)
+    if not user_info:
         return redirect(url_for('sign_in'))
 
     # Get ObjectRocket 'login' for identity user (for resource mapping).
+    import ipdb;ipdb.set_trace()
+    username = user_info['username']
     login = sso.util.get_login_from_identity_username(username, Utility.get_main_db_connection(config))
     if login is None:
         pass
@@ -73,8 +74,8 @@ def sso_idp():
     if current_app.config['CONFIG_MODE'] != 'development':
         abort(404)
 
-    namestring = ('Username={username},DDI={ddi},UserID={user_id},{email_string}AuthToken={auth_token}'
-                  .format(username='thedodd', ddi='12345', user_id='54321', email_string='anthony.dodd@rackspace.com', auth_token='1kj2h3g4k1jh2g34'))
+    namestring = ('Username={username},DDI={ddi},UserID={user_id},Email={email},AuthToken={auth_token}'
+                  .format(username='thedodd', ddi='12345', user_id='54321', email='anthony.dodd@rackspace.com', auth_token='1kj2h3g4k1jh2g34'))
 
     saml_response = sso.util.create_saml_response(name=namestring, in_response_to='somerequest', url=sso.config.SSO_ACS_URL, session_id=None, attributes={})
     saml_response_xml = saml_response.to_string()
