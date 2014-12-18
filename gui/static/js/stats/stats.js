@@ -96,9 +96,24 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
     // getStatForHostsBetweenDates().
     //
 
-    var getStatForHosts = function (instanceName, statName, shardHosts, graphData) {
-        graphData['stats'] = [];
+    var getStatForHosts = function (instanceName, statName, shardHosts, fromDate, toDate) {
+        var graphData = {
+            "stats": [],
+            "start_time": moment(fromDate).utc().format("YYYY-MM-DD HH:mm:ss"),
+            "end_time": moment(toDate).utc().format("YYYY-MM-DD HH:mm:ss")
+        }
 
+        var secondsDiff = toDate.diff(fromDate, 'seconds');
+
+        if (secondsDiff <= 360) {
+            graphData['granularity'] = 'minute';
+        } else if (secondsDiff <= 259200) {
+            graphData['granularity'] = 'hour';
+        } else {
+            graphData['granularity'] = 'day'
+        }
+
+        // calculate the granularity we need for this date / time
         for (var i = 0; i < shardHosts.length; i++) {
             var host = shardHosts[i];
 
@@ -109,10 +124,8 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
             });
         };
 
-		var url = String.format("{0}/v2/graph", apiUrl);
-
 		var request = AuthService.getAuthHeaders().then(function (headers) {
-			return $http.post(url, graphData, {headers: headers});
+			return $http.post(String.format("{0}/v2/graph", apiUrl), graphData, {headers: headers});
 		});
 
 		var deferred = $q.defer();
@@ -122,9 +135,22 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 
             for (var i = 0; i < response.data.stats.length; i++) {
                 var stat = response.data.stats[i];
+                var len = stat.data.length;
+                var skip = 1;
+
+                if (len > 300) {
+                    skip = Math.floor(len / 300);
+                }
+
+                var data = [];
+
+                for (var j = 0; j < len; j = j + skip) {
+                    data.push(stat.data[j]);
+                }
+
                 stat_info.push({
                     key: stat.host_name,
-                    values: stat.data
+                    values: data
                 });
             }
 
@@ -145,12 +171,9 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 	//
 
 	var getStatForHostsInPeriod = function (instanceName, statName, shardHosts, period, granularity) {
-        var graphData = {
-            "granularity": granularity,
-            "period": parseInt(period, 10)
-        };
-
-        return getStatForHosts(instanceName, statName, shardHosts, graphData);
+        var endTime = moment().utc();
+        var startTime = moment(endTime).subtract(period, granularity);
+        return getStatForHosts(instanceName, statName, shardHosts, startTime, endTime);
 	};
 
 	//
@@ -158,14 +181,10 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
 	// Get the specified stats (at the specified granularity) for the host in the period.
 	//
 
-	var getStatForHostsBetweenDates = function (instanceName, statName, shardHosts, fromDate, toDate, granularity) {
-        var graphData = {
-            "granularity": granularity,
-            "start_time": moment(fromDate).utc().format("YYYY-MM-DD HH:mm:ss"),
-            "end_time": moment(toDate).utc().format("YYYY-MM-DD HH:mm:ss")
-        };
-
-        return getStatForHosts(instanceName, statName, shardHosts, graphData);
+	var getStatForHostsBetweenDates = function (instanceName, statName, shardHosts, fromDate, toDate) {
+        var startTime = moment(fromDate).utc();
+        var endTime = moment(toDate).utc();
+        return getStatForHosts(instanceName, statName, shardHosts, startTime, endTime);
 	};
 
     //
@@ -331,6 +350,10 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
             "useInteractiveGuideline": true,
             "transitionDuration": 250,
             "x": function (data) {
+                if (data === undefined) {
+                    return data
+                };
+
                 return data[0];
             },
             "xAxis": {
@@ -340,6 +363,10 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
                 }
             },
             "y": function (data) {
+                if (data === undefined) {
+                    return data
+                };
+
                 return data[1];
             }
         }
@@ -351,14 +378,12 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
     // load the data into the graph
 	var updateGraph = function () {
         var fromDate = $scope.fromDate;
-        var period = $scope.period;
+        var period = parseInt($scope.period, 10);
         var shardHosts = $scope.hosts;
         var shardName = $scope.shardName;
         var statName = $scope.statName;
         var toDate = $scope.toDate;
-
-        // granularities in the form have an 's' appended for niceness, this strips it.
-        var granularity = $scope.granularity.slice(0, - 1);
+        var granularity = $scope.granularity;
 
         // don't do anything if no stat is selected
         if (statName === '') {
@@ -384,7 +409,7 @@ app.controller("StatsGraphCtrl", ["$scope", "$interval", "StatsService", "instan
         };
 
         if ($scope.mode === 'between') {
-            StatsService.getStatForHostsBetweenDates(instanceName, statName, shardHosts, fromDate, toDate, granularity).then(success, error);
+            StatsService.getStatForHostsBetweenDates(instanceName, statName, shardHosts, fromDate, toDate).then(success, error);
         } else {
             StatsService.getStatForHostsInPeriod(instanceName, statName, shardHosts, period, granularity).then(success, error);
         }
