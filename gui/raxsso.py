@@ -46,18 +46,19 @@ def sso_consumer():
     login = sso.get_login_from_identity_tenant(tenant_id, main_db_connection)
     if login is None:
         sso.add_identity_tenant_entry(tenant_id, ddi, email, main_db_connection)
-        login = sso.ensure_resource_login(tenant_id, email, main_db_connection)
 
-    # Get the account object corresponding to the derived username.
-    account = AccountManager(config).get_account(username)
-    if account is None:
-        # TODO(TheDodd): build out migration template with Drew.
+    # Ensure the login exists in the users collection, and fetch the account and tenant objects.
+    login = sso.ensure_resource_login(tenant_id, email, main_db_connection)
+    tenant = sso.get_tenant_by_tenant_id(tenant_id, main_db_connection)
+    account = AccountManager(config).get_account(login)
+
+    # TODO(TheDodd): resume here.
+    # get session in place
+    # build out migration templates
+    # set first_sso to false after migration page is used here.
+
+    if tenant.first_sso:
         return render_template('sso/first_sso_migration.html')
-
-    # If the account is not already migrated, send to migration page with name conflict.
-    elif not account.migrated:
-        # TODO(TheDodd): build out migration template with Drew.
-        return render_template('sso/first_sso_migration.html', name_conflict=username)
 
     # The account is already migrated, so track that this session started as an SSO login.
     session['login'] = username
