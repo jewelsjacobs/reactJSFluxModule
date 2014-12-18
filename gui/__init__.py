@@ -1,9 +1,9 @@
 """App initialization."""
-
 from flask import Flask
 from viper import config as viper_config
 
 from gui.config import config_map
+from gui.raxsso import raxsso_blueprint
 
 
 def create_app(config_name='default'):
@@ -13,6 +13,10 @@ def create_app(config_name='default'):
     config = config_map[config_name]()  # Instantiate config.
     app.config.from_object(config)
     config.init_app(app)
+
+    # Register blueprints.
+    app.register_blueprint(raxsso_blueprint)
+
     return app
 
 

@@ -85,6 +85,7 @@ class Config(object):
 class DevelopmentConfig(Config):
     """Configuration for development mode (default)."""
 
+    CONFIG_MODE = 'development'
     DEBUG = True
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Development'
@@ -112,6 +113,7 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """Production configuration."""
 
+    CONFIG_MODE = 'production'
     DEBUG = False
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Production'
     ACTIVE_DATASTORES = ['mongodb', 'redis']
@@ -126,7 +128,8 @@ class ProductionConfig(Config):
 
 class QAConfig(Config):
     """QA configuration."""
-    API_ENDPOINT = ''  # FIXME: point this to the appropriate QA LB.
+
+    CONFIG_MODE = 'qa'
     DEBUG = False
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'QA'
     ACTIVE_DATASTORES = ['mongodb', 'redis']
