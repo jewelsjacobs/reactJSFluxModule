@@ -3,13 +3,13 @@
 }
 
 .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point {
-    fill-opacity: 0.25 !important;
-    stroke-opacity: 0.25 !important;
+    fill-opacity: 0.0 !important;
+    stroke-opacity: 0.0 !important;
 }
 
 .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point:hover {
-    fill-opacity: 0.5 !important;
-    stroke-opacity: 0.5 !important;
+    fill-opacity: 1.0 !important;
+    stroke-opacity: 1.0 !important;
 }
 
 nvd3 svg {
