@@ -10,28 +10,33 @@ from flask import request
 from flask import url_for
 from flask import session
 
+from gui import config as gui_config
 from viper import config
 from viper.ext import sso
 from viper.account import AccountManager
 from viper.utility import Utility
 
 # Build blueprint and alias for ease of use.
-bp = Blueprint('rax', __name__, url_prefix='/rax')
-raxsso_blueprint = bp
+raxsso_blueprint = Blueprint('rax', __name__, url_prefix='/rax')
+bp = raxsso_blueprint
 
 
 @bp.route('/sso/consumer/', methods=['POST'])
 def sso_consumer():
     """Process a posted SAML assertion and log the user in if everything checks out."""
     # Ensure posted SAML assertion is legitimate.
-    encoded_saml_response = request.form.get('SAMLResponse', None)
-    saml_response = sso.util.decode_saml_response(encoded_saml_response)
-    samlobj = sso.util.instantiate_saml_response_class(saml_response)
-    if not samlobj:
+    try:
+        encoded_saml_response = request.form.get('SAMLResponse', None)
+        decoded_saml_response = base64.decodestring(encoded_saml_response)
+        saml_response = sso.util.get_saml_response_from_string(decoded_saml_response)
+        # FIXME(TheDodd): need to finish building out this validation.
+        # sso.util.validate_saml_response(saml_response, decoded_saml_response)
+    except Exception as ex:
+        gui_config.log_exception(current_app, ex)
         return redirect(url_for('sign_in'))
 
     # Get user info from SAMLResponse.
-    user_info = sso.util.get_user_info_from_name_id_serialization(samlobj)
+    user_info = sso.util.get_user_info_from_name_id_serialization(saml_response)
     if not user_info:
         return redirect(url_for('sign_in'))
 
@@ -52,17 +57,15 @@ def sso_consumer():
     tenant = sso.get_tenant_by_tenant_id(tenant_id, main_db_connection)
     account = AccountManager(config).get_account(login)
 
-    # TODO(TheDodd): resume here.
-    # get session in place
-    # build out migration templates
-    # set first_sso to false after migration page is used here.
+    # Track that this session started as an SSO login.
+    session['login'] = login
+    session['username'] = username
+    session['tenant_id'] = tenant_id
+    session['sso'] = True
 
     if tenant.first_sso:
-        return render_template('sso/first_sso_migration.html')
-
-    # The account is already migrated, so track that this session started as an SSO login.
-    session['login'] = username
-    session['sso_login'] = True
+        # return render_template('sso/first_sso_migration.html')
+        return redirect(url_for('instances'))
 
     # Ensure user has accepted MSA.
     if not account.accepted_msa:
@@ -94,14 +97,6 @@ def sso_idp():
     }
 
     return render_template('sso/_sso_test.html', **context)
-
-
-# @bp.route('/sso/_sso_test/')
-# def sso_idp():
-#     """An endpoint for testing SAML flow in development mode."""
-#     if current_app.config.CONFIG_MODE != 'development':
-#         abort(404)
-#     return render_template('sso/_sso_test.html', name_conflict=username)
 
 
 @bp.route('/slo/request/')
