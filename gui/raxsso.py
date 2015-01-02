@@ -72,6 +72,29 @@ def sso_consumer():
     return redirect(url_for('instances'))
 
 
+@bp.route('/sso/migration_link_account', methods=['POST'])
+def migration_link_account():
+    """Link an ObjectRocket account with the SSO user's Reach account."""
+    main_db_connection = Utility.get_main_db_connection(config)
+    tenant = sso.get_tenant_by_tenant_id(session.get('tenant_id'), main_db_connection)
+    if tenant is None or not tenant.first_sso:
+        return redirect(url_for('instances'))
+
+    # return render_template('sso/migration_link_account.html')
+    return redirect(url_for('instances'))
+
+
+@bp.route('/sso/migration_create_free_instance_confirm', methods=['POST'])
+def migration_create_free_instance_confirm():
+    """Present the create free instance confirmation page to the SSO user."""
+    main_db_connection = Utility.get_main_db_connection(config)
+    tenant = sso.get_tenant_by_tenant_id(session.get('tenant_id'), main_db_connection)
+    if tenant is None or not tenant.first_sso:
+        return redirect(url_for('instances'))
+
+    return render_template('sso/migration_create_free_instance_confirm.html')
+
+
 @bp.route('/sso/migration_create_free_instance', methods=['POST'])
 def migration_create_free_instance():
     """Create a free instance for the SSO user."""
@@ -80,7 +103,8 @@ def migration_create_free_instance():
     if tenant is None or not tenant.first_sso:
         return redirect(url_for('instances'))
 
-    return render_template('sso/migration_create_free_instance.html')
+    # return render_template('sso/migration_create_free_instance.html')
+    return redirect(url_for('instances'))
 
 
 @bp.route('/sso/_idp_test/')
@@ -106,15 +130,6 @@ def sso_idp():
     }
 
     return render_template('sso/_sso_test.html', **context)
-
-
-@bp.route('/sso/_migration/')
-def _migration0():
-    """An endpoint for testing SAML flow in development mode."""
-    if current_app.config['CONFIG_MODE'] != 'development':
-        abort(404)
-
-    return render_template('sso/first_sso_migration.html')
 
 
 @bp.route('/slo/request/')

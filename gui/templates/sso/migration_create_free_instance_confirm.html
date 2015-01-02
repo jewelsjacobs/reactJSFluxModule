@@ -22,11 +22,13 @@
                 </div>
 
                 <br>
-                <p class="align-center">P.S. We are sorry to make you enter a credit card again …<br> We are earnestly working toward one billing system with Rackspace.</p>
+                <p class="align-center">P.S. We are sorry to make you enter a credit card again …<br> We are currently working toward integrating our billing system with Rackspace.</p>
             </div>
 
-            <div class="rs-focus-panel-footer rs-btn-group">
-                <button class="rs-btn rs-btn-info rs-btn-large">Ok, go!</button>
+            <div class="rs-focus-panel-footer">
+                <form id="sso-migration-create-confirm" class="rs-form-horizontal rs-form-small" action="{{ url_for('instances') }}" method="GET">
+                    <button class="rs-btn rs-btn-info rs-btn-large">Ok, go!</button>
+                </form>
             </div>
       </div>
     </div>
