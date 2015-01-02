@@ -17,8 +17,7 @@ from viper.account import AccountManager
 from viper.utility import Utility
 
 # Build blueprint and alias for ease of use.
-raxsso_blueprint = Blueprint('rax', __name__, url_prefix='/rax')
-bp = raxsso_blueprint
+bp = raxsso_blueprint = Blueprint('rax', __name__, url_prefix='/rax')
 
 
 @bp.route('/sso/consumer/', methods=['POST'])
@@ -31,13 +30,12 @@ def sso_consumer():
         saml_response = sso.util.get_saml_response_from_string(decoded_saml_response)
         # FIXME(TheDodd): need to finish building out this validation.
         # sso.util.validate_saml_response(saml_response, decoded_saml_response)
+
+        # Get user info from SAMLResponse.
+        user_info = sso.util.get_user_info_from_name_id_serialization(saml_response)
+
     except Exception as ex:
         gui_config.log_exception(current_app, ex)
-        return redirect(url_for('sign_in'))
-
-    # Get user info from SAMLResponse.
-    user_info = sso.util.get_user_info_from_name_id_serialization(saml_response)
-    if not user_info:
         return redirect(url_for('sign_in'))
 
     # Some variables for later use.
@@ -52,10 +50,9 @@ def sso_consumer():
     if login is None:
         sso.add_identity_tenant_entry(tenant_id, ddi, email, main_db_connection)
 
-    # Ensure the login exists in the users collection, and fetch the account and tenant objects.
+    # Ensure the login exists in the users collection, and fetch the tenant object.
     login = sso.ensure_resource_login(tenant_id, email, main_db_connection)
     tenant = sso.get_tenant_by_tenant_id(tenant_id, main_db_connection)
-    account = AccountManager(config).get_account(login)
 
     # Track that this session started as an SSO login.
     session['login'] = login
@@ -64,14 +61,26 @@ def sso_consumer():
     session['sso'] = True
 
     if tenant.first_sso:
-        # return render_template('sso/first_sso_migration.html')
-        return redirect(url_for('instances'))
+        return render_template('sso/migration_first_sso.html')
 
-    # Ensure user has accepted MSA.
-    if not account.accepted_msa:
-        return redirect(url_for('msa'))
+    # TODO(TheDodd): not sure if we actually need this.
+    # # Ensure user has accepted MSA.
+    # account = AccountManager(config).get_account(login)
+    # if not account.accepted_msa:
+    #     return redirect(url_for('msa'))
 
     return redirect(url_for('instances'))
+
+
+@bp.route('/sso/migration_create_free_instance', methods=['POST'])
+def migration_create_free_instance():
+    """Create a free instance for the SSO user."""
+    main_db_connection = Utility.get_main_db_connection(config)
+    tenant = sso.get_tenant_by_tenant_id(session.get('tenant_id'), main_db_connection)
+    if tenant is None or not tenant.first_sso:
+        return redirect(url_for('instances'))
+
+    return render_template('sso/migration_create_free_instance.html')
 
 
 @bp.route('/sso/_idp_test/')
@@ -97,6 +106,15 @@ def sso_idp():
     }
 
     return render_template('sso/_sso_test.html', **context)
+
+
+@bp.route('/sso/_migration/')
+def _migration0():
+    """An endpoint for testing SAML flow in development mode."""
+    if current_app.config['CONFIG_MODE'] != 'development':
+        abort(404)
+
+    return render_template('sso/first_sso_migration.html')
 
 
 @bp.route('/slo/request/')

@@ -1,0 +1,38 @@
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    Migration 1B
+{% endblock title %}
+
+{% block body_attribs %}class="rs-fixed"{% endblock body_attribs %}
+{% block body %}
+    <div class="rs-focus-panel rs-focus-panel-mini">
+        <div class="rs-focus-panel-content">
+            <div class="rs-focus-panel-header">
+                <h2 class="align-center">Welcome to ObjectRocket!</h2>
+            </div>
+
+            <div class="rs-focus-panel-body">
+                <h3 class="align-center">To get started, create an instance using the Free plan.</h3>
+
+                <div class="rs-row">
+                    <div class="rs-span-10 offset-1">
+                        <p class="large align-center">When you're ready for a larger MongoDB or Redis instance, just create a new one. At that time we will ask you to enter a valid credit card to enable ObjectRocket billing.</p>
+                    </div>
+                </div>
+
+                <br>
+                <p class="align-center">P.S. We are sorry to make you enter a credit card again …<br> We are earnestly working toward one billing system with Rackspace.</p>
+            </div>
+
+            <div class="rs-focus-panel-footer rs-btn-group">
+                <button class="rs-btn rs-btn-info rs-btn-large">Ok, go!</button>
+            </div>
+      </div>
+    </div>
+
+    {% block script %}
+        {{ super() }}
+    {% endblock script %}
+
+{% endblock body %}

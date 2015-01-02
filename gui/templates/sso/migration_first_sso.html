@@ -1,0 +1,46 @@
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    Migration 1
+{% endblock title %}
+
+{% block body_attribs %}class="rs-fixed"{% endblock body_attribs %}
+{% block body %}
+    <div class="rs-focus-panel rs-focus-panel-small">
+        <div class="rs-focus-panel-content">
+            <div class="rs-focus-panel-header">
+                <h2 class="align-center">We are integrating ObjectRocket for MongoDB and Redis!</h2>
+            </div>
+
+            <div class="rs-focus-panel-body">
+                <h3 class="align-center">Manage your ObjectRocket and Rackspace Cloud <br/> resources using just one login!</h3>
+                <div class="rs-row">
+                    <div class="rs-span-5 offset-1 align-center">
+                        <h4 class="align-center no-caps">Already have an ObjectRocket account?</h4>
+                        <p class="align-center">Awesome! Link your existing ObjectRocket account to your Rackspace Cloud account and get easy navigation between control panels.</p>
+                        <form id="sso-migration-create" class="rs-form-horizontal rs-form-small" action="{{ url_for('rax.migration_create_free_instance') }}" method="POST">
+                            <button class="rs-btn rs-btn-info rs-btn-large">Link my ObjectRocket Account</button>
+                        </form>
+                    </div>
+
+                    <div class="rs-span-5 align-center">
+                        <h4 class="align-center no-caps">Don't have an ObjectRocket account?</h4>
+                        <p class="align-center">Start now with a Free Instance Plan! When you're ready for a larger instance, just enter your credit card to enable ObjectRocket billing.</p>
+                        <form id="sso-migration-create" class="rs-form-horizontal rs-form-small" action="{{ url_for('rax.migration_create_free_instance') }}" method="POST">
+                            <button class="rs-btn rs-btn-info rs-btn-large">Create a Free Instance Now</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rs-focus-panel-footer">
+                <p class="align-center">For the time being, you will get two separate bills — one for Rackspace Cloud, and one for ObjectRocket.</p>
+            </div>
+        </div>
+    </div>
+
+    {% block script %}
+        {{ super() }}
+    {% endblock script %}
+
+{% endblock body %}

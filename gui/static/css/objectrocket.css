@@ -145,7 +145,71 @@ img.invoice-logo {
     margin-left: 2px;
 }
 
-/* === focus panel code === */
+/* === migration page code === */
+.rs-focus-panel {
+    background: none repeat scroll 0% 0% #FFF;
+    bottom: 0px;
+    box-shadow: 0px 3px 8px 1px #C2C2C2;
+    left: 0px;
+    margin: auto;
+    position: fixed;
+    right: 0px;
+    top: 0px;
+    z-index: 999;
+}
+.rs-focus-panel-small {
+    width: 770px;
+    max-height: 450px;
+}
+.rs-focus-panel-mini {
+    width: 640px;
+}
+.rs-focus-panel-content {
+    width: 100%;
+}
+.rs-focus-panel-header {
+    padding: 15px;
+    background-color: #333;
+}
+.rs-focus-panel-header h2 {
+    margin: 0px;
+    padding: 0px;
+    color: #FFF;
+    font-weight: 600;
+}
+.rs-focus-panel-body {
+    padding: 15px;
+}
+.rs-focus-panel-body h3 {
+    margin: 0px 0px 30px;
+    padding: 40px 0px 0px;
+}
+.rs-focus-panel-body h4 {
+    font-size: 1.2em;
+    font-weight: 600;
+}
+.rs-btn-info.rs-btn-large {
+    background-color: #1E6DC0;
+    background-image: none;
+    border-color: #333;
+    color: #FFF;
+    font-size: 14px;
+    margin: 10px auto 0;
+    padding: 7px 14px;
+    text-shadow: 0px 1px rgba(0, 0, 0, 0.1);
+}
+.rs-btn-info:hover {
+    background-image: none;
+    color: #FFF;
+    background-color: #2B84E1;
+}
+.rs-focus-panel-footer {
+    padding: 15px;
+}
+
+
+
+/* === login panel code === */
 .or-focus-panel {
     top: 50%;
     left: 50%;
@@ -236,7 +300,9 @@ img.invoice-logo {
 .align-center {
     text-align: center;
 }
-
+.no-caps {
+    text-transform: none;
+}
 .width-halfem {
     width: 0.5em;
 }
