@@ -75,7 +75,7 @@
                     <div class="rs-controls">
                         {% set balancer_on = instance.settings.get('balancer', ['off'])[0] == 'on' %}
                         <input type="checkbox" name="balancer_checkbox" {% if balancer_on %}checked{% endif %}>
-                        <input type="hidden" name="balancer" value="{{ 'on' if balancer else 'off' }}">
+                        <input type="hidden" name="balancer" value="{{ 'on' if balancer_on else 'off' }}">
                         <span class="rs-help-block">Enables and disables the Balancer. The balancer is currently {{ 'enabled' if balancer_on else 'disabled' }}</span>
                     </div>
                 </div>
