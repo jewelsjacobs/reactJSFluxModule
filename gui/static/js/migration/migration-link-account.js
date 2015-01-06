@@ -4,6 +4,7 @@
  * themselves.
  */
 $(document).ready(function() {
+    var goBackForm = $('#go-back-form');
     var nextStep = $('#sso-migration-link-account-form-submit');
 
     // Listener to display terms of service overlay.
@@ -27,5 +28,10 @@ $(document).ready(function() {
             nextStep.addClass('disabled');
             nextStep.prop('disabled', true);
         }
+    });
+
+    // Listener for go back requests.
+    $('#go-back-button').click(function() {
+        goBackForm.submit();
     });
 });

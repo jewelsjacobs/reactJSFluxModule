@@ -157,17 +157,17 @@ img.invoice-logo {
     left: 0px;
     position: fixed;
 }
-#rs-focus-panel-first-sso {
+#rs-focus-panel-initial-sso {
     width: 770px;
     height: 380px;
 }
-#rs-focus-panel-free-instance {
+#rs-focus-panel-seamless-login {
     width: 640px;
-    height: 380px;
+    height: 410px;
 }
 #rs-focus-panel-link-account {
     width: 770px;
-    height: 450px;
+    height: 440px;
 }
 .rs-focus-panel-content {
     width: 100%;
@@ -341,6 +341,9 @@ img.invoice-logo {
 }
 .max-width {
     width: 100%;
+}
+.inline-block-children * {
+    display: inline-block;
 }
 
 /* === paragraph styles === */

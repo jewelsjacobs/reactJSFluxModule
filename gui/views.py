@@ -1277,7 +1277,7 @@ def reset_password():
 @app.route('/sign_in', methods=['GET', 'POST'])
 def sign_in():
     """User sign in route."""
-    session.pop('login', None)
+    session.clear()
     if request.method == 'GET':
         return render_template('sign_in/sign_in.html')
 

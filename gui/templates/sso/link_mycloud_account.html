@@ -1,14 +1,14 @@
 {% extends 'web_app_base.html' %}
 
 {% block title %}
-    Migration Link Account
+    SSO Link Account
 {% endblock title %}
 
 {% block body_attribs %}class="rs-fixed"{% endblock body_attribs %}
 {% block body %}
     <div id="rs-focus-panel-link-account" class="rs-focus-panel">
         <div class="rs-focus-panel-content">
-            <form id="sso-migration-link-account-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('rax.migration_link_account') }}" method="POST">
+            <form id="sso-migration-link-account-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('rax.link_mycloud_account') }}" method="POST">
                 <div class="rs-focus-panel-header">
                     <h2 class="align-center">Link your existing ObjectRocket account</h2>
                 </div>
@@ -41,9 +41,10 @@
 
                 <div class="rs-focus-panel-footer">
                     <button id="sso-migration-link-account-form-submit" class="rs-btn rs-btn-primary rs-btn-large disabled" type="submit" disabled>Next Step</button>
-                    <button class="rs-btn rs-btn-secondary rs-btn-large" type="button">Go Back</button>
+                    <button id="go-back-button" class="rs-btn rs-btn-secondary rs-btn-large" type="button">Go Back</button>
                 </div>
             </form>
+            <form id="go-back-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('rax.sso_consumer') }}" method="GET" hidden>&nbsp;</form>
         </div>
 
         <div id="tos" class="rs-panel or-focus-panel max-height max-width">
