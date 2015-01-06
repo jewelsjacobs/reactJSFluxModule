@@ -110,8 +110,8 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
         }
 
         // choose the start and end times
-        var start_time = moment(fromDate).utc().format("YYYY-MM-DD HH:mm:ss");
-        var end_time = moment(toDate).utc().format("YYYY-MM-DD HH:mm:ss");
+        var startTime = moment(fromDate).utc().format("YYYY-MM-DD HH:mm:ss");
+        var endTime = moment(toDate).utc().format("YYYY-MM-DD HH:mm:ss");
         var stats = [];
 
         for (var i = 0; i < shardHosts.length; i++) {
@@ -124,7 +124,7 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
             });
         };
 
-        var url = String.format("{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={3}", apiUrl, granularity, start_time, end_time);
+        var url = String.format("{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={3}", apiUrl, granularity, startTime, endTime);
         var request = AuthService.getAuthHeaders().then(function (headers) {
             return $http.post(url, {"stats": stats}, {headers: headers});
         });
