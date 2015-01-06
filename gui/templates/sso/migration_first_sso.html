@@ -6,7 +6,7 @@
 
 {% block body_attribs %}class="rs-fixed"{% endblock body_attribs %}
 {% block body %}
-    <div class="rs-focus-panel rs-focus-panel-small">
+    <div id="rs-focus-panel-first-sso" class="rs-focus-panel">
         <div class="rs-focus-panel-content">
             <div class="rs-focus-panel-header">
                 <h2 class="align-center">We are integrating ObjectRocket for MongoDB and Redis!</h2>
@@ -18,7 +18,7 @@
                     <div class="rs-span-5 offset-1 align-center">
                         <h4 class="align-center no-caps">Already have an ObjectRocket account?</h4>
                         <p class="align-center">Awesome! Link your existing ObjectRocket account to your Rackspace Cloud account and get easy navigation between control panels.</p>
-                        <form id="sso-migration-create" class="rs-form-horizontal rs-form-small" action="{{ url_for('rax.migration_link_account') }}" method="POST">
+                        <form id="sso-migration-create" class="rs-form-horizontal rs-form-small" action="{{ url_for('rax.migration_link_account') }}" method="GET">
                             <button class="rs-btn rs-btn-info rs-btn-large">Link my ObjectRocket Account</button>
                         </form>
                     </div>
@@ -26,7 +26,7 @@
                     <div class="rs-span-5 align-center">
                         <h4 class="align-center no-caps">Don't have an ObjectRocket account?</h4>
                         <p class="align-center">Start now with a Free Instance Plan! When you're ready for a larger instance, just enter your credit card to enable ObjectRocket billing.</p>
-                        <form id="sso-migration-create" class="rs-form-horizontal rs-form-small" action="{{ url_for('rax.migration_create_free_instance_confirm') }}" method="POST">
+                        <form id="sso-migration-create" class="rs-form-horizontal rs-form-small" action="{{ url_for('rax.migration_create_free_instance') }}" method="GET">
                             <button class="rs-btn rs-btn-info rs-btn-large">Create a Free Instance Now</button>
                         </form>
                     </div>

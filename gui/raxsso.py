@@ -72,7 +72,7 @@ def sso_consumer():
     return redirect(url_for('instances'))
 
 
-@bp.route('/sso/migration_link_account', methods=['POST'])
+@bp.route('/sso/migration_link_account', methods=['GET', 'POST'])
 def migration_link_account():
     """Link an ObjectRocket account with the SSO user's Reach account."""
     main_db_connection = Utility.get_main_db_connection(config)
@@ -80,31 +80,37 @@ def migration_link_account():
     if tenant is None or not tenant.first_sso:
         return redirect(url_for('instances'))
 
-    # return render_template('sso/migration_link_account.html')
-    return redirect(url_for('instances'))
+    # Handle GET request.
+    if request.method == 'GET':
+        account = AccountManager(config).get_account(session[sso.constants.USERNAME])
+        matching_login = getattr(account, sso.constants.LOGIN, '')
+        context = {'matching_login': matching_login}
+        return render_template('sso/migration_link_account.html', **context)
+
+    # Handle POST request.
+    else:
+        # - form validation - client side
+        # - if credentials valid on server side
+            # - link account
+        # login_to_link = request.form['login']
+        return redirect(url_for('instances'))
 
 
-@bp.route('/sso/migration_create_free_instance_confirm', methods=['POST'])
-def migration_create_free_instance_confirm():
+@bp.route('/sso/migration_create_free_instance', methods=['GET', 'POST'])
+def migration_create_free_instance():
     """Present the create free instance confirmation page to the SSO user."""
     main_db_connection = Utility.get_main_db_connection(config)
     tenant = sso.get_tenant_by_tenant_id(session.get('tenant_id'), main_db_connection)
     if tenant is None or not tenant.first_sso:
         return redirect(url_for('instances'))
 
-    return render_template('sso/migration_create_free_instance_confirm.html')
+    # Handle GET request.
+    if request.method == 'GET':
+        return render_template('sso/migration_create_free_instance.html')
 
-
-@bp.route('/sso/migration_create_free_instance', methods=['POST'])
-def migration_create_free_instance():
-    """Create a free instance for the SSO user."""
-    main_db_connection = Utility.get_main_db_connection(config)
-    tenant = sso.get_tenant_by_tenant_id(session.get('tenant_id'), main_db_connection)
-    if tenant is None or not tenant.first_sso:
+    # Handle POST request.
+    else:
         return redirect(url_for('instances'))
-
-    # return render_template('sso/migration_create_free_instance.html')
-    return redirect(url_for('instances'))
 
 
 @bp.route('/sso/_idp_test/')

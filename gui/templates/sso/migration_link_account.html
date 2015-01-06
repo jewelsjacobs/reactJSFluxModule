@@ -1,0 +1,89 @@
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    Migration Link Account
+{% endblock title %}
+
+{% block body_attribs %}class="rs-fixed"{% endblock body_attribs %}
+{% block body %}
+    <div id="rs-focus-panel-link-account" class="rs-focus-panel">
+        <div class="rs-focus-panel-content">
+            <form id="sso-migration-link-account-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('rax.migration_link_account') }}" method="POST">
+                <div class="rs-focus-panel-header">
+                    <h2 class="align-center">Link your existing ObjectRocket account</h2>
+                </div>
+
+                <div class="rs-focus-panel-body">
+                    <h3 class="align-center">Awesome! Let’s get started!</h3>
+                    <p class="large align-center">Enter the login credentials for your ObjectRocket account.<br/><br/></p>
+
+                    <div class="rs-control-group rs-control-group-center">
+                        <label class="rs-control-label align-right large">Username</label>
+                        <div class="rs-controls">
+                            <input id="login-to-link" name="login-to-link" class="rs-input-large large" value="{{ matching_login }}" type="text">
+                        </div>
+                    </div>
+
+                    <div class="rs-control-group rs-control-group-center">
+                        <label id="password-reset-target" class="rs-control-label align-right large">Password</label>
+                        <div class="rs-controls">
+                            <input id="login-to-link-password" name="login-to-link-password" class="rs-input-large large" type="password">
+                            <span class="rs-help-block vertical-padding-halfem">
+                                <a data-popover="password-reset-popover" data-popover-target="password-reset-target" data-popover-position="bottom-right" class="rs-btn rs-btn-link rs-popover-source">Forgot your password?</a>
+                            </span>
+                            <label class="rs-checkbox">
+                                <input id="migration-terms-and-conditions" type="checkbox">
+                                I have read and agree to the <a href="#tos">Terms and Conditions</a>.
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rs-focus-panel-footer">
+                    <button id="sso-migration-link-account-form-submit" class="rs-btn rs-btn-primary rs-btn-large disabled" type="submit" disabled>Next Step</button>
+                    <button class="rs-btn rs-btn-secondary rs-btn-large" type="button">Go Back</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="tos" class="rs-panel or-focus-panel max-height max-width">
+            <div style="float:right;"><a href="#close-tos">Close</a></div>
+            <h3>Terms and Conditions</h3>
+            <p class="vertical-padding-halfem">WHEN THE ACCOUNTS ARE LINKED BY MY REQUEST, I UNDERSTAND THAT THE RACKSPACE CLOUD ACCOUNT HOLDER WILL OWN AND BE RESPONSIBLE FOR THE OBJECTROCKET ACCOUNT. I am authorized to request that the Rackspace Cloud and ObjectRocket services accounts be linked. To the extent that the customer name on the accounts differs, as a person with authority I hereby assign the ObjectRocket account and related agreement (the "ObjectRocket Account") to the person (individual or legal entity) who is the "Customer" under the Rackspace Cloud services agreement. On behalf of that Rackspace Cloud Customer, I hereby accept the assignment of the ObjectRocket Account and assume and agree to be bound by all obligations related to it including the ObjectRocket Terms of Service and Acceptable Use Policy. In addition, I acknowledge and agree that any one-time fees that may be incurred under the ObjectRocket Account will continue to be billed to the credit card of record, and that the credit card holder will continue to be responsible for paying those one-time fees. I also understand that permissions on the ObjectRocket Account are not changed.</p>
+        </div>
+    </div>
+
+
+    {% block popover %}
+    <div id="password-reset-popover" class="rs-popover or-popover-login-overwrite invisible">
+        <div class="rs-popover-arrow"></div>
+        <div class="rs-popover-content">
+            <div class="rs-popover-body">
+                <form id="password-reset-popover-form" class="rs-form-horizontal rs-form-small" action="{{ url_for('reset_password') }}" method="POST">
+                    <h3>Reset Password</h3>
+                    <p>Enter your login below to reset your password.</p>
+
+                    <div class="rs-control-group">
+                        <label class="rs-control-label">Login</label>
+                        <div class="rs-controls">
+                            <input id="login" name="login" type="text" class="rs-input rs-input-medium">
+                        </div>
+                    </div>
+
+                    <p>An email containing instructions on resetting your password will be sent to the email address associated with this login.</p>
+                </form>
+            </div>
+            <div class="rs-popover-footer rs-btn-group">
+                <button id="password-reset-popover-form-button" form="password-reset-popover-form" class="rs-btn rs-btn-primary">Reset Password</button>
+                <button class="rs-btn rs-btn-link">Cancel</button>
+            </div>
+        </div>
+    </div>
+    {% endblock popover %}
+
+    {% block script %}
+        {{ super() }}
+        <script type="text/javascript" src="/static/js/migration/migration-link-account.js"></script>
+    {% endblock script %}
+
+{% endblock body %}

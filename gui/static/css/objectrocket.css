@@ -157,13 +157,17 @@ img.invoice-logo {
     left: 0px;
     position: fixed;
 }
-.rs-focus-panel-small {
+#rs-focus-panel-first-sso {
     width: 770px;
     height: 380px;
 }
-.rs-focus-panel-mini {
+#rs-focus-panel-free-instance {
     width: 640px;
-    height: 345px;
+    height: 380px;
+}
+#rs-focus-panel-link-account {
+    width: 770px;
+    height: 450px;
 }
 .rs-focus-panel-content {
     width: 100%;
@@ -192,19 +196,25 @@ img.invoice-logo {
     font-size: 1.2em;
     font-weight: 600;
 }
-.rs-btn-info.rs-btn-large {
+.rs-btn-info {
     background-color: #1E6DC0;
     background-image: none;
     border-color: #333;
     color: #FFF;
+    text-shadow: 0px 1px rgba(0, 0, 0, 0.1);
+}
+.rs-btn-large {
     font-size: 14px;
     padding: 7px 14px;
-    text-shadow: 0px 1px rgba(0, 0, 0, 0.1);
 }
 .rs-btn-info:hover {
     background-image: none;
     color: #FFF;
     background-color: #2B84E1;
+}
+.rs-control-group-center {
+    margin: auto;
+    width: 50%;
 }
 
 /* === login panel code === */
@@ -298,31 +308,39 @@ img.invoice-logo {
 .align-center {
     text-align: center;
 }
+.align-right {
+    text-align: right;
+}
+.large {
+    font-size: 16px !important;
+    line-height: 26px !important;
+}
 .no-caps {
     text-transform: none;
 }
 .width-halfem {
     width: 0.5em;
 }
-
 .min-height-1em {
     min-height: 1em;
 }
-
-.vertical-padding-helfem {
+.vertical-padding-halfem {
     padding: 0.5em 0;
 }
-
 .valign-baseline {
     vertical-align: baseline;
 }
-
 .valign-middle {
     vertical-align: middle;
 }
-
 .white-space-normal {
     white-space: normal;
+}
+.max-height {
+    height: 100%;
+}
+.max-width {
+    width: 100%;
 }
 
 /* === paragraph styles === */
