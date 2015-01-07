@@ -4,16 +4,20 @@
 # Build artifacts
 build/
 dist/
+gui/static/js/dist
+gui/static/css/dist
 *.egg-info/
 
 # Unit test / coverage reports
 .tox/
 .coverage
 
+# Node stuff.
+node_modules
+
 # Sphinx documentation
 docs/_build/
 
-# Sublime specific
-*.sublime-*
-
+# Miscellaneous.
 .DS_Store
+*.log
