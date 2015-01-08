@@ -4,12 +4,14 @@ import base64
 from flask import abort
 from flask import Blueprint
 from flask import current_app
+from flask import flash
 from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
 from flask import session
 
+from canon import constants as canon_constants
 from gui import config as gui_config
 from viper import config
 from viper.ext import sso
@@ -41,13 +43,11 @@ def sso_consumer():
         # Kill all session information when this route is posted to.
         session.clear()
 
-        # Ensure posted SAML assertion is legitimate.
         try:
+            # Decode and validate SAMLResponse.
             encoded_saml_response = request.form.get('SAMLResponse', None)
             decoded_saml_response = base64.decodestring(encoded_saml_response)
-            saml_response = sso.util.get_saml_response_from_string(decoded_saml_response)
-            # FIXME(TheDodd): need to finish building out this validation.
-            # sso.util.validate_saml_response(saml_response, decoded_saml_response)
+            saml_response = sso.util.validate_saml_response(decoded_saml_response)
 
             # Get user info from SAMLResponse.
             user_info = sso.util.get_user_info_from_name_id_serialization(saml_response)
@@ -63,11 +63,14 @@ def sso_consumer():
         session[sso.constants.EMAIL] = user_info[sso.constants.SAML_EMAIL]
         session[sso.constants.DDI] = user_info[sso.constants.SAML_DDI]
 
-    # Ensure this user is still in the initial SSO phase.
+    # Fetch info on the tenant that is logging in.
     tenant_id = session[sso.constants.TENANT_ID]
     main_db_connection = Utility.get_main_db_connection(config)
     tenant = sso.get_tenant_by_tenant_id(tenant_id, main_db_connection)
+
+    # If tenant is not in the initial SSO phase, log them in directly.
     if tenant and not tenant.initial_sso:
+        session[sso.constants.LOGIN] = tenant.resource_login
         return redirect(url_for('instances'))
 
     # User is still in the initial SSO phase.
@@ -93,14 +96,32 @@ def link_mycloud_account():
 
     # Handle POST request.
     else:
-        # - form validation - client side
-        # - if credentials valid on server side
-            # - create tenant entry
-            # - mark account as migrated in users table (migration)
 
-        # login_to_link = request.form['login']
+        # Get form data and attempt to auth against the account.
+        login_to_link = request.form['login-to-link']
+        login_to_link_password = request.form['login-to-link-password']
+        account = AccountManager(config).authenticate(login_to_link, login_to_link_password)
 
-        # TODO(TheDodd): pop first sso session key.
+        # If auth has failed, just send user back with same username pre-populated.
+        if account is None:
+            flash('Looks like that username & password combination is invalid.', canon_constants.STATUS_ERROR)
+            context = {'matching_login': login_to_link, 'auth_failure': True}
+            return render_template('sso/link_mycloud_account.html', **context)
+
+        # Get needed session variables.
+        tenant_id = session[sso.constants.TENANT_ID]
+        email = session[sso.constants.EMAIL]
+        ddi = session[sso.constants.DDI]
+
+        # Add a tenant entry.
+        main_db_connection = Utility.get_main_db_connection(config)
+        sso.add_identity_tenant_entry(tenant_id, ddi, email, main_db_connection, resource_login=account.login)
+        sso.migrate_existing_users_entry(account.login, main_db_connection)
+
+        # This session is no longer in initial SSO phase.
+        session[sso.constants.LOGIN] = login_to_link
+        session.pop(sso.constants.INITIAL_SSO, None)
+        sso.conclude_initial_sso(tenant_id, main_db_connection)
         return redirect(url_for('instances'))
 
 

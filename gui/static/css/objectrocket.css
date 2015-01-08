@@ -294,7 +294,7 @@ img.invoice-logo {
     left: 0;
 }
 
-.or-focus-panel .or-focus-panel-messages {
+.or-focus-panel .or-focus-panel-messages, .rs-focus-panel .or-focus-panel-messages {
     top: -9%;
     position: absolute;
     width: 100%;
