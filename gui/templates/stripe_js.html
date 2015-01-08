@@ -43,6 +43,14 @@
             params[7]='kw='; //For Live Tracking only
             params[8]='product='; //For Live Tracking only
             k_trackevent(params,'148');
+            
+            var cat = '_A7ve-',
+                qty = 1,
+                cost = 300,
+                ord = uuid;
+            
+            $('body').append('<iframe src="https://4361691.fls.doubleclick.net/activityi;src=4361691;type=Sales-;cat=' + cat + ';qty=' + qty + ';cost=' + cost + ';u1=' + location.pathname + ';u2=' + uuid + ';u3=' + navigator.language + ';ord=' + uuid + '?" width="1" height="1" frameborder="0" style="display:none"></iframe>');
+            
             cc_form.submit();
         };
 
