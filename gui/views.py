@@ -1333,9 +1333,14 @@ def sign_up():
                                      supplemental_data=account.login)
             send_signup_to_salesforce.delay(account.name, account.email, account.phone, account.login)
             session['login'] = account.login
-            return redirect(url_for('instances'))
+            return redirect(url_for('sign_up_thanks'))
 
     return render_template('sign_up/sign_up.html')
+
+@app.route('/thanks', methods=['GET', 'POST'])
+def sign_up_thanks():
+    """The signup thank you page"""
+    return render_template('sign_up/sign_up_thanks.html')
 
 
 @app.route('/msa')
