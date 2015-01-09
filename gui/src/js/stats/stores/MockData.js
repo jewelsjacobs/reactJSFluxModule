@@ -14,7 +14,7 @@ var MockDataStore = assign(new BaseStore(), {
 
   CHANGE_EVENT: 'MOCK_CHANGE_EVENT',
 
-  getMockShardsAndHosts: APIUtils.getMockJSON('/graph.json'),
+  getMockShardsAndHosts: APIUtils.getMockJSON('/replicaset.json'),
 
   getMockStatsNames: APIUtils.getMockJSON('/stats_available.json'),
 

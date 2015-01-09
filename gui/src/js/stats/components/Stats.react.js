@@ -13,11 +13,14 @@ var Stats = React.createclassName({
       instance: ReactPropTypes.string,
       apiUrl: ReactPropTypes.string
     },
-
+    componentWillMount: function() {
+      Actions.getApiUrl(this.props.apiUrl);
+      Actions.getInstanceName(this.props.instance);
+    },
     render: function() {
         return (
           <div classNameName="stats-container">
-            <GraphComposer instance={this.props.instance} apiurl={this.props.apiUrl} />
+            <GraphComposer />
           </div>
         );
     }

@@ -23,10 +23,6 @@ var _auth_headers = null;
  * @private
  */
 function _getAuthHeaders() {
-  request.get(TOKEN_ROUTE, function(err, res){
-    if (err) throw err;
-    _auth_headers = {"X-Auth-Account": res['user'], "X-Auth-Token": res['api_token']};
-  });
 
 }
 

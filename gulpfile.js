@@ -9,9 +9,7 @@ var reactify = require('reactify');
 var streamify = require('gulp-streamify');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
-var merge = require('merge-stream');
 var browserSync = require('browser-sync');
-var reload = browserSync.reload;
 
 // Settings
 var SRC = './gui/src/';

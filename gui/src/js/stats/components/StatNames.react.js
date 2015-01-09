@@ -7,24 +7,12 @@ var React = require('react');
 var Actions = require('../actions/ActionCreators');
 
 var StatNames = React.createclassName({
-  getInitialState: function() {
-    return {
-      date: null
-    };
-  },
-  handleChange: function(date) {
-    this.setState({
-      date: date
-    });
-  },
   render: function() {
     return (
       <li className="rs-detail-item">
         <div className="rs-detail-key">Stat:</div>
         <div className="rs-detail-value">
-          <select ng-model="statName" ng-options="name for name in statNames">
-            <option value="mongodb.opcounters.query">mongodb.opcounters.query</option>
-          </select>
+          <select value={this.props.names} onChange={this.handleChange} />
           <img id="load-stat-names" src="/static/art/loading.gif" alt="loading data" />
         </div>
       </li>
