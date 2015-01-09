@@ -39,77 +39,35 @@
     </div>
     <!-- end detail header -->
 
-	{% raw %}
-		<div class="stats-container" ng-controller="StatsPageCtrl">
-            <ul class="rs-detail-list">
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Stat:</div>
-                    <div class="rs-detail-value">
-                        <select ng-model="statName" ng-options="name for name in statNames">
-                            <option value="mongodb.opcounters.query">mongodb.opcounters.query</option>
-                        </select>
-                        <img id="load-stat-names" src="/static/art/loading.gif" alt="loading data" />
-                    </div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">
-                        <select ng-model="mode" ng-options="mode for mode in ['for the last', 'between']">
-                        </select>
-                    </div>
+<div id="stats"></div>
 
-                    <div id="last" class="rs-detail-value">
-                        <input type="text" ng-model="period" />
-                        <select ng-model="granularity" ng-options="granularity for granularity in ['minutes', 'hours', 'days']">
-                        </select>
-                    </div>
-
-                    <div id="between" class="rs-detail-value" style="display: none;">
-                        <quick-datepicker ng-model="fromDate"></quick-datepicker>
-                        and
-                        <quick-datepicker ng-model="toDate"></quick-datepicker>
-                    </div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">&nbsp;</div>
-                    <div class="rs-detail-value">
-                        <button class="rs-btn rs-btn-primary" ng-click="onUpdate()">Update Graphs</button>
-                    </div>
-                </li>
-            </ul>
-
-            <div ng-if="statName !== ''">
-                <div ng-repeat="(shardName, hosts) in shards" ng-controller="StatsGraphCtrl">
-                    <h4 class="replset-header">
-                        ReplicaSet: {{shardName}}
-                        <img id="load-{{shardName}}" src="/static/art/loading.gif" alt="loading data" />
-                    </h4>
-                    <div ng-if="data !== undefined">
-                        <nvd3 options="options" data="data" config="{autorefresh: true, refreshDataOnly: true}"></nvd3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endraw %}
 {% endblock content_area_body %}
 
 {% block script %}
     {{ super() }}
+  <script type="text/javascript" src="/static/js/dist/main.js"></script>
 
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sugar/1.4.1/sugar.min.js"></script>
-    <script type="text/javascript" src="/static/js/stats/lib/angular-nvd3.js"></script>
-    <script type="text/javascript" src="/static/js/stats/lib/ng-quick-date.js"></script>
-	<script type="text/javascript" src="/static/js/stats/stats.js"></script>
+  <script type="text/javascript">
 
-    <script type="text/javascript">
-        window.app = angular.module("statsGraphApp");
-        app.value("instanceName", "{{instance.name}}");
-        app.value("apiUrl", "{{api_url}}");
-        angular.bootstrap(document.body , ["statsGraphApp"]);
-    </script>
+    var instance = "{{instance.name}}";
+    var apiUrl = "{{api_url}}";
+
+    var StatsApp = React.createClass({displayName: "StatsApp",
+      render: function() {
+        return (
+          React.createElement("div", {className: "stats-container"},
+           React.createElement(Stats, {instance: instance, apiUrl: apiUrl})
+          )
+        );
+      }
+    });
+
+    React.render(
+      React.createElement(StatsApp, null),
+      document.getElementById('stats')
+    );
+
+  </script>
 
     {% include 'stripe_js.html' %}
 {% endblock script %}

@@ -1,12 +1,9 @@
 'use strict';
-/**
- * Preprocessor to enable JSX in tests.
- */
 
 var ReactTools = require('react-tools');
 
 module.exports = {
-    process: function(src) {
-        return ReactTools.transform(src);
-    }
+  process: function(src, path) {
+    return ReactTools.transform(src, { harmony: true, stripTypes: true });
+  }
 };
