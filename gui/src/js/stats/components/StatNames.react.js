@@ -32,7 +32,7 @@ var StatNames = React.createClass({
     })
     return (
 
-          <BS.Col md={3}>
+          <BS.Col xs={8} md={4}>
             <BS.Input type="select" label='Stat' defaultValue="mongodb.opcounters.query">
               {options}
             </BS.Input>

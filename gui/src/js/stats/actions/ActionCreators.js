@@ -7,21 +7,6 @@ var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 
 module.exports = {
-
-  getApiUrl: function(apiUrl) {
-    AppDispatcher.handleServerAction({
-      type: ActionTypes.GET_API_URL,
-      apiUrl: apiUrl
-    });
-  },
-
-  getInstanceName: function(instanceName) {
-    AppDispatcher.handleViewAction({
-      type: ActionTypes.GET_INSTANCE_NAME,
-      instanceName: instanceName
-    });
-  },
-
   getStatName: function(statName) {
     AppDispatcher.handleViewAction({
      type: ActionTypes.GET_STAT_NAME,
@@ -29,7 +14,14 @@ module.exports = {
     });
   },
 
-  getRange: function(data) {
+  getDateRange: function(range_data) {
+    AppDispatcher.handleViewAction({
+     type: ActionTypes.GET_DATE_RANGE,
+     range_data: range_data
+    });
+  },
+
+  updateGraph: function(data) {
     AppDispatcher.handleViewAction({
      type: ActionTypes.UPDATE_GRAPH,
      data: data

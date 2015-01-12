@@ -12,12 +12,12 @@ var ActionTypes = Constants.ActionTypes;
 var request = require('superagent');
 var APIUtils = require('../utils/APIUtils.js');
 
-var _instanceName = ShardsAndHostsStore.getInstanceName();
+var _instanceName = APIUtils.getInstance();
+var _apiUrl = APIUtils.getApiUrls();
+var _authHeaders = AuthStore.getAuthHeaders();
 var _shards = ShardsAndHostsStore.getShards();
 var _host = _getHost();
-var _apiUrl = ShardsAndHostsStore.getApiUrl();
 var _availableStatsUrl = null;
-var _authHeaders = AuthStore.getAuthHeaders();
 
 function _getAvailableStatsUrl() {
   _availableStatsUrl = APIUtils.formatURL(
@@ -84,7 +84,7 @@ StatsNamesStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   switch(action.type) {
 
-    case ActionTypes.CHECK_AUTH:
+    case ActionTypes.GET_STAT_NAME:
       _getStatNames();
       break;
 

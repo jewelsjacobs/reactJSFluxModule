@@ -21,6 +21,18 @@ function _getReplicaSetUrl() {
   _replicaSetUrl = APIUtils.formatURL("{0}/v2/instance/{1}/replicaset", _apiUrl, _instanceName);
 };
 
+function _getApiUrls() {
+  //request
+  //  .get("/api_urls")
+  //  .end(function(err, res) {
+  //     if (err) throw err;
+  //     return res.data['api_urls'];
+  //   });
+  //}
+
+  return "https://sjc-api.objectrocket.com"
+};
+
 function _getShards() {
   _getReplicaSetUrl();
   request
@@ -39,6 +51,14 @@ function _getShards() {
      });
 };
 
+function _getInstance() {
+  //var pathArray = window.location.pathname.split( '/' );
+  ////Get instance - http://localhost:5051/instances/test_julia/stats
+  //return pathArray[2];
+
+  return "appboy01_prod";
+};
+
 
 var ShardsAndHostsStore = assign(new BaseStore(), {
 
@@ -48,6 +68,14 @@ var ShardsAndHostsStore = assign(new BaseStore(), {
 
   getShards: function() {
     return _getShards();
+  },
+
+  getInstance: function() {
+    return _getInstance();
+  },
+
+  getApiUrls: function() {
+    return _getApiUrls();
   },
 
   CHANGE_EVENT: 'SHARDS_AND_HOSTS_CHANGE_EVENT'
@@ -65,14 +93,6 @@ ShardsAndHostsStore.dispatchToken = AppDispatcher.register(function(payload) {
   var action = payload.action;
 
   switch(action.type) {
-    case ActionTypes.GET_API_URL:
-
-      break;
-
-    case ActionTypes.GET_INSTANCE_NAME:
-
-      break;
-
     default:
       return true;
   }

@@ -19,6 +19,25 @@ var DateRangeSelector = React.createClass({
       endDate: moment()
     };
   },
+  sendDateRangeData: function() {
+    var secondsDiff = this.state.endDate.diff(this.state.startDate, 'seconds');
+    var granularity = null;
+
+    // pick the granularity to be reasonable based on the timespan chosen.
+    if (secondsDiff <= 360) { // 6 hours
+      granularity = 'minute';
+    } else if (secondsDiff <= 259200) {  // 72 hours
+      granularity = 'hour';
+    } else {
+      granularity = 'day';
+    };
+
+    Actions.getDateRange({
+     startDate :  this.state.startDate,
+     endDate : this.state.endDate,
+     granularity : granularity
+    });
+  },
   handleEvent: function (event, picker) {
     this.setState({
       startDate: picker.startDate,
@@ -33,9 +52,9 @@ var DateRangeSelector = React.createClass({
       label = start;
     }
     return (
-      <BS.Col md={3}>
+      <BS.Col xs={8} md={4}>
         <label>Range</label>
-        <DateRangePicker startDate={this.state.startDate} timePicker={true} timePicker12Hour={true} timePickerSeconds={true} endDate={this.state.endDate} ranges={this.state.ranges} onEvent={this.handleEvent}>
+        <DateRangePicker startDate={this.state.startDate} onApply={this.sendDateRangeData} timePicker={true} timePicker12Hour={true} timePickerSeconds={true} endDate={this.state.endDate} ranges={this.state.ranges} onEvent={this.handleEvent}>
           <BS.Button className="selected-date-range-btn" style={{width:'100%'}}>
             <div className="pull-left"><BS.Glyphicon glyph="calendar" /></div>
             <div className="pull-right">

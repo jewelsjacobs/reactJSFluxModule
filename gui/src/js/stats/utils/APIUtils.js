@@ -1,7 +1,6 @@
 var request = require('superagent');
 
 module.exports = {
-
   formatURL: function(string) {
     String.format = String.format || function (string) {
       var output = string;
