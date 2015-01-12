@@ -37,22 +37,22 @@ React's JSX syntax into standard JavaScript with [Reactify](https://github.com/a
 
 ## Folder Structure of Stats Module Code
 
-      gui/gui                         # actual ui code is stored here
-            src/                      # editable source files
-              js/                     # js files
-                stats/                # stats module
-                  actions/            # flux actions
-                  scripts/            # react components
-                  constants/          # flux constants
-                  views/              # flux dispatcher
-                  stores/             # flux stores
-                    json/             # mock data
-                  main.js             # main stats react component
+      gui/gui                             # actual ui code is stored here
+            src/                          # editable source files
+              js/                         # js files
+                stats/                    # stats module
+                  actions/                # flux actions
+                  scripts/                # react components
+                  constants/              # flux constants
+                  views/                  # flux dispatcher
+                  stores/                 # flux stores
+                    json/                 # mock data
+                  main.js                 # main stats react component
             static/
               dist/
-                main.js           # browserfied react / flux concat file
+                main.js                   # browserfied react / flux concat file
               js/
-                bower_components/   # bower components
+                bower_components/         # bower components
             templates/
               instances/
                 new_instance_stats.html   # bower components
