@@ -1307,7 +1307,12 @@ def logout():
 
 @app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
-    """The signup form"""
+    """The signup form."""
+    # Don't want any random person to just sign up for a QA account.
+    if app.config.CONFIG_MODE == 'qa':
+        flash('Please contact ObjectRocket support if you need a QA account.', canon_constants.STATUS_WARNING)
+        return redirect(url_for('sign_in'))
+
     if request.method == 'POST':
         account_manager = AccountManager(config)
 
@@ -1316,6 +1321,7 @@ def sign_up():
 
         if account_manager.get_account(request.form['email']):
             flash('The email "{}" is already associated with an account.'.format(request.form['email']), canon_constants.STATUS_ERROR)
+
         else:
             account = account_manager.create_account(login=request.form['email'],
                                                      password=request.form['password'],

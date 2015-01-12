@@ -15,7 +15,9 @@ def create_app(config_name='default'):
     config.init_app(app)
 
     # Register blueprints.
-    app.register_blueprint(raxsso_blueprint)
+    # Keep SSO code out of prod for now.
+    if app.config.CONFIG_MODE == 'qa':
+        app.register_blueprint(raxsso_blueprint)
 
     return app
 
