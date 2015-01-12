@@ -4,28 +4,32 @@
  * The application component. This is the top-level component.
  */
 var React = require('react');
-var Actions = require('../actions/ActionCreators');
-var Graph = require('./Graph.react');
+var Actions = require('../actions/ActionCreators.js');
+var Graph = require('./Graph.react.js');
 var MockDataStore = require('../stores/MockData.js');
 
-var GraphItems = React.createclassName({
+var GraphItems = React.createClass({
    getInitialState: function() {
      return {
-       graphData : MockDataStore.getMockGraphData()
+       stats : MockDataStore.graphData.stats
      };
    },
    componentDidMount: function() {
-     this.setState(MockDataStore.getMockGraphData());
+     this.setState(
+       {
+         stats : MockDataStore.graphData.stats
+       }
+     );
    },
   render: function() {
-    var graphs = this.props.shards.map(function(shard, index) {
+    console.log(this.state.stats);
+    var graphs = this.state.stats.map(function(stat, index) {
       return (
-        <div>
+        <div key={index}>
           <h4 className="replset-header">
-            ReplicaSet: {shard}
-            <img id="load-{shard}" src="/static/art/loading.gif" alt="loading data" />
+            ReplicaSet: {stat.host_name}
           </h4>
-          <Graph data={this.state.graphData} key={index} />
+          <Graph data={stat.data} />
         </div>
       );
     });

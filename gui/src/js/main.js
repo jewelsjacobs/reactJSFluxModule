@@ -1,14 +1,33 @@
 /** @jsx React.DOM */
 'use strict';
 /**
- * The application's entry point.
- *
- * TODO: When inline variables have been removed from jinja Templates
- *       We can render a base template component here or something
+ * The application component. This is the top-level component.
  */
-
-  // Export React so the dev tools can find it
-(window !== window.top ? window.top : window).React = React;
-
-var Stats = require('./stats/components/Stats.react.js');
 var React = require('react');
+var GraphComposer = require('./stats/components/GraphComposer.react.js');
+var Actions = require('./stats/actions/ActionCreators.js');
+var ReactPropTypes = React.PropTypes;
+var GraphItems = require('./stats/components/GraphItems.react.js');
+var Stats = React.createClass({
+    propTypes: {
+      instance: ReactPropTypes.string,
+      apiUrl: ReactPropTypes.string
+    },
+    componentWillMount: function() {
+      Actions.getApiUrl(this.props.apiUrl);
+      Actions.getInstanceName(this.props.instance);
+    },
+    render: function() {
+        return (
+          <div classNameName="stats-container">
+            <GraphComposer />
+            <GraphItems />
+          </div>
+        );
+    }
+});
+
+React.render(
+  <Stats instance={window.instance} apiUrl={window.apiUrl} />,
+  document.getElementById('stats')
+);

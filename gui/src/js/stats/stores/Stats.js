@@ -6,11 +6,11 @@ var assign = require('object-assign');
 var Constants = require('../constants/Constants.js');
 var AppDispatcher = require('../dispatcher/AppDispatcher.js');
 var BaseStore = require('./Store.js');
-var AuthStore = require('./Auth');
-var ShardsAndHostsStore = require('./ShardsAndHosts');
+var AuthStore = require('./Auth.js');
+var ShardsAndHostsStore = require('./ShardsAndHosts.js');
 var ActionTypes = Constants.ActionTypes;
 var request = require('superagent');
-var APIUtils = require('../utils/APIUtils');
+var APIUtils = require('../utils/APIUtils.js');
 
 var _instanceName = ShardsAndHostsStore.getInstanceName();
 var _shards = ShardsAndHostsStore.getShards();

@@ -6,34 +6,30 @@ var browserify = require('browserify');
 var del = require('del');
 var gulp = require('gulp');
 var reactify = require('reactify');
+var envify = require('envify');
 var streamify = require('gulp-streamify');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
 var browserSync = require('browser-sync');
 
-// Settings
-var SRC = './gui/src/';
-var DEST = './gui/static/';
-
 /**
  * Cleanup before running tasks.
  */
 gulp.task('clean', function() {
-    del([DEST + 'js/dist']);
-    del([DEST + 'css/dist']);
+  del(['gui/static/js/dist']);
+  del(['gui/static/css/dist']);
 });
 
-/**
- * Bundle and minify our JS ... because we are legit.
- */
+// Browserify task.
 gulp.task('browserify', function() {
-    var mainjs = SRC + 'js/main.js';
-    browserify(mainjs)
-        .transform(reactify)
-        .bundle()
-        .pipe(source('main.js'))
-        // .pipe(streamify(uglify('main.js')))
-        .pipe(gulp.dest(DEST + 'js/dist'));
+  var mainjs = __dirname + '/gui/src/js/main.js';
+  browserify(mainjs)
+    .transform(reactify)
+    .transform(envify)
+    .bundle()
+    .pipe(source('main.js'))
+    //.pipe(streamify(uglify('main.js')))
+    .pipe(gulp.dest('gui/static/js/dist/js'));
 });
 
 /**
@@ -53,8 +49,13 @@ gulp.task('default', ['clean', 'browserify']);
 /**
  * A watcher task to automatically build as you work.
  */
-gulp.task('watch', ['browser-sync'], function() {
+// Define the watch task.
+gulp.task('watch', function() {
+  gulp.watch('app/**', ['default']);
+});
+
+gulp.task('watch', function() {
     gulp.watch(
-      'gui/static/js/!(dist)/**', ['default', browserSync.reload]
+      'gui/src/js/**', ['default']
     );
 });

@@ -1,16 +1,6 @@
 var request = require('superagent');
-var prefix = require('superagent-prefix')('/static/json');
-prefix(request);
 
 module.exports = {
-
-  getMockJSON: function(mockJsonFileName) {
-    request
-      .get(mockJsonFileName)
-      .end(function(res){
-         return res.data;
-     });
-  },
 
   formatURL: function(string) {
     String.format = String.format || function (string) {

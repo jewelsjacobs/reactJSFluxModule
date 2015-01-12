@@ -5,11 +5,11 @@
 var assign = require('object-assign');
 var Constants = require('../constants/Constants.js');
 var AppDispatcher = require('../dispatcher/AppDispatcher.js');
-var AuthStore = require('./Auth');
+var AuthStore = require('./Auth.js');
 var BaseStore = require('./Store.js');
 var ActionTypes = Constants.ActionTypes;
 var request = require('superagent');
-var APIUtils = require('../utils/APIUtils');
+var APIUtils = require('../utils/APIUtils.js');
 
 var _instanceName = null;
 var _apiUrl = null;

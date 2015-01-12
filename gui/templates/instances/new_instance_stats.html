@@ -9,8 +9,8 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.css">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
-    <link rel="stylesheet" href="/static/css/ng-quick-date.css">
-    <link rel="stylesheet" href="/static/css/ng-quick-date-default-theme.css">
+    <link rel="stylesheet" href="/static/js/bower_components/canon-bootstrap/build/css/canon-bootstrap.css">
+    <link rel="stylesheet" href="/static/css/daterangepicker-bs3.css">
     <link rel="stylesheet" href="/static/css/stats.css">
     {% include 'stripe_css.html' %}
 {% endblock style %}
@@ -38,35 +38,18 @@
         <!-- end detail header title -->
     </div>
     <!-- end detail header -->
-
 <div id="stats"></div>
 
 {% endblock content_area_body %}
 
 {% block script %}
     {{ super() }}
-  <script type="text/javascript" src="/static/js/dist/main.js"></script>
-
+  <script type="text/javascript" src="/static/js/bower_components/d3/d3.js"></script>
+  <script type="text/javascript" src="/static/js/bower_components/nvd3/nv.d3.js"></script>
+  <script type="text/javascript" src="/static/js/dist/js/main.js"></script>
   <script type="text/javascript">
-
-    var instance = "{{instance.name}}";
-    var apiUrl = "{{api_url}}";
-
-    var StatsApp = React.createClass({displayName: "StatsApp",
-      render: function() {
-        return (
-          React.createElement("div", {className: "stats-container"},
-           React.createElement(Stats, {instance: instance, apiUrl: apiUrl})
-          )
-        );
-      }
-    });
-
-    React.render(
-      React.createElement(StatsApp, null),
-      document.getElementById('stats')
-    );
-
+    window.instance = "{{instance.name}}";
+    window.apiUrl = "{{api_url}}";
   </script>
 
     {% include 'stripe_js.html' %}

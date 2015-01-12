@@ -4,7 +4,6 @@ var assign = require('object-assign');
 var Constants = require('../constants/Constants.js');
 var AppDispatcher = require('../dispatcher/AppDispatcher.js');
 var BaseStore = require('./Store.js');
-var APIUtils = require('../utils/APIUtils');
 
 var MockDataStore = assign(new BaseStore(), {
 
@@ -14,11 +13,11 @@ var MockDataStore = assign(new BaseStore(), {
 
   CHANGE_EVENT: 'MOCK_CHANGE_EVENT',
 
-  getMockShardsAndHosts: APIUtils.getMockJSON('/replicaset.json'),
+  shards: require('./json/replicaset.json'),
 
-  getMockStatsNames: APIUtils.getMockJSON('/stats_available.json'),
+  statsNames: require('./json/stats_available.json'),
 
-  getMockGraphData: APIUtils.getMockJSON('/graph.json')
+  graphData: require('./json/graph.json')
 
 });
 
