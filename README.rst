@@ -30,6 +30,22 @@ lastly
 ------
 Fire up the development server: ``./runserver.py``. You should now have a development GUI being served locally on port 5051.
 
+react-stats
+-----------
+Requirements:
+- You will need to have nodeJS installed.  You can get the latest version at http://nodejs.org/
+- Once nodeJS is installed, install gulp globally: ``$ sudo npm install -g gulp``
+- Install bower globally: ``$ sudo npm install -g bower``
+
+To use the current branch with the react-stats module you will have to clone the react-stats branch from this repo :
+``git clone git@github.com:jewelsjacobs/gui.git --branch react_stats --single-branch [<yourappfolder>]``
+
+To build:
+- Navigate to app dir and ``$ gulp``
+
+To run so you can modify react / flux files and they will get browserfied on the fly:
+- In app dir ``$ gulp watch``
+
 -----
 notes
 -----
