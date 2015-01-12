@@ -29,7 +29,7 @@ gulp.task('browserify', function() {
     .bundle()
     .pipe(source('main.js'))
     //.pipe(streamify(uglify('main.js')))
-    .pipe(gulp.dest('gui/static/js/dist/js'));
+    .pipe(gulp.dest('gui/static/dist/js'));
 });
 
 /**
