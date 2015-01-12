@@ -49,10 +49,10 @@ React's JSX syntax into standard JavaScript with [Reactify](https://github.com/a
                     json/             # mock data
                   main.js             # main stats react component
             static/
+              dist/
+                main.js           # browserfied react / flux concat file
               js/
                 bower_components/   # bower components
-                dist/
-                  main.js           # browserfied react / flux concat file
             templates/
               instances/
                 new_instance_stats.html   # bower components
