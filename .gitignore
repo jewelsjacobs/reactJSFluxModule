@@ -2,8 +2,6 @@
 *.py[cod]
 
 # Build artifacts
-build/
-dist/
 gui/static/js/dist
 gui/static/css/dist
 *.egg-info/
@@ -15,9 +13,9 @@ gui/static/css/dist
 # Node stuff.
 node_modules
 
-# Sphinx documentation
-docs/_build/
-
 # Miscellaneous.
 .DS_Store
 *.log
+
+# bower
+gui/static/js/bower_components
