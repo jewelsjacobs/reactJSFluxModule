@@ -8,29 +8,15 @@ var GraphComposer = require('./stats/components/GraphComposer.react.js');
 var Actions = require('./stats/actions/ActionCreators.js');
 var GraphItems = require('./stats/components/GraphItems.react.js');
 var BootstrapStore = require('./stats/stores/Bootstrap.js');
-var AuthStore = require('./stats/stores/Auth.js');
 
 function getStateFromStores() {
   return {
-    shards: BootstrapStore.getShards(),
-    api_url: BootstrapStore.getApiUrls(),
-    instance: BootstrapStore.getInstance(),
-    auth_headers: AuthStore.getAuthHeaders()
+    shardsAndReplicaSets: BootstrapStore.getShardsAndReplicasets(),
+    instanceName : BootstrapStore.getInstance()
   };
-}
+};
 
 var Stats = React.createClass({
-    getInitialState: function() {
-      return getStateFromStores();
-    },
-    componentDidMount: function() {
-      BootstrapStore.addChangeListener(this._onChange);
-      AuthStore.addChangeListener(this._onChange);
-    },
-    componentWillUnmount: function() {
-      BootstrapStore.removeChangeListener(this._onChange);
-      AuthStore.removeChangeListener(this._onChange);
-    },
     render: function() {
         return (
           <div classNameName="stats-container">
@@ -38,16 +24,40 @@ var Stats = React.createClass({
             <GraphItems />
           </div>
         );
-    },
-    /**
-     * Event handler for 'change' events coming from the stores
-     */
-    _onChange: function() {
-      this.setState(getStateFromStores());
     }
 });
+
+var InstanceName = React.createClass({
+  getInitialState: function() {
+   return getStateFromStores();
+  },
+  componentDidMount: function() {
+   BootstrapStore.addChangeListener(this._onChange);
+  },
+  componentWillUnmount: function() {
+   BootstrapStore.removeChangeListener(this._onChange);
+  },
+  render: function() {
+    return (
+    <div className="rs-detail-header-title">{ this.state.instanceName }</div>
+    );
+  },
+  /**
+   * Event handler for 'change' events coming from the stores
+   */
+  _onChange: function() {
+    this.setState(getStateFromStores());
+  }
+});
+
+React.render(
+  <InstanceName />,
+  document.getElementById('instance-name')
+);
 
 React.render(
   <Stats />,
   document.getElementById('stats')
 );
+
+

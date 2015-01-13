@@ -4,9 +4,9 @@
  * The application component. This is the top-level component.
  */
 var React = require('react');
-var StatNames = require('./StatNames.react.js');
 var BS = require('react-bootstrap');
 var DateRangeSelector = require('./DateRangeSelector.react.js');
+var StatNames = require('./StatNames.react.js');
 
 var GraphComposer = React.createClass({
   render: function() {

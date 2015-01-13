@@ -4,25 +4,31 @@
  * The application component. This is the top-level component.
  */
 var React = require('react');
-var MockDataStore = require('../stores/MockData.js');
+var StatsNamesStore = require('../stores/StatsNames.js');
 var BS = require('react-bootstrap');
+var Actions = require('../actions/ActionCreators.js');
+
+function getStatsNamesState() {
+  return {
+    names: StatsNamesStore.getStatNames()
+  };
+}
 
 var StatNames = React.createClass({
   getInitialState: function() {
-    return {
-      names : MockDataStore.statsNames.names,
-      value : "mongodb.opcounters.query"
-    };
+    return getStatsNamesState();
   },
   componentDidMount: function() {
-    this.setState(
-      { names: MockDataStore.statsNames.names }
-    );
+    StatsNamesStore.addChangeListener(this._onChange);
+  },
+  componentWillUnmount: function() {
+    StatsNamesStore.removeChangeListener(this._onChange);
   },
   _onChange: function(value) {
     this.setState(
       { value: value }
     );
+    Actions.getStatName(value);
   },
   render: function() {
     var options = this.state.names.map(function(name, index){
@@ -31,12 +37,11 @@ var StatNames = React.createClass({
       )
     })
     return (
-
-          <BS.Col xs={8} md={4}>
-            <BS.Input type="select" label='Stat' defaultValue="mongodb.opcounters.query">
-              {options}
-            </BS.Input>
-          </BS.Col>
+      <BS.Col xs={8} md={4}>
+        <BS.Input type="select" label='Stat' onChange='' defaultValue="mongodb.opcounters.query">
+          {options}
+        </BS.Input>
+      </BS.Col>
     );
   }
 });

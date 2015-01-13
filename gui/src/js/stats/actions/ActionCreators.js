@@ -21,6 +21,12 @@ module.exports = {
     });
   },
 
+  startupApp: function() {
+    AppDispatcher.handleViewAction({
+     type: ActionTypes.STARTUP_ACTION
+   });
+  },
+
   updateGraph: function(data) {
     AppDispatcher.handleViewAction({
      type: ActionTypes.UPDATE_GRAPH,

@@ -2,7 +2,7 @@ var request = require('superagent');
 
 module.exports = {
   formatURL: function(string) {
-    String.format = String.format || function (string) {
+
       var output = string;
 
       for (var i = 1; i < arguments.length; i++) {
@@ -13,7 +13,6 @@ module.exports = {
       }
 
       return output;
-    }
   }
 
 };

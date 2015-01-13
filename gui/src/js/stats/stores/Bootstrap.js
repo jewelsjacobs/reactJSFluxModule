@@ -1,104 +1,122 @@
 'use strict';
+
 /**
- * Graph Data interface.
+ * BootstrapStore to get data needed for shards
+ * @type {exports}
  */
+
 var assign = require('object-assign');
-var Constants = require('../constants/Constants.js');
 var AppDispatcher = require('../dispatcher/AppDispatcher.js');
-var AuthStore = require('./Auth.js');
-var BaseStore = require('./Store.js');
+var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
+var BaseStore = require('./Store.js');
+var AuthStore = require('./Auth.js');
+var async = require('async');
 var request = require('superagent');
 var APIUtils = require('../utils/APIUtils.js');
+var API_URLS_ROUTE = '/api_urls';
+var _shards = [];
+//var _instance = window.location.pathname.split( '/' )[2];
+var _instance = "appboy01_prod";
 
-var _instanceName = APIUtils.getInstance();
-var _apiUrl = APIUtils.getApiUrls();
-var _replicaSetUrl = null;
-var _authHeaders = AuthStore.getAuthHeaders();
-var _shards = {};
-
-function _getReplicaSetUrl() {
-  _replicaSetUrl = APIUtils.formatURL("{0}/v2/instance/{1}/replicaset", _apiUrl, _instanceName);
+/**
+ * Gets Object with API URLs
+ * @param cb
+ * @returns {*}
+ * @private
+ */
+function _getApiUrls(cb) {
+  //return request
+  //    .get(API_URLS_ROUTE)
+  //    .end(function(err, res) {
+  //       return cb(err, res);
+  //     });
+  //  };
+  return cb(null,"https://sjc-api.objectrocket.com");
 };
 
-function _getApiUrls() {
-  //request
-  //  .get("/api_urls")
-  //  .end(function(err, res) {
-  //     if (err) throw err;
-  //     return res.data['api_urls'];
-  //   });
-  //}
-
-  return "https://sjc-api.objectrocket.com"
+/**
+ * Formats a url used in call to get replicaset data
+ * @returns {*}
+ * @private
+ */
+function _getReplicaSetUrl(apiUrl, cb) {
+  var url = APIUtils.formatURL("{0}/v2/instance/{1}/replicaset", apiUrl, _instance);
+  return cb(null, url);
 };
 
-function _getShards() {
-  _getReplicaSetUrl();
-  request
-    .get(_replicaSetUrl)
-    .set(_authHeaders)
-    .end(function(err, res) {
-       if (err) throw err;
-
-       res.data['data'].forEach(function(element, index){
-         res.data['data'][index].forEach(function(element, index){
-           _shards[index] = element;
-         });
+/**
+ * Getting Shards
+ *
+ * @param authHeaders
+ * @param url
+ * @param cb
+ * @returns {Request}
+ * @private
+ */
+function _getShardsAndReplicasets(authHeaders, url, cb) {
+    return request
+      .get(url)
+      .set(authHeaders)
+      .end(function(err, res) {
+         cb(err, res);
        });
-
-       return _shards;
-     });
-};
-
-function _getInstance() {
-  //var pathArray = window.location.pathname.split( '/' );
-  ////Get instance - http://localhost:5051/instances/test_julia/stats
-  //return pathArray[2];
-
-  return "appboy01_prod";
-};
+  };
 
 
-var ShardsAndHostsStore = assign(new BaseStore(), {
+var BootstrapStore = assign(new BaseStore(), {
 
   emitChange: function() {
     this.emit(this.CHANGE_EVENT);
   },
 
-  getShards: function() {
-    return _getShards();
-  },
-
   getInstance: function() {
-    return _getInstance();
+    return _instance;
   },
 
-  getApiUrls: function() {
-    return _getApiUrls();
+  getApiUrls: function(cb) {
+    _getApiUrls(cb);
   },
 
-  CHANGE_EVENT: 'SHARDS_AND_HOSTS_CHANGE_EVENT'
+  getShardsAndReplicasets: function() {
+    async.waterfall([
+      function(cb) {
+        _getApiUrls(cb)
+      },
+      _getReplicaSetUrl,
+      AuthStore.getAuthHeaders,
+      _getShardsAndReplicasets
+      ], function (err, result) {
+        return result;
+      });
+  },
+
+  CHANGE_EVENT: 'BOOTSTRAP_CHANGE_EVENT'
 
 });
 
 /**
- * Register with the dispatcher to handle Graph Data Store related actions.
+ * Register with the dispatcher to handle Data needed on App Boostrap related actions.
  */
-ShardsAndHostsStore.dispatchToken = AppDispatcher.register(function(payload) {
+BootstrapStore.dispatchToken = AppDispatcher.register(function(payload) {
   AppDispatcher.waitFor([
-     AuthStore.dispatchToken
+    AuthStore.dispatchToken
   ]);
 
   var action = payload.action;
 
   switch(action.type) {
+
+    case ActionTypes.STARTUP_ACTION:
+      BootstrapStore.getShardsAndReplicasets();
+      break;
+
     default:
       return true;
   }
 
-  ShardsAndHostsStore.emitChange();
+  BootstrapStore.emitChange();
 
 });
 
-module.exports = ShardsAndHostsStore;
+module.exports = BootstrapStore;
