@@ -97,42 +97,45 @@ app.factory("StatsService", ['$q', '$http', 'apiUrl', 'AuthService', function ($
     //
 
     var getStatForHosts = function (instanceName, statName, shardHosts, fromDate, toDate) {
-        var graphData = {
-            "stats": [],
-            "start_time": moment(fromDate).utc().format("YYYY-MM-DD HH:mm:ss"),
-            "end_time": moment(toDate).utc().format("YYYY-MM-DD HH:mm:ss")
-        }
-
         var secondsDiff = toDate.diff(fromDate, 'seconds');
+        var granularity = null;
 
-        if (secondsDiff <= 360) {
-            graphData['granularity'] = 'minute';
-        } else if (secondsDiff <= 259200) {
-            graphData['granularity'] = 'hour';
+        // pick the granularity to be reasonable based on the timespan chosen.
+        if (secondsDiff <= 360) { // 6 hours
+            granularity = 'minute';
+        } else if (secondsDiff <= 259200) {  // 72 hours
+            granularity = 'hour';
         } else {
-            graphData['granularity'] = 'day'
+            granularity = 'day';
         }
 
-        // calculate the granularity we need for this date / time
+        // choose the start and end times
+        var startTime = moment(fromDate).utc().format("YYYY-MM-DD HH:mm:ss");
+        var endTime = moment(toDate).utc().format("YYYY-MM-DD HH:mm:ss");
+        var stats = [];
+
         for (var i = 0; i < shardHosts.length; i++) {
             var host = shardHosts[i];
 
-            graphData['stats'].push({
+            stats.push({
                 "instance": instanceName,
                 "host": host,
                 "name": statName
             });
         };
 
-		var request = AuthService.getAuthHeaders().then(function (headers) {
-			return $http.post(String.format("{0}/v2/graph", apiUrl), graphData, {headers: headers});
-		});
+        var url = String.format("{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={3}", apiUrl, granularity, startTime, endTime);
+        var request = AuthService.getAuthHeaders().then(function (headers) {
+            return $http.post(url, {"stats": stats}, {headers: headers});
+        });
 
-		var deferred = $q.defer();
+        var deferred = $q.defer();
 
-		var success = function (response) {
+        var success = function (response) {
             var stat_info = [];
 
+            // limit the number of datapoints rendered for the graph to a reasonable
+            // amount
             for (var i = 0; i < response.data.stats.length; i++) {
                 var stat = response.data.stats[i];
                 var len = stat.data.length;
