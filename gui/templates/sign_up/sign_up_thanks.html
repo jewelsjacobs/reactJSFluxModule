@@ -2,7 +2,7 @@
 
 {% block style %}
     {{ super() }}
-    <meta http-equiv="refresh" content="5;URL='/instances'" />
+    <!--<meta http-equiv="refresh" content="5;URL='/instances'" />-->
 {% endblock %}
 
 {% block title %}
@@ -19,36 +19,38 @@
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block script %}
-<!-- floodlight tracking code -->
-<script type=text/javascript>
-$(document).ready(function() {
-    var cat = 'orstart',
-        qty = 1,
-        cost = 200,
-        ord = uuid;
-    $('body').append('<iframe src="https://4361691.fls.doubleclick.net/activityi;src=4361691;type=Sales-;cat=' + cat + ';qty=' + qty + ';cost=' + cost + ';u1=' + location.pathname + ';u2=' + uuid + ';u3=' + navigator.language + ';ord=' + uuid + '?" width="1" height="1" frameborder="0" style="display:none"></iframe>');
-});
-</script>
-<!-- Google Code for ObjectRocket Signup Completion Conversion Page -->
-<script type="text/javascript">
-/* <![CDATA[ */
-var google_conversion_id = 1040066332;
-var google_conversion_language = "en";
-var google_conversion_format = "2";
-var google_conversion_color = "ffffff";
-var google_conversion_label = "M6O4CIab_gYQnM747wM";
-var google_conversion_value = 1.000000;
-var google_remarketing_only = false;
-/* ]]> */
-</script>
-<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
-</script>
-<noscript>
-<div style="display:inline;">
-<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/1040066332/?value=1.000000&amp;label=M6O4CIab_gYQnM747wM&amp;guid=ON&amp;script=0"/>
-</div>
-</noscript>
+    
+    {% block script %}
+        {{ super() }}
+        <!-- floodlight tracking code -->
+        <script type=text/javascript>
+        $(document).ready(function() {
+            var cat = 'orstart',
+                qty = 1,
+                cost = 200,
+                ord = uuid;
+            $('body').append('<iframe src="https://4361691.fls.doubleclick.net/activityi;src=4361691;type=Sales-;cat=' + cat + ';qty=' + qty + ';cost=' + cost + ';u1=' + location.pathname + ';u2=' + uuid + ';u3=' + navigator.language + ';ord=' + uuid + '?" width="1" height="1" frameborder="0" style="display:none"></iframe>');
+        });
+        </script>
+        <!-- Google Code for ObjectRocket Signup Completion Conversion Page -->
+        <script type="text/javascript">
+        /* <![CDATA[ */
+        var google_conversion_id = 1040066332;
+        var google_conversion_language = "en";
+        var google_conversion_format = "2";
+        var google_conversion_color = "ffffff";
+        var google_conversion_label = "M6O4CIab_gYQnM747wM";
+        var google_conversion_value = 1.000000;
+        var google_remarketing_only = false;
+        /* ]]> */
+        </script>
+        <script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+        </script>
+        <noscript>
+        <div style="display:inline;">
+        <img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/1040066332/?value=1.000000&amp;label=M6O4CIab_gYQnM747wM&amp;guid=ON&amp;script=0"/>
+        </div>
+        </noscript>
+    {% endblock %}
+    
 {% endblock %}
