@@ -1300,8 +1300,8 @@ def sign_in():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    """ Log out user."""
-    session.pop('login', None)
+    """Log out user."""
+    session.clear()
     return redirect(url_for('sign_in'))
 
 
