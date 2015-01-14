@@ -1,4 +1,4 @@
-var Actions = require('../actions/ActionCreators.js');
+var Actions = require('../actions/ViewActionCreators.js');
 var React = require('react');
 var BS = require('react-bootstrap');
 var DateRangePicker = require('react-bootstrap-daterangepicker');

@@ -4,7 +4,7 @@
  * The application component. This is the top-level component.
  */
 var React = require('react');
-var Actions = require('../actions/ActionCreators.js');
+var Actions = require('../actions/ViewActionCreators.js');
 var ShardsStore = require('../stores/Shards.js');
 var Graph = require('./Graph.react.js');
 

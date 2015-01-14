@@ -24,7 +24,6 @@ var DateStore = assign(new BaseStore(), {
 });
 
 function persistDateData(response) {
-  console.log(response);
   _date = response;
 }
 

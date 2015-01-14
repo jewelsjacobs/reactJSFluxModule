@@ -5,18 +5,30 @@
  * The application component. This is the top-level component.
  */
 var React = require('react');
-//var GraphComposer = require('./stats/components/GraphComposer.react.js');
-var Actions = require('./stats/actions/ActionCreators.js');
+var Actions = require('./stats/actions/ViewActionCreators.js');
 var GraphItems = require('./stats/components/GraphItems.react.js');
 var APIUtils = require('./stats/utils/APIUtils.js');
 var GraphComposer = require('./stats/components/GraphComposer.react.js');
+var ShardsStore = require('./stats/stores/Shards.js');
 
 var Stats = React.createClass({displayName: "Stats",
+    getInitialState: function() {
+      return ShardsStore.getShardsState();
+    },
+    componentDidMount: function() {
+      ShardsStore.addChangeListener(this._onChange);
+    },
+    componentWillUnmount: function() {
+      ShardsStore.removeChangeListener(this._onChange);
+    },
+    _onChange: function() {
+      this.setState(ShardsStore.getShardsState());
+    },
     render: function() {
         return (
           React.createElement("div", {classNameName: "stats-container"}, 
-            React.createElement(GraphComposer, null), 
-            React.createElement(GraphItems, null)
+             this.state !== null ? React.createElement(GraphComposer, {data: this.state.data}) : null, 
+             this.state !== null ? React.createElement(GraphItems, {data: this.state.data}) : null
           )
         );
     }
@@ -30,7 +42,7 @@ var InstanceName = React.createClass({displayName: "InstanceName",
   },
   render: function() {
     return (
-    React.createElement("div", {className: "rs-detail-header-title"},  this.state.instanceName)
+      React.createElement("div", {className: "rs-detail-header-title"},  this.state.instanceName)
     );
   }
 });
@@ -49,7 +61,7 @@ Actions.getShards();
 
 
 
-},{"./stats/actions/ActionCreators.js":2,"./stats/components/GraphComposer.react.js":5,"./stats/components/GraphItems.react.js":6,"./stats/utils/APIUtils.js":14,"react":233}],2:[function(require,module,exports){
+},{"./stats/actions/ViewActionCreators.js":2,"./stats/components/GraphComposer.react.js":5,"./stats/components/GraphItems.react.js":6,"./stats/stores/Shards.js":11,"./stats/utils/APIUtils.js":14,"react":233}],2:[function(require,module,exports){
 'use strict';
 /**
  * Auth Action Creators.
@@ -59,7 +71,6 @@ var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 var async = require('async');
 var APIUtils = require('../utils/APIUtils.js');
-var StatNamesStore = require('../stores/StatNames.js');
 
 module.exports = {
   getShards: function() {
@@ -68,21 +79,30 @@ module.exports = {
         APIUtils.getApiUrls,
         APIUtils.getAuthHeader,
       ], function (err, results) {
-        APIUtils.getShards(
-          results[0], results[1], function (shards) {
+        APIUtils.getShards(results[0], results[1], function (err, shards) {
             AppDispatcher.handleViewAction(
-              {
-                type: ActionTypes.GET_SHARDS,
-                shards: arguments[1]
-              });
-              APIUtils.getStatNames(results[0], results[1], arguments[1], function(err, result){
-                AppDispatcher.handleViewAction({
-                   type: ActionTypes.GET_STAT_NAMES,
-                   statNames: result
-                 });
-              });
-          });
+            {
+              type: ActionTypes.GET_SHARDS,
+              shards: shards
+            });
+        });
       });
+  },
+
+  getStatNames: function(shards) {
+    APIUtils.getStatNames(shards, function (err, statNames){
+      AppDispatcher.handleViewAction({
+         type: ActionTypes.GET_STAT_NAMES,
+         statNames: statNames
+       });
+    })
+  },
+
+  selectStat: function(stat) {
+    AppDispatcher.handleViewAction({
+     type: ActionTypes.SELECT_STAT,
+     date: stat
+    });
   },
 
   getDateRange: function(date) {
@@ -95,8 +115,8 @@ module.exports = {
 };
 
 
-},{"../constants/Constants.js":8,"../dispatcher/AppDispatcher.js":9,"../stores/StatNames.js":12,"../utils/APIUtils.js":14,"async":15}],3:[function(require,module,exports){
-var Actions = require('../actions/ActionCreators.js');
+},{"../constants/Constants.js":8,"../dispatcher/AppDispatcher.js":9,"../utils/APIUtils.js":14,"async":15}],3:[function(require,module,exports){
+var Actions = require('../actions/ViewActionCreators.js');
 var React = require('react');
 var BS = require('react-bootstrap');
 var DateRangePicker = require('react-bootstrap-daterangepicker');
@@ -180,7 +200,7 @@ var DateRangeSelector = React.createClass({displayName: "DateRangeSelector",
 
 module.exports = DateRangeSelector;
 
-},{"../actions/ActionCreators.js":2,"../stores/Date.js":10,"moment":23,"react":233,"react-bootstrap":77,"react-bootstrap-daterangepicker":26}],4:[function(require,module,exports){
+},{"../actions/ViewActionCreators.js":2,"../stores/Date.js":10,"moment":23,"react":233,"react-bootstrap":77,"react-bootstrap-daterangepicker":26}],4:[function(require,module,exports){
 /** @jsx React.DOM */
 'use strict';
 /**
@@ -268,14 +288,32 @@ var React = require('react');
 var BS = require('react-bootstrap');
 var DateRangeSelector = require('./DateRangeSelector.react.js');
 var StatNames = require('./StatNames.react.js');
+var StatNamesStore = require('../stores/StatNames.js');
+var Actions = require('../actions/ViewActionCreators.js');
 
 var GraphComposer = React.createClass({displayName: "GraphComposer",
+  getInitialState: function() {
+    return StatNamesStore.getStatNamesState();
+  },
+  componentWillMount: function() {
+    Actions.getStatNames(this.props.data);
+  },
+  componentDidMount: function() {
+    StatNamesStore.addChangeListener(this._onChange);
+  },
+  componentWillUnmount: function() {
+    StatNamesStore.removeChangeListener(this._onChange);
+  },
+  _onChange: function() {
+    this.setState(StatNamesStore.getStatNamesState());
+  },
   render: function() {
+    console.log(this.state);
     return (
       React.createElement(BS.Grid, null, 
         React.createElement(BS.Row, {className: "show-grid"}, 
-          React.createElement(StatNames, null), 
-          React.createElement(DateRangeSelector, null)
+             this.state !== null ? React.createElement(StatNames, {names: this.state.names}) : null, 
+             this.state !== null ? React.createElement(DateRangeSelector, null) : null
         )
       )
     );
@@ -284,14 +322,14 @@ var GraphComposer = React.createClass({displayName: "GraphComposer",
 
 module.exports = GraphComposer;
 
-},{"./DateRangeSelector.react.js":3,"./StatNames.react.js":7,"react":233,"react-bootstrap":77}],6:[function(require,module,exports){
+},{"../actions/ViewActionCreators.js":2,"../stores/StatNames.js":12,"./DateRangeSelector.react.js":3,"./StatNames.react.js":7,"react":233,"react-bootstrap":77}],6:[function(require,module,exports){
 /** @jsx React.DOM */
 'use strict';
 /**
  * The application component. This is the top-level component.
  */
 var React = require('react');
-var Actions = require('../actions/ActionCreators.js');
+var Actions = require('../actions/ViewActionCreators.js');
 var ShardsStore = require('../stores/Shards.js');
 var Graph = require('./Graph.react.js');
 
@@ -334,7 +372,7 @@ var GraphItems = React.createClass({displayName: "GraphItems",
 
 module.exports = GraphItems;
 
-},{"../actions/ActionCreators.js":2,"../stores/Shards.js":11,"./Graph.react.js":4,"react":233}],7:[function(require,module,exports){
+},{"../actions/ViewActionCreators.js":2,"../stores/Shards.js":11,"./Graph.react.js":4,"react":233}],7:[function(require,module,exports){
 /** @jsx React.DOM */
 'use strict';
 /**
@@ -342,32 +380,31 @@ module.exports = GraphItems;
  */
 var React = require('react');
 var BS = require('react-bootstrap');
-var Actions = require('../actions/ActionCreators.js');
+var Actions = require('../actions/ViewActionCreators.js');
 var StatNamesStore = require('../stores/StatNames.js');
 
 var StatNames = React.createClass({displayName: "StatNames",
-  getInitialState: function() {
-    return StatNamesStore.getStatNamesState()
-  },
-  componentDidMount: function() {
-    StatNamesStore.addChangeListener(this._onChange);
-  },
-  componentWillUnmount: function() {
-    StatNamesStore.removeChangeListener(this._onChange);
-  },
-  _onChange: function() {
-    this.setState(StatNamesStore.getStatNamesState());
-  },
+  //getInitialState: function() {
+  //  return StatNamesStore.getStatNamesState();
+  //},
+  //componentWillMount: function() {
+  //},
+  //componentDidMount: function() {
+  //  StatNamesStore.addChangeListener(this._onChange);
+  //},
+  //componentWillUnmount: function() {
+  //  StatNamesStore.removeChangeListener(this._onChange);
+  //},
+  //_onChange: function() {
+  //  this.setState(StatNamesStore.getStatNamesState());
+  //},
   render: function() {
-    var options = "";
-    if (this.state !== null) {
-      var options = this.state.names.map(
-        function (name, index) {
-          return (
-            React.createElement("option", {value: name, key: index}, name)
-          )
-        });
-    }
+    var options = this.props.names.map(
+      function (name, index) {
+        return (
+          React.createElement("option", {value: name, key: index}, name)
+        )
+      });
     return (
       React.createElement(BS.Col, {xs: 8, md: 4}, 
         React.createElement(BS.Input, {type: "select", label: "Stat", defaultValue: "mongodb.opcounters.query"}, 
@@ -380,7 +417,7 @@ var StatNames = React.createClass({displayName: "StatNames",
 
 module.exports = StatNames;
 
-},{"../actions/ActionCreators.js":2,"../stores/StatNames.js":12,"react":233,"react-bootstrap":77}],8:[function(require,module,exports){
+},{"../actions/ViewActionCreators.js":2,"../stores/StatNames.js":12,"react":233,"react-bootstrap":77}],8:[function(require,module,exports){
 'use strict';
 /**
  * Application constants.
@@ -391,9 +428,9 @@ module.exports = {
 
   ActionTypes: keyMirror({
    GET_SHARDS: null,
+   SELECT_STAT: null,
    GET_STAT_NAMES: null,
-   GET_DATE_RANGE: null,
-   GET_SELECTED_STAT_NAME: null
+   GET_DATE_RANGE: null
   }),
 
   PayloadSources: keyMirror({
@@ -466,7 +503,6 @@ var DateStore = assign(new BaseStore(), {
 });
 
 function persistDateData(response) {
-  console.log(response);
   _date = response;
 }
 
@@ -502,6 +538,7 @@ var BaseStore = require('./Store.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 var _shards = null;
+var _state = null;
 
 var ShardsStore = assign(new BaseStore(), {
 
@@ -513,13 +550,16 @@ var ShardsStore = assign(new BaseStore(), {
     return _shards;
   },
 
-  CHANGE_EVENT: 'SHARDS_CHANGE_EVENT'
+  getDataState: function() {
+    return _state;
+  },
 
+  CHANGE_EVENT: 'SHARDS_CHANGE_EVENT'
 });
 
 function persistShardsData(response) {
   _shards = response;
-}
+};
 
 /**
  * Register with the dispatcher to handle Data needed on App Boostrap related actions.
@@ -533,7 +573,7 @@ ShardsStore.dispatchToken = AppDispatcher.register(function(payload) {
     case ActionTypes.GET_SHARDS:
       persistShardsData(action.shards);
       ShardsStore.emitChange();
-      break;
+    break;
 
     default:
 
@@ -551,10 +591,8 @@ var assign = require('object-assign');
 var AppDispatcher = require('../dispatcher/AppDispatcher.js');
 var BaseStore = require('./Store.js');
 var Constants = require('../constants/Constants.js');
-var ShardsStore = require('./Shards');
 var ActionTypes = Constants.ActionTypes;
 var _statNames = null;
-
 
 var StatNamesStore = assign(new BaseStore(), {
 
@@ -572,7 +610,7 @@ var StatNamesStore = assign(new BaseStore(), {
 
 function persistStatNamesData(response) {
   _statNames = response;
-}
+};
 
 /**
  * Register with the dispatcher to handle Data needed on App Boostrap related actions.
@@ -595,7 +633,7 @@ StatNamesStore.dispatchToken = AppDispatcher.register(function(payload) {
 
 module.exports = StatNamesStore;
 
-},{"../constants/Constants.js":8,"../dispatcher/AppDispatcher.js":9,"./Shards":11,"./Store.js":13,"object-assign":24}],13:[function(require,module,exports){
+},{"../constants/Constants.js":8,"../dispatcher/AppDispatcher.js":9,"./Store.js":13,"object-assign":24}],13:[function(require,module,exports){
 'use strict';
 /**
  * A template store module.
@@ -659,7 +697,6 @@ module.exports = Store;
 },{"../constants/Constants.js":8,"events":16,"object-assign":24}],14:[function(require,module,exports){
 var request = require('superagent');
 var async = require('async');
-var request = require('superagent');
 var _ = require('lodash');
 var API_URLS_ROUTE = '/api_urls';
 var TOKEN_ROUTE = '/api_token';
@@ -668,9 +705,25 @@ var _authHeader = null;
 //var _instanceName = window.location.pathname.split( '/' )[2];
 var _instanceName = "appboy01_prod";
 var _shards = null;
-var _statnames = null;
+var _statNames = null;
 
-module.exports = {
+function granularity(toDate, fromDate){
+  var secondsDiff = toDate.diff(fromDate, 'seconds');
+  var granularity = null;
+
+  // pick the granularity to be reasonable based on the timespan chosen.
+  if (secondsDiff <= 360) { // 6 hours
+    granularity = 'minute';
+  } else if (secondsDiff <= 259200) {  // 72 hours
+    granularity = 'hour';
+  } else {
+    granularity = 'day';
+  }
+
+  return granularity;
+}
+
+var ApiUtils = {
   formatURL: function(string) {
 
       var output = string;
@@ -744,74 +797,72 @@ module.exports = {
        });
   },
 
-  getStatNames: function(apiUrl, authHeader, shards, cb) {
-
-    if (_statnames !== null) {
-      cb(null, _statnames);
+  getStatNames: function(shards, cb) {
+    if (_statNames !== null) {
+      cb(null, _statNames);
       return;
     };
 
-    var resultArray = _.pairs(shards.data[0]);
+    var resultArray = _.pairs(shards[0]);
 
     return request
       .get(
       this.formatURL(
         "{0}/v2/instance/{1}/host/{2}/stats/available",
-        apiUrl.apiv2,
+        _apiUrls.apiv2,
         _instanceName,
         resultArray[0][1][0]
       ))
-      .set(authHeader)
+      .set(_authHeader)
       .end(function(err, res) {
-            _statnames = res.body;
-             cb(err, _statnames);
-           });
+        _statNames = res.body;
+        cb(err, _statNames);
+      });
   },
 
   /**
-   * {"stats": [{
-   * "instance": "...",
-   * "host": "...",
-   * "name": "..."
-   *   }]}
+   *
+   * API call to get Graph data
+   *
+   * @param statName
+   * @param hosts
    * @param startDate
    * @param endDate
-   * @param granularity
    * @param cb
    * @returns {Request}
    */
-  getGraph: function(
-    apiUrl,
-    authHeader,
-    startDate,
-    endDate,
-    granularity,
+  getGraph: function(statName, hosts, startDate, endDate, cb) {
+    var startTime = moment(startDate).utc().format("YYYY-MM-DD HH:mm:ss");
+    var endTime = moment(endDate).utc().format("YYYY-MM-DD HH:mm:ss");
+    var stats = [];
 
-    cb) {
-
-    if (_statnames !== null) {
-      cb(null, _statnames);
-      return;
-    };
+    _.forEach(hosts, function(host){
+      stats.push({
+         "instance": _instanceName,
+         "host": host,
+         "name": statName
+       });
+    });
 
     return request
       .post(
       this.formatURL(
         "{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={3}",
-        apiUrl.apiv2,
-        granularity,
-        startDate,
-        endDate
+        _apiUrls.apiv2,
+        granularity(startDate, endDate),
+        startTime,
+        endTime
       ))
-      .send({ name: 'Manny', species: 'cat' })
-      .set(authHeader)
+      .send({ stats: stats })
+      .set(_authHeader)
       .end(function(err, res) {
-             _statnames = res.body;
-             cb(err, _statnames);
-           });
+         cb(err, res.body);
+       });
   }
 
 };
+
+module.exports = ApiUtils;
 
 },{"async":15,"lodash":22,"superagent":234}],15:[function(require,module,exports){
 (function (process){

@@ -1,6 +1,5 @@
 var request = require('superagent');
 var async = require('async');
-var request = require('superagent');
 var _ = require('lodash');
 var API_URLS_ROUTE = '/api_urls';
 var TOKEN_ROUTE = '/api_token';
@@ -9,9 +8,25 @@ var _authHeader = null;
 //var _instanceName = window.location.pathname.split( '/' )[2];
 var _instanceName = "appboy01_prod";
 var _shards = null;
-var _statnames = null;
+var _statNames = null;
 
-module.exports = {
+function granularity(toDate, fromDate){
+  var secondsDiff = toDate.diff(fromDate, 'seconds');
+  var granularity = null;
+
+  // pick the granularity to be reasonable based on the timespan chosen.
+  if (secondsDiff <= 360) { // 6 hours
+    granularity = 'minute';
+  } else if (secondsDiff <= 259200) {  // 72 hours
+    granularity = 'hour';
+  } else {
+    granularity = 'day';
+  }
+
+  return granularity;
+}
+
+var ApiUtils = {
   formatURL: function(string) {
 
       var output = string;
@@ -85,71 +100,69 @@ module.exports = {
        });
   },
 
-  getStatNames: function(apiUrl, authHeader, shards, cb) {
-
-    if (_statnames !== null) {
-      cb(null, _statnames);
+  getStatNames: function(shards, cb) {
+    if (_statNames !== null) {
+      cb(null, _statNames);
       return;
     };
 
-    var resultArray = _.pairs(shards.data[0]);
+    var resultArray = _.pairs(shards[0]);
 
     return request
       .get(
       this.formatURL(
         "{0}/v2/instance/{1}/host/{2}/stats/available",
-        apiUrl.apiv2,
+        _apiUrls.apiv2,
         _instanceName,
         resultArray[0][1][0]
       ))
-      .set(authHeader)
+      .set(_authHeader)
       .end(function(err, res) {
-            _statnames = res.body;
-             cb(err, _statnames);
-           });
+        _statNames = res.body;
+        cb(err, _statNames);
+      });
   },
 
   /**
-   * {"stats": [{
-   * "instance": "...",
-   * "host": "...",
-   * "name": "..."
-   *   }]}
+   *
+   * API call to get Graph data
+   *
+   * @param statName
+   * @param hosts
    * @param startDate
    * @param endDate
-   * @param granularity
    * @param cb
    * @returns {Request}
    */
-  getGraph: function(
-    apiUrl,
-    authHeader,
-    startDate,
-    endDate,
-    granularity,
+  getGraph: function(statName, hosts, startDate, endDate, cb) {
+    var startTime = moment(startDate).utc().format("YYYY-MM-DD HH:mm:ss");
+    var endTime = moment(endDate).utc().format("YYYY-MM-DD HH:mm:ss");
+    var stats = [];
 
-    cb) {
-
-    if (_statnames !== null) {
-      cb(null, _statnames);
-      return;
-    };
+    _.forEach(hosts, function(host){
+      stats.push({
+         "instance": _instanceName,
+         "host": host,
+         "name": statName
+       });
+    });
 
     return request
       .post(
       this.formatURL(
         "{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={3}",
-        apiUrl.apiv2,
-        granularity,
-        startDate,
-        endDate
+        _apiUrls.apiv2,
+        granularity(startDate, endDate),
+        startTime,
+        endTime
       ))
-      .send({ name: 'Manny', species: 'cat' })
-      .set(authHeader)
+      .send({ stats: stats })
+      .set(_authHeader)
       .end(function(err, res) {
-             _statnames = res.body;
-             cb(err, _statnames);
-           });
+         cb(err, res.body);
+       });
   }
 
 };
+
+module.exports = ApiUtils;

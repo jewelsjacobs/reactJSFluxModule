@@ -8,6 +8,7 @@ var BaseStore = require('./Store.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 var _shards = null;
+var _state = null;
 
 var ShardsStore = assign(new BaseStore(), {
 
@@ -19,13 +20,16 @@ var ShardsStore = assign(new BaseStore(), {
     return _shards;
   },
 
-  CHANGE_EVENT: 'SHARDS_CHANGE_EVENT'
+  getDataState: function() {
+    return _state;
+  },
 
+  CHANGE_EVENT: 'SHARDS_CHANGE_EVENT'
 });
 
 function persistShardsData(response) {
   _shards = response;
-}
+};
 
 /**
  * Register with the dispatcher to handle Data needed on App Boostrap related actions.
@@ -39,7 +43,7 @@ ShardsStore.dispatchToken = AppDispatcher.register(function(payload) {
     case ActionTypes.GET_SHARDS:
       persistShardsData(action.shards);
       ShardsStore.emitChange();
-      break;
+    break;
 
     default:
 

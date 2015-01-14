@@ -7,38 +7,38 @@ var AppDispatcher = require('../dispatcher/AppDispatcher.js');
 var BaseStore = require('./Store.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
-var _statNames = null;
+var _graph = null;
 
-var StatNamesStore = assign(new BaseStore(), {
+var GraphStore = assign(new BaseStore(), {
 
   emitChange: function() {
     this.emit(this.CHANGE_EVENT);
   },
 
-  getStatNamesState: function() {
-    return _statNames;
+  getDateState: function() {
+    return _graph;
   },
 
-  CHANGE_EVENT: 'STAT_NAMES_CHANGE_EVENT'
+  CHANGE_EVENT: 'GRAPH_CHANGE_EVENT'
 
 });
 
-function persistStatNamesData(response) {
-  _statNames = response;
-};
+function persistGraphData(response) {
+  _graph = response;
+}
 
 /**
  * Register with the dispatcher to handle Data needed on App Boostrap related actions.
  */
-StatNamesStore.dispatchToken = AppDispatcher.register(function(payload) {
+GraphStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   var action = payload.action;
 
   switch(action.type) {
 
-    case ActionTypes.GET_STAT_NAMES:
-      persistStatNamesData(action.statNames);
-      StatNamesStore.emitChange();
+    case ActionTypes.UPDATE_GRAPH:
+      persistGraphData(action.date);
+      GraphStore.emitChange();
       break;
 
     default:
@@ -46,4 +46,4 @@ StatNamesStore.dispatchToken = AppDispatcher.register(function(payload) {
   }
 });
 
-module.exports = StatNamesStore;
+module.exports = GraphStore;
