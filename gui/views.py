@@ -1309,7 +1309,7 @@ def logout():
 def sign_up():
     """The signup form."""
     # Don't want any random person to just sign up for a QA account.
-    if app.config.CONFIG_MODE == 'qa':
+    if app.config['CONFIG_MODE'] == 'qa':
         flash('Please contact ObjectRocket support if you need a QA account.', canon_constants.STATUS_WARNING)
         return redirect(url_for('sign_in'))
 
