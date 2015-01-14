@@ -1,0 +1,26 @@
+{% extends 'web_app_base.html' %}
+
+{% block title %}
+    SSO Test
+{% endblock title %}
+
+{% block body %}
+
+    {% if not auto_submit %}{{ field_name }}{% endif %}
+    <form method="post" action="{{ send_to }}" id="SAMLForm">
+      <input type="hidden" name="{{ field_name }}" value="{{ saml }}" />
+      {% if relay_state %}<input type="hidden" name="RelayState" value="{{ relay_state }}" />{% endif %}
+      <input type="submit" value="Submit"{% if auto_submit %} style="display:none;"{% endif %} />
+    </form>
+    {% if not auto_submit %}
+    <hr>
+    <pre>{{ saml_xml }}</pre>
+    {% endif %}
+
+    {% block script %}
+        <script type="text/javascript">
+        {% if auto_submit %}document.getElementById('SAMLForm').submit();{% endif %}
+        </script>
+    {% endblock script %}
+
+{% endblock body %}
