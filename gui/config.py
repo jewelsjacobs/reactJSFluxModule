@@ -143,8 +143,9 @@ class QAConfig(Config):
 
 
 class UnittestingConfig(Config):
-
     """Configuration for unit testing mode."""
+
+    CONFIG_MODE = 'test'
     GUI_ENV_NAME = os.getenv('GUI_ENV_NAME') or 'Unittest'
     TESTING = True
     ACTIVE_DATASTORES = ['mongodb', 'redis', 'tokumx']

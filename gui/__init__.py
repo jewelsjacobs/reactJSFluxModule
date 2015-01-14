@@ -16,7 +16,7 @@ def create_app(config_name='default'):
 
     # Register blueprints.
     # Keep SSO code out of prod for now.
-    if app.config.CONFIG_MODE == 'qa':
+    if app.config['CONFIG_MODE'] != 'production':
         app.register_blueprint(raxsso_blueprint)
 
     return app

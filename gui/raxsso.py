@@ -58,10 +58,11 @@ def sso_consumer():
 
         # Session keys for migration stages.
         session[sso.constants.SSO] = True
-        session[sso.constants.USERNAME] = user_info[sso.constants.SAML_USERNAME]
-        session[sso.constants.TENANT_ID] = user_info[sso.constants.SAML_USER_ID]
-        session[sso.constants.EMAIL] = user_info[sso.constants.SAML_EMAIL]
+        session[sso.constants.AUTH_TOKEN] = user_info[sso.constants.SAML_AUTH_TOKEN]
         session[sso.constants.DDI] = user_info[sso.constants.SAML_DDI]
+        session[sso.constants.EMAIL] = user_info[sso.constants.SAML_EMAIL]
+        session[sso.constants.TENANT_ID] = user_info[sso.constants.SAML_USER_ID]
+        session[sso.constants.USERNAME] = user_info[sso.constants.SAML_USERNAME]
 
     # Fetch info on the tenant that is logging in.
     tenant_id = session[sso.constants.TENANT_ID]
@@ -185,11 +186,21 @@ def sso_idp():
     return render_template('sso/_sso_test.html', **context)
 
 
-@bp.route('/slo/request/')
-def slo_request():
+@bp.route('/sso/logout/request/', methods=['POST'])
+def sso_logout_request():
+    """NEEDS IMPLEMENTATION
+
+    Endpoint needs to respond with a SAML LogoutResponse in the response body,
+    and a 200 status code.
+    """
     return 200
 
 
-@bp.route('/slo/response/')
-def slo_response():
+@bp.route('/sso/logout/response/', methods=['POST'])
+def sso_logout_response():
+    """NEEDS IMPLEMENTATION
+
+    This endpoint should respond with a 200 upon success. No content needs to
+    be returned in the body.
+    """
     return 200
