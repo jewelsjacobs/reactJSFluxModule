@@ -145,7 +145,79 @@ img.invoice-logo {
     margin-left: 2px;
 }
 
-/* === focus panel code === */
+/* === migration page code === */
+.rs-focus-panel {
+    margin: auto;
+    padding: 0;
+    background: none repeat scroll 0% 0% #FFF;
+    box-shadow: 0px 3px 8px 1px #C2C2C2;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    position: fixed;
+}
+#rs-focus-panel-initial-sso {
+    width: 770px;
+    height: 380px;
+}
+#rs-focus-panel-seamless-login {
+    width: 640px;
+    height: 410px;
+}
+#rs-focus-panel-link-account {
+    width: 770px;
+    height: 440px;
+}
+.rs-focus-panel-content {
+    width: 100%;
+}
+.rs-focus-panel-header {
+    padding: 15px;
+    background-color: #333;
+}
+.rs-focus-panel-body {
+    padding: 15px;
+}
+.rs-focus-panel-footer {
+    padding: 15px;
+}
+
+.rs-focus-panel-header h2 {
+    margin: 0px;
+    padding: 0px;
+    color: #FFF;
+    font-weight: 600;
+}
+.rs-focus-panel-body h3 {
+    margin: 20px 0px;
+}
+.rs-focus-panel-body h4 {
+    font-size: 1.2em;
+    font-weight: 600;
+}
+.rs-btn-info {
+    background-color: #1E6DC0;
+    background-image: none;
+    border-color: #333;
+    color: #FFF;
+    text-shadow: 0px 1px rgba(0, 0, 0, 0.1);
+}
+.rs-btn-large {
+    font-size: 14px;
+    padding: 7px 14px;
+}
+.rs-btn-info:hover {
+    background-image: none;
+    color: #FFF;
+    background-color: #2B84E1;
+}
+.rs-control-group-center {
+    margin: auto;
+    width: 50%;
+}
+
+/* === login panel code === */
 .or-focus-panel {
     top: 50%;
     left: 50%;
@@ -222,7 +294,7 @@ img.invoice-logo {
     left: 0;
 }
 
-.or-focus-panel .or-focus-panel-messages {
+.or-focus-panel .or-focus-panel-messages, .rs-focus-panel .or-focus-panel-messages {
     top: -9%;
     position: absolute;
     width: 100%;
@@ -236,29 +308,42 @@ img.invoice-logo {
 .align-center {
     text-align: center;
 }
-
+.align-right {
+    text-align: right;
+}
+.large {
+    font-size: 16px !important;
+    line-height: 26px !important;
+}
+.no-caps {
+    text-transform: none;
+}
 .width-halfem {
     width: 0.5em;
 }
-
 .min-height-1em {
     min-height: 1em;
 }
-
-.vertical-padding-helfem {
+.vertical-padding-halfem {
     padding: 0.5em 0;
 }
-
 .valign-baseline {
     vertical-align: baseline;
 }
-
 .valign-middle {
     vertical-align: middle;
 }
-
 .white-space-normal {
     white-space: normal;
+}
+.max-height {
+    height: 100%;
+}
+.max-width {
+    width: 100%;
+}
+.inline-block-children * {
+    display: inline-block;
 }
 
 /* === paragraph styles === */

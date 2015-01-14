@@ -28,7 +28,7 @@
             <div class="or-login-form">
                <p class="or-login-welcome">Create an account</p>
                 <form id="signup-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_up') }}" method="POST">
-                    
+
                     <div class="rs-control-group">
                         <label class="rs-control-label" for="name">Name</label>
                         <div class="rs-controls">
@@ -112,7 +112,7 @@
     {% block script %}
         {{ super() }}
         {{ coremetrics_conversion("Signup") }}
-        
+
         <script type="text/javascript">
         $(document).ready(function() {
             $('a[href=#tos]').click(function(e) {
@@ -123,7 +123,7 @@
                 $('#tos').fadeOut();
                 e.preventDefault();
             });
-            
+
             // Validation for sign up form.
             $('#signup-form').validate({
                 rules: {

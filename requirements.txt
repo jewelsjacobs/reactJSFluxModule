@@ -4,4 +4,5 @@ Flask-KVSession==0.6.1
 Flask-WTF==0.9.5
 Flask==0.10.1
 gunicorn==0.14.6
-http://mon1.sjc.objectrocket.com/viper-2.9.9-py27-none-any.whl
+http://mon1.sjc.objectrocket.com/viper-2.11.0-py27-none-any.whl
+http://mon1.sjc.objectrocket.com/wheelhouse/viper_sso-0.1.6-py27-none-any.whl
