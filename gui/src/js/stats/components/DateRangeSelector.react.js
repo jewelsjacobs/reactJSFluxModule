@@ -2,6 +2,7 @@ var Actions = require('../actions/ActionCreators.js');
 var React = require('react');
 var BS = require('react-bootstrap');
 var DateRangePicker = require('react-bootstrap-daterangepicker');
+var DateStore = require('../stores/Date.js');
 var moment = require('moment');
 
 var DateRangeSelector = React.createClass({
@@ -43,6 +44,15 @@ var DateRangeSelector = React.createClass({
       startDate: picker.startDate,
       endDate: picker.endDate
     });
+  },
+  componentDidMount: function() {
+    DateStore.addChangeListener(this._onChange);
+  },
+  componentWillUnmount: function() {
+    DateStore.removeChangeListener(this._onChange);
+  },
+  _onChange: function() {
+    this.setState(DateStore.getDateState());
   },
   render: function () {
     var start = this.state.startDate.format('YYYY-MM-DD h:mm:ss a');

@@ -5,44 +5,38 @@
  */
 var React = require('react');
 var Actions = require('../actions/ActionCreators.js');
-var StatsNamesStore = require('../stores/StatsNames.js');
+var ShardsStore = require('../stores/Shards.js');
 var Graph = require('./Graph.react.js');
-
-function getStatsNamesState() {
-  return {
-    stats: this.prop.shardsAndReplicaSets
-  };
-}
 
 var GraphItems = React.createClass({
   getInitialState: function() {
-   return getStatsNamesState();
+   return ShardsStore.getShardsState()
   },
   componentDidMount: function() {
-   StatsNamesStore.addChangeListener(this._onChange);
+    ShardsStore.addChangeListener(this._onChange);
   },
   componentWillUnmount: function() {
-   StatsNamesStore.removeChangeListener(this._onChange);
+   ShardsStore.removeChangeListener(this._onChange);
   },
-  /**
-  * Event handler for 'change' events coming from the stores
-  */
   _onChange: function() {
-   this.setState(getStatsNamesState());
+   this.setState(ShardsStore.getShardsState());
   },
   render: function() {
-    console.log(this.state);
-    var graphs = this.state.stats.map(function(stat, index) {
-      console.log(stat, index);
-      return (
-        <div key={index}>
-          //<h4 className="replset-header">
-          //  ReplicaSet: {stat.host_name}
-          //</h4>
-          //<Graph data={stat.data} />
-        </div>
-      );
-    });
+    var graphs = "";
+    if (this.state !== null) {
+      var graphs = this.state.data.map(
+        function (stat, index) {
+          var replicaset = Object.keys(stat)[0];
+          return (
+            <div key={index}>
+              <h4 className="replset-header">
+                ReplicaSet: {replicaset}
+              </h4>
+              <Graph data={stat} />
+            </div>
+          );
+        });
+    }
     return (
       <div>
         {graphs}

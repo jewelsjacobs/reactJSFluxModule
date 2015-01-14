@@ -25,6 +25,7 @@
     "envify": "^3.2.0",
     "flux": "2.0.1",
     "keymirror": "^0.1.1",
+    "lodash": "^2.4.1",
     "moment": "^2.9.0",
     "object-assign": "^2.0.0",
     "react": "0.12.2",
