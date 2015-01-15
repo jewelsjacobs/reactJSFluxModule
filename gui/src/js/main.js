@@ -52,7 +52,6 @@ var Stats = React.createClass({
       });
     },
     onStatNameValueChange: function() {
-      debugger;
       this.setState({
         value: event.target.value
       });

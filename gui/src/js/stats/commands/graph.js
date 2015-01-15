@@ -12,7 +12,6 @@ var moment = require('moment');
 var GRAPH_ROUTE = "{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={3}";
 
 function _granularity(fromDate, toDate){
-  debugger;
   var secondsDiff = toDate.diff(fromDate, 'seconds');
   var granularity = null;
 
