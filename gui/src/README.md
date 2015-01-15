@@ -16,7 +16,7 @@ It is also using [canon-bootstrap](https://github.com/rackerlabs/canon-bootstrap
 
 ## Install:
 To use the current branch with the react-stats module you will have to clone the react-stats branch from this repo :
-`git clone git@github.com:jewelsjacobs/gui.git --branch react_stats --single-branch <yourappfolder>`
+`git clone git@github.com:jewelsjacobs/gui.git --branch react_stats_two --single-branch <yourappfolder>`
 
 * From the root project directory run these commands from the command line:
 ```
