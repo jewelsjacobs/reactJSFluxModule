@@ -10,7 +10,7 @@ var ShardsCommand = require('./shards.js');
 var APIUtils = require('../utils/APIUtils.js');
 
 //
-// 
+//
 //
 
 var STAT_NAMES_ROUTE = "{0}/v2/instance/{1}/host/{2}/stats/available";
@@ -31,23 +31,23 @@ function StatNamesCommand(options) {
 };
 
 StatNamesCommand.prototype = _.extend({}, BaseCommand.prototype, {
-     run: function(err, data, callback) {         
+     run: function(err, data, callback) {
          // cache the response here
          if (_statNames !== null) {
              callback(err, _statNames);
              return
          }
-                  
+
          var shardArray = _.pairs(data['shards'][0]);
          var hostname = shardArray[0][1][0];
-         
+
          var url = APIUtils.formatURL(
-             STAT_NAMES_ROUTE, 
+             STAT_NAMES_ROUTE,
              data['api_urls']['apiv2'],
              APIUtils.instanceName,
              hostname
          );
-         
+
          request.get(url)
              .set(data['auth_headers'])
              .end(function (err, response) {

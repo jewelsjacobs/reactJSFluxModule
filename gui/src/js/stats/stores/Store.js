@@ -36,6 +36,7 @@ Store.prototype = assign(new EventEmitter(), {
      * Register a callback to be invoked upon CHANGE_EVENT emissions.
      */
     addChangeListener: function(callback) {
+        this.setMaxListeners(50);
         this.on(this.CHANGE_EVENT, callback);
     },
 

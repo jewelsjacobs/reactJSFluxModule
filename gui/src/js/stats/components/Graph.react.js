@@ -36,25 +36,22 @@ var _options = {
 
 var Graph = React.createClass({
   getInitialState: function() {
-    return GraphStore.getGraphState();
+    return {data: []}
   },
   componentWillUnmount: function() {
     GraphStore.removeChangeListener(this._onChange);
   },
-  componentWillMount: function() {
-    _.forEach(this.props.data, function(hosts){
-      console.log(hosts);
-      Actions.getGraphParams({ hosts: hosts });
-    });
-  },
   componentDidMount: function() {
-   GraphStore.addChangeListener(this._onChange);
+    GraphStore.addChangeListener(this._onChange);
+    Actions.getGraphData(this.props.replicaset, this.props.statName, this.props.startDate, this.props.endDate, this.props.hosts);
   },
-  _onChange: function(event) {
-    this.setState(GraphStore.getGraphState());
+  _onChange: function(replicaset) {
+    if (replicaset != this.props.replicaset) {
+      return;
+    }
+    this.setState({data: GraphStore.getGraphState(this.props.replicaset)});
   },
   render: function() {
-    console.log(this.state);
     /*These lines are all chart setup.  Pick and choose which chart features you want to utilize. */
     var graph = nv.addGraph(function() {
       var chart = nv.models.lineChart()
@@ -73,7 +70,7 @@ var Graph = React.createClass({
         .axisLabel(_options.y(''));
 
       d3.select('#chart svg')    //Select the <svg> element you want to render the chart in.
-        .datum('')         //Populate the <svg> element with chart data...
+        .datum(this.state.data)         //Populate the <svg> element with chart data...
         .call(chart);          //Finally, render the chart!
 
       return chart;
