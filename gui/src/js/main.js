@@ -57,5 +57,3 @@ React.render(
 );
 
 Actions.getShards();
-
-
