@@ -5,6 +5,9 @@
  */
 var React = require('react');
 var moment = require('moment');
+var Actions = require('../actions/ViewActionCreators.js');
+var GraphStore = require('../stores/Graph.js');
+var _ = require('lodash');
 
 var _options = {
   "type": "lineChart",
@@ -33,14 +36,25 @@ var _options = {
 
 var Graph = React.createClass({
   getInitialState: function() {
-   return {
-     graphData : this.props.data
-   };
+    return GraphStore.getGraphState();
+  },
+  componentWillUnmount: function() {
+    GraphStore.removeChangeListener(this._onChange);
+  },
+  componentWillMount: function() {
+    _.forEach(this.props.data, function(hosts){
+      console.log(hosts);
+      Actions.getGraphParams({ hosts: hosts });
+    });
   },
   componentDidMount: function() {
-   this.setState({graphData : this.props.data});
+   GraphStore.addChangeListener(this._onChange);
+  },
+  _onChange: function(event) {
+    this.setState(GraphStore.getGraphState());
   },
   render: function() {
+    console.log(this.state);
     /*These lines are all chart setup.  Pick and choose which chart features you want to utilize. */
     var graph = nv.addGraph(function() {
       var chart = nv.models.lineChart()
@@ -52,14 +66,14 @@ var Graph = React.createClass({
           .showXAxis(true);        //Show the x-axis
 
       chart.xAxis     //Chart x-axis settings
-        .axisLabel(_options.x(this.state.graphData))
+        .axisLabel(_options.x(''))
         .tickFormat(_options.xAxis.tickFormat());
 
       chart.yAxis     //Chart y-axis settings
-        .axisLabel(_options.y(this.state.graphData));
+        .axisLabel(_options.y(''));
 
       d3.select('#chart svg')    //Select the <svg> element you want to render the chart in.
-        .datum(this.state.graphData)         //Populate the <svg> element with chart data...
+        .datum('')         //Populate the <svg> element with chart data...
         .call(chart);          //Finally, render the chart!
 
       return chart;

@@ -8,6 +8,12 @@ var BaseStore = require('./Store.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 var _graph = null;
+var _graphParams = {
+  statName: 'mongodb.opcounters.query',
+  startDate: null,
+  endDate: null,
+  hosts: null
+};
 
 var GraphStore = assign(new BaseStore(), {
 
@@ -15,8 +21,12 @@ var GraphStore = assign(new BaseStore(), {
     this.emit(this.CHANGE_EVENT);
   },
 
-  getDateState: function() {
+  getGraphState: function() {
     return _graph;
+  },
+
+  getGraphParams: function() {
+    return _graphParams
   },
 
   CHANGE_EVENT: 'GRAPH_CHANGE_EVENT'
@@ -25,6 +35,10 @@ var GraphStore = assign(new BaseStore(), {
 
 function persistGraphData(response) {
   _graph = response;
+}
+
+function persistGraphParams(response) {
+  _.merge(_graphParams, response);
 }
 
 /**
@@ -36,8 +50,13 @@ GraphStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   switch(action.type) {
 
-    case ActionTypes.UPDATE_GRAPH:
-      persistGraphData(action.date);
+    case ActionTypes.GET_GRAPH_DATA:
+      persistGraphData(action.graphData);
+      GraphStore.emitChange();
+      break;
+
+    case ActionTypes.GET_GRAPH_PARAMS:
+      persistGraphParams(action.paramObj);
       GraphStore.emitChange();
       break;
 

@@ -2,8 +2,8 @@ var Actions = require('../actions/ViewActionCreators.js');
 var React = require('react');
 var BS = require('react-bootstrap');
 var DateRangePicker = require('react-bootstrap-daterangepicker');
-var DateStore = require('../stores/Date.js');
 var moment = require('moment');
+//var GraphStore = require('../stores/Graph.js');
 
 var DateRangeSelector = React.createClass({
   getInitialState: function () {
@@ -33,11 +33,11 @@ var DateRangeSelector = React.createClass({
       granularity = 'day';
     };
 
-    Actions.getDateRange({
-     startDate :  this.state.startDate,
-     endDate : this.state.endDate,
-     granularity : granularity
-    });
+    Actions.getGraphParams({
+       startDate :  this.state.startDate,
+       endDate : this.state.endDate,
+       granularity : granularity
+     });
   },
   handleEvent: function (event, picker) {
     this.setState({
@@ -45,15 +45,12 @@ var DateRangeSelector = React.createClass({
       endDate: picker.endDate
     });
   },
-  componentDidMount: function() {
-    DateStore.addChangeListener(this._onChange);
-  },
-  componentWillUnmount: function() {
-    DateStore.removeChangeListener(this._onChange);
-  },
-  _onChange: function() {
-    this.setState(DateStore.getDateState());
-  },
+  //componentDidMount: function() {
+  //  GraphStore.addChangeListener(this._onChange);
+  //},
+  //componentWillUnmount: function() {
+  //  GraphStore.removeChangeListener(this._onChange);
+  //},
   render: function () {
     var start = this.state.startDate.format('YYYY-MM-DD h:mm:ss a');
     var end = this.state.endDate.format('YYYY-MM-DD h:mm:ss a');

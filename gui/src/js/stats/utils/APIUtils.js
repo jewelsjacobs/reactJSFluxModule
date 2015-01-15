@@ -74,7 +74,7 @@ var ApiUtils = {
         //};
         _authHeader = {
           "X-Auth-Account": "appboy",
-          "X-Auth-Token": "ImFjMGQ1YjY3YjBkYjQ0MjQ4ZDU3MGE3NjEzZmRhZjk5Ig.B5dKvg.glbz5hJpIaMFQVj4TIbj1TbSGsM"
+          "X-Auth-Token": "IjY2YzJhN2I3ODg0YjRkOWY4ZmU2YjY1MDNmMmM3ZjhmIg.B5leig.Dumto6F4MUSLh5H45DKdOTU4Ads"
         }
         cb(err, _authHeader);
       });
@@ -134,7 +134,7 @@ var ApiUtils = {
    * @param cb
    * @returns {Request}
    */
-  getGraph: function(statName, hosts, startDate, endDate, cb) {
+  getGraph: function(statName, startDate, endDate, hosts, cb) {
     var startTime = moment(startDate).utc().format("YYYY-MM-DD HH:mm:ss");
     var endTime = moment(endDate).utc().format("YYYY-MM-DD HH:mm:ss");
     var stats = [];

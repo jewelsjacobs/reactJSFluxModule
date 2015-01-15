@@ -6,7 +6,7 @@
 var React = require('react');
 var Actions = require('../actions/ViewActionCreators.js');
 var ShardsStore = require('../stores/Shards.js');
-var Graph = require('./Graph.react.js');
+//var Graph = require('./Graph.react.js');
 
 var GraphItems = React.createClass({
   getInitialState: function() {

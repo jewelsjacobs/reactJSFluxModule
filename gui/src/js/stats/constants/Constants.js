@@ -11,8 +11,8 @@ module.exports = {
    SELECT_STAT: null,
    GET_STAT_NAMES: null,
    SELECT_DATE_RANGE: null,
-   GET_HOSTS: null,
-   UPDATE_GRAPH: null
+   GET_GRAPH_PARAMS: null,
+   GET_GRAPH_DATA: null
   }),
 
   PayloadSources: keyMirror({

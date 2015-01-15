@@ -26,7 +26,7 @@ var Stats = React.createClass({
     render: function() {
         return (
           <div classNameName="stats-container">
-            { this.state !== null ? <GraphComposer data={this.state.data}/> : null }
+            { this.state !== null ? <GraphComposer data={this.state.data} /> : null }
             { this.state !== null ? <GraphItems data={this.state.data} /> : null }
           </div>
         );

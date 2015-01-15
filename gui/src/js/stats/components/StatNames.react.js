@@ -6,23 +6,22 @@
 var React = require('react');
 var BS = require('react-bootstrap');
 var Actions = require('../actions/ViewActionCreators.js');
-var StatNamesStore = require('../stores/StatNames.js');
+//var GraphStore = require('../stores/Graph.js');
 
 var StatNames = React.createClass({
-  //getInitialState: function() {
-  //  return StatNamesStore.getStatNamesState();
-  //},
-  //componentWillMount: function() {
-  //},
+  getInitialState: function() {
+    return {value: 'mongodb.opcounters.query'};
+  },
   //componentDidMount: function() {
-  //  StatNamesStore.addChangeListener(this._onChange);
+  //  GraphStore.addChangeListener(this._onChange);
   //},
   //componentWillUnmount: function() {
-  //  StatNamesStore.removeChangeListener(this._onChange);
+  //  GraphStore.removeChangeListener(this._onChange);
   //},
-  //_onChange: function() {
-  //  this.setState(StatNamesStore.getStatNamesState());
-  //},
+  _onChange: function(event) {
+    this.setState({value: event.target.value});
+    Actions.getGraphParams({ statName: this.state.value });
+  },
   render: function() {
     var options = this.props.names.map(
       function (name, index) {
@@ -32,7 +31,7 @@ var StatNames = React.createClass({
       });
     return (
       <BS.Col xs={8} md={4}>
-        <BS.Input type="select" label='Stat' defaultValue="mongodb.opcounters.query">
+        <BS.Input type="select" label='Stat' onChange={this._onChange} defaultValue={this.state.value}>
           {options}
         </BS.Input>
       </BS.Col>

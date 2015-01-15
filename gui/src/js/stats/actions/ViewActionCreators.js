@@ -34,34 +34,20 @@ module.exports = {
     })
   },
 
-  selectStat: function(stat) {
-    AppDispatcher.handleViewAction({
-     type: ActionTypes.SELECT_STAT,
-     stat: stat
-    });
-  },
-
-  getDateRange: function(dateRange) {
-    AppDispatcher.handleViewAction({
-      type: ActionTypes.SELECT_DATE_RANGE,
-      dateRange: dateRange
-    });
-  },
-
-  getHosts: function(hosts) {
-    AppDispatcher.handleViewAction({
-     type: ActionTypes.GET_HOSTS,
-     hosts: hosts
-   });
-  },
-
-  updateGraph: function() {
-    APIUtils.getGraph(statName, hosts, startDate, endDate, function (err, statNames){
+  getGraphData: function() {
+    APIUtils.getGraph(statName, startDate, endDate, hosts, function (err, graphData){
       AppDispatcher.handleViewAction({
-         type: ActionTypes.GET_STAT_NAMES,
-         statNames: statNames
+         type: ActionTypes.GET_GRAPH_DATA,
+         graphData: graphData
        });
     })
+  },
+
+  getGraphParams: function(paramObj) {
+    AppDispatcher.handleViewAction({
+     type: ActionTypes.GET_GRAPH_PARAMS,
+     paramObj: paramObj
+    });
   }
 
 };
