@@ -22,6 +22,7 @@ var _shards = null;
 
 function ShardsCommand(options) {
     this.options = options;
+    this.locked = true;
     this.prereq = {
         "api_urls": new APIUrlCommand(),
         "auth_headers": new AuthHeadersCommand()

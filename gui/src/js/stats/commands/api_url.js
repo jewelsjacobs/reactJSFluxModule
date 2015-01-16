@@ -20,9 +20,10 @@ var _apiUrls = null;
 function APIUrlCommand(options) {
     this.options = options;
     this.prereq = {};
+    this.locked = true;
 };
 
-APIUrlCommand.prototype = _.extend({}, BaseCommand.prototype, {
+APIUrlCommand.prototype = _.extend({}, BaseCommand.prototype, {    
     run: function(err, data, callback) {        
         // cache the response here
         if (_apiUrls !== null) {

@@ -20,6 +20,7 @@ var _authHeaders = null;
 function AuthHeadersCommand(options) {
     this.options = options;
     this.prereq = {};
+    this.locked = true;
 };
 
 AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
@@ -38,9 +39,10 @@ AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
                 //  "X-Auth-Token": response['api_token']
                 //};
                 _authHeaders = {
-                  "X-Auth-Account": "appboy",
-                  "X-Auth-Token": "IjY2YzJhN2I3ODg0YjRkOWY4ZmU2YjY1MDNmMmM3ZjhmIg.B5leig.Dumto6F4MUSLh5H45DKdOTU4Ads"
+                    "X-Auth-Account": "appboy", 
+                    "X-Auth-Token": "IjcwODkzMzAwNmUwZTQwMGJhOWZkODE5ZjlhYWUyMTg0Ig.B5rTFA.jbhm6Vl80mTWTw6_BJI6GYSIY5g"
                 }
+
                 callback(err, _authHeaders);
         });
      }

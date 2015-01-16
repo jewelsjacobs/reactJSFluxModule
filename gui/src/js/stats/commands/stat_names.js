@@ -23,6 +23,7 @@ var _statNames = null;
 
 function StatNamesCommand(options) {
     this.options = options;
+    this.locked = true;
     this.prereq = {
         "api_urls": new APIUrlCommand(),
         "auth_headers": new AuthHeadersCommand(),
