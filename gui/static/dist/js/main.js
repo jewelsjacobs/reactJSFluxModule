@@ -696,9 +696,7 @@ var Graph = React.createClass({displayName: "Graph",
         },
         "xAxis": {
           "staggerLabels": true,
-          "tickFormat": function (d) {
-            return d3.time.format('%m/%d/%y %X')(moment.unix(d).toDate());
-          }
+          "tickFormat":(d3.time.format('%m/%d/%y %X'))
         },
         "y": function (d, i) {
           return i;
@@ -719,6 +717,8 @@ var Graph = React.createClass({displayName: "Graph",
           });
       });
 
+      console.log(data);
+
       /*These lines are all chart setup.  Pick and choose which chart features you want to utilize. */
       var chart;
 
@@ -737,7 +737,7 @@ var Graph = React.createClass({displayName: "Graph",
         // chart sub-models (ie. xAxis, yAxis, etc) when accessed directly, return themselves, not the parent chart, so need to chain separately
         chart.xAxis
           .axisLabel("")
-          .tickFormat(options.xAxis.tickFormat(d));
+          .tickFormat(options.xAxis.tickFormat);
 
         chart.yAxis
           .axisLabel('Voltage (v)')
