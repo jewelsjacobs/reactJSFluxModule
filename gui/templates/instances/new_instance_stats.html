@@ -44,8 +44,22 @@
 
 {% block script %}
     {{ super() }}
+
+  <!-- bower mods -->
   <script type="text/javascript" src="/static/js/bower_components/d3/d3.js"></script>
   <script type="text/javascript" src="/static/js/bower_components/nvd3/nv.d3.js"></script>
+
+  <!-- nvd3 TODO: compress this -->
+  <script type="text/javascript" src="/static/js/nvd3/tooltip.js"></script>
+  <script type="text/javascript" src="/static/js/nvd3/utils.js"></script>
+  <script type="text/javascript" src="/static/js/nvd3/interactiveLayer.js"></script>
+  <script type="text/javascript" src="/static/js/nvd3/models/legend.js"></script>
+  <script type="text/javascript" src="/static/js/nvd3/models/axis.js"></script>
+  <script type="text/javascript" src="/static/js/nvd3/models/scatter.js"></script>
+  <script type="text/javascript" src="/static/js/nvd3/models/line.js"></script>
+  <script type="text/javascript" src="/static/js/nvd3/models/lineChart.js"></script>
+
+  <!--react + flux code-->
   <script type="text/javascript" src="/static/dist/js/main.js"></script>
 
     {% include 'stripe_js.html' %}

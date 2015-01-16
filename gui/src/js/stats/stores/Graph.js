@@ -17,7 +17,7 @@ var GraphStore = assign(new BaseStore(), {
   },
 
   getGraphState: function(replicaset) {
-    return _graph[replicaset] || [];
+    return _graph[replicaset];
   },
 
   CHANGE_EVENT: 'GRAPH_CHANGE_EVENT'

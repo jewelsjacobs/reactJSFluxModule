@@ -68,7 +68,7 @@ GraphCommand.prototype = _.extend({}, BaseCommand.prototype, {
              .set(data['auth_headers'])
              .send({ stats: stats })
              .end(function (err, response) {
-                 callback(err, response.body.data);
+                 callback(err, response.body);
          });
      }
 });
