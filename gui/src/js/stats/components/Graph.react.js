@@ -27,28 +27,6 @@ var Graph = React.createClass({
     if (this.state.hasOwnProperty("data") && typeof this.state.data != "undefined") {
       var data = [];
 
-      var options = {
-        "height": 300,
-        "margin": {
-          "top": 20,
-          "right": 20,
-          "bottom": 20,
-          "left": 50
-        },
-        "useInteractiveGuideline": true,
-        "transitionDuration": 250,
-        "x": function (d, i) {
-          return i;
-        },
-        "xAxis": {
-          "staggerLabels": true,
-          "tickFormat":(d3.time.format('%m/%d/%y %X'))
-        },
-        "y": function (d, i) {
-          return i;
-        }
-      };
-
       this.state.data.stats.map(
         function (stat, index) {
 
@@ -63,7 +41,7 @@ var Graph = React.createClass({
           });
       });
 
-      console.log(data);
+      var replicaset = this.props.replicaset;
 
       /*These lines are all chart setup.  Pick and choose which chart features you want to utilize. */
       var chart;
@@ -71,25 +49,34 @@ var Graph = React.createClass({
       nv.addGraph(function() {
         chart = nv.models.lineChart()
           .options({
-             margin: options.margin,
-             x: options.x(data),
-             y: options.y(data),
+             margin: {
+               top: 20,
+               right: 20,
+               bottom: 20,
+               left: 50
+             },
+             x: function (d, i) {
+               return i;
+             },
+             y: function (d, i) {
+               return i;
+             },
              showXAxis: true,
              showYAxis: true,
-             transitionDuration: options.transitionDuration,
-             useInteractiveGuideline: options.useInteractiveGuideline
+             transitionDuration: 250,
+             useInteractiveGuideline: true
            });
 
         // chart sub-models (ie. xAxis, yAxis, etc) when accessed directly, return themselves, not the parent chart, so need to chain separately
         chart.xAxis
           .axisLabel("")
-          .tickFormat(options.xAxis.tickFormat);
+          .tickFormat(d3.format(',.1f'));
 
         chart.yAxis
-          .axisLabel('Voltage (v)')
-          .tickFormat();
+          .axisLabel("")
+          .tickFormat(d3.format(',.2f'));
 
-        d3.select('#chart1 svg')
+        d3.select('#chart1' + replicaset + ' svg')
           .datum(data)
           .call(chart);
 
@@ -108,7 +95,7 @@ var Graph = React.createClass({
     };
 
     return (
-      <div id="chart1" >
+      <div id={"chart1" + this.props.replicaset} >
         <svg style={svgStyle}></svg>
       </div>
     );
