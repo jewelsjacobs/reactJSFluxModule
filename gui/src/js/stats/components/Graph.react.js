@@ -56,10 +56,10 @@ var Graph = React.createClass({
                left: 50
              },
              x: function (d, i) {
-               return i;
+               return d.x;
              },
              y: function (d, i) {
-               return i;
+               return d.y;
              },
              showXAxis: true,
              showYAxis: true,
@@ -70,11 +70,13 @@ var Graph = React.createClass({
         // chart sub-models (ie. xAxis, yAxis, etc) when accessed directly, return themselves, not the parent chart, so need to chain separately
         chart.xAxis
           .axisLabel("")
-          .tickFormat(d3.format(',.1f'));
+          .staggerLabels(true)
+          .tickFormat(function (data) {
+            return d3.time.format('%m/%d/%y %X')(moment.unix(data).toDate());
+          });
 
         chart.yAxis
-          .axisLabel("")
-          .tickFormat(d3.format(',.2f'));
+          .axisLabel("");
 
         d3.select('#chart1' + replicaset + ' svg')
           .datum(data)
@@ -94,9 +96,17 @@ var Graph = React.createClass({
       height: '500px'
     };
 
+    var graphComponent = function(){
+      return (
+        <div id={"chart1" + this.props.replicaset} >
+          <svg style={svgStyle}></svg>
+        </div>
+      );
+    }.bind(this);
+
     return (
-      <div id={"chart1" + this.props.replicaset} >
-        <svg style={svgStyle}></svg>
+      <div>
+        { this.state.hasOwnProperty("data") && typeof this.state.data != "undefined" ? graphComponent() : null }
       </div>
     );
   }
