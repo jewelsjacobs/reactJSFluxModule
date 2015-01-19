@@ -6,7 +6,7 @@ var _ = require('lodash');
 var BaseCommand = require('./base.js');
 
 //
-// 
+//
 //
 
 var TOKEN_ROUTE = '/api_token';
@@ -30,7 +30,7 @@ AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
              callback(err, _authHeaders);
              return
          }
-         
+
         // make the request for the api urls
         request.get(TOKEN_ROUTE)
             .end(function (err, response) {
@@ -39,8 +39,8 @@ AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
                 //  "X-Auth-Token": response['api_token']
                 //};
                 _authHeaders = {
-                    "X-Auth-Account": "appboy", 
-                    "X-Auth-Token": "IjcwODkzMzAwNmUwZTQwMGJhOWZkODE5ZjlhYWUyMTg0Ig.B5rTFA.jbhm6Vl80mTWTw6_BJI6GYSIY5g"
+                    "X-Auth-Account": "appboy",
+                    "X-Auth-Token": "ImIzYjdiMWE3Y2RhOTRkNzA5N2U5NjVkMTg3MzViYTRjIg.B57OfA.g5m7lhX9-p0ywKi4Gu0e_N_Uz4I"
                 }
 
                 callback(err, _authHeaders);

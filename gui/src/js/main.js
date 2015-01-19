@@ -17,7 +17,7 @@ var Stats = React.createClass({
     getInitialState: function() {
       return {
         shards: ShardsStore.getShardsState(),
-        value: 'mongodb.opcounters.query',
+        value: 'mongodb.connections.current',
         ranges: {
           'Today': [moment().subtract(1, 'day'), moment()],
           'Yesterday': [moment().subtract(2, 'days'), moment().subtract(1, 'day')],
@@ -97,7 +97,7 @@ var Stats = React.createClass({
       var statNames = function () {
         return (
           <BS.Col xs={8} md={4}>
-            <BS.Input type="select" label='Stat' onChange={this.onStatNameValueChange} defaultValue={this.state.value}>
+            <BS.Input type="select" label='Stat' onChange={this.onStatNameValueChange} defaultValue="mongodb.connections.current">
               {statOptions()}
             </BS.Input>
           </BS.Col>

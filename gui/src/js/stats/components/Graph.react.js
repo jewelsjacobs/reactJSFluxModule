@@ -51,8 +51,8 @@ var Graph = React.createClass({
           .options({
              margin: {
                top: 20,
-               right: 20,
-               bottom: 20,
+               right: 50,
+               bottom: 50,
                left: 50
              },
              x: function (d, i) {
@@ -84,22 +84,15 @@ var Graph = React.createClass({
 
         //TODO: Figure out a good way to do this automatically
         nv.utils.windowResize(chart.update);
-        //nv.utils.windowResize(function() { d3.select('#chart1 svg').call(chart) });
-
-        chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); });
 
         return chart;
       });
     };
 
-    var svgStyle = {
-      height: '500px'
-    };
-
     var graphComponent = function(){
       return (
         <div id={"chart1" + this.props.replicaset} >
-          <svg style={svgStyle}></svg>
+          <svg></svg>
         </div>
       );
     }.bind(this);

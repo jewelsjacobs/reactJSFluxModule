@@ -18,7 +18,7 @@ var Stats = React.createClass({displayName: "Stats",
     getInitialState: function() {
       return {
         shards: ShardsStore.getShardsState(),
-        value: 'mongodb.opcounters.query',
+        value: 'mongodb.connections.current',
         ranges: {
           'Today': [moment().subtract(1, 'day'), moment()],
           'Yesterday': [moment().subtract(2, 'days'), moment().subtract(1, 'day')],
@@ -98,7 +98,7 @@ var Stats = React.createClass({displayName: "Stats",
       var statNames = function () {
         return (
           React.createElement(BS.Col, {xs: 8, md: 4}, 
-            React.createElement(BS.Input, {type: "select", label: "Stat", onChange: this.onStatNameValueChange, defaultValue: this.state.value}, 
+            React.createElement(BS.Input, {type: "select", label: "Stat", onChange: this.onStatNameValueChange, defaultValue: "mongodb.connections.current"}, 
               statOptions()
             )
           )
@@ -265,7 +265,7 @@ var _ = require('lodash');
 var BaseCommand = require('./base.js');
 
 //
-// 
+//
 //
 
 var TOKEN_ROUTE = '/api_token';
@@ -289,7 +289,7 @@ AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
              callback(err, _authHeaders);
              return
          }
-         
+
         // make the request for the api urls
         request.get(TOKEN_ROUTE)
             .end(function (err, response) {
@@ -298,8 +298,8 @@ AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
                 //  "X-Auth-Token": response['api_token']
                 //};
                 _authHeaders = {
-                    "X-Auth-Account": "appboy", 
-                    "X-Auth-Token": "IjcwODkzMzAwNmUwZTQwMGJhOWZkODE5ZjlhYWUyMTg0Ig.B5rTFA.jbhm6Vl80mTWTw6_BJI6GYSIY5g"
+                    "X-Auth-Account": "appboy",
+                    "X-Auth-Token": "ImIzYjdiMWE3Y2RhOTRkNzA5N2U5NjVkMTg3MzViYTRjIg.B57OfA.g5m7lhX9-p0ywKi4Gu0e_N_Uz4I"
                 }
 
                 callback(err, _authHeaders);
@@ -705,8 +705,8 @@ var Graph = React.createClass({displayName: "Graph",
           .options({
              margin: {
                top: 20,
-               right: 20,
-               bottom: 20,
+               right: 50,
+               bottom: 50,
                left: 50
              },
              x: function (d, i) {
@@ -738,22 +738,15 @@ var Graph = React.createClass({displayName: "Graph",
 
         //TODO: Figure out a good way to do this automatically
         nv.utils.windowResize(chart.update);
-        //nv.utils.windowResize(function() { d3.select('#chart1 svg').call(chart) });
-
-        chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); });
 
         return chart;
       });
     };
 
-    var svgStyle = {
-      height: '500px'
-    };
-
     var graphComponent = function(){
       return (
         React.createElement("div", {id: "chart1" + this.props.replicaset}, 
-          React.createElement("svg", {style: svgStyle})
+          React.createElement("svg", null)
         )
       );
     }.bind(this);
