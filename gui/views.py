@@ -1307,6 +1307,7 @@ def _render_sign_in(code=200):
         from viper.ext import sso
         context.update({
             'authn_request': sso.util.create_encoded_saml_request(),
+            'relay_state': sso.util.create_encoded_relay_state(),
             'sso_idp_url': sso.config.SSO_IDP_URL
         })
 

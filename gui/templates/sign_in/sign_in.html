@@ -37,6 +37,7 @@
                 {% if authn_request | default(False) %}
                 <form id="rax-sso-form" class="rs-form-horizontal rs-form-medium" action="{{ sso_idp_url }}" method="POST">
                     <input name="SAMLRequest" type="hidden" value="{{ authn_request }}"/>
+                    <input name="RelayState" type="hidden" value="{{ relay_state }}"/>
                     <div class="rs-btn-group">
                         <button class="rs-btn rs-btn-login" type="submit"><img class="raxicon" src="/static/art/rackspace_favicon.png"/>&nbsp;Sign In with Rackspace</button>
                     </div>
