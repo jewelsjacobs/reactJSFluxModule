@@ -1305,8 +1305,10 @@ def _render_sign_in(code=200):
     context = {}
     if app.config['CONFIG_MODE'] != 'production':  # Will enable in prod when ready.
         from viper.ext import sso
-        context['authn_request'] = sso.util.create_encoded_saml_request()
-        context['sso_idp_url'] = sso.config.SSO_IDP_URL
+        context.update({
+            'authn_request': sso.util.create_encoded_saml_request(),
+            'sso_idp_url': sso.config.SSO_IDP_URL
+        })
 
     return render_template('sign_in/sign_in.html', **context), code
 
