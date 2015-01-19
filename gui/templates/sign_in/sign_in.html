@@ -16,31 +16,35 @@
         <div class="or-focus-panel-login">
             <div class="or-login-brand"></div>
             <div class="or-login-form">
-               <p id="password-reset-target" class="or-login-welcome">Sign in to your account</p>
+               <p class="or-login-welcome">Sign in to your account</p>
                 <form id="login-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_in') }}" method="POST">
 
                     <div class="rs-control-group">
-                        <label class="rs-control-label" for="login">Login</label>
-                        <div class="rs-controls">
-                            <input id="login" name="login" type="text" class="rs-input rs-input-medium">
-                        </div>
+                        <label for="login">Login</label>
+                        <input id="login" name="login" type="text" class="rs-input rs-input-large">
                     </div>
 
                     <div class="rs-control-group">
-                        <label class="rs-control-label" for="password">Password</label>
-                        <div class="rs-controls">
-                            <input id="password" name="password" type="password" class="rs-input rs-input-medium">
-                        </div>
+                        <label id="password-reset-target" for="password">Password</label>
+                        <input id="password" name="password" type="password" class="rs-input rs-input-large">
                     </div>
 
                     <div class="rs-btn-group">
-                        <div class="rs-controls">
-                            <button form="login-form" class="rs-btn rs-btn-login" type="submit">Sign In</button>
-                        </div>
+                        <button form="login-form" class="rs-btn rs-btn-login" type="submit">Sign In</button>
                     </div>
                 </form>
+
+                {% if authn_request | default(False) %}
+                <form id="rax-sso-form" class="rs-form-horizontal rs-form-medium" action="{{ sso_idp_url }}" method="POST">
+                    <input name="SAMLRequest" type="hidden" value="{{ authn_request }}"/>
+                    <div class="rs-btn-group">
+                        <button class="rs-btn rs-btn-login" type="submit"><img class="raxicon" src="/static/art/rackspace_favicon.png"/>&nbsp;Sign In with Rackspace</button>
+                    </div>
+                </form>
+                {% endif %}
+
                 <div class="rs-control-group">
-                    <p><a data-popover="password-reset-popover" data-popover-target="password-reset-target" data-popover-position="bottom-left" class="rs-btn rs-btn-link rs-popover-source">Forgot your password?</a></p>
+                    <p><a data-popover="password-reset-popover" data-popover-target="password-reset-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Forgot your password?</a></p>
                 </div>
             </div>
         </div>
@@ -77,56 +81,12 @@
             </div>
         </div>
     </div>
-    <!-- end reset password popover -->
+   <!-- end reset password popover -->
     {% endblock popover %}
 
     {% block script %}
         {{ super() }}
-        <script type="text/javascript">
-        $(document).ready(function() {
-            // Validation for password reset form.
-            $('#login-form').validate({
-                rules: {
-                    login: {
-                        required: true,
-                    },
-                    password: {
-                        required: true,
-                    },
-                },
-                errorClass: 'rs-validation-block',
-                errorElement: 'span',
-                highlight: function(label) {
-                    $(label).closest('.rs-control-group').removeClass('success');
-                    $(label).closest('.rs-control-group').addClass('error');
-                },
-                success: function(label) {
-                    $(label).closest('.rs-control-group').removeClass('error');
-                    $(label).closest('.rs-control-group').addClass('success');
-                }
-            });
-
-            // Validation for password reset popover.
-            $('#password-reset-popover-form').validate({
-                rules: {
-                    login: {
-                        required: true,
-                    },
-                },
-                errorClass: 'rs-validation-block',
-                errorElement: 'span',
-                highlight: function(label) {
-                    $(label).closest('.rs-control-group').removeClass('success');
-                    $(label).closest('.rs-control-group').addClass('error');
-                },
-                success: function(label) {
-                    $(label).closest('.rs-control-group').removeClass('error');
-                    $(label).closest('.rs-control-group').addClass('success');
-                }
-            });
-
-        });
-        </script>
+        <script type="text/javascript" src="/static/js/inline/sign_in.js"></script>
     {% endblock script %}
 
 {% endblock body %}

@@ -1277,9 +1277,19 @@ def reset_password():
 @app.route('/sign_in', methods=['GET', 'POST'])
 def sign_in():
     """User sign in route."""
+    # Clear any previous session info.
     session.clear()
+
+    # Handle GET request.
     if request.method == 'GET':
-        return render_template('sign_in/sign_in.html')
+
+        context = {}
+        if app.config['CONFIG_MODE'] != 'production':  # Will enable in prod when ready.
+            from viper.ext import sso
+            context['authn_request'] = sso.util.create_encoded_saml_request()
+            context['sso_idp_url'] = sso.config.SSO_IDP_URL
+
+        return render_template('sign_in/sign_in.html', **context)
 
     login = request.form['login']
     password = request.form['password']
