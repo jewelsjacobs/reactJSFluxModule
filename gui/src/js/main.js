@@ -28,7 +28,13 @@ var Stats = React.createClass({
         },
         startDate: moment().subtract(1, 'day'),
         endDate: moment(),
-        statNames: StatNamesStore.getStatNamesState()
+        statNames: StatNamesStore.getStatNamesState(),
+        graphItemsOptions: {
+          shards: this.state.shards,
+          statName: this.state.value,
+          startDate: this.state.startDate,
+          endDate: this.state.endDate
+        }
       };
     },
     handleEvent: function (event, picker) {
@@ -49,6 +55,14 @@ var Stats = React.createClass({
       this.setState({
         shards: ShardsStore.getShardsState(),
         statNames: StatNamesStore.getStatNamesState()
+      });
+    },
+    updateGraph: function() {
+      this.setState({
+        shards: this.state.shards,
+        statName: this.state.value,
+        startDate: this.state.startDate,
+        endDate: this.state.endDate
       });
     },
     onStatNameValueChange: function() {
@@ -94,6 +108,14 @@ var Stats = React.createClass({
           });
       }.bind(this);
 
+      var updateGraphButton = function () {
+        return (
+          <BS.Col xs={2} md={2}>
+            <Button bsStyle="primary" onClick={this.updateGraph}>UpdateGraph</Button>
+          </BS.Col>
+        )
+      }.bind(this);
+
       var statNames = function () {
         return (
           <BS.Col xs={8} md={4}>
@@ -114,13 +136,6 @@ var Stats = React.createClass({
         </BS.Grid>
         )
       }.bind(this);
-
-      var graphItemsOptions = {
-        shards: this.state.shards,
-        statName: this.state.value,
-        startDate: this.state.startDate,
-        endDate: this.state.endDate
-      };
 
       return (
         <div classNameName="stats-container">
