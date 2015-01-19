@@ -311,6 +311,9 @@ img.invoice-logo {
 .align-right {
     text-align: right;
 }
+.float-right {
+    float: right;
+}
 .large {
     font-size: 16px !important;
     line-height: 26px !important;
@@ -344,6 +347,10 @@ img.invoice-logo {
 }
 .inline-block-children * {
     display: inline-block;
+}
+img.raxicon {
+    max-height: 1em;
+    vertical-align: middle;
 }
 
 /* === paragraph styles === */

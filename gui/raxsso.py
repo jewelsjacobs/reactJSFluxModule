@@ -161,27 +161,32 @@ def seamless_login():
         return redirect(url_for('instances'))
 
 
-@bp.route('/sso/_idp_test/')
+@bp.route('/sso/_idp_test/', methods=['GET', 'POST'])
 def sso_idp():
     """An endpoint for testing SAML flow in development mode."""
     if current_app.config['CONFIG_MODE'] != 'development':
         abort(404)
 
-    namestring = ('Username={username},DDI={ddi},UserID={user_id},Email={email},AuthToken={auth_token}'
-                  .format(username='thedodd', ddi='12345', user_id='54321', email='anthony.dodd@rackspace.com', auth_token='1kj2h3g4k1jh2g34'))
+    context = {}
+    if request.method == 'POST':
+        # Get the posted request and add it to the context.
+        encoded_saml_request = request.form.get('SAMLRequest')
+        saml_request_xml = base64.decodestring(encoded_saml_request)
+        context['saml_request'] = sso.util.pretty_xml(saml_request_xml)
 
+    # Generate a SAMLResponse for development testing.
+    namestring = ('Username={username},DDI={ddi},UserID={user_id},Email={email},AuthToken={auth_token}'
+                  .format(username='tester', ddi='12345', user_id='54321', email='tester@test.com', auth_token='1kj2h3g4k1jh2g34'))
     saml_response = sso.util.create_saml_response(name=namestring, in_response_to='somerequest', url=sso.config.SSO_ACS_URL, session_id=None, attributes={})
     saml_response_xml = saml_response.to_string()
-    base64_saml_response = base64.b64encode(saml_response_xml)
+    encoded_saml_response = base64.b64encode(saml_response_xml)
 
-    context = {
+    context.update({
         'send_to': saml_response.destination,
         'relay_state': '072k3j4h5bkj2345',
-        'saml': base64_saml_response,
-        'saml_xml': sso.util.pretty_xml(saml_response_xml),
-        'field_name': 'SAMLResponse',
-        'auto_submit': False
-    }
+        'encoded_saml_response': encoded_saml_response,
+        'saml_xml': sso.util.pretty_xml(saml_response_xml)
+    })
 
     return render_template('sso/_sso_test.html', **context)
 
