@@ -90,7 +90,7 @@ var Graph = React.createClass(
     getInitialState: function() {
       /**
        * GraphStore.getGraphState(this.props.replicaset)
-       * returns graph data
+       * returns graph data from store
        */
       return {data: GraphStore.getGraphState(this.props.replicaset)}
     },
@@ -103,7 +103,8 @@ var Graph = React.createClass(
     componentWillReceiveProps: function(nextProps){
 
       /**
-       * Initial Action method which makes API call with props
+       * Initial Action method which makes API call directly for graph data with
+       * props as params and injects into graph store dispatcher
        */
       Actions.getGraphData(this.props.replicaset, this.props.statName, this.props.startDate, this.props.endDate, this.props.hosts);
 
