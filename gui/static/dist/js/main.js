@@ -170,7 +170,7 @@ React.render(
 Actions.getShards();
 Actions.getStatNames();
 
-},{"./stats/actions/ViewActionCreators.js":2,"./stats/components/GraphItems.react.js":10,"./stats/components/InstanceNameHeader.react.js":11,"./stats/stores/Shards.js":15,"./stats/stores/StatNames.js":16,"moment":28,"react":238,"react-bootstrap":82,"react-bootstrap-daterangepicker":31}],2:[function(require,module,exports){
+},{"./stats/actions/ViewActionCreators.js":2,"./stats/components/GraphItems.react.js":9,"./stats/components/InstanceNameHeader.react.js":10,"./stats/stores/Shards.js":15,"./stats/stores/StatNames.js":16,"moment":28,"react":238,"react-bootstrap":82,"react-bootstrap-daterangepicker":31}],2:[function(require,module,exports){
 'use strict';
 
 /**
@@ -221,54 +221,7 @@ module.exports = {
 };
 
 
-},{"../commands/graph.js":6,"../commands/shards.js":7,"../commands/stat_names.js":8,"../constants/Constants.js":12,"../dispatcher/AppDispatcher.js":13}],3:[function(require,module,exports){
-'use strict';
-
-var request = require('superagent');
-var _ = require('lodash');
-
-var BaseCommand = require('./base.js');
-
-//
-// 
-//
-
-var API_URLS_ROUTE = "/api_urls"
-var _apiUrls = null;
-
-//
-// API URL Command
-// Get the API URLs from the request
-//
-
-function APIUrlCommand(options) {
-    this.options = options;
-    this.prereq = {};
-    this.locked = true;
-};
-
-APIUrlCommand.prototype = _.extend({}, BaseCommand.prototype, {    
-    run: function(err, data, callback) {        
-        // cache the response here
-        if (_apiUrls !== null) {
-            callback(err, _apiUrls);
-            return
-        }
-
-        // make the request for the api urls
-        request.get(API_URLS_ROUTE)
-            .end(function (err, response) {
-                // _apiUrls = response.data
-                _apiUrls = {"apiv2": "https://sjc-api.objectrocket.com"};
-                callback(err, _apiUrls);
-            });
-    }
-});
-
-APIUrlCommand.prototype.constructor = APIUrlCommand;
-module.exports = APIUrlCommand;
-
-},{"./base.js":5,"lodash":27,"superagent":239}],4:[function(require,module,exports){
+},{"../commands/graph.js":5,"../commands/shards.js":6,"../commands/stat_names.js":7,"../constants/Constants.js":12,"../dispatcher/AppDispatcher.js":13}],3:[function(require,module,exports){
 'use strict';
 
 var request = require('superagent');
@@ -322,7 +275,7 @@ AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
 AuthHeadersCommand.prototype.constructor = AuthHeadersCommand;
 module.exports = AuthHeadersCommand;
 
-},{"./base.js":5,"lodash":27,"superagent":239}],5:[function(require,module,exports){
+},{"./base.js":4,"lodash":27,"superagent":239}],4:[function(require,module,exports){
 'use strict';
 
 var async = require('async');
@@ -462,17 +415,17 @@ BaseCommand.prototype = {
 BaseCommand.prototype.constructor = BaseCommand;
 module.exports = BaseCommand;
 
-},{"async":19,"locks":26,"lodash":27}],6:[function(require,module,exports){
+},{"async":19,"locks":26,"lodash":27}],5:[function(require,module,exports){
 'use strict';
 
 var request = require('superagent');
 var _ = require('lodash');
 
 var BaseCommand = require('./base.js');
-var APIUrlCommand = require('./api_url.js');
 var AuthHeadersCommand = require('./auth_headers.js');
 var APIUtils = require('../utils/APIUtils.js');
 var moment = require('moment');
+var apiUrls = require('../configs/apiUrls.json');
 
 var GRAPH_ROUTE = "{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={3}";
 
@@ -500,7 +453,6 @@ function _granularity(fromDate, toDate){
 function GraphCommand(options) {
     this.options = options;
     this.prereq = {
-        "api_urls": new APIUrlCommand(),
         "auth_headers": new AuthHeadersCommand()
     };
 };
@@ -523,7 +475,7 @@ GraphCommand.prototype = _.extend({}, BaseCommand.prototype, {
 
          var url = APIUtils.formatURL(
              GRAPH_ROUTE,
-             data['api_urls']['apiv2'],
+             apiUrls['apiv2'],
              _granularity(this.options.startDate, this.options.endDate),
              startTime,
              endTime
@@ -541,19 +493,19 @@ GraphCommand.prototype = _.extend({}, BaseCommand.prototype, {
 GraphCommand.prototype.constructor = GraphCommand;
 module.exports = GraphCommand;
 
-},{"../utils/APIUtils.js":18,"./api_url.js":3,"./auth_headers.js":4,"./base.js":5,"lodash":27,"moment":28,"superagent":239}],7:[function(require,module,exports){
+},{"../configs/apiUrls.json":11,"../utils/APIUtils.js":18,"./auth_headers.js":3,"./base.js":4,"lodash":27,"moment":28,"superagent":239}],6:[function(require,module,exports){
 'use strict';
 
 var request = require('superagent');
 var _ = require('lodash');
 
 var BaseCommand = require('./base.js');
-var APIUrlCommand = require('./api_url.js');
 var AuthHeadersCommand = require('./auth_headers.js');
 var APIUtils = require('../utils/APIUtils.js');
+var apiUrls = require('../configs/apiUrls.json');
 
 //
-// 
+//
 //
 
 var SHARDS_ROUTE = "{0}/v2/instance/{1}/replicaset";
@@ -568,7 +520,6 @@ function ShardsCommand(options) {
     this.options = options;
     this.locked = true;
     this.prereq = {
-        "api_urls": new APIUrlCommand(),
         "auth_headers": new AuthHeadersCommand()
     };
 };
@@ -580,13 +531,13 @@ ShardsCommand.prototype = _.extend({}, BaseCommand.prototype, {
              callback(err, _shards);
              return
          }
-         
+
          var url = APIUtils.formatURL(
-             SHARDS_ROUTE, 
-             data['api_urls']['apiv2'],
+             SHARDS_ROUTE,
+             apiUrls['apiv2'],
              APIUtils.instanceName
          );
-         
+
          request.get(url)
              .set(data['auth_headers'])
              .end(function (err, response) {
@@ -599,17 +550,17 @@ ShardsCommand.prototype = _.extend({}, BaseCommand.prototype, {
 ShardsCommand.prototype.constructor = ShardsCommand;
 module.exports = ShardsCommand;
 
-},{"../utils/APIUtils.js":18,"./api_url.js":3,"./auth_headers.js":4,"./base.js":5,"lodash":27,"superagent":239}],8:[function(require,module,exports){
+},{"../configs/apiUrls.json":11,"../utils/APIUtils.js":18,"./auth_headers.js":3,"./base.js":4,"lodash":27,"superagent":239}],7:[function(require,module,exports){
 'use strict';
 
 var request = require('superagent');
 var _ = require('lodash');
 
 var BaseCommand = require('./base.js');
-var APIUrlCommand = require('./api_url.js');
 var AuthHeadersCommand = require('./auth_headers.js');
 var ShardsCommand = require('./shards.js');
 var APIUtils = require('../utils/APIUtils.js');
+var apiUrls = require('../configs/apiUrls.json');
 
 //
 //
@@ -627,7 +578,6 @@ function StatNamesCommand(options) {
     this.options = options;
     this.locked = true;
     this.prereq = {
-        "api_urls": new APIUrlCommand(),
         "auth_headers": new AuthHeadersCommand(),
         "shards": new ShardsCommand()
     };
@@ -646,7 +596,7 @@ StatNamesCommand.prototype = _.extend({}, BaseCommand.prototype, {
 
          var url = APIUtils.formatURL(
              STAT_NAMES_ROUTE,
-             data['api_urls']['apiv2'],
+             apiUrls['apiv2'],
              APIUtils.instanceName,
              hostname
          );
@@ -663,11 +613,11 @@ StatNamesCommand.prototype = _.extend({}, BaseCommand.prototype, {
 StatNamesCommand.prototype.constructor = StatNamesCommand;
 module.exports = StatNamesCommand;
 
-},{"../utils/APIUtils.js":18,"./api_url.js":3,"./auth_headers.js":4,"./base.js":5,"./shards.js":7,"lodash":27,"superagent":239}],9:[function(require,module,exports){
+},{"../configs/apiUrls.json":11,"../utils/APIUtils.js":18,"./auth_headers.js":3,"./base.js":4,"./shards.js":6,"lodash":27,"superagent":239}],8:[function(require,module,exports){
 /** @jsx React.DOM */
 'use strict';
 /**
- * The application component. This is the top-level component.
+ * The application component. This is the top-level component used to generate multiple graphs.
  */
 var React = require('react');
 var moment = require('moment');
@@ -726,7 +676,10 @@ var _updateGraph = function (data, replicaset) {
          useInteractiveGuideline: true
      });
 
-    // chart sub-models (ie. xAxis, yAxis, etc) when accessed directly, return themselves, not the parent chart, so need to chain separately
+    /**
+     *  chart sub-models (ie. xAxis, yAxis, etc) when accessed directly,
+     *  return themselves, not the parent chart, so need to chain separately
+     */
     chart.xAxis
       .axisLabel("")
       .staggerLabels(true)
@@ -741,7 +694,6 @@ var _updateGraph = function (data, replicaset) {
       .datum(graphData)
       .call(chart);
 
-    //TODO: Figure out a good way to do this automatically
     nv.utils.windowResize(chart.update);
 
     return chart;
@@ -754,7 +706,7 @@ var Graph = React.createClass(
     getInitialState: function() {
       /**
        * GraphStore.getGraphState(this.props.replicaset)
-       * returns graph data
+       * returns graph data from store
        */
       return {data: GraphStore.getGraphState(this.props.replicaset)}
     },
@@ -765,12 +717,25 @@ var Graph = React.createClass(
       GraphStore.addChangeListener(this._onChange);
     },
     componentWillReceiveProps: function(nextProps){
+
+      /**
+       * Initial Action method which makes API call directly for graph data with
+       * props as params and injects into graph store dispatcher
+       */
       Actions.getGraphData(this.props.replicaset, this.props.statName, this.props.startDate, this.props.endDate, this.props.hosts);
+
+      /**
+       * When props change, inject them into action method to make an updated API call
+       */
       if (!_.isEqual(nextProps, this.props)) {
         Actions.getGraphData(nextProps.replicaset, nextProps.statName, nextProps.startDate, nextProps.endDate, nextProps.hosts);
       }
     },
     shouldComponentUpdate: function (nextProps, nextState) {
+
+      /**
+       * When graph data updates, re-render graph
+       */
       if (!_.isEqual(nextState, this.state)) {
         /**
          * Determines if graph data exists
@@ -801,7 +766,7 @@ var Graph = React.createClass(
 
 module.exports = Graph;
 
-},{"../actions/ViewActionCreators.js":2,"../stores/Graph.js":14,"lodash":27,"moment":28,"react":238}],10:[function(require,module,exports){
+},{"../actions/ViewActionCreators.js":2,"../stores/Graph.js":14,"lodash":27,"moment":28,"react":238}],9:[function(require,module,exports){
 /** @jsx React.DOM */
 'use strict';
 /**
@@ -852,7 +817,7 @@ var GraphItems = React.createClass({displayName: "GraphItems",
 
 module.exports = GraphItems;
 
-},{"../actions/ViewActionCreators.js":2,"./Graph.react.js":9,"moment":28,"react":238}],11:[function(require,module,exports){
+},{"../actions/ViewActionCreators.js":2,"./Graph.react.js":8,"moment":28,"react":238}],10:[function(require,module,exports){
 /** @jsx React.DOM */
 'use strict';
 /**
@@ -876,7 +841,12 @@ var InstanceName = React.createClass({displayName: "InstanceName",
 
 module.exports = InstanceName;
 
-},{"../utils/APIUtils.js":18,"react":238}],12:[function(require,module,exports){
+},{"../utils/APIUtils.js":18,"react":238}],11:[function(require,module,exports){
+module.exports={
+  "apiv2": "https://sjc-api.objectrocket.com"
+}
+
+},{}],12:[function(require,module,exports){
 'use strict';
 /**
  * Application constants.

@@ -4,10 +4,10 @@ var request = require('superagent');
 var _ = require('lodash');
 
 var BaseCommand = require('./base.js');
-var APIUrlCommand = require('./api_url.js');
 var AuthHeadersCommand = require('./auth_headers.js');
 var APIUtils = require('../utils/APIUtils.js');
 var moment = require('moment');
+var apiUrls = require('../configs/apiUrls.json');
 
 var GRAPH_ROUTE = "{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={3}";
 
@@ -35,7 +35,6 @@ function _granularity(fromDate, toDate){
 function GraphCommand(options) {
     this.options = options;
     this.prereq = {
-        "api_urls": new APIUrlCommand(),
         "auth_headers": new AuthHeadersCommand()
     };
 };
@@ -58,7 +57,7 @@ GraphCommand.prototype = _.extend({}, BaseCommand.prototype, {
 
          var url = APIUtils.formatURL(
              GRAPH_ROUTE,
-             data['api_urls']['apiv2'],
+             apiUrls['apiv2'],
              _granularity(this.options.startDate, this.options.endDate),
              startTime,
              endTime

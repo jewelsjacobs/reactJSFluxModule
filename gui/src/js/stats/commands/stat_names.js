@@ -4,10 +4,10 @@ var request = require('superagent');
 var _ = require('lodash');
 
 var BaseCommand = require('./base.js');
-var APIUrlCommand = require('./api_url.js');
 var AuthHeadersCommand = require('./auth_headers.js');
 var ShardsCommand = require('./shards.js');
 var APIUtils = require('../utils/APIUtils.js');
+var apiUrls = require('../configs/apiUrls.json');
 
 //
 //
@@ -25,7 +25,6 @@ function StatNamesCommand(options) {
     this.options = options;
     this.locked = true;
     this.prereq = {
-        "api_urls": new APIUrlCommand(),
         "auth_headers": new AuthHeadersCommand(),
         "shards": new ShardsCommand()
     };
@@ -44,7 +43,7 @@ StatNamesCommand.prototype = _.extend({}, BaseCommand.prototype, {
 
          var url = APIUtils.formatURL(
              STAT_NAMES_ROUTE,
-             data['api_urls']['apiv2'],
+             apiUrls['apiv2'],
              APIUtils.instanceName,
              hostname
          );
