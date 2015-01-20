@@ -752,48 +752,46 @@ var _updateGraph = function (data, replicaset) {
 var Graph = React.createClass(
   {displayName: "Graph",
     getInitialState: function() {
+      console.log("getInitialState");
       /**
        * GraphStore.getGraphState(this.props.replicaset)
        * returns graph data
        */
       return {data: GraphStore.getGraphState(this.props.replicaset)}
     },
-    componentDidMount: function () {
-      /**
-       * Action which will send params to API and Dispatcher to get graph data
-       */
-      Actions.getGraphData(this.props.replicaset, this.props.statName, this.props.startDate, this.props.endDate, this.props.hosts);
-      GraphStore.addChangeListener(this._onChange);
-    },
     _onChange: function() {
       this.setState({data: GraphStore.getGraphState(this.props.replicaset)});
     },
-    shouldComponentUpdate: function (nextProps, nextState) {
-
-      if (nextState === this.state) {
-        return false;
-      } else {
-        return true;
+    componentWillReceiveProps: function(nextProps){
+      Actions.getGraphData(this.props.replicaset, this.props.statName, this.props.startDate, this.props.endDate, this.props.hosts);
+      if (!_.isEqual(nextProps, this.props)) {
+        Actions.getGraphData(nextProps.replicaset, nextProps.statName, nextProps.startDate, nextProps.endDate, nextProps.hosts);
       }
+      GraphStore.addChangeListener(this._onChange);
+    },
+    shouldComponentUpdate: function (nextProps, nextState) {
+      if (!_.isEqual(nextState, this.state)) {
+        /**
+         * Determines if graph data exists
+         * @type {*|boolean}
+         */
+        var dataIsLoaded = _.has(nextState, "data")
+                           && !_.isUndefined(nextState.data)
+                           && !_.isEmpty(nextState.data);
+
+        /**
+         * Graph will not render until graph data exists
+         */
+        if (dataIsLoaded) {
+          _updateGraph(nextState.data, this.props.replicaset);
+        };
+
+        console.log("shouldComponentUpdate");
+      };
+      return true;
     },
     render: function() {
-
-      /**
-       * Determines if graph data exists
-       * @type {*|boolean}
-       */
-      var dataIsLoaded = _.has(this.state, "data")
-                         && !_.isUndefined(this.state.data)
-                         && !_.isEmpty(this.state.data);
-
-      /**
-       * Graph will not render until graph data exists
-       */
-      if (dataIsLoaded) {
-        _updateGraph(this.state.data, this.props.replicaset);
-        console.log(this.props.statName, this.props.startDate, this.props.endDate, this.state.data);
-      };
-
+      console.log("render");
       return (
         React.createElement("div", {id: "chart1" + this.props.replicaset}, 
           React.createElement("svg", null)
@@ -833,9 +831,6 @@ var GraphItems = React.createClass({displayName: "GraphItems",
   },
   render: function() {
     var options = this.state.options;
-    var startDate = options.startDate;
-    var endDate = options.endDate;
-    var statName = options.statName;
     var graphs = options.shards.map(
       function (stat, index) {
         var replicaset = Object.keys(stat)[0];

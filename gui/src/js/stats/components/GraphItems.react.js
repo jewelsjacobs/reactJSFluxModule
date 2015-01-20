@@ -26,9 +26,6 @@ var GraphItems = React.createClass({
   },
   render: function() {
     var options = this.state.options;
-    var startDate = options.startDate;
-    var endDate = options.endDate;
-    var statName = options.statName;
     var graphs = options.shards.map(
       function (stat, index) {
         var replicaset = Object.keys(stat)[0];
