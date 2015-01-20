@@ -6,11 +6,11 @@
 var React = require('react');
 var Actions = require('./stats/actions/ViewActionCreators.js');
 var GraphItems = require('./stats/components/GraphItems.react.js');
-var APIUtils = require('./stats/utils/APIUtils.js');
 var BS = require('react-bootstrap');
 var ShardsStore = require('./stats/stores/Shards.js');
 var StatNamesStore = require('./stats/stores/StatNames.js');
 var DateRangePicker = require('react-bootstrap-daterangepicker');
+var InstanceNameHeader = require('./stats/components/InstanceNameHeader.react.js');
 var moment = require('moment');
 
 var Stats = React.createClass({
@@ -29,12 +29,6 @@ var Stats = React.createClass({
         startDate: moment().subtract(1, 'day'),
         endDate: moment(),
         statNames: StatNamesStore.getStatNamesState(),
-        graphItemsOptions: {
-          shards: this.state.shards,
-          statName: this.state.value,
-          startDate: this.state.startDate,
-          endDate: this.state.endDate
-        }
       };
     },
     handleEvent: function (event, picker) {
@@ -71,6 +65,15 @@ var Stats = React.createClass({
       });
     },
     render: function() {
+
+      this.state.graphItemsOptions = {
+        shards: this.state.shards,
+        statName: this.state.value,
+        startDate: this.state.startDate,
+        endDate: this.state.endDate
+      };
+
+      var dataIsLoaded = this.state.statNames !== null && this.state.shards !== null;
       var start = this.state.startDate.format('YYYY-MM-DD h:mm:ss a');
       var end = this.state.endDate.format('YYYY-MM-DD h:mm:ss a');
       var label = start + ' - ' + end;
@@ -80,7 +83,7 @@ var Stats = React.createClass({
 
       var dateRangePicker = function () {
         return (
-          <BS.Col xs={8} md={4}>
+          <BS.Col xs={6} md={4}>
             <label>Range</label>
             <DateRangePicker startDate={this.state.startDate} onApply={this.handleEvent} timePicker={true} timePicker12Hour={true} timePickerSeconds={true} endDate={this.state.endDate} ranges={this.state.ranges}>
               <BS.Button className="selected-date-range-btn" style={{width: '100%'}}>
@@ -109,16 +112,22 @@ var Stats = React.createClass({
       }.bind(this);
 
       var updateGraphButton = function () {
+        var invisibleTextForSpacingHack = {
+          color: 'white'
+        };
         return (
-          <BS.Col xs={2} md={2}>
-            <Button bsStyle="primary" onClick={this.updateGraph}>UpdateGraph</Button>
+          <BS.Col xs={6} md={4}>
+            <label style={invisibleTextForSpacingHack}>Spacing Hack</label>
+            <BS.ButtonToolbar>
+              <BS.Button bsStyle="primary" onClick={this.updateGraph}>UpdateGraph</BS.Button>
+            </BS.ButtonToolbar>
           </BS.Col>
         )
       }.bind(this);
 
       var statNames = function () {
         return (
-          <BS.Col xs={8} md={4}>
+          <BS.Col xs={6} md={4}>
             <BS.Input type="select" label='Stat' onChange={this.onStatNameValueChange} defaultValue="mongodb.connections.current">
               {statOptions()}
             </BS.Input>
@@ -130,8 +139,9 @@ var Stats = React.createClass({
         return (
         <BS.Grid>
           <BS.Row className="show-grid">
-            { this.state.statNames !== null ? statNames() : null }
-            { this.state.statNames !== null ? dateRangePicker() : null }
+            { statNames() }
+            { dateRangePicker() }
+            { updateGraphButton() }
           </BS.Row>
         </BS.Grid>
         )
@@ -139,28 +149,15 @@ var Stats = React.createClass({
 
       return (
         <div classNameName="stats-container">
-          { this.state.statNames !== null ? graphComposer() : null }
-          { this.state.statNames !== null ? <GraphItems options={graphItemsOptions} /> : null }
+          { dataIsLoaded ? graphComposer() : null }
+          { dataIsLoaded ? <GraphItems options={this.state.graphItemsOptions} /> : null }
         </div>
       );
     }
 });
 
-var InstanceName = React.createClass({
-  getInitialState: function() {
-    return {
-      instanceName : APIUtils.instanceName
-    }
-  },
-  render: function() {
-    return (
-      <div className="rs-detail-header-title">{ this.state.instanceName }</div>
-    );
-  }
-});
-
 React.render(
-  <InstanceName />,
+  <InstanceNameHeader />,
   document.getElementById('instance-name')
 );
 
