@@ -40,7 +40,7 @@ AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
                 //};
                 _authHeaders = {
                     "X-Auth-Account": "appboy",
-                    "X-Auth-Token": "ImIzYjdiMWE3Y2RhOTRkNzA5N2U5NjVkMTg3MzViYTRjIg.B57OfA.g5m7lhX9-p0ywKi4Gu0e_N_Uz4I"
+                    "X-Auth-Token": "IjFmODljMzQwMzMyYzRkOTRiMTg3MGViNjlhMTdiNTQ4Ig.B6Ahtw.o32-o04IOJGqV9f8fHvmEwEJ6SY"
                 }
 
                 callback(err, _authHeaders);
