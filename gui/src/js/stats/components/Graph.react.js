@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 'use strict';
 /**
- * The application component. This is the top-level component.
+ * The application component. This is the top-level component used to generate multiple graphs.
  */
 var React = require('react');
 var moment = require('moment');
@@ -60,7 +60,10 @@ var _updateGraph = function (data, replicaset) {
          useInteractiveGuideline: true
      });
 
-    // chart sub-models (ie. xAxis, yAxis, etc) when accessed directly, return themselves, not the parent chart, so need to chain separately
+    /**
+     *  chart sub-models (ie. xAxis, yAxis, etc) when accessed directly,
+     *  return themselves, not the parent chart, so need to chain separately
+     */
     chart.xAxis
       .axisLabel("")
       .staggerLabels(true)
@@ -75,7 +78,6 @@ var _updateGraph = function (data, replicaset) {
       .datum(graphData)
       .call(chart);
 
-    //TODO: Figure out a good way to do this automatically
     nv.utils.windowResize(chart.update);
 
     return chart;
@@ -86,7 +88,6 @@ var _updateGraph = function (data, replicaset) {
 var Graph = React.createClass(
   {
     getInitialState: function() {
-      console.log("getInitialState");
       /**
        * GraphStore.getGraphState(this.props.replicaset)
        * returns graph data
@@ -96,14 +97,28 @@ var Graph = React.createClass(
     _onChange: function() {
       this.setState({data: GraphStore.getGraphState(this.props.replicaset)});
     },
+    componentDidMount: function(){
+      GraphStore.addChangeListener(this._onChange);
+    },
     componentWillReceiveProps: function(nextProps){
+
+      /**
+       * Initial Action method which makes API call with props
+       */
       Actions.getGraphData(this.props.replicaset, this.props.statName, this.props.startDate, this.props.endDate, this.props.hosts);
+
+      /**
+       * When props change, inject them into action method to make an updated API call
+       */
       if (!_.isEqual(nextProps, this.props)) {
         Actions.getGraphData(nextProps.replicaset, nextProps.statName, nextProps.startDate, nextProps.endDate, nextProps.hosts);
       }
-      GraphStore.addChangeListener(this._onChange);
     },
     shouldComponentUpdate: function (nextProps, nextState) {
+
+      /**
+       * When graph data updates, re-render graph
+       */
       if (!_.isEqual(nextState, this.state)) {
         /**
          * Determines if graph data exists
@@ -120,12 +135,10 @@ var Graph = React.createClass(
           _updateGraph(nextState.data, this.props.replicaset);
         };
 
-        console.log("shouldComponentUpdate");
       };
       return true;
     },
     render: function() {
-      console.log("render");
       return (
         <div id={"chart1" + this.props.replicaset} >
           <svg></svg>

@@ -29,7 +29,7 @@ var Stats = React.createClass({displayName: "Stats",
         },
         startDate: moment().subtract(1, 'day'),
         endDate: moment(),
-        statNames: StatNamesStore.getStatNamesState(),
+        statNames: StatNamesStore.getStatNamesState()
       };
     },
     handleEvent: function (event, picker) {
@@ -752,7 +752,6 @@ var _updateGraph = function (data, replicaset) {
 var Graph = React.createClass(
   {displayName: "Graph",
     getInitialState: function() {
-      console.log("getInitialState");
       /**
        * GraphStore.getGraphState(this.props.replicaset)
        * returns graph data
@@ -762,12 +761,14 @@ var Graph = React.createClass(
     _onChange: function() {
       this.setState({data: GraphStore.getGraphState(this.props.replicaset)});
     },
+    componentDidMount: function(){
+      GraphStore.addChangeListener(this._onChange);
+    },
     componentWillReceiveProps: function(nextProps){
       Actions.getGraphData(this.props.replicaset, this.props.statName, this.props.startDate, this.props.endDate, this.props.hosts);
       if (!_.isEqual(nextProps, this.props)) {
         Actions.getGraphData(nextProps.replicaset, nextProps.statName, nextProps.startDate, nextProps.endDate, nextProps.hosts);
       }
-      GraphStore.addChangeListener(this._onChange);
     },
     shouldComponentUpdate: function (nextProps, nextState) {
       if (!_.isEqual(nextState, this.state)) {
@@ -786,12 +787,10 @@ var Graph = React.createClass(
           _updateGraph(nextState.data, this.props.replicaset);
         };
 
-        console.log("shouldComponentUpdate");
       };
       return true;
     },
     render: function() {
-      console.log("render");
       return (
         React.createElement("div", {id: "chart1" + this.props.replicaset}, 
           React.createElement("svg", null)
@@ -1002,7 +1001,6 @@ var BaseStore = require('./Store.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 var _shards = null;
-var _state = null;
 
 var ShardsStore = assign(new BaseStore(), {
 
@@ -1012,10 +1010,6 @@ var ShardsStore = assign(new BaseStore(), {
 
   getShardsState: function() {
     return _shards;
-  },
-
-  getDataState: function() {
-    return _state;
   },
 
   CHANGE_EVENT: 'SHARDS_CHANGE_EVENT'

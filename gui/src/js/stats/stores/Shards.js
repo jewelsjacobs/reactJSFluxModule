@@ -8,7 +8,6 @@ var BaseStore = require('./Store.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 var _shards = null;
-var _state = null;
 
 var ShardsStore = assign(new BaseStore(), {
 
@@ -18,10 +17,6 @@ var ShardsStore = assign(new BaseStore(), {
 
   getShardsState: function() {
     return _shards;
-  },
-
-  getDataState: function() {
-    return _state;
   },
 
   CHANGE_EVENT: 'SHARDS_CHANGE_EVENT'

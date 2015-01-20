@@ -28,7 +28,7 @@ var Stats = React.createClass({
         },
         startDate: moment().subtract(1, 'day'),
         endDate: moment(),
-        statNames: StatNamesStore.getStatNamesState(),
+        statNames: StatNamesStore.getStatNamesState()
       };
     },
     handleEvent: function (event, picker) {
