@@ -5,42 +5,32 @@
  */
 var React = require('react');
 var Actions = require('../actions/ViewActionCreators.js');
-var moment = require('moment');
 var Graph = require('./Graph.react.js');
+var _ = require('lodash');
 
 var GraphItems = React.createClass({
-  getInitialState: function(){
-    return {
-      options: this.props.options
-    }
-  },
-  componentDidMount: function(){
-    this.setState({
-     options: this.state.options
-    })
-  },
-  componentWillReceiveProps: function(nextProps) {
-    this.setState({
-       options: nextProps.options
-    }, console.log("updated"));
-  },
   render: function() {
-    var options = this.state.options;
-    var graphs = options.shards.map(
-      function (stat, index) {
-        var replicaset = Object.keys(stat)[0];
-        return (
-          <div key={index}>
-            <h4 className="replset-header">
-              ReplicaSet: {replicaset}
-            </h4>
-            <Graph replicaset={replicaset} hosts={stat[replicaset]} startDate={options.startDate} endDate={options.endDate} statName={options.statName} />
-          </div>
-        );
-      });
+
+    var graphItemsArray = [];
+
+    _.forEach(this.props.shards, function(hosts, replicaset){
+      graphItemsArray.push({replicaset: replicaset,  hosts: hosts});
+    });
+
+    var graphItems = graphItemsArray.map(function (graphItem, index) {
+      return (
+        <div key={index}>
+          <h4 className="replset-header">
+            ReplicaSet: {graphItem.replicaset}
+          </h4>
+          <Graph replicaset={graphItem.replicaset} shard={graphItem} />
+        </div>
+      );
+    });
+
     return (
       <div>
-        {graphs}
+      {graphItems}
       </div>
     );
   }

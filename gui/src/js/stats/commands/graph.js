@@ -40,8 +40,8 @@ function GraphCommand(options) {
 };
 
 GraphCommand.prototype = _.extend({}, BaseCommand.prototype, {
-     run: function(err, data, callback) {
 
+     run: function(err, data, callback) {
          var startTime = moment(this.options.startDate).utc().format("YYYY-MM-DD HH:mm:ss");
          var endTime = moment(this.options.endDate).utc().format("YYYY-MM-DD HH:mm:ss");
          var stats = [];

@@ -4,9 +4,11 @@
  * The application component. This is the top-level component used to generate multiple graphs.
  */
 var React = require('react');
-var moment = require('moment');
 var Actions = require('../actions/ViewActionCreators.js');
 var GraphStore = require('../stores/Graph.js');
+var DateRangeStore = require('../stores/DateRange.js');
+var StatNameStore = require('../stores/StatName.js');
+var moment = require('moment');
 var _ = require('lodash');
 
 /**
@@ -88,39 +90,53 @@ var _updateGraph = function (data, replicaset) {
 var Graph = React.createClass(
   {
     getInitialState: function() {
-      /**
-       * GraphStore.getGraphState(this.props.replicaset)
-       * returns graph data from store
-       */
-      return {data: GraphStore.getGraphState(this.props.replicaset)}
+      return {
+        data: GraphStore.getGraphState(this.props.replicaset),
+        statName: StatNameStore.getStatName(),
+        dates: DateRangeStore.getDateRange(),
+        updateGraph: GraphStore.updateGraph()
+      }
     },
     _onChange: function() {
-      this.setState({data: GraphStore.getGraphState(this.props.replicaset)});
+      this.setState({
+        data: GraphStore.getGraphState(this.props.replicaset),
+        statName: StatNameStore.getStatName(),
+        updateGraph: GraphStore.updateGraph(),
+        dates: DateRangeStore.getDateRange()
+      });
     },
     componentDidMount: function(){
       GraphStore.addChangeListener(this._onChange);
+      StatNameStore.addChangeListener(this._onChange);
+      DateRangeStore.addChangeListener(this._onChange);
     },
-    componentWillReceiveProps: function(nextProps){
-
-      /**
-       * Initial Action method which makes API call directly for graph data with
-       * props as params and injects into graph store dispatcher
-       */
-      Actions.getGraphData(this.props.replicaset, this.props.statName, this.props.startDate, this.props.endDate, this.props.hosts);
-
+    componentWillUnmount: function() {
+      GraphStore.removeChangeListener(this._onChange);
+      StatNameStore.removeChangeListener(this._onChange);
+      DateRangeStore.removeChangeListener(this._onChange);
+    },
+    shouldComponentUpdate: function (nextProps, nextState) {
       /**
        * When props change, inject them into action method to make an updated API call
        */
-      if (!_.isEqual(nextProps, this.props)) {
-        Actions.getGraphData(nextProps.replicaset, nextProps.statName, nextProps.startDate, nextProps.endDate, nextProps.hosts);
-      }
-    },
-    shouldComponentUpdate: function (nextProps, nextState) {
+      var dates = (nextState.dates === null) ?
+                  {startDate : moment().subtract(1, 'day'), endDate : moment()} :
+                  {startDate : nextState.startDate, endDate : nextState.endDate};
 
-      /**
-       * When graph data updates, re-render graph
-       */
+      var statName = (nextState.statName === null) ? "mongodb.connections.current" : nextState.statName;
+
+      if (nextState.updateGraph !== this.state.updateGraph) {
+        Actions.getGraphData(
+          this.props.replicaset,
+          statName,
+          dates.startDate,
+          dates.endDate,
+          this.props.shard.hosts
+        );
+      };
+
       if (!_.isEqual(nextState, this.state)) {
+
         /**
          * Determines if graph data exists
          * @type {*|boolean}
@@ -140,9 +156,24 @@ var Graph = React.createClass(
       return true;
     },
     render: function() {
+
+      var svgComponent = function() {
+        return (
+          <svg></svg>
+        )
+      }.bind(this);
+
+      /**
+       * Determines if graph data exists
+       * @type {*|boolean}
+       */
+      var dataIsLoaded = _.has(this.state, "data")
+                         && !_.isUndefined(this.state.data)
+                         && !_.isEmpty(this.state.data);
+
       return (
         <div id={"chart1" + this.props.replicaset} >
-          <svg></svg>
+          { dataIsLoaded ? svgComponent() : null }
         </div>
       )
     }

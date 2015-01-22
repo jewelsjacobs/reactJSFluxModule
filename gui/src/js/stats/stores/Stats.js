@@ -7,37 +7,37 @@ var AppDispatcher = require('../dispatcher/AppDispatcher.js');
 var BaseStore = require('./Store.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
-var _shards = null;
+var _stats = null;
 
-var ShardsStore = assign(new BaseStore(), {
+var StatsStore = assign(new BaseStore(), {
 
   emitChange: function() {
     this.emit(this.CHANGE_EVENT);
   },
 
-  getShardsState: function() {
-    return _shards;
+  getStatsState: function() {
+    return _stats;
   },
 
-  CHANGE_EVENT: 'SHARDS_CHANGE_EVENT'
+  CHANGE_EVENT: 'STATS_CHANGE_EVENT'
 });
 
-function persistShardsData(response) {
-  _shards = response;
+function persistStatsData(response) {
+  _stats = response;
 };
 
 /**
  * Register with the dispatcher to handle Data needed on App Boostrap related actions.
  */
-ShardsStore.dispatchToken = AppDispatcher.register(function(payload) {
+StatsStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   var action = payload.action;
 
   switch(action.type) {
 
-    case ActionTypes.GET_SHARDS:
-      persistShardsData(action.shards);
-      ShardsStore.emitChange();
+    case ActionTypes.GET_STATS:
+      persistStatsData(action.stats);
+      StatsStore.emitChange();
     break;
 
     default:
@@ -45,4 +45,4 @@ ShardsStore.dispatchToken = AppDispatcher.register(function(payload) {
   }
 });
 
-module.exports = ShardsStore;
+module.exports = StatsStore;

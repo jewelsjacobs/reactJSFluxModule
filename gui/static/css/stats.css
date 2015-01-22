@@ -21,3 +21,12 @@ svg {
 .rs-detail-key select {
     margin: 0px;
 }
+
+input[type=text] {
+  padding: 10px;
+  height: 34px;
+}
+
+.dropdown-menu {
+  top: 82%;
+}

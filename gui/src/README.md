@@ -15,10 +15,7 @@ It is also using [canon-bootstrap](https://github.com/rackerlabs/canon-bootstrap
 ```
 
 ## Install:
-To use the current branch with the react-stats module you will have to clone the react-stats branch from this repo :
-`git clone git@github.com:jewelsjacobs/gui.git --branch react_stats_two --single-branch <yourappfolder>`
-
-* From the root project directory run these commands from the command line:
+From the root project directory run these commands from the command line:
 ```
  $ npm install
  $ bower install
@@ -46,7 +43,6 @@ React's JSX syntax into standard JavaScript with [Reactify](https://github.com/a
                   constants/              # flux constants
                   views/                  # flux dispatcher
                   stores/                 # flux stores
-                    json/                 # mock data
                   main.js                 # main stats react component
             static/
               dist/

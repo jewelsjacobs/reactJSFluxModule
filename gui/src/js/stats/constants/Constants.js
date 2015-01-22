@@ -7,12 +7,12 @@ var keyMirror = require('keymirror');
 module.exports = {
 
   ActionTypes: keyMirror({
-   GET_SHARDS: null,
-   SELECT_STAT: null,
-   GET_STAT_NAMES: null,
-   SELECT_DATE_RANGE: null,
-   GET_GRAPH_PARAMS: null,
-   GET_GRAPH_DATA: null
+   GET_STATS: null,
+   GET_GRAPH_DATA: null,
+   GET_STAT_NAME: null,
+   GET_DATE_RANGE: null,
+   GET_SHARD: null,
+   UPDATE_GRAPH: null
   }),
 
   PayloadSources: keyMirror({

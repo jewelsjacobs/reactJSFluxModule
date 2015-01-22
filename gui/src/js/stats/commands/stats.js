@@ -8,19 +8,18 @@ var AuthHeadersCommand = require('./auth_headers.js');
 var APIUtils = require('../utils/APIUtils.js');
 var apiUrls = require('../configs/apiUrls.json');
 
-//
-//
-//
+var STATS_ROUTE = "{0}/v2/instance/{1}/stats_config";
+var _stats = null;
 
-var SHARDS_ROUTE = "{0}/v2/instance/{1}/replicaset";
-var _shards = null;
+/**
+ * Command to get shards and statsNames
+ * from instance API
+ *
+ * @param options
+ * @constructor
+ */
 
-//
-// Auth Headers Command
-// Get the auth headers from the command
-//
-
-function ShardsCommand(options) {
+function StatsCommand(options) {
     this.options = options;
     this.locked = true;
     this.prereq = {
@@ -28,28 +27,35 @@ function ShardsCommand(options) {
     };
 };
 
-ShardsCommand.prototype = _.extend({}, BaseCommand.prototype, {
+StatsCommand.prototype = _.extend({}, BaseCommand.prototype, {
+
+  /**
+   * API method
+   * @param err
+   * @param data
+   * @param callback
+   */
      run: function(err, data, callback) {
          // cache the response here
-         if (_shards !== null) {
-             callback(err, _shards);
+         if (_stats !== null) {
+             callback(err, _stats);
              return
          }
 
          var url = APIUtils.formatURL(
-             SHARDS_ROUTE,
-             apiUrls['apiv2'],
-             APIUtils.instanceName
+           STATS_ROUTE,
+           apiUrls['apiv2'],
+           APIUtils.instanceName
          );
 
          request.get(url)
              .set(data['auth_headers'])
              .end(function (err, response) {
-                 _shards = response.body.data;
-                 callback(err, _shards);
+                 _stats = response.body;
+                 callback(err, _stats);
          });
      }
 });
 
-ShardsCommand.prototype.constructor = ShardsCommand;
-module.exports = ShardsCommand;
+StatsCommand.prototype.constructor = StatsCommand;
+module.exports = StatsCommand;
