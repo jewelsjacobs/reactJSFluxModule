@@ -11,7 +11,6 @@ module.exports = {
    GET_GRAPH_DATA: null,
    GET_STAT_NAME: null,
    GET_DATE_RANGE: null,
-   GET_SHARD: null,
    UPDATE_GRAPH: null
   }),
 
