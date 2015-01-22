@@ -20,7 +20,7 @@
         </li>
         {% block nav_utility_content_login %}
         <li class="rs-dropdown rs-utility-dropdown">
-            <a class="rs-dropdown-toggle" href="#">{{ login }} <i class="rs-caret"></i></a>
+            <a class="rs-dropdown-toggle" href="#">{{ session.username if session.sso else login }} <i class="rs-caret"></i></a>
             <ul class="rs-dropdown-menu hidden">
                 <li class="rs-dropdown-item"><a class="rs-dropdown-link" href="{{ url_for('account') }}">Account Settings</a></li>
                 <li class="rs-dropdown-item"><a class="rs-dropdown-link" href="{{ url_for('billing') }}">Billing Information</a></li>

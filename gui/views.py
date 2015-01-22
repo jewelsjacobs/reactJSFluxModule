@@ -291,6 +291,11 @@ def inject_login():
 
 
 @app.context_processor
+def inject_session():
+    return {'session': session}
+
+
+@app.context_processor
 def int_function():
     return {'int': int}
 
@@ -1291,7 +1296,6 @@ def sign_in():
 
     account_manager = AccountManager(config)
     if not account_manager.authenticated(login, password):
-        flash('Sign in failed.', canon_constants.STATUS_ERROR)
         return _render_sign_in(401)
 
     session['login'] = login
