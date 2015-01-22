@@ -288,18 +288,18 @@ img.invoice-logo {
 #sign-up {
     margin: -215px 0 0 -345px;
 }
-#rax-sso-form .rs-btn-link {
+.or-focus-panel-login .rs-btn-link {
     padding: 0;
 }
 
 .or-focus-panel .or-focus-panel-link-pull-right {
-    bottom: -14%;
+    bottom: -4em;
     position: absolute;
     right: 0;
 }
 
 .or-focus-panel .or-focus-panel-link-pull-left {
-    bottom: -14%;
+    bottom: -4em;
     position: absolute;
     left: 0;
 }
@@ -312,6 +312,25 @@ img.invoice-logo {
 
 .or-popover-login-overwrite {
     width: 400px;
+}
+
+.or-login-header {
+    position: absolute;
+    top: -18%;
+    width: 100%;
+    box-shadow: 2px 2px 5px 1px rgba(0, 0, 0, 0.15);
+    border: 1px solid #FFF;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.or-login-header-content {
+    background-color: #FFEDCF;
+    font-size: 1.1em;
+    padding: 7px 10px;
+}
+.or-login-header-content-title {
+    color: #E17F00;
 }
 
 /* === generic styles === */

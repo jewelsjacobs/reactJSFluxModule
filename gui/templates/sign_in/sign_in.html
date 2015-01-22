@@ -7,10 +7,11 @@
 {% block body %}
     <div class="rs-panel or-focus-panel">
 
-        <div class="or-focus-panel-messages">
-            {% block flash_messages %}
-                {{ flash_messages(classes='white-space-normal') }}
-            {% endblock %}
+        <div class="or-login-header">
+            <div class="or-login-header-content">
+            <strong class="or-login-header-content-title">Have you linked your ObjectRocket account with your Rackspace Cloud account?</strong>
+            <br/>
+            If so - sign in once through <a href="http://www.rackspace.com/cloud">Rackspace Cloud</a> and manage both resources.</div>
         </div>
 
         <div class="or-focus-panel-login or-flexbox-row">
@@ -41,9 +42,6 @@
                 {% if authn_request | default(False) %}
                 <form id="rax-sso-form" class="rs-form-horizontal rs-form-medium" action="{{ sso_idp_url }}" method="POST">
                     <hr/>
-                    <div>
-                        Have a Rackspace Cloud account? Link your Rackspace Cloud account with your ObjectRocket account and mange both resources seamlessly.
-                    </div>
                     <input name="SAMLRequest" type="hidden" value="{{ authn_request }}"/>
                     <input name="RelayState" type="hidden" value="{{ relay_state }}"/>
                     <div class="rs-btn-group">
