@@ -2,8 +2,6 @@
 *.py[cod]
 
 # Build artifacts
-gui/static/js/dist
-gui/static/css/dist
 *.egg-info/
 
 # Unit test / coverage reports
@@ -19,3 +17,5 @@ node_modules
 
 # bower
 gui/static/js/bower_components
+
+gui/static/dist/js
