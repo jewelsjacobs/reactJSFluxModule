@@ -17,9 +17,6 @@ var StatsNamesTypeAhead = React.createClass({
      */
     return {statName: "connections.current"}
   },
-  componentDidMount: function() {
-
-  },
   onSelected: function(statName) {
     this.setState({statName: statName});
     Actions.getStatName("mongodb." + statName);
