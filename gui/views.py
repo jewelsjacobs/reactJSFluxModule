@@ -564,8 +564,8 @@ def create_instance():
         flash(flash_message, canon_constants.STATUS_ERROR)
 
         subject = "Instance not available in UI."
-        body = ("Login %s attempted to add %s instance type %s with plan: %s zone: %s name: %s, version: %s"
-                % (g.login, service_type, instance_type, plan_size_in_gb, zone, name, version))
+        body = ("Login %s attempted to add %s instance type %s with plan: %s zone: %s name: %s, version: %s, network: %s"
+                % (g.login, service_type, instance_type, plan_size_in_gb, zone, name, version, network))
         send_email(config.SUPPORT_EMAIL, subject, body)
         return redirect(url_for('instances'))
 
@@ -756,10 +756,11 @@ def add_instance_user(selected_instance):
 
     user = request.form['username']
     password = request.form['password']
+    read_only = request.form.get('read_only', 'off') == 'on'
 
     for database in instance.databases:
         try:
-            instance.add_user(database.name, user, password)
+            instance.add_user(database.name, user, password, read_only)
         except Exception as ex:
             exception_uuid = Utility.obfuscate_exception_message(ex.message)
             flash_message = ("There was a problem updating user information for instance %s. If "
@@ -796,10 +797,11 @@ def create_instance_user(selected_instance, selected_database=None):
 
             user = request.form['username']
             password = request.form['password']
+            read_only = request.form.get('read_only', 'off') == 'on'
 
             if user_instance.has_database(selected_database):
                 # The database exists, just add a user to it.
-                user_instance.add_user(selected_database, user, password)
+                user_instance.add_user(selected_database, user, password, read_only)
 
                 # Redirect to database because that's where this request came from.
                 # See refactor note above.
