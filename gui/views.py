@@ -564,8 +564,8 @@ def create_instance():
         flash(flash_message, canon_constants.STATUS_ERROR)
 
         subject = "Instance not available in UI."
-        body = ("Login %s attempted to add %s instance type %s with plan: %s zone: %s name: %s, version: %s"
-                % (g.login, service_type, instance_type, plan_size_in_gb, zone, name, version))
+        body = ("Login %s attempted to add %s instance type %s with plan: %s zone: %s name: %s, version: %s, network: %s"
+                % (g.login, service_type, instance_type, plan_size_in_gb, zone, name, version, network))
         send_email(config.SUPPORT_EMAIL, subject, body)
         return redirect(url_for('instances'))
 
