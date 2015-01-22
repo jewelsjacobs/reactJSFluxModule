@@ -66,7 +66,7 @@ img.invoice-logo {
     max-width: 125px !important;
 }
 
-/* === usage graph flexbox === */
+/* === flexbox layouts === */
 .or-flexbox-row {
     display: -webkit-flex;
     -webkit-flex-direction: row;
@@ -76,6 +76,17 @@ img.invoice-logo {
     flex-direction: row;
     flex-wrap: nowrap;
 }
+.or-flexbox-login-brand {
+    background: url('/static/art/logo-objectrocket-large.png') no-repeat 50%;
+    min-width: 40%;
+    padding: 20px;
+}
+.or-flexbox-login-form {
+    border-left: 1px solid #DDD;
+    margin: 30px 0px;
+    padding: 20px 40px;
+}
+
 /* === bar & status overwrites === */
 .or-bar-ns {
     background: #0062ff; /* .blue */
@@ -269,10 +280,6 @@ img.invoice-logo {
     padding: 40px 50px;
     border-left: 1px solid #ddd;
 }
-#login-form + .rs-control-group {
-    margin: 25px 0 0;
-}
-
 #tos {
     padding: 2em;
     margin: -235px 0 0 -388px;
@@ -281,15 +288,18 @@ img.invoice-logo {
 #sign-up {
     margin: -215px 0 0 -345px;
 }
+.or-focus-panel-login .rs-btn-link {
+    padding: 0;
+}
 
 .or-focus-panel .or-focus-panel-link-pull-right {
-    bottom: -14%;
+    bottom: -4em;
     position: absolute;
     right: 0;
 }
 
 .or-focus-panel .or-focus-panel-link-pull-left {
-    bottom: -14%;
+    bottom: -4em;
     position: absolute;
     left: 0;
 }
@@ -302,6 +312,25 @@ img.invoice-logo {
 
 .or-popover-login-overwrite {
     width: 400px;
+}
+
+.or-login-header {
+    position: absolute;
+    top: -5em;
+    width: 100%;
+    box-shadow: 2px 2px 5px 1px rgba(0, 0, 0, 0.15);
+    border: 1px solid #FFF;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.or-login-header-content {
+    background-color: #FFEDCF;
+    font-size: 1.1em;
+    padding: 7px 10px;
+}
+.or-login-header-content-title {
+    color: #E17F00;
 }
 
 /* === generic styles === */
@@ -347,10 +376,6 @@ img.invoice-logo {
 }
 .inline-block-children * {
     display: inline-block;
-}
-img.raxicon {
-    max-height: 1em;
-    vertical-align: middle;
 }
 
 /* === paragraph styles === */
