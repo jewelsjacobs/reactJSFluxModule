@@ -37,6 +37,16 @@ module.exports = {
     });
   },
 
+/**
+ * getStats action
+ *
+ * @see StatsCommand
+ * @see AppDispatcher
+ * @see main.js
+ * @fires ActionTypes#GET_STATS
+ *
+ * @description Action for statNames dropdown and graph items.
+ */
   getStatName: function(statName){
     AppDispatcher.handleViewAction({
        type: ActionTypes.GET_STAT_NAME,

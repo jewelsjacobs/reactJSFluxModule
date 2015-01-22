@@ -20,7 +20,7 @@
     "tests"
   ],
   "dependencies": {
-    "nvd3": "~1.1.15-beta",
-    "canon-bootstrap": "~0.3.0"
+    "nvd3": "1.1.15-beta",
+    "canon-bootstrap": "0.3.0"
   }
 }
