@@ -316,7 +316,7 @@ img.invoice-logo {
 
 .or-login-header {
     position: absolute;
-    top: -18%;
+    top: -5em;
     width: 100%;
     box-shadow: 2px 2px 5px 1px rgba(0, 0, 0, 0.15);
     border: 1px solid #FFF;
