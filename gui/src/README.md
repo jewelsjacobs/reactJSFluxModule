@@ -51,5 +51,5 @@ React's JSX syntax into standard JavaScript with [Reactify](https://github.com/a
                 bower_components/         # bower components
             templates/
               instances/
-                new_instance_stats.html   # bower components
+                new_instance_stats.html   # jinja template with main stats reactJS component
 
