@@ -13,10 +13,10 @@
             {% endblock %}
         </div>
 
-        <div class="or-focus-panel-login">
-            <div class="or-login-brand"></div>
-            <div class="or-login-form">
-               <p class="or-login-welcome">Sign in to your account</p>
+        <div class="or-focus-panel-login or-flexbox-row">
+            <div class="or-flexbox-login-brand"></div>
+            <div class="or-flexbox-login-form">
+                <p><strong>Welcome to ObjectRocket!</strong></p>
                 <form id="login-form" class="rs-form-horizontal rs-form-medium" action="{{ url_for('sign_in') }}" method="POST">
 
                     <div class="rs-control-group">
@@ -30,23 +30,27 @@
                     </div>
 
                     <div class="rs-btn-group">
-                        <button form="login-form" class="rs-btn rs-btn-login" type="submit">Sign In</button>
+                        <button form="login-form" class="rs-btn rs-btn-login" type="submit">Sign Into ObjectRocket</button>
                     </div>
                 </form>
-
-                {% if authn_request | default(False) %}
-                <form id="rax-sso-form" class="rs-form-horizontal rs-form-medium" action="{{ sso_idp_url }}" method="POST">
-                    <input name="SAMLRequest" type="hidden" value="{{ authn_request }}"/>
-                    <input name="RelayState" type="hidden" value="{{ relay_state }}"/>
-                    <div class="rs-btn-group">
-                        <button class="rs-btn rs-btn-login" type="submit"><img class="raxicon" src="/static/art/rackspace_favicon.png"/>&nbsp;Sign In with Rackspace</button>
-                    </div>
-                </form>
-                {% endif %}
 
                 <div class="rs-control-group">
                     <p><a data-popover="password-reset-popover" data-popover-target="password-reset-target" data-popover-position="left" class="rs-btn rs-btn-link rs-popover-source">Forgot your password?</a></p>
                 </div>
+
+                {% if authn_request | default(False) %}
+                <form id="rax-sso-form" class="rs-form-horizontal rs-form-medium" action="{{ sso_idp_url }}" method="POST">
+                    <hr/>
+                    <div>
+                        Have a Rackspace Cloud account? Link your Rackspace Cloud account with your ObjectRocket account and mange both resources seamlessly.
+                    </div>
+                    <input name="SAMLRequest" type="hidden" value="{{ authn_request }}"/>
+                    <input name="RelayState" type="hidden" value="{{ relay_state }}"/>
+                    <div class="rs-btn-group">
+                        <button class="rs-btn rs-btn-link" type="submit"><strong>Sign In Through Rackspace Cloud <i class="rs-icon-external"></i></strong></button>
+                    </div>
+                </form>
+                {% endif %}
             </div>
         </div>
 

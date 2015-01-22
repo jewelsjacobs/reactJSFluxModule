@@ -291,6 +291,11 @@ def inject_login():
 
 
 @app.context_processor
+def inject_session():
+    return {'session': session}
+
+
+@app.context_processor
 def int_function():
     return {'int': int}
 
