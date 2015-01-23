@@ -28,8 +28,22 @@ var _updateGraph = function (data, replicaset) {
   data.stats.map(
     function (stat, index) {
 
+      var numberOfPoints = stat.data.length;
+      var skip = 1;
+
+      if (numberOfPoints > 300) {
+        skip = Math.floor(numberOfPoints / 300);
+      }
+
+      var reducedData = [];
+
+      for (var i = 0; i < numberOfPoints; i = i + skip) {
+        reducedData.push(stat.data[i]);
+      }
+
       var values = [];
-      _.forEach(stat.data, function(coordiantes){
+
+      _.forEach(reducedData, function(coordiantes){
         values.push({x: coordiantes[0], y: coordiantes[1]});
       });
 
