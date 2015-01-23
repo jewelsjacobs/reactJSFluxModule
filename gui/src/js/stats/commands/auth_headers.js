@@ -35,8 +35,8 @@ AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
         request.get(TOKEN_ROUTE)
             .end(function (err, response) {
                 _authHeaders = {
-                  "X-Auth-Account": response['user'],
-                  "X-Auth-Token": response['api_token']
+                  "X-Auth-Account": response.body['user'],
+                  "X-Auth-Token": response.body['api_token']
                 };
 
                 callback(err, _authHeaders);
