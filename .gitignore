@@ -2,18 +2,20 @@
 *.py[cod]
 
 # Build artifacts
-build/
-dist/
 *.egg-info/
 
 # Unit test / coverage reports
 .tox/
 .coverage
 
-# Sphinx documentation
-docs/_build/
+# Node stuff.
+node_modules
 
-# Sublime specific
-*.sublime-*
-
+# Miscellaneous.
 .DS_Store
+*.log
+
+# bower
+gui/static/js/bower_components
+
+gui/static/dist/js

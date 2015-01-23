@@ -1,0 +1,26 @@
+{
+  "name": "viper-gui",
+  "version": "2.0.0",
+  "homepage": "https://github.com/objectrocket/gui",
+  "authors": [
+    "ObjectRocket Engineering Team"
+  ],
+  "description": "ObjectRocket control panel.",
+  "main": "gui/static/js/main.js",
+  "moduleType": [
+    "proprietary"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "nvd3": "1.1.15-beta",
+    "canon-bootstrap": "0.3.0"
+  }
+}

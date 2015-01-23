@@ -9,8 +9,8 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.css">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
-    <link rel="stylesheet" href="/static/css/ng-quick-date.css">
-    <link rel="stylesheet" href="/static/css/ng-quick-date-default-theme.css">
+    <link rel="stylesheet" href="/static/js/bower_components/canon-bootstrap/build/css/canon-bootstrap.css">
+    <link rel="stylesheet" href="/static/css/daterangepicker-bs3.css">
     <link rel="stylesheet" href="/static/css/stats.css">
     {% include 'stripe_css.html' %}
 {% endblock style %}
@@ -34,82 +34,24 @@
         <!-- end detail header subtitle -->
 
         <!-- detail header title -->
-        <div class="rs-detail-header-title">{{ instance.name }}</div>
+        <div id="instance-name"></div>
         <!-- end detail header title -->
     </div>
     <!-- end detail header -->
+<div id="stats"></div>
 
-	{% raw %}
-		<div class="stats-container" ng-controller="StatsPageCtrl">
-            <ul class="rs-detail-list">
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">Stat:</div>
-                    <div class="rs-detail-value">
-                        <select ng-model="statName" ng-options="name for name in statNames">
-                            <option value="mongodb.opcounters.query">mongodb.opcounters.query</option>
-                        </select>
-                        <img id="load-stat-names" src="/static/art/loading.gif" alt="loading data" />
-                    </div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">
-                        <select ng-model="mode" ng-options="mode for mode in ['for the last', 'between']">
-                        </select>
-                    </div>
-
-                    <div id="last" class="rs-detail-value">
-                        <input type="text" ng-model="period" />
-                        <select ng-model="granularity" ng-options="granularity for granularity in ['minutes', 'hours', 'days']">
-                        </select>
-                    </div>
-
-                    <div id="between" class="rs-detail-value" style="display: none;">
-                        <quick-datepicker ng-model="fromDate"></quick-datepicker>
-                        and
-                        <quick-datepicker ng-model="toDate"></quick-datepicker>
-                    </div>
-                </li>
-                <li class="rs-detail-item">
-                    <div class="rs-detail-key">&nbsp;</div>
-                    <div class="rs-detail-value">
-                        <button class="rs-btn rs-btn-primary" ng-click="onUpdate()">Update Graphs</button>
-                    </div>
-                </li>
-            </ul>
-
-            <div ng-if="statName !== ''">
-                <div ng-repeat="(shardName, hosts) in shards" ng-controller="StatsGraphCtrl">
-                    <h4 class="replset-header">
-                        ReplicaSet: {{shardName}}
-                        <img id="load-{{shardName}}" src="/static/art/loading.gif" alt="loading data" />
-                    </h4>
-                    <div ng-if="data !== undefined">
-                        <nvd3 options="options" data="data" config="{autorefresh: true, refreshDataOnly: true}"></nvd3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endraw %}
 {% endblock content_area_body %}
 
 {% block script %}
     {{ super() }}
 
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.15-beta/nv.d3.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.0/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sugar/1.4.1/sugar.min.js"></script>
-    <script type="text/javascript" src="/static/js/stats/lib/angular-nvd3.js"></script>
-    <script type="text/javascript" src="/static/js/stats/lib/ng-quick-date.js"></script>
-	<script type="text/javascript" src="/static/js/stats/stats.js"></script>
+  <!-- bower mods -->
+  <script type="text/javascript" src="/static/js/bower_components/d3/d3.js"></script>
+  <script type="text/javascript" src="/static/js/bower_components/nvd3/nv.d3.js"></script>
+  <script type="text/javascript" src="/static/js/nvd3/utils.js"></script>
 
-    <script type="text/javascript">
-        window.app = angular.module("statsGraphApp");
-        app.value("instanceName", "{{instance.name}}");
-        app.value("apiUrl", "{{api_url}}");
-        angular.bootstrap(document.body , ["statsGraphApp"]);
-    </script>
+  <!--react + flux code-->
+  <script type="text/javascript" src="/static/dist/js/main.js"></script>
 
     {% include 'stripe_js.html' %}
 {% endblock script %}
