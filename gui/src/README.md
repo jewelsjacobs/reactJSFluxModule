@@ -22,7 +22,11 @@ From the root project directory run these commands from the command line:
 ```
 
 ## Build
-* Navigate to app dir and `$ gulp`
+
+* Navigate to app dir and `$ gulp --type production` in the cli.
+ 
+This will build a browserfied, uglified version of main.js
+while anything else will maintain a non uglified main.js file for easier debugging.
 
 ## Run
 To run so you can modify react / flux files and they will get browserfied on the fly:
