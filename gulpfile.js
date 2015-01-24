@@ -10,8 +10,8 @@ var envify = require('envify');
 var streamify = require('gulp-streamify');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
-var browserSync = require('browser-sync');
 var gutil = require('gulp-util');
+var glob = require("glob");
 var gulpif = require('gulp-if');
 
 // Set some defaults
@@ -33,25 +33,19 @@ gulp.task('clean', function() {
   del(['gui/static/dist/css']);
 });
 
-// Browserify task.
+// Browserify task. Supports multiple modules
 gulp.task('browserify', function() {
-  var mainjs = __dirname + '/gui/src/js/main.js';
-  browserify(mainjs)
-    .transform(reactify)
-    .transform(envify)
-    .bundle()
-    .pipe(source('main.js'))
-    .pipe(gulpif(isProd, streamify(uglify('main.js'))))
-    .pipe(gulp.dest('gui/static/dist/js'));
-});
-
-/**
- * Browser-sync task for starting the server.
- */
-gulp.task('browser-sync', function() {
-  browserSync({
-    proxy: "localhost:5051"
-  });
+  glob(__dirname + "/gui/src/js/*/*.js", function (er, files) {
+    var file = files[0];
+    var filename = file.split("/").pop();
+    browserify(file)
+      .transform(reactify)
+      .transform(envify)
+      .bundle()
+      .pipe(source(filename))
+      .pipe(gulpif(isProd, streamify(uglify(filename))))
+      .pipe(gulp.dest('gui/static/dist/js'));
+  })
 });
 
 /**

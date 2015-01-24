@@ -4,14 +4,14 @@
  * The application component. This is the top-level component.
  */
 var React = require('react');
-var Actions = require('./stats/actions/ViewActionCreators.js');
-var GraphItems = require('./stats/components/GraphItems.react.js');
+var Actions = require('./actions/ViewActionCreators.js');
+var GraphItems = require('./components/GraphItems.react.js');
 var BS = require('react-bootstrap');
-var StatsStore = require('./stats/stores/Stats.js');
-var StatsNamesTypeAhead = require('./stats/components/StatsNamesTypeAhead.react.js');
-var DateTimePicker = require('./stats/components/DateTimePicker.react.js');
-var InstanceNameHeader = require('./stats/components/InstanceNameHeader.react.js');
-var UpdateGraphButton = require('./stats/components/UpdateGraphButton.react.js');
+var StatsStore = require('./stores/Stats.js');
+var StatsNamesTypeAhead = require('./components/StatsNamesTypeAhead.react.js');
+var DateTimePicker = require('./components/DateTimePicker.react.js');
+var InstanceNameHeader = require('./components/InstanceNameHeader.react.js');
+var UpdateGraphButton = require('./components/UpdateGraphButton.react.js');
 var _ = require('lodash');
 
 var Stats = React.createClass({
