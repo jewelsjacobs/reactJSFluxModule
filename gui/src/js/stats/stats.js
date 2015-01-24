@@ -49,10 +49,10 @@ var Stats = React.createClass({
       }.bind(this);
 
       return (
-        <div classNameName="stats-container">
-          { dataIsLoaded ? graphComposer() : null }
-          { dataIsLoaded ? <GraphItems shards={this.state.stats.shards} />  : null }
-        </div>
+          <div classNameName="stats-container">
+            { dataIsLoaded ? graphComposer() : null }
+            { dataIsLoaded ? <GraphItems shards={this.state.stats.shards} />  : null }
+          </div>
       );
     }
 });

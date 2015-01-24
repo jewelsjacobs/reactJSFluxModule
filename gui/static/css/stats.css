@@ -30,3 +30,8 @@ input[type=text] {
 .dropdown-menu {
   top: 82%;
 }
+
+.loader {
+  padding: 15% 45%;
+  position: absolute;
+}

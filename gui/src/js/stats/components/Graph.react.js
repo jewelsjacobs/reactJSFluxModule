@@ -10,6 +10,8 @@ var GraphStore = require('../stores/Graph.js');
 var GraphHelpers = require('./helpers/GraphHelpers.js');
 var DateRangeStore = require('../stores/DateRange.js');
 var StatNameStore = require('../stores/StatName.js');
+var LoaderHelpers = require('./helpers/LoaderHelpers.js');
+var Loader = require('react-loader');
 var moment = require('moment');
 var _ = require('lodash');
 
@@ -91,13 +93,6 @@ var Graph = React.createClass(
       return true;
     },
     render: function() {
-
-      var svgComponent = function() {
-        return (
-          <svg></svg>
-        )
-      }.bind(this);
-
       /**
        * Determines if graph data exists
        * @type {*|boolean}
@@ -106,10 +101,15 @@ var Graph = React.createClass(
                          && !_.isUndefined(this.state.data)
                          && !_.isEmpty(this.state.data);
 
+      var graphStyle = {
+        position: "absolute"
+     };
+
       return (
-        <div id={"chart1" + this.props.replicaset} >
-          { dataIsLoaded ? svgComponent() : null }
-        </div>
+          <div id={"chart1" + this.props.replicaset} >
+            <Loader loaded={dataIsLoaded} options={LoaderHelpers.spinnerOpts} />
+            <svg></svg>
+          </div>
       )
     }
   });
