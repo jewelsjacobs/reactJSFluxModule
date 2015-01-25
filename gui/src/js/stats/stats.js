@@ -8,6 +8,8 @@ var Actions = require('./actions/ViewActionCreators.js');
 var GraphItems = require('./components/GraphItems.react.js');
 var BS = require('react-bootstrap');
 var StatsStore = require('./stores/Stats.js');
+var LoaderHelpers = require('./components/helpers/LoaderHelpers.js');
+var Loader = require('react-loader');
 var StatsNamesTypeAhead = require('./components/StatsNamesTypeAhead.react.js');
 var DateTimePicker = require('./components/DateTimePicker.react.js');
 var InstanceNameHeader = require('./components/InstanceNameHeader.react.js');
@@ -17,7 +19,8 @@ var _ = require('lodash');
 var Stats = React.createClass({
     getInitialState: function() {
       return {
-        stats: StatsStore.getStatsState()
+        stats: StatsStore.getStatsState(),
+        isLoaded: StatsStore.isLoading()
       };
     },
     componentDidMount: function() {
@@ -28,7 +31,8 @@ var Stats = React.createClass({
     },
     _onChange: function() {
       this.setState({
-        stats: StatsStore.getStatsState()
+        stats: StatsStore.getStatsState(),
+        isLoaded: StatsStore.isLoading()
       });
     },
     render: function() {
@@ -49,10 +53,12 @@ var Stats = React.createClass({
       }.bind(this);
 
       return (
+        <Loader loaded={this.state.isLoaded} options={LoaderHelpers.spinnerOpts} >
           <div classNameName="stats-container">
             { dataIsLoaded ? graphComposer() : null }
             { dataIsLoaded ? <GraphItems shards={this.state.stats.shards} />  : null }
           </div>
+        </Loader>
       );
     }
 });

@@ -34,10 +34,15 @@ AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
         // make the request for the api urls
         request.get(TOKEN_ROUTE)
             .end(function (err, response) {
-                _authHeaders = {
-                  "X-Auth-Account": response.body['user'],
-                  "X-Auth-Token": response.body['api_token']
-                };
+                //_authHeaders = {
+                //  "X-Auth-Account": response.body['user'],
+                //  "X-Auth-Token": response.body['api_token']
+                //};
+
+               _authHeaders = {
+                 "X-Auth-Account": "appboy",
+                 "X-Auth-Token": "ImExZjVmMTM2MDI0ZDQ4MWVhN2I4NWYzOTk1NjQ5Yjk4Ig.B6V1RA.ipUoK77ShcDimNgB9traS5ltAao"
+               };
 
                 callback(err, _authHeaders);
         });

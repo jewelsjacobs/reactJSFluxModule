@@ -8,6 +8,7 @@ var BaseStore = require('./Store.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 var _stats = null;
+var _loader = false;
 
 var StatsStore = assign(new BaseStore(), {
 
@@ -19,11 +20,19 @@ var StatsStore = assign(new BaseStore(), {
     return _stats;
   },
 
+  isLoading: function() {
+    return _loader;
+  },
+
   CHANGE_EVENT: 'STATS_CHANGE_EVENT'
 });
 
 function persistStatsData(response) {
   _stats = response;
+};
+
+function loadingState(response) {
+  _loader = response;
 };
 
 /**
@@ -37,6 +46,7 @@ StatsStore.dispatchToken = AppDispatcher.register(function(payload) {
 
     case ActionTypes.GET_STATS:
       persistStatsData(action.stats);
+      loadingState(action.loader);
       StatsStore.emitChange();
     break;
 

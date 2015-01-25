@@ -22,7 +22,8 @@ var Graph = React.createClass(
         data: GraphStore.getGraphState(this.props.replicaset),
         statName: StatNameStore.getStatName(),
         dates: DateRangeStore.getDateRange(),
-        updateGraph: GraphStore.updateGraph()
+        updateGraph: GraphStore.updateGraph(),
+        isLoaded: GraphStore.isLoading()
       }
     },
     _onChange: function() {
@@ -30,11 +31,11 @@ var Graph = React.createClass(
         data: GraphStore.getGraphState(this.props.replicaset),
         statName: StatNameStore.getStatName(),
         updateGraph: GraphStore.updateGraph(),
-        dates: DateRangeStore.getDateRange()
+        dates: DateRangeStore.getDateRange(),
+        isLoaded: GraphStore.isLoading()
       });
     },
     componentDidMount: function(){
-
       // load default graph options
       Actions.getGraphData(
         this.props.replicaset,
@@ -53,27 +54,25 @@ var Graph = React.createClass(
       DateRangeStore.removeChangeListener(this._onChange);
     },
     shouldComponentUpdate: function (nextProps, nextState) {
-      /**
-       * When props change, inject them into action method to make an updated API call
-       */
-      var dates = (_.isNull(this.state.dates) || _.isUndefined(this.state.dates)) ?
-                  {startDate : moment().subtract(1, 'day'), endDate : moment()} :
-                  {startDate : this.state.dates.startDate, endDate : this.state.dates.endDate};
-
-      var statName = _.isNull(nextState.statName) ? "mongodb.connections.current" : nextState.statName;
-
-      if (nextState.updateGraph !== this.state.updateGraph) {
-        Actions.getGraphData(
-          this.props.replicaset,
-          statName,
-          dates.startDate,
-          dates.endDate,
-          this.props.shard.hosts
-        );
-      };
-
       if (!_.isEqual(nextState, this.state)) {
+        /**
+         * When props change, inject them into action method to make an updated API call
+         */
+        var dates = (_.isNull(this.state.dates) || _.isUndefined(this.state.dates)) ?
+                    {startDate : moment().subtract(1, 'day'), endDate : moment()} :
+                    {startDate : this.state.dates.startDate, endDate : this.state.dates.endDate};
 
+        var statName = _.isNull(nextState.statName) ? "mongodb.connections.current" : nextState.statName;
+
+        if (!_.isEqual(nextState.updateGraph,this.state.updateGraph)) {
+          Actions.getGraphData(
+            this.props.replicaset,
+            statName,
+            dates.startDate,
+            dates.endDate,
+            this.props.shard.hosts
+          );
+        }
         /**
          * Determines if graph data exists
          * @type {*|boolean}
@@ -93,23 +92,11 @@ var Graph = React.createClass(
       return true;
     },
     render: function() {
-      /**
-       * Determines if graph data exists
-       * @type {*|boolean}
-       */
-      var dataIsLoaded = _.has(this.state, "data")
-                         && !_.isUndefined(this.state.data)
-                         && !_.isEmpty(this.state.data);
-
-      var graphStyle = {
-        position: "absolute"
-     };
-
       return (
-          <div id={"chart1" + this.props.replicaset} >
-            <Loader loaded={dataIsLoaded} options={LoaderHelpers.spinnerOpts} />
+        <div id={"chart1" + this.props.replicaset} >
+            <Loader loaded={this.state.isLoaded} options={LoaderHelpers.spinnerOpts} />
             <svg></svg>
-          </div>
+        </div>
       )
     }
   });

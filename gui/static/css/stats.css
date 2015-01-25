@@ -34,4 +34,5 @@ input[type=text] {
 .loader {
   padding: 15% 45%;
   position: absolute;
+  z-index: 9999999999999;
 }
