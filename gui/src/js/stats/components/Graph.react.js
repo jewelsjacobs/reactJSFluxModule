@@ -93,7 +93,7 @@ var Graph = React.createClass(
     },
     render: function() {
       return (
-        <div id={"chart1" + this.props.replicaset} >
+        <div id={"chart1" + this.props.replicaset} className="stats-graph">
             <Loader loaded={this.state.isLoaded} options={LoaderHelpers.spinnerOpts} />
             <svg></svg>
         </div>

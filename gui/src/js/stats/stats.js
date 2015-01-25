@@ -53,12 +53,13 @@ var Stats = React.createClass({
       }.bind(this);
 
       return (
-        <Loader loaded={this.state.isLoaded} options={LoaderHelpers.spinnerOpts} >
+
           <div classNameName="stats-container">
+            <Loader loaded={this.state.isLoaded} options={LoaderHelpers.spinnerOpts}>
             { dataIsLoaded ? graphComposer() : null }
             { dataIsLoaded ? <GraphItems shards={this.state.stats.shards} />  : null }
+            </Loader>
           </div>
-        </Loader>
       );
     }
 });
