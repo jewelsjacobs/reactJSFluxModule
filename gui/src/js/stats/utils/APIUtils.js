@@ -13,9 +13,8 @@ var ApiUtils = {
       return output;
   },
 
-  //instanceName: window.location.pathname.split( '/' )[2],
+  instanceName: window.location.pathname.split( '/' )[2]
 
-  instanceName: "appboy01_prod"
 };
 
 module.exports = ApiUtils;
