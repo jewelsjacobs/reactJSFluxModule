@@ -29,20 +29,14 @@ var GraphHelpers = {
           skip = Math.floor(numberOfPoints / 300);
         }
 
-        var reducedData = [];
-
-        for (var i = 0; i < numberOfPoints; i = i + skip) {
-          reducedData.push(stat.data[i]);
-        }
-
         var values = [];
 
-        _.forEach(reducedData, function(coordiantes){
-          values.push({x: coordiantes[0], y: coordiantes[1]});
-        });
+        for (var i = 0; i < numberOfPoints; i = i + skip) {
+          values.push({x: stat.data[i][0], y: stat.data[i][1]});
+        }
 
         graphData.push({
-           values: values,      //values - represents the array of {x,y} data points
+           values: reducedData,      //values - represents the array of {x,y} data points
            key: stat["host_name"] //key  - the name of the series.
          });
       });
