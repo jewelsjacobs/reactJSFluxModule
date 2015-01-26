@@ -15,7 +15,10 @@ var StatsNamesTypeAhead = React.createClass({
      * GraphStore.getGraphState(this.props.replicaset)
      * returns graph data from store
      */
-    return {statName: "connections.current"}
+    return {
+      statName: "connections.current",
+      value: ""
+    }
   },
   onSelected: function(statName) {
     this.setState({statName: statName});
@@ -33,18 +36,24 @@ var StatsNamesTypeAhead = React.createClass({
       cb(results);
     }.bind(this), 1);
   },
+  handleChange: function(event) {
+    this.setState({value: event.target.value});
+  },
   render: function() {
+    var value = this.state.value;
     return (
     <BS.Col xs={6} md={4}>
       <label>Chosen Stat: {this.state.statName}</label>
       <ReactBootstrapAsyncAutocomplete
         type="text"
-        placeholder="i.e. connections.current"
+        placeholder={this.state.statName}
         onSearch={this.searchRequested}
         onItemSelect={this.onSelected}
+        onChange={this.handleChange}
         groupClassName="group-class"
         wrapperClassName="wrapper-class"
         labelClassName="label-class"
+        value={value}
       />
     </BS.Col>
     );
