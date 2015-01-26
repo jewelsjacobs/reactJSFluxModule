@@ -2131,6 +2131,12 @@ def compact_instance(instance_name):
 @exclude_admin_databases(check_argument='selected_database')
 @viper_auth
 def repair_database(selected_instance):
+    # Temporary warning for users that need
+    # repair database to actually work
+    flash('Please contact support to repair your database.', Constants.FLASH_WARN)
+    return redirect(url_for('instance_details', selected_instance=selected_instance))
+
+    # Old repair database code
     instance_manager = InstanceManager(config)
     instance = instance_manager.get_instance_by_name(g.login, selected_instance)
     selected_database = request.form.get('database-name')
