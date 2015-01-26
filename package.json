@@ -1,0 +1,61 @@
+{
+  "name": "viper-gui",
+  "version": "2.0.0",
+  "private": true,
+  "description": "ObjectRocket control panel.",
+  "author": "ObjectRocket Engineering Team",
+  "homepage": "https://github.com/objectrocket/gui",
+  "license": "proprietary",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/objectrocket/gui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/objectrocket/gui/issues"
+  },
+  "main": "gui/static/js/main.js",
+  "scripts": {
+    "build": "gulp default",
+    "test": "jsxhint gui/src/js && jest",
+    "watch": "gulp watch"
+  },
+  "dependencies": {
+    "async": "0.9.0",
+    "classnames": "1.0.0",
+    "envify": "3.2.0",
+    "flux": "2.0.1",
+    "keymirror": "0.1.1",
+    "locks": "0.1.0",
+    "lodash": "2.4.1",
+    "moment": "2.9.0",
+    "object-assign": "2.0.0",
+    "react": "0.12.2",
+    "react-bootstrap": "0.13.0",
+    "react-bootstrap-async-autocomplete": "0.0.3",
+    "react-bootstrap-daterangepicker": "0.2.1",
+    "react-loader": "1.1.0",
+    "superagent": "0.21.0"
+  },
+  "devDependencies": {
+    "browserify": "8.1.1",
+    "del": "1.1.1",
+    "glob": "4.3.5",
+    "gulp": "3.8.10",
+    "gulp-if": "1.2.5",
+    "gulp-streamify": "0.0.5",
+    "gulp-uglify": "1.1.0",
+    "gulp-util": "3.0.2",
+    "jest-cli": "0.2.1",
+    "jsxhint": "0.9.0",
+    "react-tools": "0.12.2",
+    "reactify": "1.0.0",
+    "vinyl-source-stream": "1.0.0"
+  },
+  "jest": {
+    "rootDir": "./gui/src",
+    "scriptPreprocessor": "./preprocessor.js",
+    "unmockedModulePathPatterns": [
+      "./node_modules/react"
+    ]
+  }
+}

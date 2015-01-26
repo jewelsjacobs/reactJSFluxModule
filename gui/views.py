@@ -2551,7 +2551,6 @@ def get_api_token():
 
     return json.dumps({'api_token': session.api_token, 'user': g.login}), 200, {'content-type': 'application/json'}
 
-
 @app.route('/api_urls')
 @viper_auth
 def get_api_urls():

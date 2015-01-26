@@ -12,18 +12,35 @@
     stroke-opacity: 1.0 !important;
 }
 
-nvd3 svg {
-    height: 350px;
-}
-
-.stats-container {
-    border-top: 1px solid #EEE;
-    padding: 10px 30px 0px 30px;
-    margin-bottom: 30px;
+svg {
+  height: 350px;
 }
 
 .rs-detail-item select,
 .rs-detail-item input,
 .rs-detail-key select {
     margin: 0px;
+}
+
+input[type=text] {
+  padding: 10px;
+  height: 34px;
+}
+
+.dropdown-menu {
+  top: 82%;
+}
+
+#stats .loader {
+  padding: 15% 45%;
+  position: absolute;
+  z-index: 9999999999999;
+}
+
+.rs-push, .rs-footer, .rs-nav-footer {
+  margin-top: 10px;
+}
+
+#stats {
+  min-height: 450px;
 }
