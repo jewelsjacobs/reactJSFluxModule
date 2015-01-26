@@ -36,7 +36,7 @@ var GraphHelpers = {
         }
 
         graphData.push({
-           values: reducedData,      //values - represents the array of {x,y} data points
+           values: values,      //values - represents the array of {x,y} data points
            key: stat["host_name"] //key  - the name of the series.
          });
       });
