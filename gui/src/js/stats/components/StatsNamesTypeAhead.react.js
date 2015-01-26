@@ -17,12 +17,18 @@ var StatsNamesTypeAhead = React.createClass({
      */
     return {
       statName: "connections.current",
-      value: ""
+      value: null
     }
   },
   onSelected: function(statName) {
-    this.setState({statName: statName});
+    this.setState({
+                    statName: statName,
+                    value: statName
+                  });
     Actions.getStatName("mongodb." + statName);
+  },
+  clearSelectBox: function(){
+    this.setState({value: null});
   },
   searchRequested : function(key, cb) {
     setTimeout(function() { //Emulate async
@@ -36,26 +42,22 @@ var StatsNamesTypeAhead = React.createClass({
       cb(results);
     }.bind(this), 1);
   },
-  handleChange: function(event) {
-    this.setState({value: event.target.value});
-  },
   render: function() {
-    var value = this.state.value;
     return (
-    <BS.Col xs={6} md={4}>
-      <label>Chosen Stat: {this.state.statName}</label>
-      <ReactBootstrapAsyncAutocomplete
-        type="text"
-        placeholder={this.state.statName}
-        onSearch={this.searchRequested}
-        onItemSelect={this.onSelected}
-        onChange={this.handleChange}
-        groupClassName="group-class"
-        wrapperClassName="wrapper-class"
-        labelClassName="label-class"
-        value={value}
-      />
-    </BS.Col>
+      <BS.Col xs={6} md={4}>
+        <label>Chosen Stat: {this.state.statName}</label>
+        <ReactBootstrapAsyncAutocomplete
+          type="text"
+          placeholder="i.e: connections.current"
+          onSearch={this.searchRequested}
+          onItemSelect={this.onSelected}
+          groupClassName="group-class"
+          wrapperClassName="wrapper-class"
+          labelClassName="label-class"
+          value={this.state.value}
+          onFocus={this.clearSelectBox}
+        />
+      </BS.Col>
     );
   }
 });
