@@ -40,3 +40,7 @@ input[type=text] {
 .rs-push, .rs-footer, .rs-nav-footer {
   margin-top: 10px;
 }
+
+#stats {
+  min-height: 450px;
+}
