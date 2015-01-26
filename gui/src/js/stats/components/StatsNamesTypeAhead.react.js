@@ -11,10 +11,6 @@ var _ = require('lodash');
 
 var StatsNamesTypeAhead = React.createClass({
   getInitialState: function() {
-    /**
-     * GraphStore.getGraphState(this.props.replicaset)
-     * returns graph data from store
-     */
     return {
       statName: "connections.current",
       value: null
@@ -22,9 +18,9 @@ var StatsNamesTypeAhead = React.createClass({
   },
   onSelected: function(statName) {
     this.setState({
-                    statName: statName,
-                    value: statName
-                  });
+      statName: statName,
+      value: statName
+    });
     Actions.getStatName("mongodb." + statName);
   },
   clearSelectBox: function(){
