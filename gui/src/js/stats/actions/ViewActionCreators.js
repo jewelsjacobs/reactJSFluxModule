@@ -32,7 +32,8 @@ module.exports = {
     new StatsCommand().execute(function (err, stats) {
       AppDispatcher.handleViewAction({
         type: ActionTypes.GET_STATS,
-        stats: stats
+        stats: stats,
+        loader: true
       });
     });
   },
@@ -57,7 +58,8 @@ module.exports = {
   updateGraph: function(updateState){
     AppDispatcher.handleViewAction({
      type: ActionTypes.UPDATE_GRAPH,
-     updateState: updateState
+     updateState: updateState,
+     loader: false
    });
   },
 
@@ -94,7 +96,8 @@ module.exports = {
         AppDispatcher.handleViewAction({
            type: ActionTypes.GET_GRAPH_DATA,
            graphData: graph,
-           replicaset: replicaset
+           replicaset: replicaset,
+           loader: true
          });
       })
     }

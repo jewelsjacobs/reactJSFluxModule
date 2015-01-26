@@ -30,3 +30,17 @@ input[type=text] {
 .dropdown-menu {
   top: 82%;
 }
+
+#stats .loader {
+  padding: 15% 45%;
+  position: absolute;
+  z-index: 9999999999999;
+}
+
+.rs-push, .rs-footer, .rs-nav-footer {
+  margin-top: 10px;
+}
+
+#stats {
+  min-height: 450px;
+}

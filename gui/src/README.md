@@ -1,6 +1,6 @@
-## Viper GUI Stats Module
+## React / Flux Modules
 
-This is the Stats 2.0 Module.  It is using a React / Flux architecture and will be used as a template to refactor the other GUI modules.  The idea is to decouple the UI from the API and create a [isomorphic JavaScript](http://nerds.airbnb.com/isomorphic-javascript-future-web-apps/) ecosystem.
+This is the Source folder for the  React / Flux Modules.  The idea is to decouple the UI from the API and create a [isomorphic JavaScript](http://nerds.airbnb.com/isomorphic-javascript-future-web-apps/) ecosystem.
 
 It is also using [canon-bootstrap](https://github.com/rackerlabs/canon-bootstrap) so we can use both [Canon](http://rackerlabs.github.io/canon/) and [Bootstrap](http://getbootstrap.com/) components together.  There are a number of existing React Bootstrap components, including [React Bootstrap](http://react-bootstrap.github.io/) which should make development faster.
 
@@ -22,7 +22,13 @@ From the root project directory run these commands from the command line:
 ```
 
 ## Build
-* Navigate to app dir and `$ gulp`
+
+FOR SOME REASON THE MINIFIED FILES ARE NOT WORKING - INVESTIGATING . . .
+
+* Navigate to app dir and `$ gulp --type production` in the cli.
+ 
+This will build a browserfied, uglified version of main.js
+while anything else will maintain a non uglified main.js file for easier debugging.
 
 ## Run
 To run so you can modify react / flux files and they will get browserfied on the fly:
@@ -37,19 +43,19 @@ React's JSX syntax into standard JavaScript with [Reactify](https://github.com/a
       gui/gui                             # actual ui code is stored here
             src/                          # editable source files
               js/                         # js files
-                stats/                    # stats module
+                yourModuleName/                    # stats module
                   actions/                # flux actions
                   scripts/                # react components
                   constants/              # flux constants
                   views/                  # flux dispatcher
                   stores/                 # flux stores
-                  main.js                 # main stats react component
+                  yourModuleName.js       # main react component
             static/
               dist/
-                main.js                   # browserfied react / flux concat file
+                yourModuleName.js                   # browserfied react / flux concat file
               js/
                 bower_components/         # bower components
             templates/
-              instances/
-                new_instance_stats.html   # jinja template with main stats reactJS component
+              jinjaTemplateModuleFolder/
+                jinjaTemplateModuleName.html   # jinja module template
 

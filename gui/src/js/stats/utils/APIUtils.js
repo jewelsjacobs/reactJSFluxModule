@@ -14,6 +14,7 @@ var ApiUtils = {
   },
 
   instanceName: window.location.pathname.split( '/' )[2]
+
 };
 
 module.exports = ApiUtils;
