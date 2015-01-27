@@ -6,24 +6,14 @@ var browserify = require('browserify');
 var del = require('del');
 var gulp = require('gulp');
 var reactify = require('reactify');
-var envify = require('envify');
+var envify = require('envify/custom');
 var streamify = require('gulp-streamify');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
 var gutil = require('gulp-util');
 var glob = require("glob");
 var gulpif = require('gulp-if');
-
-// Set some defaults
-var isDev  = true;
-var isProd = false;
-
-// This allows 'gulp --type production' in the cli to build a browserfied, uglified version of main.js
-// while anything else will maintain a non uglified main.js file for easier debugging.
-if(gutil.env.type === 'production') {
-  isDev  = false;
-  isProd = true;
-}
+var requireglobify = require('require-globify');
 
 /**
  * Cleanup before running tasks.
@@ -40,10 +30,13 @@ gulp.task('browserify', function() {
     var filename = file.split("/").pop();
     browserify(file)
       .transform(reactify)
-      .transform(envify)
+      .transform(envify({
+        NODE_ENV: gutil.env.type
+      }))
+      .transform(requireglobify)
       .bundle()
       .pipe(source(filename))
-      .pipe(gulpif(isProd, streamify(uglify(filename))))
+      .pipe(gulpif(gutil.env.type === 'production', streamify(uglify(filename))))
       .pipe(gulp.dest('gui/static/dist/js'));
   })
 });

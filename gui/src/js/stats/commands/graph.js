@@ -1,13 +1,11 @@
-'use strict';
-
 var request = require('superagent');
 var _ = require('lodash');
 
-var BaseCommand = require('./base.js');
-var AuthHeadersCommand = require('./auth_headers.js');
-var APIUtils = require('../utils/APIUtils.js');
+var BaseCommand = require('../../common/commands/base.js');
+var AuthHeadersCommand = require('../../common/commands/auth_headers.js');
+var APIUtils = require('../../common/utils/APIUtils.js');
+var apiUrls = require('../../common/configs/LoadConfig.js').api;
 var moment = require('moment');
-var apiUrls = require('../configs/apiUrls.json');
 
 var GRAPH_ROUTE = "{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={3}";
 

@@ -1,10 +1,5 @@
-/** @jsx React.DOM */
-'use strict';
-/**
- * The application component. This is the top-level component.
- */
 var React = require('react');
-var APIUtils = require('../utils/APIUtils.js');
+var APIUtils = require('../../common/utils/APIUtils.js');
 
 var InstanceName = React.createClass({
   getInitialState: function() {

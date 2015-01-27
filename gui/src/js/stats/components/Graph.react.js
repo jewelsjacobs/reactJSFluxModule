@@ -1,7 +1,4 @@
-/** @jsx React.DOM */
-'use strict';
 /**
- * The application component. This is the top-level component used to generate multiple graphs.
  * @TODO: Extract all of this messy coupled logic so this component can be easily be reused
  */
 var React = require('react');

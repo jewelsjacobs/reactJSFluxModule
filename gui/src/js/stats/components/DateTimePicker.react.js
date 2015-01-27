@@ -1,8 +1,3 @@
-/** @jsx React.DOM */
-'use strict';
-/**
- * The application component. This is the top-level component.
- */
 var React = require('react');
 var Actions = require('../actions/ViewActionCreators.js');
 var BS = require('react-bootstrap');

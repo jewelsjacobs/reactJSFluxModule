@@ -1,5 +1,3 @@
-'use strict';
-
 var async = require('async');
 var locks = require('locks');
 var _ = require('lodash');

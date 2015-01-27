@@ -1,10 +1,10 @@
-'use strict';
+
 /**
  * Auth Data interface.
  */
 var assign = require('object-assign');
-var AppDispatcher = require('../dispatcher/AppDispatcher.js');
-var BaseStore = require('./Store.js');
+var AppDispatcher = require('../../common/dispatcher/AppDispatcher.js');
+var BaseStore = require('../../common/stores/Store.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 var _ = require('lodash');

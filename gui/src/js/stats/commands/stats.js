@@ -1,12 +1,10 @@
-'use strict';
-
 var request = require('superagent');
 var _ = require('lodash');
 
-var BaseCommand = require('./base.js');
-var AuthHeadersCommand = require('./auth_headers.js');
-var APIUtils = require('../utils/APIUtils.js');
-var apiUrls = require('../configs/apiUrls.json');
+var BaseCommand = require('../../common/commands/base.js');
+var AuthHeadersCommand = require('../../common/commands/auth_headers.js');
+var APIUtils = require('../../common/utils/APIUtils.js');
+var apiUrls = require('../../common/configs/LoadConfig.js').api;
 
 var STATS_ROUTE = "{0}/v2/instance/{1}/stats_config";
 var _stats = null;

@@ -1,8 +1,3 @@
-/** @jsx React.DOM */
-'use strict';
-/**
- * The application component. This is the top-level component.
- */
 var React = require('react/addons');
 var Actions = require('../actions/ViewActionCreators.js');
 var ReactBootstrapAsyncAutocomplete = require('react-bootstrap-async-autocomplete');

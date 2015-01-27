@@ -1,5 +1,5 @@
 /** @jsx React.DOM */
-'use strict';
+
 /**
  * The application component. This is the top-level component used to generate multiple graphs.
  */

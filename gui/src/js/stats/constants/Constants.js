@@ -1,4 +1,4 @@
-'use strict';
+
 /**
  * Application constants.
  */
@@ -12,11 +12,6 @@ module.exports = {
    GET_STAT_NAME: null,
    GET_DATE_RANGE: null,
    UPDATE_GRAPH: null
-  }),
-
-  PayloadSources: keyMirror({
-    SERVER_ACTION: null,
-    VIEW_ACTION: null
   })
 
 };

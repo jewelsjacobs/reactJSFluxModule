@@ -1,9 +1,7 @@
-'use strict';
 /**
  * A template store module.
  */
 var assign = require('object-assign');
-var Constants = require('../constants/Constants.js');
 var EventEmitter = require('events').EventEmitter;
 
 /**

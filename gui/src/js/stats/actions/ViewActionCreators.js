@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Action Creators module.
  *
@@ -9,7 +7,7 @@
  * @author Julia Jacobs
  * @version 1.0.0
  */
-var AppDispatcher = require('../dispatcher/AppDispatcher.js');
+var AppDispatcher = require('../../common/dispatcher/AppDispatcher.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 
@@ -102,4 +100,3 @@ module.exports = {
       })
     }
 };
-
