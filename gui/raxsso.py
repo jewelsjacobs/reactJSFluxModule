@@ -198,6 +198,10 @@ def sso_logout_request():
     Reach will send a LogoutRequest as the BODY of the request. If the request is valid, clear the
     session of the specified user and respond with a SAML LogoutResponse.
     """
+    # TODO(TheDodd): needs to be activated when Reach is ready to send us SLO requests.
+    if True:
+        return 200
+
     try:
         # Decode and validate a SAML LogoutRequest.
         encoded_saml_logout_request = request.body
@@ -227,6 +231,10 @@ def sso_logout_response():
 
     This serves very little purpose.
     """
+    # TODO(TheDodd): needs to be activated when Reach is ready to send us SLO requests.
+    if True:
+        return 200
+
     try:
         # Decode and validate a SAML LogoutResponse.
         encoded_saml_logout_response = request.body
