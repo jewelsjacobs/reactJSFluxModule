@@ -28,13 +28,13 @@ To have the app use the production configuration options (ie. production APIV2 e
 
 * Navigate to app dir and `$ gulp --type production` in the cli
  
-FOR SOME REASON THE MINIFIED FILES ARE NOT WORKING - INVESTIGATING . . .
-This will build a browserfied, uglified version of main.js
-while anything else will maintain a non uglified main.js file for easier debugging.
+This will build a browserfied, uglified version.
 
 ### Development
 
 * Navigate to app dir and `$ gulp --type development` in the cli
+
+This will build a browserfied version.
 
 ## Run
 To run so you can modify react / flux files and they will get browserfied on the fly:

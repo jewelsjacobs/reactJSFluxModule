@@ -1,4 +1,3 @@
-'use strict';
 /**
  * Gulp tasks.
  */
@@ -7,9 +6,9 @@ var del = require('del');
 var gulp = require('gulp');
 var reactify = require('reactify');
 var envify = require('envify/custom');
-var streamify = require('gulp-streamify');
 var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
+var buffer = require('vinyl-buffer');
 var gutil = require('gulp-util');
 var glob = require("glob");
 var gulpif = require('gulp-if');
@@ -36,7 +35,18 @@ gulp.task('browserify', function() {
       .transform(requireglobify)
       .bundle()
       .pipe(source(filename))
-      .pipe(gulpif(gutil.env.type === 'production', streamify(uglify(filename))))
+      .pipe(buffer())
+      .pipe(
+        gulpif(
+          gutil.env.type === 'production'
+          , (uglify({
+              mangle: false,
+              warnings: true,
+              drop_console: true
+            })
+          )
+        )
+      )
       .pipe(gulp.dest('gui/static/dist/js'));
   })
 });
