@@ -1213,6 +1213,11 @@ def reset_password():
             account = account_manager.get_account(login)
 
             if account is not None and account.active:
+
+                # Migrated accounts can not have their passwords reset from within ObjectRocket.
+                if account.migrated:
+                    return render_template('sign_in/migrated_password_reset.html')
+
                 # Generate reset token.
                 pr_host = config.PASSWORD_RESET_HOST
                 pr_token = serializer.dumps(login)
