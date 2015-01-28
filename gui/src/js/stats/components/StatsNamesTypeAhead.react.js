@@ -4,6 +4,15 @@ var ReactBootstrapAsyncAutocomplete = require('react-bootstrap-async-autocomplet
 var BS = require('react-bootstrap');
 var _ = require('lodash');
 
+/**
+ * @author Julia Jacobs
+ * @version 1.0.0
+ * @description Typeahead with statsNames.
+ * @link {https://github.com/nnarhinen/react-bootstrap-async-autocomplete}
+ * @module components/statsnamestypeahead
+ * @type {*|Function}
+ */
+
 var StatsNamesTypeAhead = React.createClass({
   getInitialState: function() {
     return {

@@ -1,5 +1,11 @@
 var keyMirror = require('keymirror');
 
+/**
+ * Base Application Constants
+ *
+ * @type {{PayloadSources: (*|exports)}}
+ */
+
 module.exports = {
 
   PayloadSources: keyMirror({

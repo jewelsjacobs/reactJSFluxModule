@@ -10,10 +10,10 @@ var STATS_ROUTE = "{0}/v2/instance/{1}/stats_config";
 var _stats = null;
 
 /**
- * Command to get shards and statsNames
- * from instance API
+ * Interface for the Stats API
  *
- * @param options
+ * @module commands/statscommand
+ * @param {Object} options
  * @constructor
  */
 
@@ -27,12 +27,6 @@ function StatsCommand(options) {
 
 StatsCommand.prototype = _.extend({}, BaseCommand.prototype, {
 
-  /**
-   * API method
-   * @param err
-   * @param data
-   * @param callback
-   */
      run: function(err, data, callback) {
          // cache the response here
          if (_stats !== null) {

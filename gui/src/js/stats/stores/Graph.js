@@ -1,7 +1,3 @@
-
-/**
- * Auth Data interface.
- */
 var assign = require('object-assign');
 var AppDispatcher = require('../../common/dispatcher/AppDispatcher.js');
 var BaseStore = require('../../common/stores/Store.js');
@@ -12,6 +8,12 @@ var _update = false;
 var _loader = false;
 
 var _graph = {};
+
+/**
+ * Store to manage states
+ * related to the graph API
+ * and graph(s)
+ */
 
 var GraphStore = assign(new BaseStore(), {
 
@@ -47,9 +49,6 @@ function loadingState(response) {
   _loader = response;
 };
 
-/**
- * Register with the dispatcher to handle Data needed on App Boostrap related actions.
- */
 GraphStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   var action = payload.action;

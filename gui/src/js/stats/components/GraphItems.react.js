@@ -3,6 +3,15 @@ var Actions = require('../actions/ViewActionCreators.js');
 var Graph = require('./Graph.react.js');
 var _ = require('lodash');
 
+/**
+ * @author Julia Jacobs
+ * @version 1.0.0
+ * @description Component to render multiple rows of graphs
+ * for all replicasets in an instance
+ * @module components/graphitems
+ * @type {*|Function}
+ */
+
 var GraphItems = React.createClass({
   render: function() {
 

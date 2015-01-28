@@ -1,8 +1,3 @@
-/** @jsx React.DOM */
-
-/**
- * The application component. This is the top-level component.
- */
 var React = require('react');
 var Actions = require('./actions/ViewActionCreators.js');
 var GraphItems = require('./components/GraphItems.react.js');
@@ -15,6 +10,14 @@ var DateTimePicker = require('./components/DateTimePicker.react.js');
 var InstanceNameHeader = require('./components/InstanceNameHeader.react.js');
 var UpdateGraphButton = require('./components/UpdateGraphButton.react.js');
 var _ = require('lodash');
+
+/**
+ * @author Julia Jacobs
+ * @version 1.0.0
+ * @description Component for Stats module
+ * @module stats
+ * @type {*|Function}
+ */
 
 var Stats = React.createClass({
     getInitialState: function() {

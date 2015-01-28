@@ -9,11 +9,18 @@ var moment = require('moment');
 
 var GRAPH_ROUTE = "{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={3}";
 
+/**
+ * @description Picks the granularity to be reasonable
+ * based on the timespan chosen
+ * @param {moment} fromDate
+ * @param {moment} toDate
+ * @returns {*}
+ * @private
+ */
 function _granularity(fromDate, toDate){
   var secondsDiff = toDate.diff(fromDate, 'seconds');
   var granularity = null;
 
-  // pick the granularity to be reasonable based on the timespan chosen.
   if (secondsDiff <= 360) { // 6 hours
     granularity = 'minute';
   } else if (secondsDiff <= 259200) {  // 72 hours
@@ -23,12 +30,15 @@ function _granularity(fromDate, toDate){
   }
 
   return granularity;
-}
+};
 
-//
-// Graph Command
-// Get the auth headers from the command
-//
+/**
+ * Interface for the Graph API
+ *
+ * @module commands/graphcommand
+ * @param {Object} options
+ * @constructor
+ */
 
 function GraphCommand(options) {
     this.options = options;

@@ -1,6 +1,3 @@
-/**
- * @TODO: Extract all of this messy coupled logic so this component can be easily be reused
- */
 var React = require('react');
 var Actions = require('../actions/ViewActionCreators.js');
 var GraphStore = require('../stores/Graph.js');
@@ -11,6 +8,14 @@ var LoaderHelpers = require('./helpers/LoaderHelpers.js');
 var Loader = require('react-loader');
 var moment = require('moment');
 var _ = require('lodash');
+
+/**
+ * @author Julia Jacobs
+ * @version 1.0.0
+ * @description Graph component for nv3d graph.
+ * @module components/graph
+ * @type {*|Function}
+ */
 
 var Graph = React.createClass(
   {

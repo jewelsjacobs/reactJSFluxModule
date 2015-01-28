@@ -4,6 +4,15 @@ var BS = require('react-bootstrap');
 var DateRangePicker = require('react-bootstrap-daterangepicker');
 var moment = require('moment');
 
+/**
+ * @author Julia Jacobs
+ * @version 1.0.0
+ * @description Date Time Picked to choose a start and end date time range
+ * @module components/dateTimepicker
+ * @link {https://github.com/skratchdot/react-bootstrap-daterangepicker}
+ * @type {*|Function}
+ */
+
 var DateTimePicker = React.createClass({
   getInitialState: function() {
     return {

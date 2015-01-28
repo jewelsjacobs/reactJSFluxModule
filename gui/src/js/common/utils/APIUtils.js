@@ -1,3 +1,10 @@
+/**
+ * API utility methods
+ *
+ * @module utils/apiutils
+ * @type {{formatURL: Function, instanceName: *}}
+ */
+
 var ApiUtils = {
   formatURL: function(string) {
 

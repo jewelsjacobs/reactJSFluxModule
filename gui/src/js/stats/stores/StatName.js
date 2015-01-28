@@ -1,7 +1,3 @@
-
-/**
- * Auth Data interface.
- */
 var assign = require('object-assign');
 var AppDispatcher = require('../../common/dispatcher/AppDispatcher.js');
 var BaseStore = require('../../common/stores/Store.js');
@@ -10,6 +6,11 @@ var ActionTypes = Constants.ActionTypes;
 var _ = require('lodash');
 
 var _statName = null;
+
+/**
+ * Store to manage states
+ * related to the statname dropdown
+ */
 
 var StatNameStore = assign(new BaseStore(), {
 
@@ -29,9 +30,6 @@ function persistStatNameData(response) {
   _statName = response;
 }
 
-/**
- * Register with the dispatcher to handle Data needed on App Boostrap related actions.
- */
 StatNameStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   var action = payload.action;

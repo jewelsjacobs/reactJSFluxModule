@@ -2,6 +2,15 @@ var React = require('react');
 var Actions = require('../actions/ViewActionCreators.js');
 var BS = require('react-bootstrap');
 
+/**
+ * @author Julia Jacobs
+ * @version 1.0.0
+ * @description Update Graph bootstrap button.
+ * @link {http://react-bootstrap.github.io/}
+ * @module components/updategraphbutton
+ * @type {*|Function}
+ */
+
 var UpdateGraphButton = React.createClass({
   getInitialState: function() {
     return {update: false};

@@ -1,8 +1,9 @@
+var keyMirror = require('keymirror');
 
 /**
- * Application constants.
+ * Stats Module Action Constants
+ * @type {{ActionTypes: (*|exports)}}
  */
-var keyMirror = require('keymirror');
 
 module.exports = {
 

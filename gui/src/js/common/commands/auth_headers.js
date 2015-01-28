@@ -6,6 +6,14 @@ var BaseCommand = require('./base.js');
 var TOKEN_ROUTE = '/api_token';
 var _authHeaders = null;
 
+/**
+ * Interface for the Auth Headers API
+ *
+ * @module commands/AuthHeadersCommand
+ * @param {Object} options
+ * @constructor
+ */
+
 function AuthHeadersCommand(options) {
     this.options = options;
     this.prereq = {};
