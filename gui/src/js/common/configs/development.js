@@ -5,6 +5,6 @@
 
 module.exports = {
   api: {
-    "apiv2": "http://localhost:5050/"
+    "apiv2": "http://localhost:5050"
   }
 };
