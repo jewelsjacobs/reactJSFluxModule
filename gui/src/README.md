@@ -24,17 +24,13 @@ From the root project directory run these commands from the command line:
 ## Build
 
 ### Production
-To have the app use the production configuration options (ie. production APIV2 endpoint host):
-
 * Navigate to app dir and `$ gulp --type production` in the cli
- 
-This will build a browserfied, uglified version.
 
 ### Development
-
 * Navigate to app dir and `$ gulp --type development` in the cli
 
-This will build a browserfied version.
+### QA
+* Navigate to app dir and `$ gulp --type qa` in the cli
 
 ## Run
 To run so you can modify react / flux files and they will get browserfied on the fly:
