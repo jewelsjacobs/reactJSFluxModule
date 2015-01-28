@@ -1,24 +1,31 @@
-/** @jsx React.DOM */
-'use strict';
-/**
- * The application component. This is the top-level component used to generate multiple graphs.
- */
 var moment = require('moment');
 var _ = require('lodash');
+
+/**
+ * @author Julia Jacobs
+ * @version 1.0.0
+ * @description Helper methods for the nvd3 Graph Component
+ * @link {http://nvd3.org/}
+ * @see Graph.react.js
+ * @module components/graphhelpers
+ * @type {{updateGraph: Function}}
+ */
 
 var GraphHelpers = {
   /**
    * Updates / creates the nvd3 graph
-   * @param data
-   * @param replicaset
+   * @param {Object} data
+   * @param {String} replicaset
    */
-  updateGraph : function (data, replicaset) {
+
+  updateGraph: function (data, replicaset) {
     var graphData = [];
 
     /**
      * Maps API data schema to schema required by nvd3
-     * @url https://github.com/novus/nvd3/blob/master/examples/lineChart.html
+     * @link {https://github.com/novus/nvd3/blob/master/examples/lineChart.html}
      */
+
     data.stats.map(
       function (stat, index) {
 
@@ -31,43 +38,45 @@ var GraphHelpers = {
 
         var values = [];
 
+        // reducing number of data points so svg graphs don't take so long to load
         for (var i = 0; i < numberOfPoints; i = i + skip) {
           values.push({x: stat.data[i][0], y: stat.data[i][1]});
         }
 
         graphData.push({
-           values: values,      //values - represents the array of {x,y} data points
-           key: stat["host_name"] //key  - the name of the series.
-         });
+          values: values,      //values - represents the array of {x,y} data points
+          key: stat["host_name"] //key  - the name of the series.
+        });
       });
 
     var chart;
 
-    nv.addGraph(function() {
+    nv.addGraph(function () {
       chart = nv.models.lineChart()
         .options({
-                   margin: {
-                     top: 20,
-                     right: 50,
-                     bottom: 50,
-                     left: 50
-                   },
-                   x: function (d, i) {
-                     return d.x;
-                   },
-                   y: function (d, i) {
-                     return d.y;
-                   },
-                   showXAxis: true,
-                   showYAxis: true,
-                   transitionDuration: 250,
-                   useInteractiveGuideline: true
-                 });
+          margin: {
+            top: 20,
+            right: 50,
+            bottom: 50,
+            left: 50
+          },
+          x: function (d, i) {
+            return d.x;
+          },
+          y: function (d, i) {
+            return d.y;
+          },
+          showXAxis: true,
+          showYAxis: true,
+          transitionDuration: 250,
+          useInteractiveGuideline: true
+        });
 
       /**
        *  chart sub-models (ie. xAxis, yAxis, etc) when accessed directly,
        *  return themselves, not the parent chart, so need to chain separately
        */
+
       chart.xAxis
         .axisLabel("")
         .staggerLabels(true)

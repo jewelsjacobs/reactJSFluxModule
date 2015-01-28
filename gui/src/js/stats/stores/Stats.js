@@ -1,26 +1,27 @@
-'use strict';
-/**
- * Auth Data interface.
- */
 var assign = require('object-assign');
-var AppDispatcher = require('../dispatcher/AppDispatcher.js');
-var BaseStore = require('./Store.js');
+var AppDispatcher = require('../../common/dispatcher/AppDispatcher.js');
+var BaseStore = require('../../common/stores/Store.js');
 var Constants = require('../constants/Constants.js');
 var ActionTypes = Constants.ActionTypes;
 var _stats = null;
 var _loader = false;
 
+/**
+ * Store to manage states
+ * related to the statname API
+ */
+
 var StatsStore = assign(new BaseStore(), {
 
-  emitChange: function() {
+  emitChange: function () {
     this.emit(this.CHANGE_EVENT);
   },
 
-  getStatsState: function() {
+  getStatsState: function () {
     return _stats;
   },
 
-  isLoading: function() {
+  isLoading: function () {
     return _loader;
   },
 
@@ -35,20 +36,17 @@ function loadingState(response) {
   _loader = response;
 };
 
-/**
- * Register with the dispatcher to handle Data needed on App Boostrap related actions.
- */
-StatsStore.dispatchToken = AppDispatcher.register(function(payload) {
+StatsStore.dispatchToken = AppDispatcher.register(function (payload) {
 
   var action = payload.action;
 
-  switch(action.type) {
+  switch (action.type) {
 
     case ActionTypes.GET_STATS:
       persistStatsData(action.stats);
       loadingState(action.loader);
       StatsStore.emitChange();
-    break;
+      break;
 
     default:
 

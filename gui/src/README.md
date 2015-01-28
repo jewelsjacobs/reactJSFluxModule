@@ -23,36 +23,59 @@ From the root project directory run these commands from the command line:
 
 ## Build
 
-FOR SOME REASON THE MINIFIED FILES ARE NOT WORKING - INVESTIGATING . . .
+### Production
+To have the app use the production configuration options (ie. production APIV2 endpoint host):
 
-* Navigate to app dir and `$ gulp --type production` in the cli.
+* Navigate to app dir and `$ gulp --type production` in the cli
  
-This will build a browserfied, uglified version of main.js
-while anything else will maintain a non uglified main.js file for easier debugging.
+This will build a browserfied, uglified version.
+
+### Development
+
+* Navigate to app dir and `$ gulp --type development` in the cli
+
+This will build a browserfied version.
 
 ## Run
 To run so you can modify react / flux files and they will get browserfied on the fly:
-* In app dir `$ gulp watch`
+* In app dir `$ gulp watch --type development`
 
-This watcher is based on [Browserify](http://browserify.org/) and
-[Watchify](https://github.com/substack/watchify), and it transforms
+This watcher is based on [Browserify](http://browserify.org/) and it transforms
 React's JSX syntax into standard JavaScript with [Reactify](https://github.com/andreypopp/reactify).
 
-## Folder Structure of Stats Module Code
+## Folder Structure of React / Flux GUI Module Code
 
       gui/gui                             # actual ui code is stored here
             src/                          # editable source files
               js/                         # js files
-                yourModuleName/                    # stats module
+                common/                   # files used by multiple modules go here
+                  commands/               # common api interfaces
+                    auth_headers.js       # auth header api
+                    base.js               # base command class
+                  configs/                
+                    development.js        # configs for development environment
+                    LoadConfig.js         # reads a cli / gulp or environment variable to determine app environment
+                    production.js         # configs for production environment 
+                    qa.js                 # configs for qa environment 
+                  constants/
+                    Constants.js          # constants used by base app dispatcher
+                  dispatcher/
+                    AppDispatcher.js      # base app dispatcher
+                  stores/
+                    Store.js              # base store
+                  utils/
+                    APIUtils.js           # utilities for API classes
+                yourModuleName/           # module
+                  commands/               # interfaces for apis
                   actions/                # flux actions
                   scripts/                # react components
                   constants/              # flux constants
                   views/                  # flux dispatcher
                   stores/                 # flux stores
-                  yourModuleName.js       # main react component
+                  moduleName.js           # main react component
             static/
               dist/
-                yourModuleName.js                   # browserfied react / flux concat file
+                moduleName.js             # browserfied react / flux concat file
               js/
                 bower_components/         # bower components
             templates/

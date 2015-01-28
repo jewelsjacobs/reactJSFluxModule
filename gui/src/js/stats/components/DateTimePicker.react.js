@@ -1,16 +1,20 @@
-/** @jsx React.DOM */
-'use strict';
-/**
- * The application component. This is the top-level component.
- */
 var React = require('react');
 var Actions = require('../actions/ViewActionCreators.js');
 var BS = require('react-bootstrap');
 var DateRangePicker = require('react-bootstrap-daterangepicker');
 var moment = require('moment');
 
+/**
+ * @author Julia Jacobs
+ * @version 1.0.0
+ * @description Date Time Picked to choose a start and end date time range
+ * @module components/dateTimepicker
+ * @link {https://github.com/skratchdot/react-bootstrap-daterangepicker}
+ * @type {*|Function}
+ */
+
 var DateTimePicker = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       ranges: {
         'Today': [moment().subtract(1, 'day'), moment()],
@@ -30,11 +34,11 @@ var DateTimePicker = React.createClass({
       endDate: picker.endDate
     });
     Actions.getDateRange({
-     startDate: this.state.startDate,
-     endDate: this.state.endDate
+      startDate: this.state.startDate,
+      endDate: this.state.endDate
     });
   },
-  render: function() {
+  render: function () {
     var start = this.state.startDate.format('YYYY-MM-DD h:mm:ss a');
     var end = this.state.endDate.format('YYYY-MM-DD h:mm:ss a');
     var label = start + ' - ' + end;
@@ -45,7 +49,14 @@ var DateTimePicker = React.createClass({
     return (
       <BS.Col xs={6} md={4}>
         <label>Range</label>
-        <DateRangePicker startDate={this.state.startDate} onApply={this.handleEvent} timePicker={true} timePicker12Hour={true} timePickerSeconds={false} endDate={this.state.endDate} ranges={this.state.ranges}>
+        <DateRangePicker
+          startDate={this.state.startDate}
+          onApply={this.handleEvent}
+          timePicker={true}
+          timePicker12Hour={true}
+          timePickerSeconds={false}
+          endDate={this.state.endDate}
+          ranges={this.state.ranges}>
           <BS.Button className="selected-date-range-btn" style={{width: '100%'}}>
             <div className="pull-left">
               <BS.Glyphicon glyph="calendar" />
