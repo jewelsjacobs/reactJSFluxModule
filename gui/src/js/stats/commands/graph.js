@@ -17,7 +17,7 @@ var GRAPH_ROUTE = "{0}/v2/graph/ad_hoc?granularity={1}&start_time={2}&end_time={
  * @returns {*}
  * @private
  */
-function _granularity(fromDate, toDate){
+function _granularity(fromDate, toDate) {
   var secondsDiff = toDate.diff(fromDate, 'seconds');
   var granularity = null;
 
@@ -41,43 +41,43 @@ function _granularity(fromDate, toDate){
  */
 
 function GraphCommand(options) {
-    this.options = options;
-    this.prereq = {
-        "auth_headers": new AuthHeadersCommand()
-    };
+  this.options = options;
+  this.prereq = {
+    "auth_headers": new AuthHeadersCommand()
+  };
 };
 
 GraphCommand.prototype = _.extend({}, BaseCommand.prototype, {
 
-     run: function(err, data, callback) {
-         var startTime = moment(this.options.startDate).utc().format("YYYY-MM-DD HH:mm:ss");
-         var endTime = moment(this.options.endDate).utc().format("YYYY-MM-DD HH:mm:ss");
-         var stats = [];
+  run: function (err, data, callback) {
+    var startTime = moment(this.options.startDate).utc().format("YYYY-MM-DD HH:mm:ss");
+    var endTime = moment(this.options.endDate).utc().format("YYYY-MM-DD HH:mm:ss");
+    var stats = [];
 
-         _.forEach(this.options.hosts, function(host){
+    _.forEach(this.options.hosts, function (host) {
 
-           stats.push({
-              "instance": APIUtils.instanceName,
-              "host": host,
-              "name": this.options.statName
-            });
-         }.bind(this));
+      stats.push({
+        "instance": APIUtils.instanceName,
+        "host": host,
+        "name": this.options.statName
+      });
+    }.bind(this));
 
-         var url = APIUtils.formatURL(
-             GRAPH_ROUTE,
-             apiUrls['apiv2'],
-             _granularity(this.options.startDate, this.options.endDate),
-             startTime,
-             endTime
-         );
+    var url = APIUtils.formatURL(
+      GRAPH_ROUTE,
+      apiUrls['apiv2'],
+      _granularity(this.options.startDate, this.options.endDate),
+      startTime,
+      endTime
+    );
 
-         request.post(url)
-             .set(data['auth_headers'])
-             .send({ stats: stats })
-             .end(function (err, response) {
-                 callback(err, response.body);
-         });
-     }
+    request.post(url)
+      .set(data['auth_headers'])
+      .send({stats: stats})
+      .end(function (err, response) {
+        callback(err, response.body);
+      });
+  }
 });
 
 GraphCommand.prototype.constructor = GraphCommand;

@@ -19,120 +19,120 @@ var _ = require('lodash');
  */
 
 function BaseCommand(options) {
-    this.options = options;
-    this.prereq = {};
-    this.locked = false;
+  this.options = options;
+  this.prereq = {};
+  this.locked = false;
 };
 
 BaseCommand.prototype = {
 
-    /**
-     * @prop {object} mutexes - a set of mutexes, keyed by classname.
-     */
+  /**
+   * @prop {object} mutexes - a set of mutexes, keyed by classname.
+   */
 
-    mutexes: {},
+  mutexes: {},
 
-    /**
-     * Kick off the execution of the command.
-     *
-     * @public
-     * @param {Function} callback - called with the results of the command.
-     *                              signature: function (err, results)
-     */
+  /**
+   * Kick off the execution of the command.
+   *
+   * @public
+   * @param {Function} callback - called with the results of the command.
+   *                              signature: function (err, results)
+   */
 
-    execute: function (callback) {
-        var locked = this.locked || false;
+  execute: function (callback) {
+    var locked = this.locked || false;
 
-        if (locked) {
-            this.executeLocked(callback);
-        } else {
-            this.executeUnlocked(callback);
-        }
-    },
-
-    /**
-     * Wrap the execution of the the command in a mutex, only allowing one
-     * command of this type to run at a time.
-     *
-     * @private
-     * @param {Function} callback - called with the results of the command.
-     *                              signature: function (err, results)
-     */
-
-    executeLocked: function (callback) {
-        var mutex = this.getMutex();
-
-        mutex.lock(function () {
-            this.doExecute(function (err, data) {
-                mutex.unlock();
-                callback(err, data);
-            });
-        }.bind(this));
-    },
-
-    /**
-     * Execute the command with no mutex.
-     *
-     * @private
-     * @param {Function} callback - called with the results of the command.
-     *                              signature: function (err, results)
-     */
-
-    executeUnlocked: function (callback) {
-        this.doExecute(callback);
-    },
-
-    /**
-     * The actual execution of the command.
-     * This will run all of the specified prerequists in parallel, then pass
-     * the results in the run() method.
-     *
-     * @private
-     * @param {Function} callback - called with the results of the command.
-     *                              signature: function (err, results)
-     */
-
-    doExecute: function (callback) {
-        var prereqs = this.prereq || {};
-        var calls = {};
-
-        _.each(prereqs, function(value, key) {
-            calls[key] = value.execute.bind(value);
-        });
-
-        async.parallel(calls, function(err, data) {
-            this.run(err, data, callback);
-        }.bind(this));
-    },
-
-    /**
-     * Get the mutex associated with this instance.
-     * Note: this requires a properly set-up constructor function.
-     *
-     * @private
-     * @returns {Mutex} - the mutex associated with this instance.
-     */
-
-    getMutex: function () {
-        var name = this.constructor.name;
-        var mutex = this.mutexes[name] = this.mutexes[name] || locks.createMutex();
-        return mutex;
-    },
-
-    /**
-     * Method containing the subclass specific code, should be overridden by subclasses.
-     *
-     * @abstract
-     * @param {Object} err - any errors from the prerequisite commands will exist here.
-     * @param {Object} data - the results of the prerequisites will be here, keyed by their names
-     *                        in `this.prereq`.
-     * @param {Function} callback - called with the results of the command.
-     *                              signature: function (err, results)
-     */
-
-    run: function (err, data, callback) {
-        callback(err, data);
+    if (locked) {
+      this.executeLocked(callback);
+    } else {
+      this.executeUnlocked(callback);
     }
+  },
+
+  /**
+   * Wrap the execution of the the command in a mutex, only allowing one
+   * command of this type to run at a time.
+   *
+   * @private
+   * @param {Function} callback - called with the results of the command.
+   *                              signature: function (err, results)
+   */
+
+  executeLocked: function (callback) {
+    var mutex = this.getMutex();
+
+    mutex.lock(function () {
+      this.doExecute(function (err, data) {
+        mutex.unlock();
+        callback(err, data);
+      });
+    }.bind(this));
+  },
+
+  /**
+   * Execute the command with no mutex.
+   *
+   * @private
+   * @param {Function} callback - called with the results of the command.
+   *                              signature: function (err, results)
+   */
+
+  executeUnlocked: function (callback) {
+    this.doExecute(callback);
+  },
+
+  /**
+   * The actual execution of the command.
+   * This will run all of the specified prerequists in parallel, then pass
+   * the results in the run() method.
+   *
+   * @private
+   * @param {Function} callback - called with the results of the command.
+   *                              signature: function (err, results)
+   */
+
+  doExecute: function (callback) {
+    var prereqs = this.prereq || {};
+    var calls = {};
+
+    _.each(prereqs, function (value, key) {
+      calls[key] = value.execute.bind(value);
+    });
+
+    async.parallel(calls, function (err, data) {
+      this.run(err, data, callback);
+    }.bind(this));
+  },
+
+  /**
+   * Get the mutex associated with this instance.
+   * Note: this requires a properly set-up constructor function.
+   *
+   * @private
+   * @returns {Mutex} - the mutex associated with this instance.
+   */
+
+  getMutex: function () {
+    var name = this.constructor.name;
+    var mutex = this.mutexes[name] = this.mutexes[name] || locks.createMutex();
+    return mutex;
+  },
+
+  /**
+   * Method containing the subclass specific code, should be overridden by subclasses.
+   *
+   * @abstract
+   * @param {Object} err - any errors from the prerequisite commands will exist here.
+   * @param {Object} data - the results of the prerequisites will be here, keyed by their names
+   *                        in `this.prereq`.
+   * @param {Function} callback - called with the results of the command.
+   *                              signature: function (err, results)
+   */
+
+  run: function (err, data, callback) {
+    callback(err, data);
+  }
 };
 
 BaseCommand.prototype.constructor = BaseCommand;

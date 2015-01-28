@@ -12,14 +12,14 @@ var BS = require('react-bootstrap');
  */
 
 var UpdateGraphButton = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {update: false};
   },
-  updateGraph: function() {
+  updateGraph: function () {
     this.setState({update: !this.state.update});
     Actions.updateGraph(!this.state.update);
   },
-  render: function() {
+  render: function () {
     var invisibleTextForSpacingHack = {
       color: 'white'
     };

@@ -13,12 +13,12 @@ var _ = require('lodash');
  */
 
 var GraphItems = React.createClass({
-  render: function() {
+  render: function () {
 
     var graphItemsArray = [];
 
-    _.forEach(this.props.shards, function(hosts, replicaset){
-      graphItemsArray.push({replicaset: replicaset,  hosts: hosts});
+    _.forEach(this.props.shards, function (hosts, replicaset) {
+      graphItemsArray.push({replicaset: replicaset, hosts: hosts});
     });
 
     var graphItems = graphItemsArray.map(function (graphItem, index) {

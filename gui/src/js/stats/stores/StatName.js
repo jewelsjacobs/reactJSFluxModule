@@ -14,11 +14,11 @@ var _statName = null;
 
 var StatNameStore = assign(new BaseStore(), {
 
-  emitChange: function() {
+  emitChange: function () {
     this.emit(this.CHANGE_EVENT);
   },
 
-  getStatName: function() {
+  getStatName: function () {
     return _statName;
   },
 
@@ -30,11 +30,11 @@ function persistStatNameData(response) {
   _statName = response;
 }
 
-StatNameStore.dispatchToken = AppDispatcher.register(function(payload) {
+StatNameStore.dispatchToken = AppDispatcher.register(function (payload) {
 
   var action = payload.action;
 
-  switch(action.type) {
+  switch (action.type) {
 
     case ActionTypes.GET_STAT_NAME:
       persistStatNameData(action.statName);

@@ -15,29 +15,29 @@ var _authHeaders = null;
  */
 
 function AuthHeadersCommand(options) {
-    this.options = options;
-    this.prereq = {};
-    this.locked = true;
+  this.options = options;
+  this.prereq = {};
+  this.locked = true;
 };
 
 AuthHeadersCommand.prototype = _.extend({}, BaseCommand.prototype, {
-     run: function(err, data, callback) {
+  run: function (err, data, callback) {
 
-         if (_authHeaders !== null) {
-             callback(err, _authHeaders);
-             return
-         }
+    if (_authHeaders !== null) {
+      callback(err, _authHeaders);
+      return
+    }
 
-        request.get(TOKEN_ROUTE)
-            .end(function (err, response) {
-                _authHeaders = {
-                  "X-Auth-Account": response.body['user'],
-                  "X-Auth-Token": response.body['api_token']
-                };
+    request.get(TOKEN_ROUTE)
+      .end(function (err, response) {
+        _authHeaders = {
+          "X-Auth-Account": response.body['user'],
+          "X-Auth-Token": response.body['api_token']
+        };
 
-                callback(err, _authHeaders);
-        });
-     }
+        callback(err, _authHeaders);
+      });
+  }
 });
 
 AuthHeadersCommand.prototype.constructor = AuthHeadersCommand;

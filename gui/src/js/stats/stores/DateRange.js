@@ -14,11 +14,11 @@ var _dates = null;
 
 var DateRangeStore = assign(new BaseStore(), {
 
-  emitChange: function() {
+  emitChange: function () {
     this.emit(this.CHANGE_EVENT);
   },
 
-  getDateRange: function() {
+  getDateRange: function () {
     return _dates;
   },
 
@@ -30,11 +30,11 @@ function persistDateRangeData(response) {
   _dates = response;
 }
 
-DateRangeStore.dispatchToken = AppDispatcher.register(function(payload) {
+DateRangeStore.dispatchToken = AppDispatcher.register(function (payload) {
 
   var action = payload.action;
 
-  switch(action.type) {
+  switch (action.type) {
 
     case ActionTypes.GET_DATE_RANGE:
       persistDateRangeData(action.dates);

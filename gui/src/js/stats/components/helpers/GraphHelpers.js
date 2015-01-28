@@ -18,7 +18,7 @@ var GraphHelpers = {
    * @param {String} replicaset
    */
 
-  updateGraph : function (data, replicaset) {
+  updateGraph: function (data, replicaset) {
     var graphData = [];
 
     /**
@@ -44,33 +44,33 @@ var GraphHelpers = {
         }
 
         graphData.push({
-           values: values,      //values - represents the array of {x,y} data points
-           key: stat["host_name"] //key  - the name of the series.
-         });
+          values: values,      //values - represents the array of {x,y} data points
+          key: stat["host_name"] //key  - the name of the series.
+        });
       });
 
     var chart;
 
-    nv.addGraph(function() {
+    nv.addGraph(function () {
       chart = nv.models.lineChart()
         .options({
-           margin: {
-             top: 20,
-             right: 50,
-             bottom: 50,
-             left: 50
-           },
-           x: function (d, i) {
-             return d.x;
-           },
-           y: function (d, i) {
-             return d.y;
-           },
-           showXAxis: true,
-           showYAxis: true,
-           transitionDuration: 250,
-           useInteractiveGuideline: true
-         });
+          margin: {
+            top: 20,
+            right: 50,
+            bottom: 50,
+            left: 50
+          },
+          x: function (d, i) {
+            return d.x;
+          },
+          y: function (d, i) {
+            return d.y;
+          },
+          showXAxis: true,
+          showYAxis: true,
+          transitionDuration: 250,
+          useInteractiveGuideline: true
+        });
 
       /**
        *  chart sub-models (ie. xAxis, yAxis, etc) when accessed directly,

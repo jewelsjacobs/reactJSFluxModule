@@ -13,15 +13,15 @@ var _loader = false;
 
 var StatsStore = assign(new BaseStore(), {
 
-  emitChange: function() {
+  emitChange: function () {
     this.emit(this.CHANGE_EVENT);
   },
 
-  getStatsState: function() {
+  getStatsState: function () {
     return _stats;
   },
 
-  isLoading: function() {
+  isLoading: function () {
     return _loader;
   },
 
@@ -36,17 +36,17 @@ function loadingState(response) {
   _loader = response;
 };
 
-StatsStore.dispatchToken = AppDispatcher.register(function(payload) {
+StatsStore.dispatchToken = AppDispatcher.register(function (payload) {
 
   var action = payload.action;
 
-  switch(action.type) {
+  switch (action.type) {
 
     case ActionTypes.GET_STATS:
       persistStatsData(action.stats);
       loadingState(action.loader);
       StatsStore.emitChange();
-    break;
+      break;
 
     default:
 

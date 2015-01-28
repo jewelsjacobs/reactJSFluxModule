@@ -17,19 +17,19 @@ var _graph = {};
 
 var GraphStore = assign(new BaseStore(), {
 
-  emitChange: function() {
+  emitChange: function () {
     this.emit(this.CHANGE_EVENT);
   },
 
-  getGraphState: function(replicaset) {
+  getGraphState: function (replicaset) {
     return _graph[replicaset];
   },
 
-  updateGraph: function() {
+  updateGraph: function () {
     return _update;
   },
 
-  isLoading: function() {
+  isLoading: function () {
     return _loader;
   },
 
@@ -49,11 +49,11 @@ function loadingState(response) {
   _loader = response;
 };
 
-GraphStore.dispatchToken = AppDispatcher.register(function(payload) {
+GraphStore.dispatchToken = AppDispatcher.register(function (payload) {
 
   var action = payload.action;
 
-  switch(action.type) {
+  switch (action.type) {
 
     case ActionTypes.UPDATE_GRAPH:
       persistUpdateState(action.updateState);

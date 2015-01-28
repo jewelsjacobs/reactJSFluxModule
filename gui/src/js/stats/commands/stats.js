@@ -18,35 +18,35 @@ var _stats = null;
  */
 
 function StatsCommand(options) {
-    this.options = options;
-    this.locked = true;
-    this.prereq = {
-        "auth_headers": new AuthHeadersCommand()
-    };
+  this.options = options;
+  this.locked = true;
+  this.prereq = {
+    "auth_headers": new AuthHeadersCommand()
+  };
 };
 
 StatsCommand.prototype = _.extend({}, BaseCommand.prototype, {
 
-     run: function(err, data, callback) {
-         // cache the response here
-         if (_stats !== null) {
-             callback(err, _stats);
-             return
-         }
+  run: function (err, data, callback) {
+    // cache the response here
+    if (_stats !== null) {
+      callback(err, _stats);
+      return
+    }
 
-         var url = APIUtils.formatURL(
-           STATS_ROUTE,
-           apiUrls['apiv2'],
-           APIUtils.instanceName
-         );
+    var url = APIUtils.formatURL(
+      STATS_ROUTE,
+      apiUrls['apiv2'],
+      APIUtils.instanceName
+    );
 
-         request.get(url)
-             .set(data['auth_headers'])
-             .end(function (err, response) {
-                 _stats = response.body;
-                 callback(err, _stats);
-         });
-     }
+    request.get(url)
+      .set(data['auth_headers'])
+      .end(function (err, response) {
+        _stats = response.body;
+        callback(err, _stats);
+      });
+  }
 });
 
 StatsCommand.prototype.constructor = StatsCommand;
