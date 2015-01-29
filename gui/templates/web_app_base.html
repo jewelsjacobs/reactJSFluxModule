@@ -22,7 +22,11 @@
         <li class="rs-dropdown rs-utility-dropdown">
             <a class="rs-dropdown-toggle" href="#">{{ session.username if session.sso else login }} <i class="rs-caret"></i></a>
             <ul class="rs-dropdown-menu hidden">
+                {% if session.sso %}
+                <li class="rs-dropdown-item"><a class="rs-dropdown-link" href="{{ tenant.account_settings_url }}">Account Settings</a></li>
+                {% else %}
                 <li class="rs-dropdown-item"><a class="rs-dropdown-link" href="{{ url_for('account') }}">Account Settings</a></li>
+                {% endif %}
                 <li class="rs-dropdown-item"><a class="rs-dropdown-link" href="{{ url_for('billing') }}">Billing Information</a></li>
                 <li class="rs-divider"></li>
                 <li class="rs-dropdown-item">
