@@ -64,6 +64,10 @@ def sso_consumer():
         session[sso.constants.TENANT_ID] = user_info[sso.constants.SAML_USER_ID]
         session[sso.constants.USERNAME] = user_info[sso.constants.SAML_USERNAME]
 
+    # Ensure requesting user has sufficient privileges for SSO.
+    if not sso.sso_allowed(session[sso.constants.TENANT_ID], session[sso.constants.AUTH_TOKEN]):
+        return redirect(url_for('sign_in'))
+
     # Fetch info on the tenant that is logging in.
     tenant_id = session[sso.constants.TENANT_ID]
     main_db_connection = Utility.get_main_db_connection(config)
