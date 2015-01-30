@@ -32,6 +32,13 @@ From the root project directory run these commands from the command line:
 ### QA
 * Navigate to app dir and `$ gulp --type qa` in the cli
 
+# Using Mock Data
+To use mock data as opposed to a live API (handy for layouts and API blocking issues),
+there is a mock data server available.
+Information is here: https://github.com/objectrocket/gui-mock-data 
+
+* Navigate to app dir and `$ gulp --type mock` in the cli to use
+
 ## Run
 To run so you can modify react / flux files and they will get browserfied on the fly:
 * In app dir `$ gulp watch --type development`
