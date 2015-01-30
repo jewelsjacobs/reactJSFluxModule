@@ -489,7 +489,7 @@ def instance_stats(selected_instance):
 
     admin = (session.get('role', '') == 'admin')
     stats_enabled = instance.document.get("stats_enabled", False)
-    account_stats_enabled_flag = instance.settings.get("stats_enabled", False)
+    account_stats_enabled_flag = account.settings.get("stats_enabled", False)
 
     # Temporary feature gate, please remove when the stats gui is released to everyone
     view_new_stats = admin or stats_enabled or account_stats_enabled_flag
