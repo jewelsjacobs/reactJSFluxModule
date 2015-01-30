@@ -191,6 +191,17 @@ def sso_idp():
     return render_template('sso/_sso_test.html', **context)
 
 
+@bp.route('/cloud/<tenant_id>/account/')
+def sso_idp_account_settings(tenant_id):
+    """An endpoint for testing SSO IdP Account Settings page."""
+    if current_app.config['CONFIG_MODE'] != 'development':
+        abort(404)
+
+    main_db_connection = Utility.get_main_db_connection(config)
+    tenant = sso.get_tenant_by_tenant_id(tenant_id, main_db_connection)
+    return render_template('sso/_sso_idp_account_settings.html', tenant=tenant)
+
+
 @bp.route('/sso/logout/request/', methods=['POST'])
 def sso_logout_request():
     """Validate a LogoutRequest from Reach and respond appropriately.
