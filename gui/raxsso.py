@@ -64,6 +64,10 @@ def sso_consumer():
         session[sso.constants.TENANT_ID] = user_info[sso.constants.SAML_USER_ID]
         session[sso.constants.USERNAME] = user_info[sso.constants.SAML_USERNAME]
 
+    # Ensure requesting user has sufficient privileges for SSO.
+    if not sso.sso_allowed(session[sso.constants.TENANT_ID], session[sso.constants.AUTH_TOKEN]):
+        return redirect(url_for('sign_in'))
+
     # Fetch info on the tenant that is logging in.
     tenant_id = session[sso.constants.TENANT_ID]
     main_db_connection = Utility.get_main_db_connection(config)
@@ -191,21 +195,68 @@ def sso_idp():
     return render_template('sso/_sso_test.html', **context)
 
 
+@bp.route('/cloud/<tenant_id>/account/')
+def sso_idp_account_settings(tenant_id):
+    """An endpoint for testing SSO IdP Account Settings page."""
+    if current_app.config['CONFIG_MODE'] != 'development':
+        abort(404)
+
+    main_db_connection = Utility.get_main_db_connection(config)
+    tenant = sso.get_tenant_by_tenant_id(tenant_id, main_db_connection)
+    return render_template('sso/_sso_idp_account_settings.html', tenant=tenant)
+
+
 @bp.route('/sso/logout/request/', methods=['POST'])
 def sso_logout_request():
-    """NEEDS IMPLEMENTATION
+    """Validate a LogoutRequest from Reach and respond appropriately.
 
-    Endpoint needs to respond with a SAML LogoutResponse in the response body,
-    and a 200 status code.
+    Reach will send a LogoutRequest as the BODY of the request. If the request is valid, clear the
+    session of the specified user and respond with a SAML LogoutResponse.
     """
-    return 200
+    # TODO(TheDodd): needs to be activated when Reach is ready to send us SLO requests.
+    if True:
+        return 200
+
+    try:
+        # Decode and validate a SAML LogoutRequest.
+        encoded_saml_logout_request = request.body
+        decoded_saml_logout_request = base64.decodestring(encoded_saml_logout_request)
+        saml_logout_request = sso.util.validate_saml_logout_request(decoded_saml_logout_request)
+
+        # Get some needed variables.
+        username = saml_logout_request.name_id.text
+        issuer = saml_logout_request.issuer.text
+        sso.kill_user_session(username)
+    except Exception as ex:
+        gui_config.log_exception(current_app, ex)
+        abort(401)
+
+    logout_response = sso.util.create_saml_logout_response(in_response_to=issuer)
+    encoded_logout_response = base64.b64encode(logout_response.to_string())
+    return encoded_logout_response, 200
 
 
 @bp.route('/sso/logout/response/', methods=['POST'])
 def sso_logout_response():
-    """NEEDS IMPLEMENTATION
+    """Validate and confirm a LogoutResponse from Reach.
 
-    This endpoint should respond with a 200 upon success. No content needs to
-    be returned in the body.
+    After a logout is requested, Reach will log the user out and POST a SAML LogoutResponse to
+    this endpoint. The LogoutResponse will be in the BODY of the request. This endpoint should
+    respond with a 200 as long as the request is valid. No content needs to be returned.
+
+    This serves very little purpose.
     """
+    # TODO(TheDodd): needs to be activated when Reach is ready to send us SLO requests.
+    if True:
+        return 200
+
+    try:
+        # Decode and validate a SAML LogoutResponse.
+        encoded_saml_logout_response = request.body
+        decoded_saml_logout_response = base64.decodestring(encoded_saml_logout_response)
+        sso.util.validate_saml_logout_response(decoded_saml_logout_response)
+    except Exception as ex:
+        gui_config.log_exception(current_app, ex)
+        abort(401)
+
     return 200

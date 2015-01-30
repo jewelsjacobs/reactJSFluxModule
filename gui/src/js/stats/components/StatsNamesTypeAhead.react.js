@@ -1,35 +1,39 @@
-/** @jsx React.DOM */
-'use strict';
-/**
- * The application component. This is the top-level component.
- */
 var React = require('react/addons');
 var Actions = require('../actions/ViewActionCreators.js');
 var ReactBootstrapAsyncAutocomplete = require('react-bootstrap-async-autocomplete');
 var BS = require('react-bootstrap');
 var _ = require('lodash');
 
+/**
+ * @author Julia Jacobs
+ * @version 1.0.0
+ * @description Typeahead with statsNames.
+ * @link {https://github.com/nnarhinen/react-bootstrap-async-autocomplete}
+ * @module components/statsnamestypeahead
+ * @type {*|Function}
+ */
+
 var StatsNamesTypeAhead = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       statName: "connections.current",
       value: null
     }
   },
-  onSelected: function(statName) {
+  onSelected: function (statName) {
     this.setState({
       statName: statName,
       value: statName
     });
     Actions.getStatName("mongodb." + statName);
   },
-  clearSelectBox: function(){
+  clearSelectBox: function () {
     this.setState({value: null});
   },
-  searchRequested : function(key, cb) {
-    setTimeout(function() { //Emulate async
+  searchRequested: function (key, cb) {
+    setTimeout(function () { //Emulate async
       var results = [];
-      _.forEach(this.props.statsNames, function(statsName){
+      _.forEach(this.props.statsNames, function (statsName) {
         statsName = statsName.replace('mongodb.', '');
         if (statsName.indexOf(key) > -1) {
           results.push(statsName);
@@ -38,7 +42,7 @@ var StatsNamesTypeAhead = React.createClass({
       cb(results);
     }.bind(this), 1);
   },
-  render: function() {
+  render: function () {
     return (
       <BS.Col xs={6} md={4}>
         <label>Chosen Stat: {this.state.statName}</label>

@@ -1,21 +1,25 @@
-/** @jsx React.DOM */
-'use strict';
-/**
- * The application component. This is the top-level component.
- */
 var React = require('react');
 var Actions = require('../actions/ViewActionCreators.js');
 var BS = require('react-bootstrap');
 
+/**
+ * @author Julia Jacobs
+ * @version 1.0.0
+ * @description Update Graph bootstrap button.
+ * @link {http://react-bootstrap.github.io/}
+ * @module components/updategraphbutton
+ * @type {*|Function}
+ */
+
 var UpdateGraphButton = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {update: false};
   },
-  updateGraph: function() {
+  updateGraph: function () {
     this.setState({update: !this.state.update});
     Actions.updateGraph(!this.state.update);
   },
-  render: function() {
+  render: function () {
     var invisibleTextForSpacingHack = {
       color: 'white'
     };

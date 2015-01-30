@@ -292,7 +292,21 @@ def inject_login():
 
 @app.context_processor
 def inject_session():
+    """Inject the session object into templates."""
     return {'session': session}
+
+
+@app.context_processor
+def inject_tenant():
+    """Inject the :py:class:`viper.ext.sso.Tenant` object into templates for SSO sessions."""
+    # TODO(TheDodd): enable this in prod when ready.
+    if app.config['CONFIG_MODE'] != 'production' and session.get('sso', False):
+        from viper.ext import sso
+        tenant_id = session[sso.constants.TENANT_ID]
+        main_db_connection = Utility.get_main_db_connection(config)
+        tenant = sso.get_tenant_by_tenant_id(tenant_id, main_db_connection)
+        return {'tenant': tenant}
+    return {}
 
 
 @app.context_processor
@@ -411,6 +425,15 @@ def error():
 @viper_auth
 def account():
     """Account settings and controls."""
+    # TODO(TheDodd): enable this in prod when ready.
+    # Redirect SSO users to IdP Account Settings page.
+    if app.config['CONFIG_MODE'] != 'production' and session.get('sso', False):
+        from viper.ext import sso
+        tenant_id = session[sso.constants.TENANT_ID]
+        main_db_connection = Utility.get_main_db_connection()
+        tenant = sso.get_tenant_by_tenant_id(tenant_id, main_db_connection)
+        return redirect(tenant.account_settings_url)
+
     account_manager = AccountManager(config)
     account = account_manager.get_account(g.login)
     if account is None:
@@ -468,7 +491,7 @@ def instance_stats(selected_instance):
     stats_enabled = instance.document.get("stats_enabled", False)
 
     # Temporary feature gate, please remove when the stats gui is released to everyone
-    if not stats_enabled and not admin:
+    if (not stats_enabled and not admin) and app.config['CONFIG_MODE'] == 'production':
         return render_template('instances/instance_stats.html', instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
 
     return render_template('instances/new_instance_stats.html', instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
@@ -1213,6 +1236,11 @@ def reset_password():
             account = account_manager.get_account(login)
 
             if account is not None and account.active:
+
+                # Migrated accounts can not have their passwords reset from within ObjectRocket.
+                if account.migrated:
+                    return render_template('sign_in/migrated_password_reset.html')
+
                 # Generate reset token.
                 pr_host = config.PASSWORD_RESET_HOST
                 pr_token = serializer.dumps(login)
@@ -1364,6 +1392,7 @@ def sign_up():
             return redirect(url_for('sign_up_thanks'))
 
     return render_template('sign_up/sign_up.html')
+
 
 @app.route('/thanks', methods=['GET', 'POST'])
 def sign_up_thanks():
