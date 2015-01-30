@@ -32,7 +32,7 @@ input[type=text] {
 }
 
 #stats .loader {
-  padding: 15% 45%;
+  padding: 148px 45%;
   position: absolute;
   z-index: 9999999999999;
 }
