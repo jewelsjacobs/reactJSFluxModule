@@ -12,7 +12,6 @@ var buffer = require('vinyl-buffer');
 var gutil = require('gulp-util');
 var glob = require("glob");
 var gulpif = require('gulp-if');
-var server = require('gulp-express');
 var requireglobify = require('require-globify');
 
 /**
@@ -47,13 +46,6 @@ gulp.task('browserify', function () {
     )
       .pipe(gulp.dest('gui/static/dist/js'));
   })
-});
-
-gulp.task('server', function () {
-  // Start the server at the beginning of the task
-  server.run({
-    file: 'server.js'
-  });
 });
 
 /**
