@@ -489,9 +489,11 @@ def instance_stats(selected_instance):
 
     admin = (session.get('role', '') == 'admin')
     stats_enabled = instance.document.get("stats_enabled", False)
+    account_stats_enabled_flag = account.settings.get("stats_enabled", False)
 
     # Temporary feature gate, please remove when the stats gui is released to everyone
-    if (not stats_enabled and not admin) and app.config['CONFIG_MODE'] == 'production':
+    view_new_stats = admin or stats_enabled or account_stats_enabled_flag
+    if (not view_new_stats) and app.config['CONFIG_MODE'] == 'production':
         return render_template('instances/instance_stats.html', instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
 
     return render_template('instances/new_instance_stats.html', instance=instance, api_url=config.DEFAULT_API_ENDPOINT)
