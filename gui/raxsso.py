@@ -1,5 +1,6 @@
 """Blueprint for Rackspace SSO control."""
 import base64
+import logging
 
 from flask import abort
 from flask import Blueprint
@@ -18,6 +19,8 @@ from viper.ext import sso
 from viper.account import AccountManager
 from viper.utility import Utility
 
+LOG = logging.getLogger(__name__)
+
 # Build blueprint and alias for ease of use.
 bp = raxsso_blueprint = Blueprint('rax', __name__, url_prefix='/rax')
 
@@ -31,10 +34,12 @@ def sso_consumer():
         # Ensure needed session keys are present.
         for key in (sso.constants.USERNAME, sso.constants.TENANT_ID, sso.constants.EMAIL, sso.constants.DDI, 'sso'):
             if key not in session:
+                LOG.info('SSO: needed session key missing: "{}". Redirecting to sign_in. Session: {}.'.format(key, session.items()))
                 return redirect(url_for('sign_in'))
 
         # Ensure this is an SSO session.
         if session['sso'] is not True:
+            LOG.info('SSO: session did not start via SSO. Redirecting to sign_in. Session: {}.'.format(session.items()))
             return redirect(url_for('sign_in'))
 
     # Handle POST requests.
@@ -54,6 +59,7 @@ def sso_consumer():
 
         except Exception as ex:
             gui_config.log_exception(current_app, ex)
+            LOG.info('SSO: exception in "{}": {}.'.format(request.url, ex))
             return redirect(url_for('sign_in'))
 
         # Session keys for migration stages.
@@ -65,21 +71,27 @@ def sso_consumer():
         session[sso.constants.USERNAME] = user_info[sso.constants.SAML_USERNAME]
 
     # Ensure requesting user has sufficient privileges for SSO.
-    if not sso.sso_allowed(session[sso.constants.TENANT_ID], session[sso.constants.AUTH_TOKEN]):
+    tenant_id = session[sso.constants.TENANT_ID]
+    auth_token = session[sso.constants.AUTH_TOKEN]
+    if not sso.sso_allowed(tenant_id, auth_token):
+        LOG.info('SSO: insufficient privileges to SSO for member of tenant: "{}" with auth_token: "{}". Redirecting to sign_in.'.format(tenant_id, auth_token))
         return redirect(url_for('sign_in'))
 
     # Fetch info on the tenant that is logging in.
-    tenant_id = session[sso.constants.TENANT_ID]
     main_db_connection = Utility.get_main_db_connection(config)
     tenant = sso.get_tenant_by_tenant_id(tenant_id, main_db_connection)
 
     # If tenant is not in the initial SSO phase, log them in directly.
+    username = session[sso.constants.USERNAME]
     if tenant and not tenant.initial_sso:
-        session[sso.constants.LOGIN] = tenant.resource_login
+        login = tenant.resource_login
+        session[sso.constants.LOGIN] = login
+        LOG.info('SSO: directly logging in user. Tenant ID: "{}"; Username: "{}"; Resource login: "{}".'.format(tenant_id, username, login))
         return redirect(url_for('instances'))
 
     # User is still in the initial SSO phase.
     session[sso.constants.INITIAL_SSO] = True
+    LOG.info('SSO: user proceeding to initial SSO phase. Tenant ID: "{}"; Username: "{}".'.format(tenant_id, username))
     return render_template('sso/initial_sso.html')
 
 
@@ -88,6 +100,7 @@ def link_mycloud_account():
     """Link an ObjectRocket account with the SSO user's Reach account."""
     # Ensure user is in initial SSO phase.
     if session.get(sso.constants.INITIAL_SSO, False) is not True:
+        LOG.info('SSO: session is not in initial SSO phase. Redirecting to instances. Session: {}.'.format(session.items()))
         return redirect(url_for('instances'))
 
     # Handle GET request.
@@ -115,18 +128,20 @@ def link_mycloud_account():
 
         # Get needed session variables.
         tenant_id = session[sso.constants.TENANT_ID]
+        username = session[sso.constants.USERNAME]
         email = session[sso.constants.EMAIL]
         ddi = session[sso.constants.DDI]
 
         # Add a tenant entry.
         main_db_connection = Utility.get_main_db_connection(config)
         sso.add_identity_tenant_entry(tenant_id, ddi, email, main_db_connection, resource_login=account.login)
-        sso.migrate_existing_users_entry(account.login, main_db_connection)
+        sso.migrate_existing_users_entry(account.login, tenant_id, main_db_connection)
 
         # This session is no longer in initial SSO phase.
         session[sso.constants.LOGIN] = login_to_link
         session.pop(sso.constants.INITIAL_SSO, None)
         sso.conclude_initial_sso(tenant_id, main_db_connection)
+        LOG.info('SSO: legacy account "{}" linked with Identity tenant: "{}" by Identity user: "{}".'.format(account.login, tenant_id, username))
         return redirect(url_for('instances'))
 
 
@@ -135,6 +150,7 @@ def seamless_login():
     """Seamlessly create an ObjectRocket account linked with the SSO user's Reach account."""
     # Ensure user is in initial SSO phase.
     if session.get(sso.constants.INITIAL_SSO, False) is not True:
+        LOG.info('SSO: session is not in initial SSO phase. Redirecting to instances. Session: {}.'.format(session.items()))
         return redirect(url_for('instances'))
 
     # Handle GET request.
@@ -146,6 +162,7 @@ def seamless_login():
 
         # Get needed session variables.
         tenant_id = session[sso.constants.TENANT_ID]
+        username = session[sso.constants.USERNAME]
         email = session[sso.constants.EMAIL]
         ddi = session[sso.constants.DDI]
 
@@ -162,6 +179,7 @@ def seamless_login():
         session[sso.constants.LOGIN] = login
         session.pop(sso.constants.INITIAL_SSO, None)
         sso.conclude_initial_sso(tenant_id, main_db_connection)
+        LOG.info('SSO: new account created for Identity user: "{}" of tenant: "{}". Resource login: "{}".'.format(username, tenant_id, login))
         return redirect(url_for('instances'))
 
 
@@ -180,7 +198,7 @@ def sso_idp():
 
     # Generate a SAMLResponse for development testing.
     namestring = ('Username={username},DDI={ddi},UserID={user_id},Email={email},AuthToken={auth_token}'
-                  .format(username='tester', ddi='12345', user_id='54321', email='tester@test.com', auth_token='1kj2h3g4k1jh2g34'))
+                  .format(username='ortest', ddi='12345', user_id='54321', email='anthony@objectrocket.com', auth_token='1kj2h3g4k1jh2g34'))
     saml_response = sso.util.create_saml_response(name=namestring, in_response_to='somerequest', url=sso.config.SSO_ACS_URL, session_id=None, attributes={})
     saml_response_xml = saml_response.to_string()
     encoded_saml_response = base64.b64encode(saml_response_xml)

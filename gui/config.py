@@ -71,10 +71,10 @@ class Config(object):
             store = MongoStore(session_db, 'session')
             KVSessionExtension(store, app)
 
-        # Exception logging
+        # Exception logging.
         got_request_exception.connect(log_exception, app)
 
-        # General logging
+        # General logging.
         loggly_rest_handler = LogglyHandler('bb275711-4460-49e0-9b13-a9997da10d2d', tags=['flask', 'gui'])
         formatter = logging.Formatter('%(asctime)s loggly:severity=%(levelname)s, %(message)s')
         loggly_rest_handler.setFormatter(formatter)
@@ -103,10 +103,7 @@ class DevelopmentConfig(Config):
         DebugToolbarExtension(app)
 
         # Configure logging for development mode.
-        logger = logging.getLogger()
-        handler = logging.StreamHandler()
-        logger.addHandler(handler)
-        logger.setLevel(logging.DEBUG)
+        app.logger.setLevel(logging.DEBUG)
         logging.captureWarnings(True)
 
 
@@ -140,6 +137,10 @@ class QAConfig(Config):
 
         # Configure application logging.
         configure_sys_log_handler(app)
+
+        # Configure logging for qa mode.
+        app.logger.setLevel(logging.DEBUG)
+        logging.captureWarnings(True)
 
 
 class UnittestingConfig(Config):
