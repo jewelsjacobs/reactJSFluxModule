@@ -5,4 +5,4 @@ Flask-WTF==0.9.5
 Flask==0.10.1
 gunicorn==0.14.6
 http://mon1.sjc.objectrocket.com/viper-2.11.5-py27-none-any.whl#egg=viper
-http://mon1.sjc.objectrocket.com/wheelhouse/viper_sso-0.3.0-py27-none-any.whl#egg=viper-sso
+http://mon1.sjc.objectrocket.com/wheelhouse/viper_sso-0.3.1-py27-none-any.whl#egg=viper-sso
