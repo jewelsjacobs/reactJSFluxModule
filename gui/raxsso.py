@@ -25,6 +25,15 @@ LOG = logging.getLogger(__name__)
 bp = raxsso_blueprint = Blueprint('rax', __name__, url_prefix='/rax')
 
 
+@bp.errorhandler(Exception)
+def handle_raxsso_exception(error):
+    """Handle any exception coming from the raxsso blueprint."""
+    gui_config.log_exception(current_app, error)
+    LOG.info('SSO: exception in "{}". Redirecting to sign_in. Error: {}: {}.'
+             .format(request.url, error.__class__.__name__, error))
+    return redirect(url_for('sign_in'))
+
+
 @bp.route('/sso/consumer/', methods=['GET', 'POST'])
 def sso_consumer():
     """Process a posted SAML assertion and log the user in if everything checks out."""
@@ -48,41 +57,37 @@ def sso_consumer():
         # Kill all session information when this route is posted to.
         session.clear()
 
-        try:
-            # Decode and validate SAMLResponse.
-            encoded_saml_response = request.form.get('SAMLResponse', None)
-            decoded_saml_response = base64.decodestring(encoded_saml_response)
-            saml_response = sso.util.validate_saml_response(decoded_saml_response)
+        # Decode and validate SAMLResponse.
+        encoded_saml_response = request.form.get('SAMLResponse', None)
+        decoded_saml_response = base64.decodestring(encoded_saml_response)
+        saml_response = sso.util.validate_saml_response(decoded_saml_response)
 
-            # Get user info from SAMLResponse.
-            user_info = sso.util.get_user_info_from_name_id_serialization(saml_response)
-
-        except Exception as ex:
-            gui_config.log_exception(current_app, ex)
-            LOG.info('SSO: exception in "{}": {}.'.format(request.url, ex))
-            return redirect(url_for('sign_in'))
+        # Get user info from SAMLResponse.
+        user_info = sso.util.get_user_info_from_name_id_serialization(saml_response)
 
         # Session keys for migration stages.
         session[sso.constants.SSO] = True
         session[sso.constants.AUTH_TOKEN] = user_info[sso.constants.SAML_AUTH_TOKEN]
         session[sso.constants.DDI] = user_info[sso.constants.SAML_DDI]
         session[sso.constants.EMAIL] = user_info[sso.constants.SAML_EMAIL]
-        session[sso.constants.TENANT_ID] = user_info[sso.constants.SAML_USER_ID]
+        session[sso.constants.USER_ID] = user_info[sso.constants.SAML_USER_ID]
         session[sso.constants.USERNAME] = user_info[sso.constants.SAML_USERNAME]
 
     # Ensure requesting user has sufficient privileges for SSO.
-    tenant_id = session[sso.constants.TENANT_ID]
+    user_id = session[sso.constants.USER_ID]
+    username = session[sso.constants.USERNAME]
     auth_token = session[sso.constants.AUTH_TOKEN]
-    if not sso.sso_allowed(tenant_id, auth_token):
-        LOG.info('SSO: insufficient privileges to SSO for member of tenant: "{}" with auth_token: "{}". Redirecting to sign_in.'.format(tenant_id, auth_token))
+    if not sso.sso_allowed(user_id, auth_token):
+        LOG.info('SSO: insufficient privileges to SSO for user ID: "{}" with auth_token: "{}". Redirecting to sign_in.'.format(user_id, auth_token))
         return redirect(url_for('sign_in'))
 
     # Fetch info on the tenant that is logging in.
+    tenant_id = sso.get_tenant_id(user_id, auth_token)
+    session[sso.constants.TENANT_ID] = tenant_id
     main_db_connection = Utility.get_main_db_connection(config)
     tenant = sso.get_tenant_by_tenant_id(tenant_id, main_db_connection)
 
     # If tenant is not in the initial SSO phase, log them in directly.
-    username = session[sso.constants.USERNAME]
     if tenant and not tenant.initial_sso:
         login = tenant.resource_login
         session[sso.constants.LOGIN] = login
