@@ -73,7 +73,6 @@ start() {
         -D \
         -w 16 \
         -t 120 \
-        -k gevent \
         -u $GUI_USER \
         -g $GUI_GROUP \
         -p "$PIDFILE" \
