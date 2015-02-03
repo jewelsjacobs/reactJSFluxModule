@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# /etc/init.d/apiv2
-# Subsystem file for APIv2 server.
+# /etc/init.d/gui
+# Subsystem file for GUI server.
 #
 # chkconfig: - 99 01
-# description: Manage the APIv2 Gunicorn server.
+# description: Manage the GUI Gunicorn server.
 
 ####################
 # GLOBAL VARIABLES #
