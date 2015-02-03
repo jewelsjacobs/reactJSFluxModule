@@ -1,173 +1,252 @@
 #!/bin/bash
+#
+# /etc/init.d/apiv2
+# Subsystem file for APIv2 server.
+#
 # chkconfig: - 99 01
-# description: manage Viper gunicorn instances
+# description: Manage the APIv2 Gunicorn server.
 
-## Read instances list for this server
+####################
+# GLOBAL VARIABLES #
+####################
+APP='gui'
 
-declare -A INSTANCES
-INSTANCES["gui"]=8081
+ACCESS_LOGFILE="/var/log/gunicorn/access_$APP.log"
+GUI_GROUP='orocket'
+GUI_USER='orocket'
+APP_DIRECTORY='/gui'
+DISPLAY_NAME='GUI'
+ERROR_LOGFILE="/var/log/gunicorn/error_$APP.log"
+GUNICORN_PATH='/root/.virtualenvs/current/bin/gunicorn'
+PACKAGE_NAME='gui'
+PIDFILE="/var/run/$APP.pid"
+PORT='8081'
 
+# Not currently being used because gui code attempts a top-level import which requires access to
+# the app instance. Will use this code when refactor of gui modules is complete.
+if [ -e '/etc/viper_development.txt' ]; then
+    CONFIG='development'
+elif [ -e '/etc/viper_qa.txt' ]; then
+    CONFIG='qa'
+else
+    CONFIG='production'
+fi
+
+RV=0
+
+
+##################
+# START FUNCTION #
+##################
 start() {
 
-    app=gui
-    port=8081
+    # Ensure the $APP_DIRECTORY is in place, else application code will not be in place.
+    check_app_directory_or_exit
 
-    cd /${app}
+    # Ensure $GUI_USER and $GUI_GROUP exist, else gunicorn will not start properly.
+    check_orocket_user_and_group_or_exit
 
-    pidfile="/var/run/gunicorn_${app}.pid"
+    # Ensure the $GUNICORN_PATH exist, else gunicorn will not start properly.
+    check_gunicorn_or_exit
 
-    if [ -f ${pidfile} ];
-    then
+    # Ensure the application code exist, else gunicorn will not start properly.
+    check_application_package_or_exit
 
-        PID=$(cat $pidfile)
-        if ps -fp ${PID} > /dev/null 2>&1;
-        then
+    # Move to application's source directory.
+    cd "$APP_DIRECTORY"
 
-            echo "viper_${app} is already running, skipping.."
-            return 0
-            
+    if [ -f "$PIDFILE" ]; then
+        # Check if process is already running.
+        PID=$(cat "$PIDFILE")
+        if ps -fp "$PID" > /dev/null 2>&1; then
+            echo "$DISPLAY_NAME is already running."
+            return
+
+        else
+            rm -f "$PIDFILE"
         fi
-
     fi
 
-    
-    echo -n "daemonizing viper_${app} gunicorn on port ${port}, let's do this.."
+    echo -n "Daemonizing $DISPLAY_NAME gunicorn on port $PORT, let's do this ... "
 
-    /root/.virtualenvs/current/bin/gunicorn \
-      -u orocket \
-      -g orocket \
-      -D \
-      -p /var/run/gunicorn_${app}.pid \
-      --access-logfile=/var/log/gunicorn/access_${app}.log \
-      --error-logfile=/var/log/gunicorn/error_${app}.log \
-      -b 0.0.0.0:${port} \
-      -w 16 \
-      -t 120 \
-      ${app}:app
+    "$GUNICORN_PATH" \
+        -D \
+        -w 16 \
+        -t 120 \
+        -k gevent \
+        -u $GUI_USER \
+        -g $GUI_GROUP \
+        -p "$PIDFILE" \
+        -b "0.0.0.0:$PORT" \
+        --error-logfile="$ERROR_LOGFILE" \
+        --access-logfile="$ACCESS_LOGFILE" \
+        "$PACKAGE_NAME:app"
 
+    # Count the number of processes running.
     sleep 3
-    count=$(ps auxww | grep -v grep | egrep -c "gunicorn.*${app}")
-    echo " ${count} workers running."
-
+    count_procs
+    return
 }
 
+
+#################
+# STOP FUNCTION #
+#################
 stop() {
 
-    stop_app=$1
-    pidfile="/var/run/gunicorn_${stop_app}.pid"
-
-    if [ ! -f ${pidfile} ];
-    then
-
-        echo "No pidfile found for app ${stop_app} - that ones probably not running"
+    # Test if pidfile exists.
+    if [ ! -f "$PIDFILE" ]; then
+        echo "No pidfile found for $DISPLAY_NAME."
+        return
 
     else
+        # Get and test PID.
+        PID=$(cat "$PIDFILE")
+        ps -fp "$PID" > /dev/null 2>&1
 
-        echo "Stopping ${pidfile} .."
-        PID=$(cat $pidfile)
+        # Clean up pidfile if process was manually killed.
+        if [ $? -ne 0 ]; then
+            echo "Valid pidfile found, but the pid isn't running. Removing pidfile."
+            rm -f $PIDFILE
+            return
 
-        ps -fp ${PID} > /dev/null 2>&1
-
-        if [ $? -ne 0 ];
-        then
-            echo "Valid pid file found, but the pid isn't running.. cleaning pid file"
-            rm -f $pidfile
+        # Kill process.
         else
-            kill ${PID} 2>/dev/null
+            count_procs
+            echo "Killing processes."
+            kill $PID 2>/dev/null
             sleep 1
-            kill -9 ${PID} 2>/dev/null
+            kill -9 $PID 2>/dev/null
+            return
         fi
+    fi
+}
 
+
+####################
+# RESTART FUNCTION #
+####################
+restart() {
+    stop
+
+    # Start if stop succeeded.
+    if [ "$RV" -eq 0 ]; then
+        start
+    fi
+}
+
+
+###################
+# STATUS FUNCTION #
+###################
+status() {
+
+    # Check if pidfile exists.
+    if [ ! -f "$PIDFILE" ]; then
+        echo "$DISPLAY_NAME is not running (pidfile not found)."
+        return
     fi
 
+    # Count the number of processes running for $DISPLAY_NAME.
+    count_procs
+    return
 }
 
+
+##################
+# USAGE FUNCTION #
+##################
 usage() {
+cat <<EOF
+gui [ start | stop | restart | status ]
 
-  echo ""
-  echo "Usage: $0 <stop|start> [app]"
-  echo ""
-  echo "Available applications: ${!INSTANCES[@]}"
-  echo ""
-  exit 1
+    start     Start the GUI Gunicorn server.
 
+    stop      Stop the GUI Gunicorn server.
+
+    restart   Restart the GUI Gunicorn server.
+
+    status    Get the status of the GUI Gunicorn server.
+
+EOF
+RV=1
 }
 
+
+####################
+# HELPER FUNCTIONS #
+####################
+# Ensure the $APP_DIRECTORY is in place, else application code will not be in place.
+check_app_directory_or_exit() {
+    if [ ! -d "$APP_DIRECTORY" ]; then
+        echo "The directory '$APP_DIRECTORY' was not found. This means the $DISPLAY_NAME application code is not in place. Exiting."
+        exit 1
+    fi
+}
+
+
+# Ensure the $GUNICORN_PATH exist, else gunicorn will not start properly.
+check_gunicorn_or_exit() {
+    if [ ! -e "$GUNICORN_PATH" ]; then
+        echo "The target '$GUNICORN_PATH' was not found. Gunicorn will not start properly. Exiting."
+        exit 1
+    fi
+}
+
+
+# Ensure the application code exist, else gunicorn will not start properly.
+check_application_package_or_exit() {
+    package_location="$APP_DIRECTORY/$PACKAGE_NAME"
+    if [ ! -d $package_location ]; then
+        echo "The application package '$package_location' was not found. Application will not start properly. Exiting."
+        exit 1
+    fi
+}
+
+
+# Ensure $GUI_USER and $GUI_GROUP exist, else gunicorn will not start properly.
+check_orocket_user_and_group_or_exit() {
+    # Check for the existence of $GUI_USER.
+    id -u $GUI_USER &> /dev/null
+    if [ ! "$?" -eq "0" ]; then
+        echo "User '$GUI_USER' does not appear to exist. This user is needed to run $DISPLAY_NAME. Exiting."
+        exit 1
+    fi
+
+    # Check for the existence of $GUI_GROUP.
+    id -g $GUI_GROUP &> /dev/null
+    if [ ! "$?" -eq "0" ]; then
+        echo "Group '$GUI_GROUP' does not appear to exist. This group is needed to run $DISPLAY_NAME. Exiting."
+        exit 1
+    fi
+}
+
+# Count, and report on, the number of Gunicorn processes currently running.
+count_procs() {
+    count=$(ps -ef | egrep -c "[g]unicorn.*$APP")
+    echo "$count processes running."
+}
+
+
+########################
+# PROCESS COMMAND LINE #
+########################
 case "$1" in
-  'start')  ACTION='start' 
-            ;;
-  'stop')   ACTION='stop'  
-            ;;
-  'restart') ACTION='restart'
-            ;;
-  *) usage
-     ;;
+    'start')
+        start
+    ;;
+    'stop')
+        stop
+    ;;
+    'restart')
+        restart
+    ;;
+    'status')
+        status
+    ;;
+    *)
+        usage
+    ;;
 esac
 
-if [ "$ACTION" == "start" ];
-then
-
-  if [ ! -z "$2" ];
-  then
-
-      PORT=${INSTANCES[$2]}
-
-      if [ -z ${PORT} ];
-      then
-          echo "ERROR: Unknown service $2 - please double check the instances.cfg file"
-          exit 1
-      else
-          echo "Starting service $2 on port $PORT"
-          start $2 ${PORT}
-      fi
-
-      exit 1
-
-  else
-
-      echo "INFO: No service specified - starting all.."
-
-      for a in ${!INSTANCES[@]}
-      do
-          start ${a} ${INSTANCES[$a]}
-      done
-
-      exit 1
-
-  fi
-
-elif [ "$ACTION" == "stop" ];
-then
-
-  if [ ! -z "$2" ];
-  then
-
-      app=$2
-
-      PORT=${INSTANCES[$app]}
-
-      if [ -z ${PORT} ];
-      then
-          echo "ERROR: Unknown service $app - please double check the instances.cfg file"
-          exit 1
-      else
-          echo "Stopping service $app on port $PORT"
-          stop ${app}
-      fi
-
-  else
-
-      echo "No service specified, stopping all Viper Gunicorn instances.."
-
-      for a in ${!INSTANCES[@]}
-      do
-
-          stop ${a}
-
-      done
-
-      exit 1
-
-  fi
-
-fi
+exit "$RV"
