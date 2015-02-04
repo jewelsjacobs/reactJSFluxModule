@@ -19,7 +19,7 @@ DISPLAY_NAME='GUI'
 ERROR_LOGFILE="/var/log/gunicorn/error_$APP.log"
 GUNICORN_PATH='/root/.virtualenvs/current/bin/gunicorn'
 PACKAGE_NAME='gui'
-PIDFILE="/var/run/$APP.pid"
+PIDFILE="/var/run/gunicorn_$APP.pid"
 PORT='8081'
 
 # Not currently being used because gui code attempts a top-level import which requires access to
