@@ -81,4 +81,4 @@ React's JSX syntax into standard JavaScript with [Reactify](https://github.com/a
               js/
                 bower_components/         # bower components
 
-
+[![Support via Gratipay](https://cdn.rawgit.com/gratipay/gratipay-badge/2.3.0/dist/gratipay.png)](https://gratipay.com/jewelsjacobs/)
