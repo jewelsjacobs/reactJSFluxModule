@@ -81,4 +81,4 @@ React's JSX syntax into standard JavaScript with [Reactify](https://github.com/a
               js/
                 bower_components/         # bower components
 
-<img src="//img.shields.io/gratipay/jewelsjacobs.svg">
+
