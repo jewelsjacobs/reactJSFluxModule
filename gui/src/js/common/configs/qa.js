@@ -5,6 +5,6 @@
 
 module.exports = {
   api: {
-    "apiv2": "http://qaapihost"
+    "api": "http://qaapihost"
   }
 };
