@@ -5,6 +5,6 @@
 
 module.exports = {
   api: {
-    "apiv2": "http://qaapi0.dev.objectrocket.com:8082"
+    "apiv2": "http://qaapihost"
   }
 };
