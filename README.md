@@ -35,7 +35,6 @@ From the root project directory run these commands from the command line:
 # Using Mock Data
 To use mock data as opposed to a live API (handy for layouts and API blocking issues),
 there is a mock data server available.
-Information is here: https://github.com/objectrocket/gui-mock-data 
 
 * Navigate to app dir and `$ gulp --type mock` in the cli to use
 
@@ -81,7 +80,4 @@ React's JSX syntax into standard JavaScript with [Reactify](https://github.com/a
                 moduleName.js             # browserfied react / flux concat file
               js/
                 bower_components/         # bower components
-            templates/
-              jinjaTemplateModuleFolder/
-                jinjaTemplateModuleName.html   # jinja module template
 
